@@ -1250,3 +1250,59 @@ body.floating-nav {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* =====================================================
+   🌍 GLOBAL POPUP THEME (LIGHT & DARK MODE)
+   ===================================================== */
+/* Default Light Mode for ALL Popups */
+.mat-mdc-dialog-container .mdc-dialog__surface, 
+.mat-dialog-container,
+.mat-mdc-dialog-surface {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Dark Mode Override for ALL Popups */
+.dark-mode {
+  .mat-mdc-dialog-container .mdc-dialog__surface,
+  .mat-mdc-dialog-surface,
+  .mat-dialog-container {
+    background: linear-gradient(145deg, #0f172a, #1e293b) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+/* 📊 STANDARD DATATABLE HEIGHT IN POPUPS (GLOBAL) */
+.mat-mdc-dialog-content, mat-dialog-content {
+  .items-table-container, 
+  .table-responsive,
+  .mat-elevation-z8,
+  .table-container {
+    max-height: 400px !important; /* Standard Height Fix */
+    overflow-y: auto !important;
+    border-radius: 12px !important;
+    
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+  }
+}
+
+/* Polish Action Buttons in Popups Globally */
+.mat-mdc-dialog-actions, mat-dialog-actions {
+    padding: 15px 24px 20px !important;
+    
+    button.mat-mdc-flat-button, 
+    button.mat-mdc-raised-button {
+        height: 42px !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+}
