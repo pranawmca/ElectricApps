@@ -3,6 +3,7 @@
   --dg-border: #e2e8f0;
   --dg-header-bg: #f8fafc;
   --dg-row-hover: #f1f5f9;
+  --dg-card-bg: #ffffff;
   --dg-text-main: #334155;
   --dg-text-muted: #64748b;
   --dg-row-height: 42px;
@@ -615,7 +616,7 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
       position: sticky !important;
       left: 0;
       z-index: 20;
-      background: white !important;
+      background: var(--dg-card-bg, white) !important;
       width: 170px !important;
       min-width: 170px !important;
       max-width: 170px !important;
@@ -624,7 +625,7 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
       position: sticky !important;
       left: 170px;
       z-index: 20;
-      background: white !important;
+      background: var(--dg-card-bg, white) !important;
       width: 140px !important;
       min-width: 140px !important;
       max-width: 140px !important;
@@ -637,7 +638,7 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
   }
 
   tr:hover td:nth-child(1), tr:hover td:nth-child(2) {
-    background: #f1f5f9 !important;
+    background: var(--dg-row-hover, #f1f5f9) !important;
   }
 
   th:last-child {
@@ -1212,7 +1213,8 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
   /* Reset local variables for Dark Theme */
   --dg-border: rgba(255, 255, 255, 0.1);
   --dg-header-bg: #0f172a;
-  --dg-row-hover: rgba(255, 255, 255, 0.05);
+  --dg-row-hover: rgba(59, 130, 246, 0.15); /* DARK POLISHED SAPPHIRE HOVER */
+  --dg-card-bg: #1e293b;
   --dg-text-main: #ffffff;
   --dg-text-muted: rgba(255, 255, 255, 0.5);
 
@@ -1310,15 +1312,38 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
     
     .child-table {
        th { background: #0f172a !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
-       td { 
-           background: #1e293b !important; 
+       
+       tbody tr {
+         background-color: #1e293b !important;
+         
+         td { 
+           background-color: #1e293b !important; 
            color: #ffffff !important; 
            border-bottom-color: rgba(255, 255, 255, 0.05) !important; 
-           &:nth-child(1), &:nth-child(2) { background: #1e293b !important; }
-       }
-       tr:hover td { 
-           background: rgba(255, 255, 255, 0.04) !important; 
-           &:nth-child(1), &:nth-child(2) { background: rgba(255, 255, 255, 0.06) !important; }
+           
+           .po-link { color: #ffffff !important; font-weight: 600; }
+           
+           /* Sticky columns override */
+           &:nth-child(1), &:nth-child(2) { background-color: #1e293b !important; }
+         }
+
+         /* ⚡ SAPPHIRE HOVER OVERRIDE (Date & PO columns excluded as requested) ⚡ */
+         &:hover, &.hover {
+           background-color: #1e293b !important;
+           
+           td { 
+             background-color: #1e1b4b !important; /* Deep Indigo 900 for rest of row */
+             color: #ffffff !important;
+             
+             /* ❌ NO HOVER for Date & PO Reference columns (Matched with normal columns) ❌ */
+             &:nth-child(1), &:nth-child(2) { 
+                background: #1e293b !important; /* Switch to solid 'background' to beat light-mode !important */
+             }
+             
+             .po-link { color: #ffffff !important; }
+             mat-icon { color: #ffffff !important; }
+           }
+         }
        }
     }
 
