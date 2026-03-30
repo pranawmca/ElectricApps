@@ -642,17 +642,31 @@
     tr.mat-mdc-row:hover, 
     tr.mat-row:hover,
     tr.row-hover:hover {
-      background-color: rgba(255, 255, 255, 0.08) !important;
-      background: rgba(255, 255, 255, 0.08) !important;
+      background-color: rgba(59, 130, 246, 0.15) !important;
+      background: rgba(59, 130, 246, 0.15) !important;
       box-shadow: inset 4px 0 0 #3b82f6 !important;
+      cursor: pointer;
       
       td { 
         background: transparent !important; 
-        background-color: transparent !important;
-        color: #ffffff !important;
         font-weight: 500 !important;
+        
+        /* 1. Supplier & Received Date (and others except badges) stay white on hover */
+        &:not(.mat-column-status):not(.mat-column-paymentStatus) {
+           color: #ffffff !important;
+           b, strong, span, mat-icon { color: #ffffff !important; }
+        }
+
+        /* 2. PO Link specific hover style */
+        .po-link { color: #60a5fa !important; text-decoration: underline; }
+
       }
     }
+
+    /* Standard colors for links/text in dark mode (non-hover) */
+    .po-link { color: #60a5fa !important; }
+    td b, td strong { color: #ffffff !important; }
+    td { color: rgba(255, 255, 255, 0.8) !important; }
 
     .row-detail-container {
       background: #0f172a !important;

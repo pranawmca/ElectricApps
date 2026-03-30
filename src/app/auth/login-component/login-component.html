@@ -3,8 +3,8 @@
 
   <mat-card class="login-card">
     <div class="login-header">
-      <h2>{{ resetPasswordMode ? 'Reset Password' : (forgotPasswordMode ? 'Forgot Password' : (changePasswordMode ? 'Change Password' : 'Welcome Back')) }}</h2>
-      <p>{{ resetPasswordMode ? 'Enter your new password' : (forgotPasswordMode ? 'Enter your email to receive a reset token' : (changePasswordMode ? 'Update your credentials' : 'Enter your credentials to access the portal')) }}</p>
+      <h2>{{ resetPasswordMode ? 'Reset Password' : (forgotPasswordMode ? 'Forgot Password' : (changePasswordMode ? 'Change Password' : (companyName ? 'Welcome to ' + companyName : welcomeMessage))) }}</h2>
+      <p>{{ resetPasswordMode ? 'Enter your new password' : (forgotPasswordMode ? 'Enter your email to receive a reset token' : (changePasswordMode ? 'Update your credentials' : (companyTagline || 'Enter your credentials to access the portal'))) }}</p>
     </div>
 
     <mat-card-content>

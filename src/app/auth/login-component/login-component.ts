@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { finalize } from 'rxjs';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MaterialModule } from '../../shared/material/material/material-module';
@@ -9,6 +10,7 @@ import { LoginDto } from '../../core/models/user.model';
 import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../shared/components/status-dialog-component/status-dialog-component';
 import { PermissionService } from '../../core/services/permission.service';
+import { CompanyService } from '../../features/company/services/company.service';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +25,9 @@ export class LoginComponent implements OnInit {
   forgotPasswordForm: FormGroup;
   resetPasswordForm: FormGroup;
 
+  companyName = '';
+  companyTagline = '';
+
   @ViewChild('emailInputField') emailInputField!: ElementRef;
   @ViewChild('passwordInputField') passwordInputField!: ElementRef;
 
@@ -32,9 +37,18 @@ export class LoginComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
+  get welcomeMessage(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
   private permissionService = inject(PermissionService);
+  private companyService = inject(CompanyService);
+  private titleService = inject(Title);
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
@@ -78,6 +92,9 @@ export class LoginComponent implements OnInit {
       });
     }
 
+    // Dynamic Tab Title Fallback
+    this.titleService.setTitle(this.welcomeMessage + ' - Login');
+
     // Handle browser autofill which might not trigger standard input events
     const autofillCheckInterval = setInterval(() => {
       let changed = false;
@@ -100,6 +117,19 @@ export class LoginComponent implements OnInit {
 
     // Stop checking after 6 seconds to save resources
     setTimeout(() => clearInterval(autofillCheckInterval), 6000);
+
+    // Fetch Company Profile for Dynamic Title
+    this.companyService.getCompanyProfile().subscribe({
+      next: (profile) => {
+        if (profile) {
+          this.companyName = profile.name;
+          this.companyTagline = profile.tagline;
+          this.titleService.setTitle(this.companyTagline || this.companyName || 'ElectricApps');
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => console.warn('Failed to load company profile for login title', err)
+    });
   }
 
   toggleChangePasswordMode() {
