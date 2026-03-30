@@ -14,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../features/dashboard/services/notification.service';
 import { NotificationDto } from '../../features/dashboard/services/notification.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { LanguageService } from '../../core/services/language.service';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { LoadingService } from '../../core/services/loading.service';
@@ -48,6 +49,7 @@ export class MainLayoutComponent implements OnInit {
   private dialog = inject(MatDialog);
   private titleService = inject(Title);
   private document = inject(DOCUMENT);
+  private languageService = inject(LanguageService);
 
   isMobile = false;
   isDarkMode = false;
@@ -70,6 +72,20 @@ export class MainLayoutComponent implements OnInit {
   isSidenavOpened = true; // Track sidebar state
   isGlassMode = false;
   isCompactTable = false;
+
+
+  translate(key: string): string {
+    return this.languageService.translate(key);
+  }
+
+  get isHindiMode() {
+    return this.languageService.isHindiMode;
+  }
+
+  toggleLanguage(): void {
+    this.languageService.setHindiMode(!this.isHindiMode);
+    this.cdr.detectChanges();
+  }
 
   availableThemes: { name: string, label: string, color: string }[] = [];
 

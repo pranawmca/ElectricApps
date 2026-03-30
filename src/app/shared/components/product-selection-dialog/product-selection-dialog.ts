@@ -10,6 +10,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { finalize, Subject, debounceTime, distinctUntilChanged, takeUntil, firstValueFrom, timeout, catchError, of, Observable, startWith, map, switchMap } from 'rxjs';
 import { ProductLookUpService } from '../../../features/master/product/service/product.lookup.sercice';
 import { LoadingService } from '../../../core/services/loading.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-product-selection-dialog',
@@ -27,15 +28,15 @@ import { LoadingService } from '../../../core/services/loading.service';
       </div>
 
       <div class="dialog-header" [attr.aria-hidden]="isLoading">
-        <h2 class="title">Select Products</h2>
+        <h2 class="title">{{translate('Select Products')}}</h2>
         <button class="header-close-btn" (click)="close()" [disabled]="isLoading"><mat-icon>close</mat-icon></button>
       </div>
 
       <div class="search-bar d-flex gap-3 align-items-center flex-wrap" [attr.aria-hidden]="isLoading">
         <!-- Category Autocomplete -->
         <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
-          <mat-label>Category</mat-label>
-          <input type="text" matInput [formControl]="categoryCtrl" [matAutocomplete]="autoCat" placeholder="Select Category" [disabled]="isLoading">
+          <mat-label>{{translate('Category')}}</mat-label>
+          <input type="text" matInput [formControl]="categoryCtrl" [matAutocomplete]="autoCat" [placeholder]="translate('Select Category')" [disabled]="isLoading">
           <button mat-icon-button matSuffix *ngIf="categoryCtrl.value" (click)="clearCategory()">
             <mat-icon>clear</mat-icon>
           </button>
@@ -48,8 +49,8 @@ import { LoadingService } from '../../../core/services/loading.service';
 
         <!-- SubCategory Autocomplete -->
         <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
-          <mat-label>Sub Category</mat-label>
-          <input type="text" matInput [formControl]="subCategoryCtrl" [matAutocomplete]="autoSubCat" placeholder="Select Sub Category" [disabled]="isLoading">
+          <mat-label>{{translate('Sub Category')}}</mat-label>
+          <input type="text" matInput [formControl]="subCategoryCtrl" [matAutocomplete]="autoSubCat" [placeholder]="translate('Select Sub Category')" [disabled]="isLoading">
           <button mat-icon-button matSuffix *ngIf="subCategoryCtrl.value" (click)="clearSubCategory()">
             <mat-icon>clear</mat-icon>
           </button>
@@ -62,8 +63,8 @@ import { LoadingService } from '../../../core/services/loading.service';
 
         <!-- Product Autocomplete -->
         <mat-form-field appearance="outline" class="flex-grow-1 filter-field" subscriptSizing="dynamic">
-          <mat-label>Product Name / SKU</mat-label>
-          <input type="text" matInput [formControl]="productCtrl" [matAutocomplete]="autoProd" placeholder="Search Product..." [disabled]="isLoading" (keyup.enter)="loadProducts()">
+          <mat-label>{{translate('Product Name / SKU')}}</mat-label>
+          <input type="text" matInput [formControl]="productCtrl" [matAutocomplete]="autoProd" [placeholder]="translate('Search Product...')" [disabled]="isLoading" (keyup.enter)="loadProducts()">
           <button mat-icon-button matSuffix *ngIf="productCtrl.value" (click)="clearProduct()">
             <mat-icon>clear</mat-icon>
           </button>
@@ -80,7 +81,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 
         <button mat-stroked-button color="primary" class="bulk-select-btn" (click)="selectAllMatching()" 
                 [disabled]="isLoading || totalRecords <= dataSource.data.length">
-           Select All ({{totalRecords}})
+           {{translate('Select All')}} ({{totalRecords}})
         </button>
       </div>
 
@@ -103,34 +104,34 @@ import { LoadingService } from '../../../core/services/loading.service';
           </ng-container>
 
           <ng-container matColumnDef="sku">
-            <th mat-header-cell *matHeaderCellDef class="sku-header"> SKU </th>
+            <th mat-header-cell *matHeaderCellDef class="sku-header"> {{translate('SKU')}} </th>
             <td mat-cell *matCellDef="let row" class="sku-cell"> {{row.sku}} </td>
           </ng-container>
 
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef> Product Name </th>
-            <td mat-cell *matCellDef="let row" class="name-cell"> {{row.productName}} </td>
+            <th mat-header-cell *matHeaderCellDef> {{translate('PRODUCT NAME')}} </th>
+            <td mat-cell *matCellDef="let row" class="name-cell"> {{translate(row.productName)}} </td>
           </ng-container>
 
           <ng-container matColumnDef="unit">
-            <th mat-header-cell *matHeaderCellDef class="unit-header"> Unit </th>
+            <th mat-header-cell *matHeaderCellDef class="unit-header"> {{translate('UNIT')}} </th>
             <td mat-cell *matCellDef="let row" class="unit-cell"> 
-               <span class="unit-badge text-secondary">{{row.unit || 'PCS'}}</span>
+               <span class="unit-badge text-secondary">{{translate(row.unit || 'PCS')}}</span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="category">
-            <th mat-header-cell *matHeaderCellDef class="cat-header"> Category </th>
+            <th mat-header-cell *matHeaderCellDef class="cat-header"> {{translate('CATEGORY')}} </th>
             <td mat-cell *matCellDef="let row" class="cat-cell"> 
-               <span class="category-badge">{{row.categoryName}}</span>
+               <span class="category-badge">{{translate(row.categoryName)}}</span>
             </td>
           </ng-container>
           
           <ng-container matColumnDef="location">
-            <th mat-header-cell *matHeaderCellDef class="location-header"> Location (Rack) </th>
+            <th mat-header-cell *matHeaderCellDef class="location-header"> {{translate('LOCATION (RACK)')}} </th>
             <td mat-cell *matCellDef="let row" class="location-cell"> 
                <div class="location-info">
-                 <span class="warehouse-text">{{row.defaultWarehouseName || 'N/A'}}</span>
+                 <span class="warehouse-text">{{translate(row.defaultWarehouseName || 'N/A')}}</span>
                  <span class="rack-badge" *ngIf="row.defaultRackName">{{row.defaultRackName}}</span>
                </div>
             </td>
@@ -144,35 +145,35 @@ import { LoadingService } from '../../../core/services/loading.service';
           </ng-container>
 
           <ng-container matColumnDef="stock">
-            <th mat-header-cell *matHeaderCellDef> Stock </th>
+            <th mat-header-cell *matHeaderCellDef> {{translate('STOCK')}} </th>
             <td mat-cell *matCellDef="let row"> 
                 <span class="stock-badge-inline" [class.danger]="row.currentStock <= 0" [class.success]="row.currentStock > 0">
-                  {{row.currentStock > 0 ? row.currentStock : 'Out of Stock'}}
+                  {{row.currentStock > 0 ? (row.currentStock | number:'1.0-2') + ' ' + translate(row.unit || 'PCS') : translate('Out of Stock')}}
                 </span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="expiry">
-            <th mat-header-cell *matHeaderCellDef> Expiry Track </th>
+            <th mat-header-cell *matHeaderCellDef> {{translate('EXPIRY TRACK')}} </th>
             <td mat-cell *matCellDef="let row"> 
                 <span class="expiry-badge" [class.required]="row.isExpiryRequired" [class.not-required]="!row.isExpiryRequired">
                   <mat-icon inline="true">{{row.isExpiryRequired ? 'check_circle' : 'cancel'}}</mat-icon>
-                  {{row.isExpiryRequired ? 'Required' : 'No'}}
+                  {{row.isExpiryRequired ? translate('Required') : translate('No')}}
                 </span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef> Status </th>
+            <th mat-header-cell *matHeaderCellDef> {{translate('STATUS')}} </th>
             <td mat-cell *matCellDef="let row">
               @if (isAlreadyInList(row.id)) {
-                <span class="status-badge added">Already Added</span>
+                <span class="status-badge added">{{translate('Already Added')}}</span>
               } @else if (row.currentStock <= 0) {
-                <span class="status-badge na">N/A</span>
+                <span class="status-badge na">{{translate('N/A')}}</span>
               } @else if (isExpired(row)) {
-                <span class="status-badge expired">EXPIRED</span>
+                <span class="status-badge expired">{{translate('EXPIRED')}}</span>
               } @else {
-                <span class="status-badge available">Available</span>
+                <span class="status-badge available">{{translate('AVAILABLE')}}</span>
               }
             </td>
           </ng-container>
@@ -194,14 +195,14 @@ import { LoadingService } from '../../../core/services/loading.service';
         <div class="selection-info">
           <mat-icon class="info-icon">check_circle</mat-icon>
           <span class="count">{{selection.selected.length}}</span>
-          <span class="text">products selected</span>
+          <span class="text">{{translate('products selected')}}</span>
         </div>
         <div class="action-buttons">
           <button mat-raised-button class="back-btn" (click)="close()" [disabled]="isLoading">
-            <mat-icon>close</mat-icon> Cancel
+            <mat-icon>close</mat-icon> {{translate('Cancel')}}
           </button>
           <button mat-raised-button class="save-btn" [disabled]="selection.isEmpty() || isLoading" (click)="addSelected()">
-            <mat-icon>add_shopping_cart</mat-icon> Add Selected Products
+            <mat-icon>add_shopping_cart</mat-icon> {{translate('Add Selected Products')}}
           </button>
         </div>
       </div>
@@ -696,6 +697,11 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private lookupService = inject(ProductLookUpService);
   private loadingService = inject(LoadingService);
+  private languageService = inject(LanguageService);
+
+  translate(key: string): string {
+    return this.languageService.translate(key);
+  }
   private cdr = inject(ChangeDetectorRef);
   private dialogRef = inject(MatDialogRef<ProductSelectionDialogComponent>);
   public data = inject(MAT_DIALOG_DATA);

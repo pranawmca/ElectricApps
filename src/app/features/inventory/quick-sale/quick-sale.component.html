@@ -2,26 +2,26 @@
   <div class="header-section">
     <div class="title-group">
       <mat-icon class="title-icon">sell</mat-icon>
-      <h1>Quick Sale</h1>
-      <p class="subtitle">Direct sale entry with automatic stock deduction</p>
+      <h1>{{languageService.translate('Quick Sale')}}</h1>
+      <p class="subtitle">{{languageService.translate('Direct sale entry with automatic stock deduction')}}</p>
     </div>
     <div class="actions">
       <!-- Active Scanner Status -->
       <div class="barcode-status" [class.scanning]="isScanning">
         <mat-icon>{{ isScanning ? 'settings_overscan' : 'barcode_reader' }}</mat-icon>
         <div class="text-container">
-          <span class="status-label">{{ isScanning ? 'Scanning...' : 'Scanner Active' }}</span>
+          <span class="status-label">{{ languageService.translate(isScanning ? 'Scanning...' : 'Scanner Active') }}</span>
           <span class="last-scanned" *ngIf="lastScannedCode">{{ lastScannedCode }}</span>
         </div>
       </div>
       <button mat-flat-button color="primary" class="save-btn" (click)="save()" [disabled]="saleForm.invalid || isSaving">
         <mat-icon *ngIf="!isSaving">check_circle</mat-icon>
         <mat-spinner diameter="20" *ngIf="isSaving"></mat-spinner>
-        <span>Confirm Sale & Deduct Stock</span>
+        <span>{{languageService.translate('Confirm Sale & Deduct Stock')}}</span>
       </button>
       <button mat-stroked-button (click)="router.navigate(['/app/quick-inventory/sale/list'])" [disabled]="isSaving">
         <mat-icon>close</mat-icon>
-        <span>Cancel</span>
+        <span>{{languageService.translate('Cancel')}}</span>
       </button>
     </div>
   </div>
@@ -32,7 +32,7 @@
         <div class="col-cust">
           <div class="customer-field-container">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Customer Source*</mat-label>
+              <mat-label>{{languageService.translate('Customer Source*')}}</mat-label>
               <input type="text" matInput [formControl]="customerSearchCtrl" [matAutocomplete]="auto">
               
               <button *ngIf="customerSearchCtrl.value && !isLoadingCustomers" matSuffix mat-icon-button aria-label="Clear" (click)="clearCustomer()" type="button">
@@ -54,7 +54,7 @@
         </div>
         <div class="col-status">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Order Status*</mat-label>
+            <mat-label>{{languageService.translate('Order Status*')}}</mat-label>
             <mat-select formControlName="status">
               <mat-option value="Draft">📝 Draft</mat-option>
               <mat-option value="Confirmed">✅ Confirmed</mat-option>
@@ -63,7 +63,7 @@
         </div>
         <div class="col-date">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Sale Date</mat-label>
+            <mat-label>{{languageService.translate('Sale Date')}}</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="date" [min]="minDate">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
@@ -71,7 +71,7 @@
         </div>
         <div class="col-date">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Exp. Delivery Date</mat-label>
+            <mat-label>{{languageService.translate('Exp. Delivery Date')}}</mat-label>
             <input matInput [matDatepicker]="expPicker" formControlName="expectedDeliveryDate" [min]="minDate">
             <mat-datepicker-toggle matIconSuffix [for]="expPicker"></mat-datepicker-toggle>
             <mat-datepicker #expPicker></mat-datepicker>
@@ -82,7 +82,7 @@
       <div class="row">
         <div class="col-8">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Sale Remarks</mat-label>
+            <mat-label>{{languageService.translate('Sale Remarks')}}</mat-label>
             <input type="text" matInput formControlName="remarks" placeholder="Notes for this sale...">
           </mat-form-field>
         </div>
@@ -96,24 +96,24 @@
 
       <div class="items-section">
         <div class="section-title">
-             <span>Items to Sell</span>
+             <span>{{languageService.translate('Items to Sell')}}</span>
              <button mat-flat-button color="primary" (click)="openProductDialog()">
-                 <mat-icon>search</mat-icon> Search & Add Products
+                 <mat-icon>search</mat-icon> {{languageService.translate('Search & Add Products')}}
              </button>
         </div>
 
         <div class="items-scroll-container">
           <div class="items-grid" formArrayName="items">
             <div class="item-header">
-              <div class="col-product">Product Description*</div>
-              <div class="col-qty">Qty/Pkt/kg</div>
-              <div class="col-unit">Unit</div>
-              <div class="col-rate">Rate (₹)</div>
-              <div class="col-disc">Disc %</div>
-              <div class="col-gst">GST %</div>
-              <div class="col-mfg">Mfg Date</div>
-              <div class="col-exp">Exp Date</div>
-              <div class="col-total">Total (₹)</div>
+              <div class="col-product">{{languageService.translate('Product Description*')}}</div>
+              <div class="col-qty">{{languageService.translate('Qty/Pkt/kg')}}</div>
+              <div class="col-unit">{{languageService.translate('Unit')}}</div>
+              <div class="col-rate">{{languageService.translate('Rate (₹)')}}</div>
+              <div class="col-disc">{{languageService.translate('Disc %')}}</div>
+              <div class="col-gst">{{languageService.translate('GST %')}}</div>
+              <div class="col-mfg">{{languageService.translate('Mfg Date')}}</div>
+              <div class="col-exp">{{languageService.translate('Exp Date')}}</div>
+              <div class="col-total">{{languageService.translate('Total (₹)')}}</div>
               <div class="col-action"></div>
             </div>
 
@@ -190,35 +190,19 @@
           <div class="summary-section">
               <div class="summary-box">
                   <div class="summary-row">
-                      <span>Sub Total</span>
+                      <span>{{languageService.translate('Sub Total')}}</span>
                       <span class="value">{{ subTotal | currency:'INR':'symbol':'1.2-2' }}</span>
                   </div>
                   <div class="summary-row">
-                      <span>Total Tax (GST):</span>
+                      <span>{{languageService.translate('Total Tax (GST):')}}</span>
                       <span class="value tax-value">
                           {{ totalTax | currency:'INR':'symbol':'1.2-2' }}
                           <small class="tax-type-tag">({{ saleForm.get('taxType')?.value === 'local' ? 'CGST+SGST' : 'IGST' }})</small>
                       </span>
                   </div>
 
-                  <div class="summary-row extra-tax-row">
-                      <span class="label">TDS (%):</span>
-                      <div class="tax-input-group">
-                          <input matInput type="number" formControlName="tdsPercent" class="small-tax-input" placeholder="0">
-                          <span class="tax-calc-val info-text">-{{ tdsAmount | currency:'INR':'symbol':'1.2-2' }}</span>
-                      </div>
-                  </div>
-
-                  <div class="summary-row extra-tax-row">
-                      <span class="label">TCS (%):</span>
-                      <div class="tax-input-group">
-                          <input matInput type="number" formControlName="tcsPercent" class="small-tax-input" placeholder="0">
-                          <span class="tax-calc-val warn-text">+{{ tcsAmount | currency:'INR':'symbol':'1.2-2' }}</span>
-                      </div>
-                  </div>
-
                   <div class="summary-row grand-total">
-                      <span>Grand Total</span>
+                      <span>{{languageService.translate('Grand Total')}}</span>
                       <span class="value">{{ finalGrandTotal | currency:'INR':'symbol':'1.2-2' }}</span>
                   </div>
               </div>

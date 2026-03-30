@@ -16,9 +16,6 @@
 
     <div class="order-title-group">
       <h2>RETURN #{{data.returnNumber}}</h2>
-      <div class="status-pill" [ngClass]="(data.status === 'Completed' || data.status === 'Confirmed') ? 'success' : 'fail'">
-        {{data.status}}
-      </div>
     </div>
 
     <button mat-icon-button mat-dialog-close class="close-btn">

@@ -25,6 +25,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { ProductForm } from '../../master/product/product-form/product-form';
 import { FinanceService } from '../../finance/service/finance.service';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
     selector: 'app-quick-sale',
@@ -62,6 +63,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
     private cdr = inject(ChangeDetectorRef);
     private financeService = inject(FinanceService);
     private sharedPrintService = inject(SharedPrintService);
+    public languageService = inject(LanguageService);
     private destroy$ = new Subject<void>();
 
     saleOrderId: number | null = null;
