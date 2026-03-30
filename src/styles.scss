@@ -1094,3 +1094,50 @@ html.dark-mode {
     }
   }
 }
+
+
+/* =====================================================
+   GLOBAL DARK MODE PAGINATOR SELECTIVE FIX
+   ===================================================== */
+.dark-mode {
+  .mat-mdc-paginator, .mat-paginator {
+    background: transparent !important;
+    color: #ffffff !important;
+
+    .mat-mdc-paginator-container {
+      color: #ffffff !important;
+    }
+
+    /* ⚡ TARGET ONLY PAGINATOR NAVIGATION BUTTONS ⚡ */
+    .mat-mdc-paginator-navigation-button, 
+    .mat-paginator-navigation-button {
+      color: #ffffff !important;
+      opacity: 1 !important;
+
+      .mat-mdc-paginator-icon, 
+      .mat-paginator-icon,
+      mat-icon, 
+      svg, 
+      path {
+        fill: #ffffff !important;
+        color: #ffffff !important;
+        opacity: 1 !important;
+      }
+
+      &:disabled, &.mat-mdc-button-disabled {
+        opacity: 0.25 !important;
+        .mat-mdc-paginator-icon, svg, mat-icon, path {
+          fill: rgba(255, 255, 255, 0.3) !important;
+        }
+      }
+    }
+
+    .mat-mdc-paginator-page-size-label,
+    .mat-mdc-paginator-range-label {
+      color: #ffffff !important;
+    }
+    
+    .mat-mdc-select-value-text { color: #ffffff !important; }
+    .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+  }
+}

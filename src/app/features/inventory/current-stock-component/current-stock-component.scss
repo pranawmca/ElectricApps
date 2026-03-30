@@ -1349,8 +1349,27 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
 
     .mat-mdc-paginator {
       background: #0f172a !important;
-      color: rgba(255, 255, 255, 0.7) !important;
-      * { color: rgba(255, 255, 255, 0.7) !important; }
+      color: #ffffff !important;
+      opacity: 1 !important;
+      
+      .mat-mdc-paginator-container {
+        color: #ffffff !important;
+        opacity: 1 !important;
+      }
+      
+      /* ⚡ LUMINOUS PAGINATOR ICONS ⚡ */
+      .mat-mdc-icon-button {
+          color: #ffffff !important;
+          mat-icon, svg { 
+            fill: #ffffff !important; 
+            color: #ffffff !important; 
+            opacity: 1 !important;
+          }
+          &[disabled] { opacity: 0.3 !important; }
+      }
+      
+      .mat-mdc-select-value-text { color: #ffffff !important; }
+      .mat-mdc-select-arrow svg { fill: #ffffff !important; }
       border-top-color: rgba(255, 255, 255, 0.1) !important;
     }
 

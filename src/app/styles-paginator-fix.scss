@@ -1,0 +1,59 @@
+
+/* =====================================================
+   GLOBAL DARK MODE PAGINATOR PERMANENT FIX
+   ===================================================== */
+html.dark-mode {
+  .mat-mdc-paginator, .mat-paginator {
+    background: transparent !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+
+    .mat-mdc-paginator-container {
+      color: #ffffff !important;
+      opacity: 1 !important;
+    }
+
+    /* ⚡ LUMINOUS NAVIGATION BUTTONS ⚡ */
+    .mat-mdc-paginator-navigation-button, 
+    .mat-paginator-navigation-button {
+      color: #ffffff !important;
+      opacity: 1 !important;
+
+      /* Target all possible icon representations */
+      .mat-mdc-paginator-icon, 
+      .mat-paginator-icon,
+      mat-icon, 
+      svg, 
+      path {
+        fill: #ffffff !important;
+        fill: white !important;
+        color: #ffffff !important;
+        color: white !important;
+        opacity: 1 !important;
+      }
+
+      &:disabled, &[disabled], &.mat-mdc-button-disabled {
+        opacity: 0.25 !important;
+        cursor: not-allowed;
+        
+        .mat-mdc-paginator-icon, svg, mat-icon, path {
+          fill: rgba(255, 255, 255, 0.3) !important;
+          color: rgba(255, 255, 255, 0.3) !important;
+        }
+      }
+    }
+
+    /* Page size & range labels */
+    .mat-mdc-paginator-page-size-label,
+    .mat-mdc-paginator-range-label,
+    .mat-paginator-page-size-label,
+    .mat-paginator-range-label {
+      color: #ffffff !important;
+      opacity: 1 !important;
+    }
+
+    /* Dropdown value and arrow */
+    .mat-mdc-select-value-text { color: #ffffff !important; }
+    .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+  }
+}

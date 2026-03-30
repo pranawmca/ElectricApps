@@ -476,25 +476,32 @@
     /* ⚡ PAGINATOR POLISH (ULTRA NUCLEAR FORCE) ⚡ */
     ::ng-deep .mat-mdc-paginator {
         background: #1e293b !important;
-        color: rgba(255, 255, 255, 0.8) !important;
+        color: #ffffff !important;
+        opacity: 1 !important;
         
+        .mat-mdc-paginator-container {
+          color: #ffffff !important;
+          opacity: 1 !important;
+        }
+
         .mat-mdc-paginator-navigation-button { 
             color: #ffffff !important; 
+            opacity: 1 !important;
             
             .mat-mdc-paginator-icon, svg, mat-icon, path { 
                 fill: #ffffff !important; 
-                fill: white !important;
                 color: #ffffff !important; 
+                opacity: 1 !important;
             }
             &.mat-mdc-button-disabled { 
                 opacity: 0.2 !important; 
-                .mat-mdc-paginator-icon, svg, mat-icon, path { fill: rgba(255, 255, 255, 0.3) !important; }
             }
         }
         
         .mat-mdc-paginator-page-size-label, 
         .mat-mdc-paginator-range-label { 
-            color: rgba(255, 255, 255, 0.7) !important; 
+            color: #ffffff !important; 
+            opacity: 1 !important;
         }
         
         .mat-mdc-select-value-text { color: #ffffff !important; }
