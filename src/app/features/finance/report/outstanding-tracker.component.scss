@@ -495,3 +495,89 @@
         background-color: #ede7f6;
     }
 }
+
+/* ⚡ OUTSTANDING TRACKER DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .page-header {
+        h1 { color: #f87171 !important; }
+        .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .stat-card {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        
+        .stat-info .label { color: rgba(255, 255, 255, 0.5) !important; }
+        .stat-info .value { color: #ffffff !important; }
+        
+        &.total {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            border-left-color: #f87171 !important;
+            .stat-icon { background: rgba(248, 113, 113, 0.1) !important; mat-icon { color: #f87171 !important; } }
+        }
+        &.overdue {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            border-left-color: #ef4444 !important;
+            .stat-icon { background: rgba(239, 68, 68, 0.1) !important; mat-icon { color: #ef4444 !important; } }
+            .value { color: #ef4444 !important; }
+        }
+        &.active {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            border-left-color: #60a5fa !important;
+            .stat-icon { background: rgba(96, 165, 250, 0.1) !important; mat-icon { color: #60a5fa !important; } }
+        }
+    }
+
+    .table-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        
+        .title-group {
+            span { color: #ffffff !important; } // "Customer Balances" text color white
+            .grand-total {
+                background: rgba(248, 113, 113, 0.1) !important;
+                border-left-color: #f87171 !important;
+                color: rgba(255, 255, 255, 0.7) !important;
+                .total-amount { color: #f87171 !important; }
+            }
+        }
+
+        .actions-group {
+            .bulk-btn { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+            .history-btn { background: rgba(192, 132, 252, 0.1) !important; color: #c084fc !important; border-color: rgba(192, 132, 252, 0.2) !important; }
+            
+            ::ng-deep {
+                .mat-mdc-text-field-wrapper {
+                    background-color: rgba(255, 255, 255, 0.03) !important;
+                    .mat-mdc-input-element { 
+                        color: #ffffff !important; 
+                        &::placeholder { color: rgba(255, 255, 255, 0.8) !important; }
+                    }
+                    .mat-mdc-form-field-label { color: rgba(255, 255, 255, 0.6) !important; }
+                }
+                .mat-mdc-form-field-icon-suffix .mat-icon { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+        }
+
+        ::ng-deep {
+            .mat-mdc-table, .mat-table { background: #1e293b !important; }
+            .mat-mdc-header-row th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; }
+            .mat-mdc-row td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
+            
+            .so-badge { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+            
+            .header-filter-btn {
+                background: rgba(255, 255, 255, 0.05) !important;
+                mat-icon { color: rgba(255, 255, 255, 0.4) !important; }
+                &:hover { background: rgba(248, 113, 113, 0.1) !important; mat-icon { color: #f87171 !important; } }
+                &.active-filter { background: #f87171 !important; mat-icon { color: #ffffff !important; } }
+            }
+        }
+    }
+
+    .status-badge {
+        &.overdue { background: rgba(239, 68, 68, 0.1) !important; color: #f87171 !important; border-color: rgba(239, 68, 68, 0.2) !important; }
+        &.active { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+    }
+}

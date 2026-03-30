@@ -49,7 +49,7 @@
 
     <mat-checkbox formControlName="isTransportEnabled" style="margin-bottom: 16px;">Include Transport (GTA) Details</mat-checkbox>
 
-    <div *ngIf="invoiceForm.get('isTransportEnabled')?.value" style="background: #fdfdfd; padding: 12px; border: 1px dashed #ccc; margin-bottom: 16px; border-radius: 8px;">
+    <div *ngIf="invoiceForm.get('isTransportEnabled')?.value" class="transport-details-box">
       <h4>Transport Info</h4>
       <div class="grid-2">
         <mat-form-field appearance="outline">
@@ -72,7 +72,7 @@
     </div>
 
     <h3 style="margin: 16px 0 8px;">Line Items</h3>
-    <div formArrayName="items">
+    <div formArrayName="items" class="items-array-container">
       <div *ngFor="let row of items.controls; let i = index" [formGroupName]="i" style="border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <small>Item #{{ i + 1 }}</small>

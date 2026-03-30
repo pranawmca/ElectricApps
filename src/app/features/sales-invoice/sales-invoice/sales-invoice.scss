@@ -367,3 +367,110 @@
     margin: 12mm;
   }
 }
+
+.transport-details-box {
+  background: #fdfdfd;
+  padding: 12px;
+  border: 1px dashed #ccc;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  h4 { margin: 0 0 10px 0; color: #333; }
+}
+
+/* ⚡ TAX INVOICE DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .invoice-page {
+        background-color: #0f172a !important;
+    }
+
+    .editor {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+        
+        h2 { color: #ffffff !important; }
+        
+        ::ng-deep {
+            .mat-mdc-text-field-wrapper {
+                background-color: rgba(255, 255, 255, 0.03) !important;
+                .mat-mdc-input-element { color: #ffffff !important; }
+            }
+            .mat-mdc-select-value { color: #ffffff !important; }
+            .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+            .mat-datepicker-toggle button { color: rgba(255, 255, 255, 0.6) !important; }
+            .mat-mdc-checkbox label { color: #ffffff !important; }
+            .mat-mdc-checkbox-frame { border-color: #ffffff !important; }
+        }
+
+        h3, h4, small { color: #ffffff !important; }
+
+        .items-array-container div[style*="border: 1px solid #eee"] {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+        }
+
+        .transport-details-box {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px dashed rgba(255, 255, 255, 0.2) !important;
+            h4 { color: #60a5fa !important; }
+        }
+    }
+
+    .edit-table {
+        th { color: rgba(255, 255, 255, 0.5) !important; }
+        input { 
+            background: rgba(255, 255, 255, 0.05) !important; 
+            border-color: rgba(255, 255, 255, 0.1) !important; 
+            color: #ffffff !important; 
+        }
+    }
+
+    .total-box {
+        background: rgba(59, 130, 246, 0.1) !important;
+        color: #60a5fa !important;
+    }
+
+    /* 📄 INVOICE PREVIEW DARK POLISH (SAPPHIRE THEME) 📄 */
+    .preview-container {
+        background: #1e293b !important;
+        color: #ffffff !important;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+
+        /* Override inline & child styles */
+        .header-table, .meta-info-table { border-color: rgba(255, 255, 255, 0.1) !important; }
+        .meta-info-table table td h4 { border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
+        
+        table { color: #ffffff !important; }
+        b, strong, h1, h2, h3, h4 { color: #ffffff !important; }
+        p, span { color: rgba(255, 255, 255, 0.8) !important; }
+
+        .items-table {
+            th { border-color: rgba(255, 255, 255, 0.2) !important; color: rgba(255, 255, 255, 0.6) !important; }
+            td { border-bottom-color: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; .hsn, .tax-desc { color: rgba(255, 255, 255, 0.4) !important; } }
+            .total-row td { border-top-color: rgba(255, 255, 255, 0.2) !important; border-bottom-color: rgba(255, 255, 255, 0.2) !important; background: rgba(255, 255, 255, 0.02) !important; }
+        }
+
+        .grand-total-section .grand-label {
+            border: 2px solid #60a5fa !important;
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            background: rgba(96, 165, 250, 0.05) !important;
+            color: #60a5fa !important;
+            span:last-child { color: #ffffff !important; }
+        }
+
+        .gta-section {
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            div[style*="background: #f0f0f0"] { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.2) !important; }
+            table, tr, td, th { border-color: rgba(255, 255, 255, 0.1) !important; }
+        }
+
+        .signature-section .sign-label { border-top-color: rgba(255, 255, 255, 0.2) !important; color: rgba(255, 255, 255, 0.5) !important; }
+        .invoice-footer { border-top-color: rgba(255, 255, 255, 0.1) !important; color: rgba(255, 255, 255, 0.4) !important; }
+        
+        /* QR Code visual fix */
+        .qr-wrapper img { filter: brightness(0.9) contrast(1.1) !important; background: white; padding: 5px; border-radius: 4px; }
+        .qr-wrapper div { border-color: rgba(255, 255, 255, 0.3) !important; color: #ffffff !important; }
+    }
+}

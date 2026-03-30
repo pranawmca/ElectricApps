@@ -143,3 +143,50 @@ mat-card-actions {
     z-index: 9999; /* Ensure it is on top of everything */
     pointer-events: none;
 }
+
+/* ⚡ PAYMENT ENTRY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .page-header {
+        h1 { color: #ffffff !important; }
+        .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .entry-card, .history-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+        
+        mat-card-title { color: #ffffff !important; }
+        mat-card-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+        .header-icon { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
+    }
+
+    .balance-display {
+        &.payable { background-color: rgba(230, 81, 0, 0.1) !important; color: #ffb74d !important; border-color: rgba(230, 81, 0, 0.2) !important; }
+        &.advance { background-color: rgba(46, 125, 50, 0.1) !important; color: #81c784 !important; border-color: rgba(46, 125, 50, 0.2) !important; }
+        &.clear { background-color: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    ::ng-deep {
+        .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            .mat-mdc-input-element { color: #ffffff !important; }
+        }
+        
+        .mat-datepicker-toggle button, mat-icon { color: rgba(255, 255, 255, 0.6) !important; }
+        
+        .mat-mdc-table, .mat-table {
+            background: #1e293b !important;
+        }
+        .mat-mdc-header-row { background-color: #0f172a !important; th { color: rgba(255, 255, 255, 0.6) !important; } }
+        .mat-mdc-row td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
+    }
+
+    .text-success { color: #34d399 !important; }
+    .text-danger { color: #f87171 !important; }
+    
+    mat-card-actions {
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        button[mat-raised-button]:not([color]) { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
+    }
+}

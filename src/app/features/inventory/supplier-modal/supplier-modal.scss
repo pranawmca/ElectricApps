@@ -115,6 +115,43 @@
 
 }
 
+/* ⚡ DARK MODE POLISH ⚡ */
+:host-context(.dark-mode) {
+    .modal-container { background-color: #0f172a !important; }
+    
+    .modal-header {
+        background-color: #1e293b !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+        .title-text { color: #ffffff !important; }
+    }
+
+    .modal-body {
+        background-color: #0f172a !important;
+        .mat-icon { color: rgba(255, 255, 255, 0.6) !important; }
+        ::ng-deep .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            .mat-mdc-input-element { color: #ffffff !important; }
+        }
+    }
+
+    .cancel-btn {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        &:hover { background: rgba(255, 255, 255, 0.1) !important; }
+    }
+
+    mat-slide-toggle {
+        ::ng-deep .mdc-label { color: #ffffff !important; font-weight: 500; }
+    }
+
+    ::ng-deep {
+        .mat-mdc-select-value { color: #ffffff !important; }
+        .mat-mdc-select-arrow svg { fill: rgba(255, 255, 255, 0.6) !important; }
+        .mat-mdc-form-field-label { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+}
+
 // 📱 Responsive Mobile Styles
 @media (max-width: 576px) {
   .modal-container {
@@ -143,4 +180,4 @@
       }
     }
   }
-}
+}

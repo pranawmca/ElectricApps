@@ -629,6 +629,67 @@ import { LoadingService } from '../../../core/services/loading.service';
         }
       }
     }
+
+    /* ⚡ SELECT PRODUCTS DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+    :host-context(.dark-mode) {
+        .dialog-container { background-color: #0f172a !important; }
+        
+        .dialog-header {
+            background-color: #1e293b !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+            .title { color: #ffffff !important; }
+            .header-close-btn { color: rgba(255, 255, 255, 0.5) !important; &:hover { color: #ffffff !important; background: rgba(255, 255, 255, 0.1) !important; } }
+        }
+
+        .dialog-loader-overlay {
+            background: rgba(15, 23, 42, 0.8) !important;
+            .loader-content { background: #1e293b !important; .loader-text { color: #ffffff !important; } .loader-subtext { color: rgba(255, 255, 255, 0.6) !important; } }
+        }
+
+        .search-bar {
+            background-color: #0f172a !important;
+            ::ng-deep .mat-mdc-text-field-wrapper {
+                background-color: rgba(255, 255, 255, 0.03) !important;
+                .mat-mdc-input-element { color: #ffffff !important; &::placeholder { color: rgba(255, 255, 255, 0.3) !important; } }
+                .mat-mdc-form-field-label { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            .bulk-select-btn { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+        }
+
+        .table-container { 
+            background-color: #0f172a !important; 
+            border-top-color: rgba(255, 255, 255, 0.05) !important; 
+        }
+
+        .product-table {
+            background: #0f172a !important;
+            th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+            td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
+            .selected-row { background-color: rgba(79, 70, 229, 0.15) !important; }
+            .sku-cell { color: #60a5fa !important; }
+            .category-badge { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
+            .gst-badge { background: rgba(219, 39, 119, 0.1) !important; color: #f472b6 !important; border-color: rgba(219, 39, 119, 0.2) !important; }
+            .unit-badge { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.7) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+            .rack-badge { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+            .stock-badge-inline.success { background: rgba(34, 197, 94, 0.1) !important; color: #4ade80 !important; border-color: rgba(34, 197, 94, 0.2) !important; }
+            .expiry-badge.required { background: rgba(217, 119, 6, 0.1) !important; color: #fbbf24 !important; border-color: rgba(217, 119, 6, 0.2) !important; }
+        }
+
+        .dialog-footer {
+            background-color: #1e293b !important;
+            border-top-color: rgba(255, 255, 255, 0.1) !important;
+            .selection-info { color: rgba(255, 255, 255, 0.6) !important; .count { color: #60a5fa !important; } }
+            .back-btn { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        }
+
+        mat-paginator, ::ng-deep .mat-mdc-paginator { background: #1e293b !important; color: #ffffff !important; }
+        ::ng-deep {
+            .mat-mdc-paginator-range-label, .mat-mdc-select-value, .mat-mdc-paginator-navigation-next, .mat-mdc-paginator-navigation-previous { color: #ffffff !important; }
+            .mat-mdc-checkbox-frame { border-color: #ffffff !important; }
+            .mat-mdc-option { background: #1e293b !important; color: #ffffff !important; &:hover { background: rgba(255,255,255,0.05) !important; } }
+            .mat-mdc-autocomplete-panel { background: #1e293b !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        }
+    }
   `]
 })
 export class ProductSelectionDialogComponent implements OnInit, OnDestroy {

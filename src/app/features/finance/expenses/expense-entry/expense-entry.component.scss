@@ -330,3 +330,72 @@ app-summary-stats {
    width: 18px;
    height: 18px;
 }
+
+/* ⚡ EXPENSE ENTRY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .expense-container {
+        background-color: #0f172a !important;
+    }
+
+    .page-header {
+        .header-left .title-group {
+            .title { color: #ffffff !important; }
+            .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+        }
+        .back-link { 
+            background: rgba(255, 255, 255, 0.05) !important; 
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            &:hover { background: rgba(255, 255, 255, 0.1) !important; border-color: #60a5fa !important; color: #60a5fa !important; }
+        }
+    }
+
+    .professional-card {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+
+        .card-header {
+            background: #0f172a !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            .header-text { color: rgba(255, 255, 255, 0.5) !important; }
+        }
+
+        .items-title-group h3 { color: #ffffff !important; }
+        .items-count-badge { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+    }
+
+    .form-card {
+        .expense-form .custom-field {
+            ::ng-deep .mat-mdc-text-field-wrapper {
+                background-color: rgba(255, 255, 255, 0.03) !important;
+                .mat-mdc-input-element { color: #ffffff !important; }
+            }
+            .mat-mdc-select-value { color: #ffffff !important; }
+        }
+    }
+
+    .list-card {
+        .table-container table.clean-table {
+            th.mat-header-cell {
+                background: #0f172a !important;
+                color: rgba(255, 255, 255, 0.6) !important;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            td.mat-cell {
+                color: #ffffff !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            }
+            .category-badge { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.7) !important; }
+            .mode-tag { background: rgba(190, 24, 93, 0.1) !important; color: #ec4899 !important; }
+            tr.hover-row:hover { background-color: rgba(255, 255, 255, 0.02) !important; }
+        }
+
+        .compact-paginator {
+            background: #1e293b !important;
+            color: #ffffff !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+            ::ng-deep .mat-mdc-paginator-navigation-button svg { fill: #ffffff !important; }
+        }
+    }
+}

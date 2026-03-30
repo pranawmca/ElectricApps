@@ -161,3 +161,52 @@ mat-card-actions {
         }
     }
 }
+
+/* ⚡ RECEIPT ENTRY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .page-header {
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+        h1 { color: #ffffff !important; }
+        .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .entry-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+        
+        mat-card-header {
+            border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+            .header-icon { background: rgba(52, 160, 71, 0.1) !important; mat-icon { color: #34d399 !important; } }
+            mat-card-title { color: #ffffff !important; }
+            mat-card-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+        }
+    }
+
+    ::ng-deep {
+        .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            .mat-mdc-input-element { color: #ffffff !important; }
+        }
+        .mat-datepicker-toggle button, mat-icon { color: rgba(255, 255, 255, 0.6) !important; }
+        .mat-mdc-form-field-hint { color: #ffffff !important; opacity: 0.9; }
+    }
+
+    .balance-card {
+        background: rgba(239, 83, 80, 0.1) !important;
+        border-left-color: #f87171 !important;
+        .balance-label { color: rgba(255, 255, 255, 0.5) !important; }
+        .balance-value { color: #f87171 !important; }
+        
+        &.settled {
+            background: rgba(52, 211, 153, 0.1) !important;
+            border-left-color: #34d399 !important;
+            .balance-value { color: #34d399 !important; }
+        }
+    }
+
+    mat-card-actions {
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        button[mat-raised-button]:not([color]) { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
+    }
+}

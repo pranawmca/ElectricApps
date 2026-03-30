@@ -175,3 +175,43 @@ form {
     gap: 10px;
   }
 }
+
+/* ⚡ CUSTOMER MODAL DARK MODE POLISH ⚡ */
+:host-context(.dark-mode) {
+    mat-card {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+    }
+
+    mat-card-title {
+        background-color: #1e293b !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        
+        .close-btn { 
+            color: #f87171 !important; 
+            &:hover { background-color: rgba(248, 113, 113, 0.1) !important; }
+        }
+    }
+
+    form {
+        background-color: #0f172a !important;
+        ::ng-deep .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            .mat-mdc-input-element { color: #ffffff !important; }
+        }
+        .mat-mdc-select-value { color: #ffffff !important; }
+        .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+    }
+
+    .actions {
+        border-top-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .cancel-btn {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        &:hover { background: rgba(255, 255, 255, 0.1) !important; }
+    }
+}

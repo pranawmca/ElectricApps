@@ -285,3 +285,79 @@
         }
     }
 }
+
+/* ⚡ GST RECONCILIATION DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .gst-container {
+        background-color: #0f172a !important;
+        
+        .header-section {
+            .title-group {
+                h1 { color: #ffffff !important; }
+                .text-muted { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            ::ng-deep {
+                .mat-mdc-text-field-wrapper { background-color: rgba(255, 255, 255, 0.05) !important; .mat-mdc-input-element { color: #ffffff !important; } }
+                .mat-datepicker-toggle button { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+        }
+
+        .stat-card {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+            
+            mat-card-header {
+                mat-card-title { color: rgba(255, 255, 255, 0.8) !important; }
+                mat-card-subtitle { color: #ffffff !important; opacity: 0.9; }
+                mat-icon { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.5) !important; }
+            }
+            
+            &.output { border-top-color: #f87171 !important; mat-card-header mat-icon { background: rgba(248, 113, 113, 0.1) !important; color: #f87171 !important; } .price-value { color: #f87171 !important; } }
+            &.input { border-top-color: #34d399 !important; mat-card-header mat-icon { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; } .price-value { color: #34d399 !important; } }
+            &.payable { 
+                border-top-color: #fbbf24 !important; mat-card-header mat-icon { background: rgba(251, 191, 36, 0.1) !important; color: #fbbf24 !important; } .price-value { color: #fbbf24 !important; }
+                &.refundable { border-top-color: #60a5fa !important; mat-card-header mat-icon { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; } .price-value { color: #60a5fa !important; } }
+            }
+        }
+
+        .detail-card, .log-card, .party-card, .reversal-card, .rate-card {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            
+            mat-card-header {
+                background-color: #1e293b !important;
+                border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+                mat-card-title { color: #ffffff !important; }
+                mat-card-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+            }
+
+            .gst-table {
+                th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+                td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
+            }
+        }
+
+        .reversal-card { border-left-color: #f87171 !important; }
+        .party-card { border-left-color: #60a5fa !important; }
+        .log-card { border-left-color: #34d399 !important; }
+
+        .invoice-badge { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.7) !important; }
+        .rate-badge { background: #0f172a !important; color: #ffffff !important; }
+        .gstin-code { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+        
+        .status-chip {
+            &.success { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+            &.warning { background: rgba(251, 191, 36, 0.1) !important; color: #fbbf24 !important; }
+        }
+
+        .alert-banner.warning {
+            background: rgba(251, 191, 36, 0.05) !important;
+            border-color: rgba(251, 191, 36, 0.1) !important;
+            color: #fbbf24 !important;
+        }
+        
+        .note-section { background: rgba(255, 255, 255, 0.03) !important; color: rgba(255, 255, 255, 0.4) !important; }
+        .empty-state-container { background: #1e293b !important; color: rgba(255, 255, 255, 0.3) !important; }
+    }
+}

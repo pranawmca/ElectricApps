@@ -105,3 +105,67 @@
         mat-icon { margin-right: 4px; }
     }
 }
+
+/* ⚡ INTER-COMPANY LEDGER DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .ic-container {
+        background-color: #0f172a !important;
+        
+        .header-section {
+            .title-group {
+                h1 { color: #ffffff !important; }
+                .text-muted { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            ::ng-deep {
+                .mat-mdc-text-field-wrapper { background-color: rgba(255, 255, 255, 0.05) !important; .mat-mdc-input-element { color: #ffffff !important; } }
+                .mat-mdc-select-value { color: #ffffff !important; }
+                .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+            }
+            button {
+                &[mat-flat-button][color="primary"] { background: #312e81 !important; color: #ffffff !important; }
+                &[mat-stroked-button][color="primary"] { border-color: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; }
+                mat-icon { color: #ffffff !important; }
+            }
+        }
+
+        .balance-summary {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+            
+            .balance-info {
+                .label { color: rgba(255, 255, 255, 0.5) !important; }
+                .value { color: #60a5fa !important; &.negative { color: #f87171 !important; } }
+                .gst-tag { 
+                    background: rgba(255, 255, 255, 0.05) !important; 
+                    color: rgba(255, 255, 255, 0.7) !important; 
+                    border-color: rgba(255, 255, 255, 0.1) !important;
+                    strong { color: #ffffff !important; }
+                }
+            }
+        }
+
+        .ledger-card {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            mat-card-header {
+                background-color: #1e293b !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                mat-card-title { color: #ffffff !important; }
+            }
+        }
+
+        .ic-table {
+            th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+            td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
+            
+            .type-badge {
+                &.sale { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+                &.receipt { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; }
+                &.payment { background: rgba(251, 191, 36, 0.1) !important; color: #fbbf24 !important; }
+            }
+        }
+
+        .empty-state { color: rgba(255, 255, 255, 0.3) !important; mat-icon { color: rgba(255, 255, 255, 0.2) !important; } }
+    }
+}

@@ -276,6 +276,95 @@ html.dark-mode {
   .mat-mdc-select-value-text {
     color: #f8fafc !important;
   }
+
+  /* ⚡ GLOBAL DARK MODE LAYOUT PATTERNS ⚡ */
+  body {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+  }
+
+  .list-container, .page-container, .container-fluid, .content-wrapper {
+    background-color: #0f172a !important;
+  }
+
+  .grid-wrapper, .table-container, .card, .mat-card, .section-card, .charts-card, .search-card, .table-card {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .page-title, .header-title {
+    color: #ffffff !important;
+  }
+
+  .subtitle, .text-muted, .label-text {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  /* ⚡ UNIVERSAL DATA TABLE & PAGINATOR POLISH ⚡ */
+  .mat-mdc-table, .mat-table {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    
+    .mat-mdc-header-row { background-color: #0f172a !important; }
+    .mat-mdc-row, .mat-row {
+      background-color: #1e293b !important;
+      &:hover { background-color: rgba(255, 255, 255, 0.04) !important; }
+      td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
+    }
+  }
+
+  .mat-mdc-paginator, .mat-paginator {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+
+    .mat-mdc-paginator-container { color: #ffffff !important; }
+    .mat-mdc-paginator-range-label, .mat-mdc-paginator-page-size-label {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .mat-mdc-paginator-navigation-button {
+      color: #ffffff !important;
+      
+      /* Nuclear targeting for SVGs and Paths */
+      svg, path { 
+        fill: #ffffff !important; 
+        stroke: #ffffff !important;
+        color: #ffffff !important;
+      }
+
+      &.mat-mdc-button-disabled { 
+        opacity: 0.3 !important; 
+        svg, path { 
+          fill: rgba(255, 255, 255, 0.3) !important;
+          stroke: rgba(255, 255, 255, 0.3) !important;
+        }
+      }
+    }
+    
+    .mat-mdc-select-value { color: #ffffff !important; }
+    .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+  }
+
+  /* Shared Form Styling in Dark Mode */
+  .mat-mdc-form-field-wrapper, .mat-mdc-text-field-wrapper {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    .mat-mdc-input-element { color: #f8fafc !important; }
+    .mat-mdc-floating-label { color: rgba(255, 255, 255, 0.5) !important; }
+  }
+
+  /* ⚡ DATEPICKER ICON GLOBAL POLISH ⚡ */
+  .mat-datepicker-toggle, .mat-mdc-datepicker-toggle {
+    button, mat-icon, svg { 
+        color: #ffffff !important; 
+        fill: #ffffff !important; 
+    }
+  }
 }
 
 /* =====================================================

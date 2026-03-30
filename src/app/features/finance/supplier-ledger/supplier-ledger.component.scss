@@ -377,3 +377,121 @@
 .text-advance {
     color: #2e7d32 !important;
 }
+
+/* ⚡ SUPPLIER LEDGER DARK MODE POLISH ⚡ */
+:host-context(.dark-mode) {
+    .page-header {
+        h1 { color: #ffffff !important; }
+        .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .search-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        
+        ::ng-deep {
+            .mat-mdc-input-element { color: #ffffff !important; }
+            .mat-mdc-floating-label { color: rgba(255, 255, 255, 0.5) !important; }
+            mat-icon { color: rgba(255, 255, 255, 0.6) !important; }
+        }
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+        .summary-header {
+            .supplier-details {
+                .avatar-icon { color: #60a5fa !important; }
+                .supplier-name { color: #ffffff !important; }
+                .supplier-id { color: rgba(255, 255, 255, 0.5) !important; }
+            }
+            .balance-info {
+                .label { color: rgba(255, 255, 255, 0.5) !important; }
+                .amount { color: #60a5fa !important; }
+            }
+        }
+    }
+
+    .table-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        .loading-shade { background: rgba(15, 23, 42, 0.6) !important; }
+        
+        ::ng-deep {
+            .mat-mdc-table, .mat-table {
+                background: #1e293b !important;
+            }
+            .mat-mdc-row, .mat-row {
+                background-color: #1e293b !important;
+                td { 
+                    background-color: #1e293b !important; 
+                    color: #ffffff !important; 
+                    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+                }
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.04) !important;
+                    td { background-color: transparent !important; }
+                }
+            }
+
+            .mat-mdc-paginator {
+                background: #0f172a !important;
+                color: #ffffff !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+                
+                .mat-mdc-paginator-range-label, .mat-mdc-paginator-page-size-label {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+                
+                .mat-mdc-paginator-navigation-button {
+                    color: #ffffff !important;
+                    svg, path { 
+                       fill: #ffffff !important; 
+                       color: #ffffff !important;
+                    }
+                    &:disabled, &.mat-mdc-button-disabled { 
+                        opacity: 0.3 !important; 
+                        svg, path { fill: rgba(255, 255, 255, 0.3) !important; }
+                    }
+                }
+            }
+        }
+    }
+
+    .table-container table {
+        td.mat-cell {
+            color: #ffffff !important;
+            &.text-success { color: #34d399 !important; }
+            &.text-primary { color: #60a5fa !important; }
+            
+            .type-badge {
+                &.payment { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; border-color: rgba(52, 211, 153, 0.2) !important; }
+                &.purchase { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+            }
+        }
+    }
+
+    /* ⚡ DATEPICKER ICON POLISH (NUCLEAR FORCE) ⚡ */
+    ::ng-deep .mat-datepicker-toggle, 
+    ::ng-deep .mat-mdc-datepicker-toggle {
+        button, mat-icon, svg { 
+            color: #ffffff !important; 
+            fill: #ffffff !important; 
+            opacity: 1 !important; 
+        }
+    }
+
+    .supplier-option {
+        .supp-name { color: #ffffff !important; }
+        .supp-id { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .header-filter-btn {
+        background: rgba(255, 255, 255, 0.05) !important;
+        mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
+        &:hover { background: rgba(255, 255, 255, 0.1) !important; mat-icon { color: #ffffff !important; } }
+    }
+
+    .adv-tag { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+}

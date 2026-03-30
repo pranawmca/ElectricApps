@@ -237,3 +237,47 @@
 .col-date { width: 130px; min-width: 120px; }
 .col-rem { width: auto; } // Flexible remainder
 .col-act { width: 50px; min-width: 50px; }
+
+/* ⚡ BULK RECEIPT ENTRY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .popup-container { background-color: #0f172a !important; color: #ffffff !important; }
+    
+    .header {
+        background-color: #1e293b !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+        .title-group h2 { color: #ffffff !important; }
+    }
+
+    .content-area {
+        background-color: #0f172a !important;
+    }
+
+    .data-table {
+        thead th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; border-right-color: rgba(255, 255, 255, 0.05) !important; }
+        tbody td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; border-right-color: rgba(255, 255, 255, 0.03) !important; }
+        tbody tr:hover { background-color: rgba(255, 255, 255, 0.02) !important; }
+        tbody td.bg-readonly { background-color: rgba(255, 255, 255, 0.02) !important; }
+    }
+
+    ::ng-deep .table-input-field {
+        .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            .mat-mdc-input-element { color: #ffffff !important; }
+            .mat-mdc-form-field-label { color: rgba(255, 255, 255, 0.5) !important; }
+        }
+        .mat-mdc-select-value { color: #ffffff !important; }
+        .mat-mdc-select-arrow svg { fill: rgba(255, 255, 255, 0.5) !important; }
+        
+        .mat-datepicker-toggle button {
+            background: #1e293b !important;
+            color: #ffffff !important;
+            .mat-icon { color: #ffffff !important; }
+        }
+    }
+
+    .footer-actions {
+        background-color: #1e293b !important;
+        border-top-color: rgba(255, 255, 255, 0.1) !important;
+        .add-row-btn { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.2) !important; &:hover { background: rgba(96, 165, 250, 0.1) !important; } }
+    }
+}

@@ -178,3 +178,57 @@
         mat-icon { margin-right: 4px; }
     }
 }
+
+/* ⚡ BALANCE SHEET DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .balance-sheet-container {
+        background-color: #0f172a !important;
+        
+        .dashboard-header {
+            .title { color: #ffffff !important; }
+            .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+        }
+
+        .refresh-btn { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }
+        .export-btn { background: rgba(192, 132, 252, 0.1) !important; color: #c084fc !important; border-color: rgba(192, 132, 252, 0.2) !important; }
+    }
+
+    .financial-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+
+        mat-card-header {
+            background-color: #1e293b !important;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05) !important;
+            
+            mat-card-title { color: #ffffff !important; }
+            mat-card-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+            .header-total { color: #ffffff !important; }
+        }
+    }
+
+    mat-list {
+        mat-list-item {
+            &:hover { background: rgba(255, 255, 255, 0.02) !important; }
+            .amount-text { color: #ffffff !important; }
+            [matListItemTitle] { color: rgba(255, 255, 255, 0.8) !important; }
+            [matListItemLine] { color: rgba(255, 255, 255, 0.5) !important; }
+            
+            // Edit icon in list
+            mat-icon.text-info { color: #60a5fa !important; }
+        }
+    }
+
+    .balance-footer .indicator {
+        background: #1e293b !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        
+        &.balanced {
+            background: rgba(52, 211, 153, 0.1) !important;
+            color: #34d399 !important;
+            border-color: rgba(52, 211, 153, 0.2) !important;
+        }
+    }
+}

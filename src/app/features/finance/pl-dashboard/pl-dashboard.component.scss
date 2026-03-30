@@ -173,3 +173,50 @@
         }
     }
 }
+
+/* ⚡ P&L DASHBOARD DARK MODE POLISH ⚡ */
+:host-context(.dark-mode) {
+    .page-header {
+        h1 { color: #ffffff !important; }
+        .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .stat-card {
+        background-color: #1e293b !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        
+        mat-card-title { color: #ffffff !important; }
+        mat-card-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+        .stat-value { color: #ffffff !important; &.negative { color: #f87171 !important; } }
+        .margin-label, .trend { color: rgba(255, 255, 255, 0.5) !important; }
+        
+        .stat-breakdown {
+            border-top-color: rgba(255, 255, 255, 0.1) !important;
+            .breakdown-item {
+                .label { color: rgba(255, 255, 255, 0.5) !important; }
+                .value { 
+                    color: #ffffff !important; 
+                    &.success { color: #34d399 !important; }
+                    &.primary { color: #60a5fa !important; }
+                    &.warn { color: #f87171 !important; }
+                }
+                &.daily { background-color: rgba(255, 255, 255, 0.05) !important; }
+            }
+        }
+    }
+
+    .chart-card {
+        background-color: #1e293b !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        
+        // High specificity fix for Chart headers
+        mat-card-header mat-card-title, mat-card-title {
+            color: #ffffff !important;
+        }
+
+        .chart-content { 
+            background-color: #0f172a !important; 
+            p { color: rgba(255, 255, 255, 0.4) !important; }
+        }
+    }
+}

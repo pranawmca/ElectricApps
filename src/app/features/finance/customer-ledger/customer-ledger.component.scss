@@ -343,3 +343,113 @@
 .text-advance {
     color: #2e7d32 !important;
 }
+
+/* ⚡ CUSTOMER LEDGER DARK MODE POLISH ⚡ */
+:host-context(.dark-mode) {
+    .page-header {
+        h1 { color: #ffffff !important; }
+        .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .search-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, #1e293b, #4a148c44) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+        .summary-header {
+            .customer-details {
+                .avatar-icon { color: #c084fc !important; }
+                .customer-name { color: #ffffff !important; }
+                .customer-id { color: rgba(255, 255, 255, 0.5) !important; }
+            }
+            .balance-info {
+                .label { color: rgba(255, 255, 255, 0.5) !important; }
+                .amount { color: #c084fc !important; }
+            }
+        }
+    }
+
+    .table-card {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        .loading-shade { background: rgba(15, 23, 42, 0.6) !important; }
+        
+        ::ng-deep {
+            .mat-mdc-table, .mat-table {
+                background: #1e293b !important;
+            }
+            .mat-mdc-header-row {
+                background-color: #0f172a !important;
+                th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            .mat-mdc-row, .mat-row {
+                background-color: #1e293b !important;
+                td { 
+                    background-color: #1e293b !important; 
+                    color: #ffffff !important; 
+                    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+                }
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.04) !important;
+                    td { background-color: transparent !important; }
+                }
+            }
+
+            .mat-mdc-paginator {
+                background: #0f172a !important;
+                color: #ffffff !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+                
+                .mat-mdc-paginator-range-label, .mat-mdc-paginator-page-size-label {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+                
+                .mat-mdc-paginator-navigation-button {
+                    color: #ffffff !important;
+                    svg, path { 
+                       fill: #ffffff !important; 
+                       color: #ffffff !important;
+                    }
+                    &:disabled, &.mat-mdc-button-disabled { 
+                        opacity: 0.3 !important; 
+                        svg, path { fill: rgba(255, 255, 255, 0.3) !important; }
+                    }
+                }
+            }
+        }
+    }
+
+    .table-container table {
+        td.mat-cell {
+            color: #ffffff !important;
+            &.text-success { color: #34d399 !important; }
+            &.text-primary { color: #60a5fa !important; }
+            
+            .type-badge {
+                &.receipt { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+                &.sales { background: rgba(192, 132, 252, 0.1) !important; color: #c084fc !important; }
+            }
+        }
+    }
+
+    /* ⚡ DATEPICKER ICON POLISH ⚡ */
+    ::ng-deep .mat-datepicker-toggle, 
+    ::ng-deep .mat-mdc-datepicker-toggle {
+        button, mat-icon, svg { 
+            color: #ffffff !important; 
+            fill: #ffffff !important; 
+        }
+    }
+
+    .header-filter-btn {
+        background: rgba(255, 255, 255, 0.05) !important;
+        mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
+        &:hover { background: rgba(255, 255, 255, 0.1) !important; mat-icon { color: #ffffff !important; } }
+    }
+
+    .adv-tag { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+}

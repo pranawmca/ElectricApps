@@ -179,3 +179,89 @@
         mat-icon { margin-right: 4px; }
     }
 }
+
+/* ⚡ DAY BOOK DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .day-book-container {
+        background-color: #0f172a !important;
+        
+        .header-section {
+            .title-group {
+                h1 { color: #ffffff !important; }
+                .text-muted { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            ::ng-deep {
+                .mat-mdc-text-field-wrapper {
+                    background-color: rgba(255, 255, 255, 0.05) !important;
+                    .mat-mdc-input-element { color: #ffffff !important; }
+                }
+                .mat-mdc-select-value { color: #ffffff !important; }
+                .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+                .mat-datepicker-toggle button { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            button {
+                &[mat-flat-button][color="primary"] { background: #312e81 !important; color: #ffffff !important; }
+                &[mat-stroked-button][color="primary"] { border-color: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; }
+                mat-icon { color: #ffffff !important; }
+            }
+        }
+
+        .summary-cards .stat-card {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+            
+            mat-card-header {
+                mat-card-title { color: rgba(255, 255, 255, 0.7) !important; }
+                mat-card-subtitle { color: #ffffff !important; opacity: 0.9; }
+                mat-icon { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.5) !important; }
+            }
+            
+            &.total-in {
+                border-left-color: #34d399 !important;
+                mat-card-header mat-icon { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+                .price-value { color: #34d399 !important; }
+            }
+            &.total-out {
+                border-left-color: #f87171 !important;
+                mat-card-header mat-icon { background: rgba(248, 113, 113, 0.1) !important; color: #f87171 !important; }
+                .price-value { color: #f87171 !important; }
+            }
+            &.net-balance {
+                border-left-color: #60a5fa !important;
+                mat-card-header mat-icon { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; }
+                .price-value { color: #60a5fa !important; }
+                &.negative {
+                    border-left-color: #fbbf24 !important;
+                    mat-card-header mat-icon { background: rgba(251, 191, 36, 0.1) !important; color: #fbbf24 !important; }
+                    .price-value { color: #fbbf24 !important; }
+                }
+            }
+        }
+
+        .table-container {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            
+            .day-book-table {
+                th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+                td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
+                
+                .particulars-cell .mode-label { color: rgba(255, 255, 255, 0.4) !important; mat-icon { color: rgba(255, 255, 255, 0.3) !important; } }
+                
+                .type-badge {
+                    &.sale { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+                    &.purchase { background: rgba(248, 113, 113, 0.1) !important; color: #f87171 !important; }
+                    &.receipt { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; }
+                    &.payment { background: rgba(251, 191, 36, 0.1) !important; color: #fbbf24 !important; }
+                    &.expense { background: rgba(167, 139, 250, 0.1) !important; color: #a78bfa !important; }
+                }
+            }
+        }
+
+        .empty-state .empty-content {
+            color: rgba(255, 255, 255, 0.3) !important;
+            mat-icon { color: rgba(255, 255, 255, 0.2) !important; }
+        }
+    }
+}

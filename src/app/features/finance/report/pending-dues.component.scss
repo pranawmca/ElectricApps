@@ -294,3 +294,77 @@
 .mat-column-supplierName {
     min-width: 180px !important;
 }
+
+/* ⚡ PENDING DUES DARK MODE POLISH ⚡ */
+:host-context(.dark-mode) {
+    .page-header {
+        h1 { color: #ffffff !important; }
+        .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .stat-card {
+        background: #1e293b !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        
+        .stat-info .label { color: rgba(255, 255, 255, 0.5) !important; }
+        .stat-info .value { color: #ffffff !important; }
+
+        &.total { background: linear-gradient(135deg, rgba(255, 160, 0, 0.1) 0%, #1e293b 100%) !important; }
+        &.overdue { background: linear-gradient(135deg, rgba(211, 47, 47, 0.1) 0%, #1e293b 100%) !important; }
+        &.active { background: linear-gradient(135deg, rgba(63, 81, 181, 0.1) 0%, #1e293b 100%) !important; }
+    }
+
+    .table-card {
+        background: #1e293b !important;
+        mat-card-header mat-card-title .header-content .title-group span { color: #ffffff !important; }
+        
+        ::ng-deep .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            .mat-mdc-input-element { color: #ffffff !important; }
+        }
+    }
+
+    .table-container table {
+        th.mat-header-cell { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        td.mat-cell {
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+
+            &.text-warn { color: #fb923c !important; }
+            .status-badge {
+                &.overdue { background: rgba(216, 67, 21, 0.1) !important; color: #ff8a65 !important; border-color: rgba(216, 67, 21, 0.2) !important; }
+                &.upcoming { background: rgba(25, 118, 210, 0.1) !important; color: #64b5f6 !important; border-color: rgba(25, 118, 210, 0.2) !important; }
+            }
+            .grn-badge { background: rgba(245, 124, 0, 0.1) !important; color: #ffb74d !important; border-color: rgba(245, 124, 0, 0.2) !important; }
+        }
+        
+        tr:hover td {
+           background-color: rgba(255, 255, 255, 0.04) !important;
+        }
+    }
+
+    ::ng-deep .mat-mdc-paginator {
+        background: #0f172a !important;
+        color: #ffffff !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+        .mat-mdc-paginator-range-label, .mat-mdc-paginator-page-size-label {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .mat-mdc-paginator-navigation-button {
+            color: #ffffff !important;
+            svg, path { 
+                fill: #ffffff !important; 
+                color: #ffffff !important;
+            }
+            &:disabled, &.mat-mdc-button-disabled { 
+                opacity: 0.3 !important; 
+                svg, path { fill: rgba(255, 255, 255, 0.3) !important; }
+            }
+        }
+    }
+
+    .no-data { color: rgba(255, 255, 255, 0.3) !important; mat-icon { opacity: 0.2 !important; } }
+}

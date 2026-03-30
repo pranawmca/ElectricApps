@@ -300,10 +300,70 @@
         p { margin: 0; font-size: 0.95rem; line-height: 1.5; font-weight: 500; }
     }
 
-    .text-right { text-align: right; }
-    .text-center { text-align: center; }
-    .text-success { color: #10b981; }
-    .text-info { color: #3b82f6; }
     .text-danger { color: #ef4444; }
     .font-bold { font-weight: 800; }
+}
+
+/* ⚡ GROUP SUMMARY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .consolidated-container {
+        background-color: #0f172a !important;
+        
+        .header-section {
+            .title-group {
+                h1 { color: #ffffff !important; }
+                .text-muted { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            ::ng-deep {
+                .mat-mdc-text-field-wrapper { background-color: rgba(255, 255, 255, 0.05) !important; .mat-mdc-input-element { color: #ffffff !important; } }
+                .mat-datepicker-toggle button { color: rgba(255, 255, 255, 0.6) !important; }
+            }
+            .refresh-btn { background: #312e81 !important; }
+            .export-btn { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+        }
+    }
+
+    .table-card, .secondary-grids mat-card, .compliance-note {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        
+        mat-card-header {
+            background-color: #1e293b !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+            mat-card-title { color: #ffffff !important; }
+            mat-card-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+        }
+    }
+
+    .table-container table {
+        th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; 
+             &.clickable:hover { background-color: rgba(255, 255, 255, 0.02) !important; .name-link { color: #60a5fa !important; } }
+        }
+        .company-name-wrapper .name-link { color: #60a5fa !important; }
+        .profit-chip {
+            background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important;
+            &.loss { background: rgba(248, 113, 113, 0.1) !important; color: #f87171 !important; }
+        }
+    }
+
+    .secondary-grids {
+        .ic-balance-item, .audit-item, .empty-notif { 
+            background: #0f172a !important; border-color: rgba(255, 255, 255, 0.05) !important; 
+            color: #ffffff !important;
+        }
+        .ic-path .comp, .ic-amount-group .amount { color: #ffffff !important; }
+        .tax-snapshot-card .tax-ledger-item { border-bottom-color: rgba(255, 255, 255, 0.1) !important; .label { color: rgba(255, 255, 255, 0.6) !important; } }
+        .audit-item span { color: rgba(255, 255, 255, 0.7) !important; }
+    }
+
+    .compliance-note {
+        color: rgba(255, 255, 255, 0.7) !important;
+        mat-icon { color: #60a5fa !important; }
+    }
+
+    .text-muted { color: rgba(255, 255, 255, 0.4) !important; }
+    .text-primary { color: #60a5fa !important; }
+    .text-danger { color: #f87171 !important; }
 }

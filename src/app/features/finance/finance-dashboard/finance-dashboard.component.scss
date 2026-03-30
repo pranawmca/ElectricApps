@@ -525,3 +525,122 @@
     color: #94a3b8;
     font-weight: 500;
 }
+
+/* ⚡ FINANCE DASHBOARD DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+
+  .header-section {
+    .title-group {
+      h1 { color: #ffffff !important; }
+      .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+
+    .header-widgets {
+      .date-widget {
+        background: #1e293b !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
+        .date-info {
+          .label { color: rgba(255, 255, 255, 0.4) !important; }
+          .value { color: #ffffff !important; }
+        }
+      }
+    }
+  }
+
+  .kpi-card {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+
+    .card-info {
+      .value { color: #ffffff !important; }
+      .label { color: rgba(255, 255, 255, 0.5) !important; }
+    }
+
+    .icon-wrapper {
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: #ffffff !important;
+    }
+
+    /* Glass Variants in Dark Mode */
+    &.glass-emerald { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, #1e293b 100%) !important; }
+    &.glass-rose { background: linear-gradient(135deg, rgba(244, 63, 94, 0.1) 0%, #1e293b 100%) !important; }
+    &.glass-indigo { background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, #1e293b 100%) !important; }
+    &.glass-purple { background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, #1e293b 100%) !important; }
+
+    .card-bg-icon { color: rgba(255, 255, 255, 0.02) !important; }
+  }
+
+  .charts-card, .sidebar-actions .actions-card, .sidebar-actions .status-summary-card, .section-card {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+    
+    .card-header h2, h3, h4 { color: #ffffff !important; }
+    .card-header p { color: rgba(255, 255, 255, 0.5) !important; }
+  }
+
+  .sidebar-actions .actions-card.gradient-action {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .status-summary-card {
+    .status-header {
+        .badge.warning { background: rgba(251, 191, 36, 0.1) !important; color: #fbbf24 !important; }
+    }
+    .status-progress-list .prog-item {
+        .prog-label { color: rgba(255, 255, 255, 0.5) !important; .val { color: #ffffff !important; } }
+        .prog-bar { background: rgba(255, 255, 255, 0.05) !important; }
+    }
+  }
+
+  .bottom-section .section-card {
+    .card-title-row {
+        .title-group {
+            h2 { color: #ffffff !important; }
+            .count-tag { background: rgba(99, 102, 241, 0.1) !important; color: #818cf8 !important; }
+        }
+        .view-all-btn { color: #60a5fa !important; }
+    }
+  }
+
+  .table-container {
+    table {
+      thead th {
+        color: rgba(255, 255, 255, 0.4) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+      }
+      tbody tr {
+        &:hover {
+          background: rgba(255, 255, 255, 0.03) !important;
+        }
+        td {
+          .tx-details {
+            .tx-title { color: #ffffff !important; }
+            .tx-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+          }
+          .category-chip {
+            &.cust { background: rgba(59, 130, 246, 0.1) !important; color: #60a5fa !important; }
+            &.supp { background: rgba(249, 115, 22, 0.1) !important; color: #fb923c !important; }
+          }
+          .method-cell {
+            color: rgba(255, 255, 255, 0.6) !important;
+            mat-icon { color: rgba(255, 255, 255, 0.3) !important; }
+          }
+          .date-text { color: rgba(255, 255, 255, 0.5) !important; }
+          .status-dot-badge {
+            background: rgba(255, 255, 255, 0.05) !important;
+            &.success { color: #34d399 !important; }
+            &.danger { color: #f87171 !important; }
+          }
+        }
+      }
+    }
+  }
+
+  .no-data-cell { color: rgba(255, 255, 255, 0.3) !important; }
+}

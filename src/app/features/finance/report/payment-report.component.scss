@@ -256,3 +256,84 @@ table {
 .empty-cell {
     text-align: center;
 }
+
+/* ⚡ PAYMENT HISTORY DIALOG DARK MODE POLISH ⚡ */
+:host-context(.dark-mode) {
+    .page-container.is-dialog {
+        background: #0f172a !important;
+        color: #ffffff !important;
+    }
+
+    .dialog-header-alt {
+        background: #1e293b !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        
+        .title-group {
+            mat-icon { color: #60a5fa !important; }
+            h2 { color: #ffffff !important; }
+        }
+
+        button[mat-icon-button] {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            &:hover { background: rgba(255, 255, 255, 0.1) !important; }
+        }
+    }
+
+    .filter-card {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        
+        ::ng-deep {
+            .mat-mdc-text-field-wrapper {
+                background-color: rgba(255, 255, 255, 0.03) !important;
+                .mat-mdc-input-element { color: #ffffff !important; }
+            }
+            .mat-mdc-input-element::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+        }
+    }
+
+    .table-card {
+        background: #1e293b !important;
+        margin: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        .loading-shade { background: rgba(15, 23, 42, 0.6) !important; }
+        
+        ::ng-deep {
+            .mat-mdc-table, .mat-table { background: #1e293b !important; }
+            .mat-mdc-header-row th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; }
+            .mat-mdc-row td { 
+                color: #ffffff !important; 
+                border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+            }
+            
+            /* Paginator Fix */
+            .mat-mdc-paginator {
+                background: #1e293b !important;
+                color: #ffffff !important;
+                .mat-mdc-paginator-range-label { color: rgba(255, 255, 255, 0.7) !important; }
+                .mat-mdc-paginator-navigation-button { 
+                  color: #ffffff !important; 
+                  svg, path { fill: #ffffff !important; } 
+                }
+            }
+        }
+    }
+
+    .supplier-info {
+        .name { color: #ffffff !important; }
+        .id { color: rgba(255, 255, 255, 0.5) !important; }
+    }
+
+    .amount-cell { color: #34d399 !important; }
+
+    .badge {
+        &.mode-cash { background: rgba(52, 211, 153, 0.1) !important; color: #34d399 !important; }
+        &.mode-bank { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; }
+        &.mode-upi { background: rgba(192, 132, 252, 0.1) !important; color: #c084fc !important; }
+        &.mode-purchase-return { background: rgba(248, 113, 113, 0.1) !important; color: #f87171 !important; }
+    }
+}

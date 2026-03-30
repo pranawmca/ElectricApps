@@ -110,14 +110,18 @@
       .value { color: #ef4444 !important; }
     }
 
-    [class*="dark-mode"] & {
+    [class*="dark-mode"] &, :host-context(.dark-mode) & {
       background: #1e293b !important;
-      .label { color: #f8fafc !important; opacity: 0.6; }
+      border-color: rgba(255, 255, 255, 0.05) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+
+      .label { color: rgba(255, 255, 255, 0.5) !important; opacity: 1; }
       .value { color: #f8fafc !important; }
       
-      &.active, &.success { .value { color: #4ade80 !important; } }
-      &.warning, &.overdue { .value { color: #f87171 !important; } }
-      &.total { .value { color: #fbbf24 !important; } }
+      &.total { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #fbbf24 !important; } }
+      &.active, &.success { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #4ade80 !important; } .stat-badge { background: rgba(74, 222, 128, 0.1); color: #4ade80; } }
+      &.warning, &.overdue { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #f87171 !important; } .stat-badge { background: rgba(248, 113, 113, 0.1); color: #f87171; } }
+      &.info { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #60a5fa !important; } }
     }
   }
 }

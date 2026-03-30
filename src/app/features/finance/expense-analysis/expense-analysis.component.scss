@@ -247,3 +247,48 @@
         }
     }
 }
+
+/* ⚡ EXPENSE ANALYSIS DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .analysis-container {
+        background-color: #0f172a !important;
+    }
+
+    .page-header {
+        .title-section h1 { color: #ffffff !important; }
+        .title-section .subtitle { color: rgba(255, 255, 255, 0.6) !important; }
+        .refresh-btn { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+    }
+
+    .analysis-card {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+
+        mat-card-header {
+            background-color: #1e293b !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            mat-card-title { color: #ffffff !important; }
+            mat-card-subtitle { color: rgba(255, 255, 255, 0.5) !important; }
+        }
+    }
+
+    .donut-center {
+        .total-label { color: rgba(255, 255, 255, 0.5) !important; }
+        .total-value { color: #ffffff !important; }
+    }
+
+    .transaction-item {
+        border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+        &:hover { background: rgba(255, 255, 255, 0.02) !important; }
+
+        .item-info .item-name { color: #ffffff !important; }
+        .item-info .item-category { color: rgba(255, 255, 255, 0.5) !important; }
+        .item-meta .item-date { color: rgba(255, 255, 255, 0.4) !important; }
+        .item-meta .item-amount { color: #ffffff !important; }
+        
+        .item-icon { background: rgba(255, 255, 255, 0.03) !important; color: rgba(255, 255, 255, 0.7) !important; }
+    }
+
+    .empty-state, .empty-list { color: rgba(255, 255, 255, 0.3) !important; mat-icon { color: rgba(255, 255, 255, 0.2) !important; } }
+}
