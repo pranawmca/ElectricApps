@@ -640,18 +640,17 @@
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
     border-radius: 12px !important;
     
-    .mat-mdc-menu-item {
+    .mat-mdc-menu-item, .mat-menu-item {
         color: #ffffff !important;
-        mat-icon { color: #ffffff !important; opacity: 0.9; }
-        span { color: #ffffff !important; font-weight: 500; }
+        mat-icon, .mat-icon { color: #ffffff !important; opacity: 1 !important; }
+        span, .mdc-list-item__primary-text { color: #ffffff !important; font-weight: 500; }
         
-        &:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        &:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
         
-        /* Logout Special Highlight */
-        &[mat-menu-item]:has(mat-icon:contains("logout")), 
+        /* Logout/Last Child Highlight */
         &:last-child {
             color: #fca5a5 !important;
-            mat-icon { color: #ef4444 !important; }
+            mat-icon, .mat-icon { color: #ef4444 !important; opacity: 1 !important; }
         }
     }
 

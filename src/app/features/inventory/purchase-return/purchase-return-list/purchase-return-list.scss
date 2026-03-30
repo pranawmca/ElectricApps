@@ -6,9 +6,12 @@
 
 @media (min-width: 769px) {
   :host {
-    height: calc(100vh - 145px); /* Strict height to remove outer scroll */
+    height: auto; /* Allow content to dictate height */
+    min-height: calc(100vh - 145px); /* Maintain minimum dashboard look */
     overflow: hidden;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -219,7 +222,9 @@
     flex-direction: column;
     margin-top: 0;
     position: relative;
-    /* Removed flex: 1 and min-height to remove extra bottom space */
+    height: auto !important; /* Ensure it doesn't stretch */
+    min-height: unset !important;
+    padding: 0 !important;
   }
 
   .filter-section {
@@ -283,8 +288,8 @@
 
   .table-responsive {
     max-height: calc(100vh - 420px); /* Standard Responsive Height */
-    min-height: 250px; /* Mirror wrapper min-height */
-    height: auto; /* Remove the fixed 480px */
+    min-height: 100px; /* Reduced to allow small tables to shrink */
+    height: auto !important; 
     overflow-x: auto !important;
     overflow-y: auto;
     

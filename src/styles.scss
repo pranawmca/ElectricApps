@@ -264,6 +264,30 @@ html.dark-mode {
     .mdc-list-item__primary-text {
       color: inherit !important;
     }
+
+    /* ⚡ UNIVERSAL MENU ITEM POLISH (FOR DARK MODE OVERLAYS) ⚡ */
+    .mat-mdc-menu-item, .mat-menu-item {
+        color: #ffffff !important;
+        
+        mat-icon, .mat-icon { 
+          color: #ffffff !important; 
+          opacity: 0.9 !important; 
+        }
+        
+        span, .mdc-list-item__primary-text { 
+          color: #ffffff !important; 
+        }
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        /* Destructive Action (Logout) - Maintain Red */
+        &.mat-warn, &:last-child {
+          color: #fca5a5 !important;
+          mat-icon, .mat-icon { color: #fca5a5 !important; }
+        }
+    }
   }
   
   .mat-mdc-option:hover:not(.mdc-list-item--disabled),
