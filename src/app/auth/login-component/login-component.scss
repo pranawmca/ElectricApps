@@ -35,15 +35,16 @@
       margin: 0;
       font-size: 28px;
       font-weight: 800;
-      color: #1a202c;
+      color: #1a202c !important; /* Force visibility */
       letter-spacing: -0.5px;
     }
 
     p {
-      color: #718096;
+      color: #4a5568 !important; /* Darker subtext */
       font-size: 15px;
       margin-top: 10px;
       line-height: 1.5;
+      font-weight: 500;
     }
   }
 

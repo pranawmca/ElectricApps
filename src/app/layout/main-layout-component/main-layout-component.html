@@ -1,15 +1,19 @@
 
-<mat-sidenav-container class="sidenav-container" [dir]="isRtl ? 'rtl' : 'ltr'">
+<mat-sidenav-container class="sidenav-container" [class.mobile-mode]="isMobile" [class.side-collapsed]="!isSidenavOpened" [dir]="isRtl ? 'rtl' : 'ltr'">
 
   <!-- SIDE NAV -->
-  <mat-sidenav #sidenav class="sidenav" [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
+  <mat-sidenav #sidenav class="sidenav" [mode]="isMobile ? 'over' : 'side'" [opened]="true" [class.collapsed]="!isSidenavOpened">
 
     <div class="branding">
       <div class="logo">
-        <img *ngIf="companyLogoUrl" [src]="companyLogoUrl" class="logo-img" style="height: 30px; margin-right: 10px;" alt="Logo">
+        <img *ngIf="companyLogoUrl" [src]="companyLogoUrl" class="logo-img" [style.margin-right]="isSidenavOpened ? '10px' : '0'" style="height: 30px;" alt="Logo">
         <mat-icon *ngIf="!companyLogoUrl" class="logo-icon">inventory_2</mat-icon>
-        <span class="logo-text">{{ companyName }}</span>
+        <span class="logo-text" *ngIf="isSidenavOpened">{{ companyName }}</span>
       </div>
+      <!-- Desktop Side Toggle Icon -->
+      <button mat-icon-button (click)="toggleSidenav()" class="sidebar-toggle-btn" *ngIf="!isMobile && isSidenavOpened">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
     </div>
 
     <!-- User Info section (Sidenav - Mobile only) -->
@@ -26,22 +30,24 @@
       
       <!-- Leaf Node -->
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
-        <a [routerLink]="node.url" routerLinkActive="active-link" class="menu-item leaf-node">
+        <a [routerLink]="node.url" routerLinkActive="active-link" class="menu-item leaf-node"
+           [matTooltip]="!isSidenavOpened ? node.title : ''" matTooltipPosition="after">
           <span class="menu-content">
             <mat-icon class="menu-icon">{{node.icon}}</mat-icon>
-            <span class="menu-text">{{node.title}}</span>
+            <span class="menu-text" *ngIf="isSidenavOpened">{{node.title}}</span>
           </span>
         </a>
       </mat-tree-node>
 
       <!-- Expandable Node -->
       <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-        <div class="mat-tree-node-content" (click)="toggleNode(node)">
+        <div class="mat-tree-node-content" (click)="toggleNode(node)" 
+             [matTooltip]="!isSidenavOpened ? node.title : ''" matTooltipPosition="after">
            <span class="menu-content">
              <mat-icon class="menu-icon">{{node.icon}}</mat-icon>
-             <span class="menu-text">{{node.title}}</span>
+             <span class="menu-text" *ngIf="isSidenavOpened">{{node.title}}</span>
            </span>
-           <mat-icon class="expand-icon">{{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}</mat-icon>
+           <mat-icon class="expand-icon" *ngIf="isSidenavOpened">{{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}</mat-icon>
         </div>
         <div [class.tree-invisible]="!treeControl.isExpanded(node)" role="group" style="padding-left: 20px;">
            <ng-container matTreeNodeOutlet></ng-container>
@@ -50,7 +56,7 @@
 
     </mat-tree>
     
-    <div class="sidenav-footer">
+    <div class="sidenav-footer" *ngIf="isSidenavOpened">
       <div class="clock-calendar-section">
         <div class="live-clock">
           <mat-icon>schedule</mat-icon>
@@ -75,7 +81,8 @@
 
     <!-- TOOLBAR -->
     <mat-toolbar color="primary" class="toolbar">
-      <button mat-icon-button (click)="toggleSidenav()" aria-label="Menu" class="nav-icon menu-trigger-btn">
+      <!-- ALWAYS SHOW IN DESKTOP TOO - Synchronized with sidebar collapse -->
+      <button mat-icon-button (click)="toggleSidenav()" aria-label="Menu" class="nav-icon menu-trigger-btn" *ngIf="!isSidenavOpened || isMobile">
         <mat-icon>menu</mat-icon>
       </button>
 
@@ -91,34 +98,8 @@
           <mat-icon [class.pulse]="true">inventory_2</mat-icon>
         </button>
 
-        <!-- Theme Selector -->
-        <button mat-icon-button [matMenuTriggerFor]="themeMenu" matTooltip="Change Theme" class="nav-icon">
-          <mat-icon>palette</mat-icon>
-        </button>
-
-        <mat-menu #themeMenu="matMenu" xPosition="before">
-          <span mat-subheader style="display: flex; justify-content: center;">Color Theme</span>
-          <button mat-menu-item *ngFor="let theme of availableThemes" (click)="setTheme(theme.name)">
-            <mat-icon [style.color]="theme.color">circle</mat-icon>
-            <span>{{ theme.label }}</span>
-            <mat-icon *ngIf="currentTheme === theme.name" class="check-icon">check</mat-icon>
-          </button>
-          
-          <mat-divider></mat-divider>
-          
-          <div mat-menu-item>
-            <mat-slide-toggle [checked]="isDarkMode" (change)="toggleTheme()">
-              Dark Mode
-            </mat-slide-toggle>
-          </div>
-
-          <div mat-menu-item>
-            <mat-slide-toggle [checked]="isRtl" (change)="toggleDirection()">
-              RTL Mode (Right-to-Left)
-            </mat-slide-toggle>
-          </div>
-        </mat-menu>
-
+        <!-- Theme Selector Removed - Moved to Customizer Gear -->
+        
         <button mat-icon-button [matMenuTriggerFor]="notificationMenu" (menuOpened)="onMenuOpened()" matTooltip="Notifications" class="nav-icon">
           <mat-icon [matBadge]="unreadCount" [matBadgeHidden]="unreadCount === 0" matBadgeColor="warn">notifications</mat-icon>
         </button>
@@ -222,6 +203,106 @@
   </mat-sidenav-content>
 
 </mat-sidenav-container>
+
+<!-- ⚡ ELITE DASHBOARD CUSTOMIZER (Floating Settings) ⚡ -->
+<div class="customizer-trigger" [class.open]="isConfigOpen" (click)="isConfigOpen = !isConfigOpen" matTooltip="Customization & Themes">
+    <mat-icon [class.spinning]="true">settings</mat-icon>
+</div>
+
+<div class="config-panel" [class.open]="isConfigOpen">
+    <div class="config-header">
+        <div class="header-content">
+            <mat-icon>palette</mat-icon>
+            <div class="title-group">
+                <span class="title">Theme Customizer</span>
+                <span class="subtitle">Personalize your experience</span>
+            </div>
+        </div>
+        <button mat-icon-button (click)="isConfigOpen = false" class="close-config">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="config-content">
+        <!-- Appearance Section -->
+        <div class="config-section">
+            <label class="section-label">Appearance</label>
+            
+            <div class="config-option" (click)="toggleTheme()">
+                <div class="option-info">
+                    <mat-icon>{{ isDarkMode ? 'dark_mode' : 'light_mode' }}</mat-icon>
+                    <div class="option-text">
+                        <span class="label">Dark Mode</span>
+                        <span class="desc">Toggle dark/light theme</span>
+                    </div>
+                </div>
+                <mat-slide-toggle [checked]="isDarkMode" (change)="toggleTheme()" (click)="$event.stopPropagation()"></mat-slide-toggle>
+            </div>
+
+            <div class="config-option" (click)="toggleDirection()">
+                <div class="option-info">
+                    <mat-icon>translate</mat-icon>
+                    <div class="option-text">
+                        <span class="label">RTL Layout</span>
+                        <span class="desc">Right-to-Left orientation</span>
+                    </div>
+                </div>
+                <mat-slide-toggle [checked]="isRtl" (change)="toggleDirection()" (click)="$event.stopPropagation()"></mat-slide-toggle>
+            </div>
+        </div>
+
+        <!-- Primary Colors Section -->
+        <div class="config-section">
+            <label class="section-label">Accent Presets</label>
+            <div class="color-grid">
+                <div *ngFor="let theme of availableThemes" 
+                     class="color-circle" 
+                     [style.background-color]="theme.color"
+                     [class.active]="currentTheme === theme.name"
+                     [matTooltip]="theme.label"
+                     (click)="setTheme(theme.name)">
+                    <div class="inner-dot" *ngIf="currentTheme === theme.name"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 💎 PREMIUM UI MODES 💎 -->
+        <div class="config-section">
+            <label class="section-label">Premium Extras</label>
+            
+            <div class="config-option" (click)="toggleGlassMode()">
+                <div class="option-info">
+                    <mat-icon [style.color]="isGlassMode ? '#4f46e5' : '#64748b'">blur_on</mat-icon>
+                    <div class="option-text">
+                        <span class="label">Glassmorphism</span>
+                        <span class="desc">Frosted glass frosted effect</span>
+                    </div>
+                </div>
+                <mat-slide-toggle [checked]="isGlassMode" (change)="toggleGlassMode()" (click)="$event.stopPropagation()"></mat-slide-toggle>
+            </div>
+
+            <div class="config-option" (click)="toggleTableDensity()">
+                <div class="option-info">
+                    <mat-icon>view_headline</mat-icon>
+                    <div class="option-text">
+                        <span class="label">Compact View</span>
+                        <span class="desc">Maximize data density</span>
+                    </div>
+                </div>
+                <mat-slide-toggle [checked]="isCompactTable" (change)="toggleTableDensity()" (click)="$event.stopPropagation()"></mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+
+    <div class="config-footer">
+        <button mat-flat-button color="primary" class="reset-btn" (click)="resetConfig()">
+            <mat-icon>refresh</mat-icon>
+            RESET TO DEFAULT
+        </button>
+    </div>
+</div>
+
+<div class="config-overlay" *ngIf="isConfigOpen" (click)="isConfigOpen = false"></div>
 
 <!-- Live Stock Drawer Component -->
 <app-stock-drawer [isOpen]="isStockDrawerOpen" (close)="isStockDrawerOpen = false"></app-stock-drawer>

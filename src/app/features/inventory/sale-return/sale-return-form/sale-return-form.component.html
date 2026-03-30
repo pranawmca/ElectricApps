@@ -116,10 +116,15 @@
                         <td mat-cell *matCellDef="let element" sticky> 
                             <div class="p-name">
                                 <span class="p-text">{{element.get('productName').value}}</span>
-                                <span class="stock-inline-badge">Stock: {{element.get('currentStock').value}}</span>
-                                <div class="policy-badge-mini" [ngClass]="element.get('isReturnable').value ? 'active' : 'expired'" [matTooltip]="element.get('isReturnable').value ? 'Return Window: ' + formatRemainingTime(element.get('remainingHours').value) : 'Policy Expired'">
-                                    <mat-icon>{{element.get('isReturnable').value ? 'timer' : 'block'}}</mat-icon>
-                                    <span>{{ element.get('isReturnable').value ? formatRemainingTime(element.get('remainingHours').value) + ' left' : 'Window Closed' }}</span>
+                                <div class="badge-row">
+                                    <span class="stock-inline-badge">Stock: {{element.get('currentStock').value}}</span>
+                                    <div class="policy-badge-mini" [ngClass]="element.get('isReturnable').value ? 'active' : 'expired'" [matTooltip]="element.get('isReturnable').value ? 'Return Window: ' + formatRemainingTime(element.get('remainingHours').value) : 'Policy Expired'">
+                                        <mat-icon>{{element.get('isReturnable').value ? 'timer' : 'block'}}</mat-icon>
+                                        <span>{{ element.get('isReturnable').value ? formatRemainingTime(element.get('remainingHours').value) + ' left' : 'Window Closed' }}</span>
+                                    </div>
+                                </div>
+                                <div *ngIf="!element.get('isReturnable').value" class="restriction-msg">
+                                    (Restriction: Window Closed)
                                 </div>
                             </div>
                         </td>

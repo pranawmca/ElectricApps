@@ -636,11 +636,28 @@ input[type=number] {
 
 .p-name {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column; // Stack elements vertically
+    align-items: flex-start;
+    gap: 8px;
     font-weight: 600;
     color: #0f172a; // Darker slate
     padding: 12px 0;
+
+    .badge-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap; // Responsive
+    }
+
+    .restriction-msg {
+        color: #dc2626;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        animation: fadeIn 0.3s ease-in;
+    }
 }
 
 .p-text {
@@ -709,24 +726,11 @@ input[type=number] {
 }
 
 .return-closed {
-    background-color: #f1f5f9 !important;
-    opacity: 0.6;
+    background-color: #f8fafc !important;
+    opacity: 0.7;
     pointer-events: none; // Block interactions
     position: relative;
     
-    &::after {
-        content: '(Restriction: Window Closed)';
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 11px;
-        font-weight: 700;
-        color: #dc2626;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
     ::ng-deep {
         .mat-mdc-form-field {
             opacity: 0.5;

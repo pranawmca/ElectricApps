@@ -66,6 +66,10 @@ export class MainLayoutComponent implements OnInit {
   companyLogoUrl: string | null = null;
 
   isStockDrawerOpen = false;
+  isConfigOpen = false;
+  isSidenavOpened = true; // Track sidebar state
+  isGlassMode = false;
+  isCompactTable = false;
 
   availableThemes: { name: string, label: string, color: string }[] = [];
 
@@ -234,11 +238,36 @@ export class MainLayoutComponent implements OnInit {
   }
 
   toggleSidenav(): void {
-    this.sidenav.toggle();
+    if (this.isMobile) {
+      this.sidenav.toggle();
+    }
+    // On Desktop, we just toggle the 'collapsed' class via isSidenavOpened
+    this.isSidenavOpened = !this.isSidenavOpened;
+    this.cdr.detectChanges();
   }
 
   toggleStockDrawer(): void {
     this.isStockDrawerOpen = !this.isStockDrawerOpen;
+    this.cdr.detectChanges();
+  }
+
+  toggleGlassMode(): void {
+    this.isGlassMode = !this.isGlassMode;
+    if (this.isGlassMode) {
+      document.body.classList.add('glass-active');
+    } else {
+      document.body.classList.remove('glass-active');
+    }
+    this.cdr.detectChanges();
+  }
+
+  toggleTableDensity(): void {
+    this.isCompactTable = !this.isCompactTable;
+    if (this.isCompactTable) {
+        document.body.classList.add('compact-density');
+    } else {
+        document.body.classList.remove('compact-density');
+    }
     this.cdr.detectChanges();
   }
 
@@ -354,5 +383,13 @@ export class MainLayoutComponent implements OnInit {
       maxWidth: '400px',
       autoFocus: false
     });
+  }
+
+  resetConfig(): void {
+    this.themeService.setTheme('indigo-pink'); // Default theme
+    if (this.isDarkMode) this.themeService.toggleDarkMode();
+    if (this.isRtl) this.themeService.toggleDirection();
+    this.isConfigOpen = false;
+    this.cdr.detectChanges();
   }
 }

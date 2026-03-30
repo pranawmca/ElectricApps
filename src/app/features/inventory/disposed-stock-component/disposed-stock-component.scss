@@ -8,7 +8,6 @@
   flex-direction: column;
   padding: 24px;
   background: #f1f5f9;
-  min-height: calc(100vh - 100px);
   gap: 20px;
 }
 
@@ -99,7 +98,6 @@
 
 .table-container {
   overflow-x: auto;
-  min-height: 400px;
 }
 
 table {

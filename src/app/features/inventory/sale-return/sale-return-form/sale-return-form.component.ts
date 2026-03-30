@@ -451,9 +451,18 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
             });
 
         if (mappedItems.length === 0) {
+            const hasAnyReturnableItems = rawValue.items.some((i: any) => i.isReturnable);
+            const errorMessage = hasAnyReturnableItems 
+                ? 'Please enter return quantity for at least one available item.'
+                : 'Return Window Closed: All selected items have exceeded the 72-hour return policy and cannot be processed.';
+
             this.dialog.open(StatusDialogComponent, {
                 width: '400px',
-                data: { isSuccess: false, message: 'Please enter return quantity for at least one item.' }
+                data: { 
+                    isSuccess: false, 
+                    title: 'Restriction Warning',
+                    message: errorMessage 
+                }
             });
             return;
         }
