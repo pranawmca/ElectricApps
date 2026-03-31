@@ -263,6 +263,136 @@
   }
 }
 
+/* 🌙 PREMIUM DARK MODE (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .dialog-container {
+        background: #020617 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .dialog-header {
+        background: #0f172a !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        
+        .title-area {
+            color: #ffffff !important;
+            .header-icon { color: #60a5fa !important; }
+            /* 🎯 Force white for the 'GRN Print Preview' text */
+            h1, h2, h3, h2:first-child { 
+                color: #ffffff !important; 
+                opacity: 1 !important; 
+            }
+        }
+        .close-btn { color: #ffffff !important; opacity: 0.8; }
+    }
+
+    .dialog-content {
+        background: #020617 !important;
+        padding: 0px !important; 
+        overflow-x: hidden !important; /* Prevent horizontal spill */
+        display: flex;
+        flex-direction: column;
+
+        .loading-state {
+            color: rgba(255, 255, 255, 0.5) !important;
+            padding: 60px;
+        }
+
+        /* 📄 FIXED: NO MORE RIGHT-SIDE CLIPPING ⚡ */
+        .print-preview {
+            background: #0f172a !important; 
+            color: #ffffff !important;
+            border-radius: 0px; 
+            padding: 24px 32px; /* Sufficient side-padding for visibility */
+            box-shadow: none; 
+            height: 100%;
+            width: 100% !important;
+            margin: 0 !important;
+            box-sizing: border-box !important; /* 🎯 CRUCIAL: Padding inside the width */
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden; 
+            
+            /* Override all nested text to white for Dark Mode visibility */
+            h1, h2, h3, h4, p, span, div, strong, .detail-label, .detail-value {
+                color: #ffffff !important;
+            }
+
+            .print-header {
+                border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+                .company-info h1 { color: #60a5fa !important; } /* High Contrast Blue */
+                .company-info p { color: rgba(255, 255, 255, 0.6) !important; }
+                .grn-title h2 { color: #ffffff !important; }
+            }
+
+            .detail-section h3 {
+                color: rgba(255, 255, 255, 0.5) !important;
+                border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+            }
+
+            table {
+                th {
+                    background: #1e293b !important;
+                    color: #ffffff !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                }
+                td {
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    color: rgba(255, 255, 255, 0.9) !important;
+                }
+            }
+
+            .totals-section {
+                border-top-color: rgba(255, 255, 255, 0.1) !important;
+                .total-row {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    &.grand-total {
+                        color: #ffffff !important;
+                        border-top-color: #3b82f6 !important;
+                    }
+                }
+            }
+
+            .print-footer .signature .sig-line {
+                border-bottom-color: rgba(255, 255, 255, 0.3) !important;
+            }
+        }
+    }
+
+    .dialog-actions {
+        background: #0f172a !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+        button {
+            border-radius: 50px !important;
+            height: 42px !important;
+            padding: 0 28px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px !important;
+            color: #ffffff !important;
+        }
+
+        /* 🎯 STEALTH MONOCHROMATIC BUTTONS (SYNCED) */
+        .print-btn, .cancel-btn, button {
+            background: #1e293b !important; /* Unified Slate theme */
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+            
+            &:hover:not(:disabled) { 
+                background: #334155 !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+                transform: translateY(-2px);
+            }
+
+            &:active:not(:disabled) {
+                transform: translateY(1px);
+            }
+        }
+    }
+}
+
 @media print {
   .no-print {
     display: none !important;

@@ -220,6 +220,12 @@ export class GrnPrintDialogComponent implements OnInit {
     `);
     WindowPrt.document.close();
     WindowPrt.focus();
+
+    // 🎯 AUTO-CLOSE: After initiating print, close this dialog
+    // We return 'printed' so the parent component knows it's time to navigate back to the list.
+    setTimeout(() => {
+      this.dialogRef.close('printed');
+    }, 500);
   }
 
   close(): void {

@@ -202,7 +202,9 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   }
 
   mapItems(incomingItems: any[]) {
-    this.items = incomingItems.map((item: any) => {
+    console.log('🔄 Mapping GRN Items. isQuick:', this.isQuick, 'GatePassQty:', this.gatePassQty);
+    
+    const mappedItems = incomingItems.map((item: any) => {
       const ordered = Number(item.orderedQty || item.OrderedQty || 0);
       const acceptedSoFar = Number(item.acceptedQty || item.AcceptedQty || 0);
 
@@ -212,9 +214,19 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       }
 
       const rate = Number(item.unitRate || item.unitPrice || item.UnitPrice || 0);
-      const received = this.isViewMode
-        ? Number(item.receivedQty || item.ReceivedQty || 0)
-        : Number(item.receivedQty || 0);
+      
+      // 🎯 Fix: Stronger pre-filling logic for data binding (isQuick flow)
+      let received = 0;
+      if (this.isViewMode) {
+        received = Number(item.receivedQty || item.ReceivedQty || 0);
+      } else if (this.isQuick) {
+        // If it's a Quick GRN, pre-fill with full pending quantity
+        received = pending;
+      } else if (this.gatePassQty && this.gatePassQty > 0) {
+        received = Math.min(this.gatePassQty, pending);
+      } else {
+        received = Number(item.receivedQty || 0);
+      }
 
       const rejected = 0;
       const accepted = received - rejected;
@@ -230,6 +242,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         ...item,
         productId: item.productId || item.ProductId,
         productName: item.productName || item.ProductName,
+        poNumber: item.poNumber || item.PoNumber || this.grnForm.get('poNumber')?.value,
         orderedQty: ordered,
         pendingQty: pending,
         receivedQty: received,
@@ -237,8 +250,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         rejectedQty: rejected,
         acceptedQty: accepted,
         unitRate: rate,
-        supplierId: item.supplierId || item.SupplierId || 0,
-        supplierName: item.supplierName || item.SupplierName || '',
+        supplierId: item.supplierId || item.SupplierId || this.supplierId || 0,
+        supplierName: item.supplierName || item.SupplierName || this.supplierName || '',
         discountPercent: discPer,
         gstPercent: gstPer,
         taxAmount: taxAmt,
@@ -255,14 +268,20 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       };
     });
 
+    // 🎯 Use immutable update to trigger Change Detection
+    this.items = [...mappedItems];
+
     this.items.forEach(item => {
       if (item.warehouseId) {
         this.onWarehouseChange(item);
       }
     });
 
-    this.calculateGrandTotal();
-    this.cdr.detectChanges();
+    // Final UI Sync
+    setTimeout(() => {
+      this.calculateGrandTotal();
+      this.cdr.detectChanges();
+    }, 150);
 
     // Start auto-save countdown only for REAL gate pass flow (isFromPopup AND NOT isQuick)
     if (this.isFromPopup && !this.isViewMode && !this.isQuick) {
@@ -559,6 +578,16 @@ export class GrnFormComponent implements OnInit, OnDestroy {
               grnNumber: grnNumber,
               grandTotal: this.calculateGrandTotal(),
               supplierId: this.supplierId
+            });
+          } else if (result === 'print') {
+            // 🎯 DIRECT PRINT: Open print dialog and then go back to list
+            this.dialog.open(GrnPrintDialogComponent, {
+              width: '900px',
+              maxWidth: '95vw',
+              data: { grnNo: grnNumber },
+              panelClass: 'grn-print-dialog'
+            }).afterClosed().subscribe(() => {
+              this.navigateBack();
             });
           } else {
             this.navigateBack();

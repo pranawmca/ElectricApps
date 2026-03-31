@@ -596,29 +596,27 @@ input[type=number] {
     }
     
     .barcode-status {
-      background: rgba(59, 130, 246, 0.1) !important;
+      background: #0f172a !important; /* Midnight Navy */
       border-color: rgba(59, 130, 246, 0.3) !important;
       .status-label { color: rgba(255, 255, 255, 0.5) !important; }
       .last-scanned { color: #ffffff !important; }
+      mat-icon { color: #3b82f6 !important; }
       &.scanning { background: rgba(59, 130, 246, 0.2) !important; border-color: #3b82f6 !important; }
     }
 
-    .save-btn {
-      background: #3b82f6 !important;
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3) !important;
-      &:hover {
-        background: #2563eb !important;
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.5) !important;
-      }
-    }
-
-    .back-btn {
-      background: rgba(255, 255, 255, 0.04) !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    /* 🎯 UNIFIED STEALTH BUTTONS (Synced Save & Cancel) */
+    .save-btn, .back-btn {
+      background: #1e293b !important; /* Unified Obsidian Slate */
       color: #ffffff !important;
-      &:hover {
-        background: rgba(255, 255, 255, 0.08) !important;
-        border-color: rgba(255, 255, 255, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+      
+      mat-icon { color: #ffffff !important; }
+
+      &:hover:not(:disabled) {
+        background: #334155 !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+        transform: translateY(-2px);
       }
     }
   }
@@ -654,7 +652,24 @@ input[type=number] {
 
   .items-section {
     border-top-color: rgba(255, 255, 255, 0.05) !important;
-    .section-title span { color: #ffffff !important; }
+    .section-title {
+      span { color: #ffffff !important; }
+      
+      /* 🎯 SYNCED SEARCH BUTTON (Scanner Theme) */
+      button {
+        background: #0f172a !important; /* Midnight Navy */
+        color: #ffffff !important;
+        border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+
+        mat-icon { color: #3b82f6 !important; } /* Sapphire Icon */
+
+        &:hover:not(:disabled) {
+          background: rgba(59, 130, 246, 0.1) !important;
+          border-color: #3b82f6 !important;
+        }
+      }
+    }
   }
 
   .items-grid {

@@ -29,6 +29,7 @@
   animation: slideUpContent 0.3s ease-out;
   text-align: center;
   max-width: 90%;
+  transition: background-color 0.3s ease;
 }
 
 .global-loading-text {
@@ -37,6 +38,7 @@
   font-weight: 700;
   color: #0f172a;
   letter-spacing: -0.02em;
+  transition: color 0.3s ease;
 }
 
 .global-loading-subtext {
@@ -44,6 +46,7 @@
   font-size: 14px;
   color: #64748b;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 @keyframes fadeInOverlay {
@@ -62,7 +65,127 @@
   }
 }
 
-/* Ensure spinner is branded */
-::ng-deep .mat-mdc-progress-spinner {
-  --mdc-circular-progress-active-indicator-color: #3b82f6;
+/* 🌙 DARK MODE OVERRIDES (MIDNIGHT POLISH) */
+.dark-mode, :host-context(.dark-mode) {
+  .global-loading-overlay { background: rgba(2, 6, 23, 0.75) !important; }
+  .global-loading-content {
+    background: #0f172a !important; 
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  }
+  .global-loading-text { color: #ffffff !important; }
+  .global-loading-subtext { color: rgba(255, 255, 255, 0.6) !important; }
+
+  /* 📅 UNIVERSAL DATEPICKER DARK POLISH - High-Contrast Precision */
+  .mat-datepicker-content,
+  .mat-mdc-datepicker-content {
+      background-color: #0f172a !important; /* Deep Obsidian Slate */
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+
+      .mat-calendar {
+          background-color: transparent !important;
+      }
+
+      /* 1️⃣ Dates (1, 2, 3...) - Snow White Visibility */
+      .mat-calendar-body-cell-content,
+      .mat-calendar-period-button,
+      .mat-calendar-table-header,
+      .mat-calendar-arrow,
+      .mat-calendar-previous-button,
+      .mat-calendar-next-button {
+          color: #ffffff !important; /* 🎯 Force pure white font */
+      }
+
+      /* 2️⃣ Days Header (S, M, T...) - Subtle Blue Tint */
+      .mat-calendar-table-header-indicator {
+          color: #60a5fa !important;
+          font-weight: 600 !important;
+      }
+
+      /* 3️⃣ Selected Date - Intense Sapphire Glow */
+      .mat-calendar-body-selected {
+          background-color: #3b82f6 !important;
+          color: #ffffff !important;
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.5) !important;
+      }
+
+      /* 4️⃣ Today Marker */
+      .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+          border-color: #60a5fa !important;
+      }
+
+      /* 5️⃣ Hover Effect */
+      .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+      }
+  }
+
+  /* 🎯 GLOBAL PLACEHOLDER & LABEL POLISH - High-Contrast Visibility */
+  ::placeholder {
+      color: #ffffff !important;
+      opacity: 0.8 !important;
+  }
+
+  /* ⚡ NUCLEAR CALENDAR CLARITY ⚡ */
+  .mat-datepicker-content,
+  .mat-mdc-datepicker-content,
+  .mat-calendar {
+      background-color: #0f172a !important; /* Deep Obsidian Slate */
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7) !important;
+
+      /* Target every possible date/text element for absolute white visibility */
+      .mat-calendar-body-cell-content,
+      .mat-mdc-calendar-body-cell-content,
+      .mat-calendar-period-button,
+      .mat-mdc-button-label,
+      .mat-calendar-table-header th,
+      .mat-calendar-arrow,
+      .mat-datepicker-toggle,
+      .mat-calendar-previous-button,
+      .mat-calendar-next-button {
+          color: #ffffff !important;
+          opacity: 1 !important;
+      }
+
+      /* Days Header (S, M, T...) */
+      .mat-calendar-table-header-indicator,
+      .mat-mdc-calendar-table-header-indicator {
+          color: #60a5fa !important; /* Brighter Azure */
+          font-weight: 700 !important;
+      }
+
+      /* Selected & Today Glow */
+      .mat-calendar-body-selected,
+      .mat-mdc-calendar-body-selected {
+          background-color: #3b82f6 !important;
+          color: #ffffff !important;
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.6) !important;
+      }
+      
+      .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+          border-color: #60a5fa !important;
+      }
+  }
+
+  /* mat-form-field Label and Inputs in dark mode */
+  .mat-mdc-form-field-label, 
+  .mat-form-field-label,
+  .mat-mdc-form-field-hint,
+  .mat-mdc-input-element::placeholder {
+      color: #ffffff !important;
+      opacity: 0.7 !important;
+  }
+
+  ::ng-deep .mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: #3b82f6 !important; /* Brighter Sapphire */
+  }
+}
+
+/* Ensure spinner is branded for Light Mode */
+::ng-deep .mat-mdc-progress-spinner:not(.dark-mode *) {
+  --mdc-circular-progress-active-indicator-color: #1a56db;
 }

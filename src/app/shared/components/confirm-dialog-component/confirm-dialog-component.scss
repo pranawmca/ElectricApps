@@ -1,7 +1,94 @@
+.confirm-dialog-container {
+    padding: 16px 24px;
+    background: #ffffff;
+    border-radius: 12px;
+}
+
+h2[mat-dialog-title] {
+    margin: 0 0 16px 0;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
 mat-dialog-content {
-  font-size: 14px;
+    font-size: 15px;
+    color: #475569;
+    line-height: 1.6;
+    text-align: center;
+    padding: 8px 0 24px 0 !important;
 }
 
 mat-dialog-actions {
-  margin-top: 16px;
+    padding: 0;
+    gap: 12px;
+    justify-content: center;
+    margin: 0 !important;
+}
+
+/* 🎯 PILL-SHAPED EXECUTIVE BUTTONS */
+button[mat-button], button[mat-flat-button] {
+    height: 48px;
+    min-width: 120px;
+    border-radius: 50px;
+    padding: 0 24px !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+button[mat-flat-button][color="primary"] {
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    &:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35); }
+}
+
+button[mat-button] {
+    background: #f1f5f9;
+    color: #64748b;
+    &:hover { background: #e2e8f0; color: #1e293b; }
+}
+
+/* 🌙 PREMIUM DARK MODE (MIDNIGHT SLATE) */
+:host-context(.dark-mode) {
+    .confirm-dialog-container { background: #020617; }
+    h2[mat-dialog-title] { color: #ffffff !important; }
+    mat-dialog-content { 
+        color: #ffffff !important; 
+        p { color: #ffffff !important; } /* 🎯 Forced absolute white for visibility */
+    }
+
+    button[mat-flat-button], button[mat-raised-button], .mat-primary {
+        &[color="primary"], &.mat-primary {
+            /* 🎯 MONOCHROMATIC DARK POLISHED (MATCHING CANCEL STYLE) */
+            background: #1e293b !important; /* Exactly like Cancel button */
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            
+            &:hover:not(:disabled) {
+                background: #334155 !important;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.45) !important;
+                transform: translateY(-1px) scale(1.02);
+            }
+
+            &:active:not(:disabled) {
+                transform: translateY(1px);
+            }
+        }
+    }
+
+    button[mat-button] {
+        background: #1e293b !important;
+        color: #94a3b8 !important;
+        &:hover { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
+    }
 }

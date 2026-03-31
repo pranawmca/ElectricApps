@@ -21,7 +21,7 @@ export class DateHelper {
     return `${day}-${month}-${year}`;
   }
 
-  // Short Display ke liye (dd-mm-yy)
+  // Short Display ke liye (dd/mm/yy)
   static toShortDisplayDate(date: any): string | null {
     if (!date) return null;
     const d = new Date(date);
@@ -29,18 +29,19 @@ export class DateHelper {
     const day = ('0' + d.getDate()).slice(-2);
     const month = ('0' + (d.getMonth() + 1)).slice(-2);
     const year = d.getFullYear().toString().slice(-2);
-    return `${day}-${month}-${year}`;
+    return `${day}/${month}/${year}`;
   }
 
   /**
-   * Parse dd-mm-yy or dd-mm-yyyy to valid .NET DateTime compatible ISO string
+   * Parse dd-mm-yy or dd/mm/yy (or yyyy variations) to valid .NET DateTime compatible ISO string
    * returns: yyyy-mm-ddT00:00:00.000Z
    */
   static parseToISO(dateStr: string): string | null {
     if (!dateStr || typeof dateStr !== 'string') return null;
     if (dateStr === 'NA') return null;
     
-    const parts = dateStr.split('-');
+    // 🎯 Use Regex to split by either - or /
+    const parts = dateStr.split(/[-/]/);
     if (parts.length !== 3) return null;
 
     let day = parseInt(parts[0], 10);

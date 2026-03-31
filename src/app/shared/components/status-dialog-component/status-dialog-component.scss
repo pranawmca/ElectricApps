@@ -78,12 +78,84 @@
   min-width: fit-content !important;
 }
 
+/* 🌙 PREMIUM DARK MODE (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+  .dialog-container {
+    background-color: #020617 !important; /* Midnight Black */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+
+    h2[mat-dialog-title], 
+    h1, h2, h3, .dialog-header h2 {
+       color: #ffffff !important; 
+       font-weight: 800 !important;
+    }
+
+    mat-dialog-content .message-text {
+       color: rgba(255, 255, 255, 0.9) !important;
+       font-weight: 300 !important;
+    }
+
+    mat-dialog-actions {
+       button {
+         border-radius: 50px !important; /* Executive Pill Shape */
+         height: 42px !important;
+         font-size: 0.9rem !important;
+         letter-spacing: 0.5px !important;
+         padding: 0 28px !important;
+         color: #ffffff !important; /* 🎯 Force white for all dialog buttons */
+       }
+
+       /* 🎯 PRIMARY/YES/OK - SAPPHIRE POLISHED GLOSS */
+       button[mat-button].btn-primary, 
+       button[mat-raised-button],
+       button[mat-flat-button],
+       button[color="primary"],
+       button[color="accent"],
+       button:last-child {
+         background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+         color: #ffffff !important;
+         box-shadow: 0 8px 30px rgba(30, 64, 175, 0.45) !important;
+         border: 1px solid rgba(255, 255, 255, 0.1) !important;
+         
+         &:hover:not(:disabled) { 
+           background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+           box-shadow: 0 12px 45px rgba(37, 99, 235, 0.55) !important;
+           transform: translateY(-2px);
+         }
+       }
+
+       /* 🎯 CANCEL/NO - STEALTH OBSIDIAN SLATE */
+       button:first-child:not(:last-child),
+       button.btn-secondary {
+         background: #1e293b !important;
+         color: #ffffff !important;
+         border: 1px solid rgba(255, 255, 255, 0.1) !important;
+         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+         margin-right: 12px !important;
+
+         &:hover:not(:disabled) { background: #334155 !important; color: #ffffff !important; }
+       }
+    }
+  }
+
+  /* Status Colors Glow */
+  .text-success { color: #4ade80 !important; filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.3)); }
+  .text-error { color: #f87171 !important; filter: drop-shadow(0 0 5px rgba(248, 113, 113, 0.3)); }
+  .text-warning { color: #fbbf24 !important; filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.3)); }
+  
+  &.success-border { border-left-color: #22c55e !important; }
+  &.error-border { border-left-color: #ef4444 !important; }
+  &.warning-border { border-left-color: #f59e0b !important; }
+}
+
 /* Mobile Fix: Choti screen par width control [cite: 2026-01-22] */
 @media (max-width: 600px) {
   .dialog-container {
     min-width: 95vw;
     padding: 16px;
-    border-left: 6px solid #d32f2f;
+    
+    &.error-border { border-left: 6px solid #d32f2f; }
 
     .dialog-header {
       gap: 10px;
@@ -97,7 +169,7 @@
     
     mat-dialog-actions {
       justify-content: center;
-      button { width: 100%; }
+      button { width: 100%; margin-bottom: 8px; margin-right: 0 !important; }
     }
   }
 }

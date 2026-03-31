@@ -15,6 +15,7 @@ import { SupplierModalComponent } from '../supplier-modal/supplier-modal';
 import { SupplierService } from '../service/supplier.service';
 import { UnitService } from '../../master/units/services/units.service';
 import { LocationService } from '../../master/locations/services/locations.service';
+import { MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
 import { DateHelper } from '../../../shared/models/date-helper';
 import { POService } from '../service/po.service';
 import { BarcodeReaderHelper } from '../../../shared/barcode-reader-helper/barcode-reader-helper.service';
@@ -22,12 +23,41 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { ProductForm } from '../../master/product/product-form/product-form';
 import { SharedPrintService } from '../../../core/services/shared-print.service';
 
+// 🎯 Custom Native Date Adapter to force dd/mm/yy format
+export class CustomDateAdapter extends NativeDateAdapter {
+    override format(date: Date, displayFormat: Object): string {
+        if (displayFormat === 'input') {
+            const day = ('0' + date.getDate()).slice(-2);
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear().toString().slice(-2);
+            return `${day}/${month}/${year}`;
+        }
+        return date.toLocaleDateString();
+    }
+}
+
+export const MY_DATE_FORMATS = {
+    parse: {
+        dateInput: { month: 'short', year: 'numeric', day: 'numeric' },
+    },
+    display: {
+        dateInput: 'input',
+        monthYearLabel: { year: 'numeric', month: 'short' },
+        dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
+        monthYearA11yLabel: { year: 'numeric', month: 'long' },
+    },
+};
+
 @Component({
     selector: 'app-quick-purchase',
     standalone: true,
     imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule],
     templateUrl: './quick-purchase.component.html',
     styleUrls: ['./quick-purchase.component.scss'],
+    providers: [
+        { provide: DateAdapter, useClass: CustomDateAdapter },
+        { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    ],
     animations: [
         trigger('fadeInOut', [
             transition(':enter', [

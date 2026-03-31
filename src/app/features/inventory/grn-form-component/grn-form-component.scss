@@ -398,3 +398,128 @@
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.7; transform: scale(1.15); }
 }
+/* 🌙 PREMIUM DARK MODE (MIDNIGHT SLATE) ⚡ */
+:host-context(.dark-mode) {
+    .grn-form-container {
+        background: #020617;
+    }
+    
+    .title-group h2 { color: #ffffff !important; }
+
+    .compact-card {
+        background: #0f172a !important;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .table-responsive {
+        background: #0f172a;
+        box-shadow: none;
+    }
+
+    .grn-items-table {
+        th {
+            background: #1e293b !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        td {
+            color: #ffffff !important;
+            border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+        }
+    }
+
+    /* 🎯 FIXING THE TEXTBOX COLOR ISSUES MARKED BY USER */
+    .dense-input {
+        ::v-deep .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.05) !important; /* Obsidian Dark */
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.2s ease;
+            
+            &:hover { border-color: #3b82f6 !important; background-color: rgba(255, 255, 255, 0.08) !important; }
+        }
+
+        input {
+            color: #ffffff !important; /* 🎯 Force white text for visibility */
+            caret-color: #ffffff !important;
+        }
+
+        ::v-deep .mat-mdc-select-value {
+            color: #ffffff !important; /* 🎯 Force white for dropdown values */
+        }
+
+        ::v-deep .mat-mdc-select-arrow {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+    }
+
+    .active-row {
+        background-color: rgba(59, 130, 246, 0.08) !important;
+        border-left-color: #3b82f6 !important;
+        .col-product { color: #60a5fa !important; }
+    }
+
+    .inactive-row {
+        opacity: 0.4;
+        background-color: transparent !important;
+    }
+
+    .text-primary { color: #60a5fa !important; }
+    .text-secondary { color: rgba(255, 255, 255, 0.5) !important; }
+    .text-accepted { color: #34d399 !important; }
+    .text-total { color: #ffffff !important; }
+
+    .replacement-tag {
+        background: rgba(220, 38, 38, 0.2);
+        color: #f87171;
+        border-color: rgba(220, 38, 38, 0.3);
+    }
+
+    /* ─── Header & Footer Dark Sync ─── */
+    ::ng-deep .mat-mdc-form-field-label {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .cancel-btn {
+        background: #1e293b !important; /* Midnight Slate */
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        &:hover { background: #334155 !important; transform: translateY(-1px); }
+    }
+
+    .save-btn {
+        /* 🎯 ULTIMATE DARK POLISHED SAPPHIRE ACTION (EXECUTIVE GLOSS) */
+        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 30px rgba(30, 64, 175, 0.45) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        
+        &:hover:not(:disabled) { 
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+            box-shadow: 0 12px 45px rgba(37, 99, 235, 0.55) !important;
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        &:disabled {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: rgba(255, 255, 255, 0.3) !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .auto-save-banner {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+    }
+}
