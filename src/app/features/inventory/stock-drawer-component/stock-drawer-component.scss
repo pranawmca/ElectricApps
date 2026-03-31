@@ -331,6 +331,11 @@
     font-weight: 700;
     color: #1e293b;
     font-size: 0.8rem;
+
+    &.expired-qty-text {
+      color: #ef4444;
+      font-weight: 800;
+    }
   }
 
   .batch-date {

@@ -11,16 +11,21 @@ import { FormsModule } from '@angular/forms';
   template: `
     <div class="batch-selection-container">
       <div class="dialog-header">
-        <h2 class="title">Select Batch — {{ data.productName }}</h2>
-        <p class="subtitle" *ngIf="data.validCount > 0">
-          <span style="color: #16a34a; font-weight: 600;">{{data.validCount}} valid batch{{data.validCount > 1 ? 'es' : ''}} available</span>
-          <span *ngIf="getUnselectableCount() > 0" style="color: #dc2626; margin-left: 8px;">
-            &bull; {{getUnselectableCount()}} unavailable (expired or 0 stock)
-          </span>
-        </p>
-        <p class="subtitle" *ngIf="!data.validCount || data.validCount === 0" style="color: #dc2626; font-weight: 600;">
-          ⚠️ No selectable batches available.
-        </p>
+        <div class="header-content">
+          <h2 class="title">Select Batch — {{ data.productName }}</h2>
+          <p class="subtitle" *ngIf="data.validCount > 0">
+            <span style="color: #10b981; font-weight: 700;">{{data.validCount}} valid batch{{data.validCount > 1 ? 'es' : ''}} available</span>
+            <span *ngIf="getUnselectableCount() > 0" style="color: #ef4444; margin-left: 8px; font-weight: 700;">
+              &bull; {{getUnselectableCount()}} unavailable
+            </span>
+          </p>
+          <p class="subtitle" *ngIf="!data.validCount || data.validCount === 0" style="color: #dc2626; font-weight: 700;">
+            ⚠️ No selectable batches available.
+          </p>
+        </div>
+        <button mat-icon-button class="close-icon-btn" (click)="close()">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
 
       <div class="batches-list">
@@ -84,105 +89,192 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       <div class="dialog-footer">
-        <button mat-stroked-button (click)="close()">
-          <mat-icon>close</mat-icon> Cancel
+        <button mat-raised-button class="dg-pill-cancel" (click)="close()">
+          <mat-icon>close</mat-icon> CANCEL
         </button>
-        <button mat-raised-button color="primary" (click)="confirm()" 
+        <button mat-raised-button class="dg-pill-confirm" (click)="confirm()" 
                 [disabled]="selectedBatchIndex === null || (selectedBatchIndex !== null && isDisabled(data.batches[selectedBatchIndex]))">
-          <mat-icon>check_circle</mat-icon> Confirm Selection
+          <mat-icon>shopping_cart</mat-icon> ADD SELECTED BATCH
         </button>
       </div>
     </div>
   `,
   styles: [`
-    .batch-selection-container {
-      padding: 0;
+    :host {
       display: flex;
       flex-direction: column;
       width: 100%;
-      max-width: 600px;
-      gap: 0;
+      height: 100%;
+      background: var(--card-bg, #ffffff);
+      color: var(--app-text, #1e293b);
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+    }
+
+    .batch-selection-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: var(--card-bg, #ffffff);
+      position: relative;
     }
 
     .dialog-header {
-      padding: 20px 24px;
-      background: #f8fafc;
-      border-bottom: 1px solid #e2e8f0;
+      padding: 24px 28px;
+      background: var(--header-bg, linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%));
+      border-bottom: 1px solid var(--border-color, rgba(0,0,0,0.08));
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+
+      .header-content { flex: 1; }
 
       .title {
-        margin: 0 0 8px 0;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1e293b;
+        margin: 0 0 6px 0;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--app-text, #1e293b);
+        letter-spacing: -0.8px;
+        font-family: 'Outfit', sans-serif;
       }
 
       .subtitle {
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+      }
+
+      .close-icon-btn {
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        background: rgba(244, 63, 94, 0.1);
+        color: #f43f5e;
+        border-radius: 50%;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+        padding: 0 !important;
+        margin-top: -4px;
+        margin-right: -4px;
+
+        .mat-icon {
+          margin: 0 !important;
+          padding: 0 !important;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        &:hover { 
+          color: white; 
+          background: #f43f5e; 
+          transform: rotate(90deg) scale(1.1); 
+          box-shadow: 0 6px 15px rgba(244, 63, 94, 0.4);
+        }
       }
     }
 
     .batches-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      min-height: 200px;
-      max-height: 400px;
+      display: block !important; /* 🎯 Overriding flex for more predictable scrolling */
+      height: 420px !important;  /* 🎯 Fixed height to FORCE scroll if content grows */
+      overflow-y: scroll !important;
+      padding: 16px 24px;
+      background: var(--card-bg, #ffffff);
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      
+      /* 🚀 ULTIMATE SCROLLBAR VISIBILITY */
+      scrollbar-width: thin !important;
+      scrollbar-color: rgba(var(--dg-primary-theme-rgb, 37, 99, 235), 0.6) rgba(0, 0, 0, 0.05) !important;
+      
+      &::-webkit-scrollbar { 
+        width: 10px !important;
+        display: block !important;
+      }
+      &::-webkit-scrollbar-track { 
+        background: rgba(0, 0, 0, 0.04) !important;
+        border-radius: 10px !important;
+      }
+      &::-webkit-scrollbar-thumb { 
+        background: linear-gradient(to bottom, #3b82f6, #1d4ed8) !important;
+        border-radius: 10px !important;
+        border: 2px solid var(--card-bg, #ffffff) !important;
+        &:hover { background: #1d4ed8 !important; }
+      }
+
+      .batch-card {
+        margin-bottom: 16px; /* 🎯 Manual gap since display isn't flex anymore */
+      }
     }
 
     .batch-card {
-      padding: 14px;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      background: #ffffff;
+      padding: 18px;
+      border: 1px solid var(--border-color, rgba(0,0,0,0.06));
+      border-radius: 16px;
+      background: var(--app-bg, #ffffff);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 
       &:hover:not(.disabled) {
-        border-color: #3b82f6;
-        background: #f0f4ff;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        border-color: var(--dg-primary-theme, #3b82f6);
+        background: var(--card-hover-bg, #f8fafc);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
       }
 
       &.selected {
-        border-color: #3b82f6;
-        background: #eff6ff;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        border-color: var(--dg-primary-theme, #3b82f6);
+        border-width: 2px;
+        background: var(--card-selected-bg, rgba(var(--dg-primary-theme-rgb, 59, 130, 246), 0.04));
+        box-shadow: 0 8px 30px rgba(var(--dg-primary-theme-rgb, 59, 130, 246), 0.1);
       }
 
       &.disabled {
-        opacity: 0.6;
+        opacity: 0.45;
         cursor: not-allowed;
-        border-color: #fecaca;
-        background: #fef2f2;
+        background: rgba(0, 0, 0, 0.02);
+        filter: grayscale(0.5);
       }
 
       .batch-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
 
         .batch-number {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
 
           .batch-icon {
-            color: #3b82f6;
-            font-size: 20px;
-            width: 20px;
-            height: 20px;
+            color: var(--dg-primary-theme, #3b82f6);
+            font-size: 22px;
+            width: 22px;
+            height: 22px;
+            filter: drop-shadow(0 2px 4px rgba(var(--dg-primary-theme-rgb, 59, 130, 246), 0.3));
           }
 
           .label {
-            font-weight: 600;
-            color: #1e293b;
+            font-weight: 800;
+            color: var(--app-text, #1e293b);
+            font-size: 1rem;
+            letter-spacing: -0.2px;
           }
         }
       }
@@ -190,60 +282,32 @@ import { FormsModule } from '@angular/forms';
       .batch-details {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
 
         .detail-row {
           display: flex;
           justify-content: space-between;
-          font-size: 0.9rem;
+          align-items: center;
+          font-size: 0.85rem;
 
           .label {
             color: #64748b;
-            font-weight: 500;
-            min-width: 110px;
+            font-weight: 600;
           }
 
           .value {
-            color: #1e293b;
-            font-weight: 600;
-            text-align: right;
+            color: var(--app-text, #1e293b);
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.03);
+            font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
 
-            &.warehouse {
-              background: #e8f4f8;
-              padding: 2px 8px;
-              border-radius: 4px;
-              color: #0369a1;
-            }
-
-            &.rack {
-              background: #fef3c7;
-              padding: 2px 8px;
-              border-radius: 4px;
-              color: #b45309;
-            }
-
-            &.date {
-              padding: 2px 8px;
-              border-radius: 4px;
-              background: #f0fdf4;
-              color: #16a34a;
-
-              &.expired {
-                background: #fef2f2;
-                color: #dc2626;
-              }
-            }
-
-            &.stock {
-              padding: 2px 8px;
-              border-radius: 4px;
-              background: #f3f4f6;
-              color: #374151;
-
-              &.low {
-                background: #fef3c7;
-                color: #b45309;
-              }
+            &.warehouse { color: #0284c7; background: rgba(2, 132, 199, 0.08); }
+            &.rack { color: #b45309; background: rgba(180, 83, 9, 0.08); }
+            &.date { 
+               color: #10b981; background: rgba(16, 185, 129, 0.08); 
+               &.expired { color: #ef4444; background: rgba(239, 68, 68, 0.08); }
             }
           }
         }
@@ -252,47 +316,81 @@ import { FormsModule } from '@angular/forms';
       .batch-expiry-warning,
       .batch-low-stock-warning {
         position: absolute;
-        top: 8px;
-        right: 8px;
+        top: 18px;
+        right: 56px;
         display: flex;
         align-items: center;
-        gap: 4px;
-        font-size: 0.8rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-
-        .warning-icon {
-          font-size: 16px;
-          width: 16px;
-          height: 16px;
-        }
-
-        .warning-text {
-          font-weight: 600;
-        }
+        gap: 6px;
+        font-size: 0.7rem;
+        padding: 5px 14px;
+        border-radius: 30px;
+        text-transform: uppercase;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       }
 
-      .batch-expiry-warning {
-        background: #fef2f2;
-        color: #dc2626;
-      }
-
-      .batch-low-stock-warning {
-        background: #fef3c7;
-        color: #b45309;
-      }
+      .batch-expiry-warning { background: #fee2e2; color: #991b1b; border: 1px solid rgba(153, 27, 27, 0.1); }
+      .batch-low-stock-warning { background: #fef3c7; color: #92400e; border: 1px solid rgba(146, 64, 14, 0.1); }
     }
 
     .dialog-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 12px;
-      padding: 16px 24px;
-      background: #f8fafc;
-      border-top: 1px solid #e2e8f0;
+      gap: 16px;
+      padding: 20px 24px;
+      background: var(--header-bg, #ffffff); /* 🎯 Mirroring the Header background */
+      border-top: 1px solid var(--border-color, rgba(0,0,0,0.08));
+      z-index: 10;
 
       button {
-        min-width: 140px;
+        min-width: 140px; 
+        height: 52px;
+        padding: 0 32px !important; 
+        border-radius: 50px; 
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1.2px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border: none !important;
+        font-family: 'Outfit', sans-serif;
+      }
+
+      .dg-pill-cancel, .dg-pill-confirm {
+        /* 🎯 Unified Stylings for both buttons */
+        background: #ffffff !important; 
+        color: #475569 !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+        border: 1px solid rgba(0,0,0,0.1) !important;
+        &:hover:not(:disabled) { 
+          background: #f8fafc !important;
+          transform: translateY(-2px); 
+          box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+        }
+        &:disabled {
+          opacity: 0.5;
+          filter: grayscale(1);
+          box-shadow: none !important;
+        }
+      }
+    }
+
+    /* 🌙 PREMIUM DARK MODE OVERRIDES */
+    :host-context(.dark-mode) {
+      --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      --card-hover-bg: rgba(30, 41, 59, 0.6);
+      --card-selected-bg: rgba(59, 130, 246, 0.08);
+
+      .dg-pill-cancel, .dg-pill-confirm {
+        background: #1e293b !important; /* 🎯 Unified Midnight Slate for Dark mode */
+        color: #94a3b8 !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
       }
     }
   `]

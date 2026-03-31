@@ -129,10 +129,10 @@ body {
 
 /* Global Dark Mode Variables */
 html.dark-mode {
-  --app-bg: #0f172a; /* Deep slate background */
+  --app-bg: #020617 !important; /* Midnight Black */
   --app-text: #f8fafc;
-  --card-bg: #1e293b;
-  --border-color: #334155;
+  --card-bg: #0f172a !important; /* Dark Polished Sapphire Surface */
+  --border-color: rgba(255, 255, 255, 0.08); /* Sophisticated Border */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -258,7 +258,7 @@ html.dark-mode {
   .mat-datepicker-content,
   .mat-mdc-dialog-surface,
   .mat-mdc-option {
-    background-color: #1e293b !important;
+    background-color: #0f172a !important;
     color: #f8fafc !important;
     
     .mdc-list-item__primary-text {
@@ -303,7 +303,7 @@ html.dark-mode {
 
   /* ⚡ GLOBAL DARK MODE LAYOUT PATTERNS ⚡ */
   body {
-    background-color: #0f172a !important;
+    background-color: #020617 !important;
     color: #ffffff !important;
   }
 
@@ -312,11 +312,11 @@ html.dark-mode {
   }
 
   .list-container, .page-container, .container-fluid, .content-wrapper {
-    background-color: #0f172a !important;
+    background-color: #020617 !important;
   }
 
   .grid-wrapper, .table-container, .card, .mat-card, .section-card, .charts-card, .search-card, .table-card {
-    background-color: #1e293b !important;
+    background-color: #0f172a !important;
     color: #ffffff !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
@@ -332,19 +332,19 @@ html.dark-mode {
 
   /* ⚡ UNIVERSAL DATA TABLE & PAGINATOR POLISH ⚡ */
   .mat-mdc-table, .mat-table {
-    background-color: #1e293b !important;
+    background-color: #0f172a !important;
     color: #ffffff !important;
     
-    .mat-mdc-header-row { background-color: #0f172a !important; }
+    .mat-mdc-header-row { background-color: #020617 !important; }
     .mat-mdc-row, .mat-row {
-      background-color: #1e293b !important;
+      background-color: #0f172a !important;
       &:hover { background-color: rgba(255, 255, 255, 0.04) !important; }
       td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
     }
   }
 
   .mat-mdc-paginator, .mat-paginator {
-    background-color: #0f172a !important;
+    background-color: #020617 !important;
     color: #ffffff !important;
 
     .mat-mdc-paginator-container { color: #ffffff !important; }
@@ -714,7 +714,7 @@ html.dark-mode {
   /* Dark Mode specific overrides for tables */
   html.dark-mode & {
     .mat-mdc-header-cell {
-      background-color: #1e293b !important;
+      background-color: #0f172a !important;
       color: #f8fafc !important;
       border-bottom-color: rgba(255, 255, 255, 0.1) !important;
     }
@@ -1294,10 +1294,43 @@ body.floating-nav {
   .mat-mdc-dialog-container .mdc-dialog__surface,
   .mat-mdc-dialog-surface,
   .mat-dialog-container {
-    background: linear-gradient(145deg, #0f172a, #1e293b) !important;
+    background: #020617 !important; /* Pure Dark Midnight */
     color: #f8fafc !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* ⚡ GLOBAL DARK MODE CHECKBOX POLISH ⚡ */
+  .mat-mdc-checkbox {
+    --mdc-checkbox-unselected-icon-color: rgba(255, 255, 255, 0.7) !important;
+    --mdc-checkbox-selected-icon-color: #ffffff !important;
+    --mdc-checkbox-selected-checkmark-color: #0f172a !important; /* High contrast Dark Color */
+    --mat-mdc-checkbox-ripple-color: rgba(255, 255, 255, 0.1) !important;
+    
+    /* Ensure the frame/border is visible as white when unchecked */
+    .mdc-checkbox__background {
+        border-color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    /* When checked, make background white and checkmark dark */
+    &.mat-mdc-checkbox-checked .mdc-checkbox__background,
+    &.mat-mdc-checkbox-indeterminate .mdc-checkbox__background {
+        background-color: #ffffff !important;
+        border-color: #ffffff !important;
+    }
+
+    /* ⚡ FORCE CHECKMARK VISIBILITY ⚡ */
+    .mdc-checkbox__checkmark {
+        color: #020617 !important; /* Midnight Black for the SVG checkmark */
+    }
+    .mdc-checkbox__checkmark-path {
+        stroke: #020617 !important;
+        stroke-width: 4px !important;
+    }
+    .mdc-checkbox__mixedmark {
+        border-color: #020617 !important;
+        border-width: 2px !important;
+    }
   }
 }
 

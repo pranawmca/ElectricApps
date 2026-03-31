@@ -252,6 +252,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             width: '1250px',
             maxWidth: '96vw',
             data: { 
+                mode: 'purchase',
                 allowOutOfStock: true,
                 existingIds: this.items.controls.map(c => c.get('productId')?.value) 
             }

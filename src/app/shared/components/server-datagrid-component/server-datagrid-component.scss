@@ -661,12 +661,12 @@ th.mat-mdc-header-cell.select-col {
    ========================================================================== */
 :host-context(.dark-mode) {
   .datagrid-container {
-    background: #1e293b !important;
+    background: #0f172a !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
   }
 
   .grid-header-actions {
-    background: #1e293b !important;
+    background: #0f172a !important;
     border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 
     .search-container {
@@ -688,7 +688,7 @@ th.mat-mdc-header-cell.select-col {
   }
 
   .table-wrapper {
-    background: #1e293b !important;
+    background: #020617 !important;
     
     &::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.1) !important;
@@ -697,7 +697,7 @@ th.mat-mdc-header-cell.select-col {
 
   ::ng-deep {
     .mat-mdc-paginator {
-      background: #1e293b !important;
+      background: #0f172a !important;
       color: #ffffff !important;
       border-top-color: rgba(255, 255, 255, 0.1) !important;
 
@@ -716,10 +716,11 @@ th.mat-mdc-header-cell.select-col {
       .mat-mdc-select-arrow svg { fill: #ffffff !important; }
     }
 
-    /* Checkbox Visibility Polish */
+    /* Checkbox Visibility Polish - White Checkbox Theme */
     mat-checkbox {
-      --mdc-checkbox-unselected-icon-color: rgba(255, 255, 255, 0.6) !important;
-      --mdc-checkbox-unselected-hover-icon-color: #ffffff !important;
+      --mdc-checkbox-unselected-icon-color: rgba(255, 255, 255, 0.7) !important;
+      --mdc-checkbox-selected-icon-color: #ffffff !important;
+      --mdc-checkbox-selected-checkmark-color: #0f172a !important;
       
       .mdc-checkbox__native-control:enabled:not(:checked) ~ .mdc-checkbox__background {
         border-color: rgba(255, 255, 255, 0.5) !important;
@@ -727,20 +728,24 @@ th.mat-mdc-header-cell.select-col {
       }
       
       .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
-        background-color: #3b82f6 !important;
-        border-color: #3b82f6 !important;
+        background-color: #ffffff !important;
+        border-color: #ffffff !important;
       }
+
+      .mdc-checkbox__checkmark { color: #020617 !important; }
+      .mdc-checkbox__checkmark-path { stroke: #020617 !important; stroke-width: 4px !important; }
+      .mdc-checkbox__mixedmark { border-color: #020617 !important; border-width: 2px !important; }
     }
 
     .server-datagrid {
-      background: #1e293b !important;
+      background: #020617 !important;
 
       tr.mat-mdc-header-row {
-        background-color: #1e293b !important;
+        background-color: #020617 !important;
       }
 
       .mat-mdc-header-cell {
-        background: #1e293b !important;
+        background: #020617 !important;
         color: #f8fafc !important;
         border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
         
@@ -780,15 +785,15 @@ th.mat-mdc-header-cell.select-col {
       /* ✅ DARK MODE SELECTION FIX - Always Dark with White Font */
       tr.mat-mdc-row.selected-row,
       .selected-row {
-        background-color: #1e293b !important; /* Consistent Dark Background */
+        background-color: #0f172a !important; /* Consistent Dark Background */
         
         td.mat-mdc-cell {
-          background-color: #1e293b !important;
+          background-color: #0f172a !important;
           color: #ffffff !important; /* Font White force */
         }
 
         .sticky-left, .sticky-right {
-          background-color: #1e293b !important;
+          background-color: #0f172a !important;
         }
       }
 
@@ -804,7 +809,7 @@ th.mat-mdc-header-cell.select-col {
 
       /* Sticky Columns Correction */
       .sticky-left, .sticky-right {
-        background-color: #1e293b !important;
+        background-color: #020617 !important;
       }
 
       tr.mat-mdc-row:hover .sticky-left,

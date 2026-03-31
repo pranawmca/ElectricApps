@@ -280,7 +280,10 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         const dialogRef = this.dialog.open(ProductSelectionDialogComponent, {
             width: '1250px',
             maxWidth: '96vw',
-            data: { allowOutOfStock: false }
+            data: { 
+                mode: 'sale',
+                allowOutOfStock: false 
+            }
         });
 
         dialogRef.afterClosed().subscribe((selectedProducts: any[]) => {

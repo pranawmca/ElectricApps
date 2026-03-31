@@ -617,6 +617,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       maxWidth: '96vw',
       disableClose: true,
       data: {
+        mode: 'sale',
         allowOutOfStock: false,
         existingIds: this.items.controls.map(c => c.get('productId')?.value)
       }

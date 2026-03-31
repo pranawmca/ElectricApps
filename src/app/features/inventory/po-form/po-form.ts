@@ -223,6 +223,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       maxWidth: '96vw',
       disableClose: false,
       data: { 
+        mode: 'purchase',
         allowOutOfStock: true,
         existingIds: this.items.controls.map(c => c.get('productId')?.value)
       }

@@ -148,6 +148,7 @@ import { LanguageService } from '../../../core/services/language.service';
             <th mat-header-cell *matHeaderCellDef> {{translate('STOCK')}} </th>
             <td mat-cell *matCellDef="let row"> 
                 <span class="stock-badge-inline" [class.danger]="row.currentStock <= 0" [class.success]="row.currentStock > 0">
+                  <mat-icon *ngIf="row.currentStock <= 0" inline="true" class="damru-icon">hourglass_empty</mat-icon>
                   {{row.currentStock > 0 ? (row.currentStock | number:'1.0-2') + ' ' + translate(row.unit || 'PCS') : translate('Out of Stock')}}
                 </span>
             </td>
@@ -170,7 +171,7 @@ import { LanguageService } from '../../../core/services/language.service';
                 <span class="status-badge added">{{translate('Already Added')}}</span>
               } @else if (row.currentStock <= 0) {
                 <span class="status-badge na">{{translate('N/A')}}</span>
-              } @else if (isExpired(row)) {
+              } @else if (data?.mode === 'sale' && isExpired(row)) {
                 <span class="status-badge expired">{{translate('EXPIRED')}}</span>
               } @else {
                 <span class="status-badge available">{{translate('AVAILABLE')}}</span>
@@ -179,7 +180,11 @@ import { LanguageService } from '../../../core/services/language.service';
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="toggleRow(row)" [class.selected-row]="isRowSelected(row)"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              (click)="(!allowOutOfStock && row.currentStock <= 0) || isAlreadyInList(row.id) || isExpired(row) ? null : toggleRow(row)" 
+              [class.selected-row]="isRowSelected(row)"
+              [class.row-disabled]="(!allowOutOfStock && row.currentStock <= 0) || isAlreadyInList(row.id) || isExpired(row)">
+          </tr>
         </table>
       </div>
 
@@ -438,12 +443,16 @@ import { LanguageService } from '../../../core/services/language.service';
     }
 
     .stock-badge-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 2px 8px;
       border-radius: 4px;
       font-weight: 700;
       font-size: 0.8rem;
       &.danger { background: #fee2e2; color: #ef4444; border: 1px solid #fecdd3; }
       &.success { background: #f0fdf4; color: #22c55e; border: 1px solid #dcfce7; }
+      .damru-icon { font-size: 14px; width: 14px; height: 14px; vertical-align: middle; }
     }
 
     .expiry-badge {
@@ -540,6 +549,17 @@ import { LanguageService } from '../../../core/services/language.service';
       &:hover { background-color: #f1f5f9 !important; color: #1e293b !important; }
     }
 
+    .row-disabled {
+      background-color: #f8fafc !important;
+      opacity: 0.5;
+      cursor: not-allowed !important;
+    }
+
+    ::ng-deep .mat-mdc-checkbox-disabled {
+      opacity: 0.25 !important;
+      filter: grayscale(1);
+    }
+
     ::ng-deep .mat-mdc-dialog-container { padding: 0 !important; border-radius: 12px !important; }
 
     /* 📱 Mobile Responsiveness optimized for smaller screens (iPhone SE etc) */
@@ -633,22 +653,22 @@ import { LanguageService } from '../../../core/services/language.service';
 
     /* ⚡ SELECT PRODUCTS DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
     :host-context(.dark-mode) {
-        .dialog-container { background-color: #0f172a !important; }
+        .dialog-container { background-color: #020617 !important; }
         
         .dialog-header {
-            background-color: #1e293b !important;
+            background-color: #0f172a !important;
             border-bottom-color: rgba(255, 255, 255, 0.1) !important;
             .title { color: #ffffff !important; }
             .header-close-btn { color: rgba(255, 255, 255, 0.5) !important; &:hover { color: #ffffff !important; background: rgba(255, 255, 255, 0.1) !important; } }
         }
 
         .dialog-loader-overlay {
-            background: rgba(15, 23, 42, 0.8) !important;
-            .loader-content { background: #1e293b !important; .loader-text { color: #ffffff !important; } .loader-subtext { color: rgba(255, 255, 255, 0.6) !important; } }
+            background: rgba(2, 6, 23, 0.8) !important;
+            .loader-content { background: #0f172a !important; .loader-text { color: #ffffff !important; } .loader-subtext { color: rgba(255, 255, 255, 0.6) !important; } }
         }
 
         .search-bar {
-            background-color: #0f172a !important;
+            background-color: #020617 !important;
             ::ng-deep .mat-mdc-text-field-wrapper {
                 background-color: rgba(255, 255, 255, 0.03) !important;
                 .mat-mdc-input-element { color: #ffffff !important; &::placeholder { color: rgba(255, 255, 255, 0.3) !important; } }
@@ -658,16 +678,16 @@ import { LanguageService } from '../../../core/services/language.service';
         }
 
         .table-container { 
-            background-color: #0f172a !important; 
+            background-color: #020617 !important; 
             border-top-color: rgba(255, 255, 255, 0.05) !important; 
         }
 
         .product-table {
-            background: #0f172a !important;
-            th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+            background: #020617 !important;
+            th { background-color: #020617 !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
             td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
-            .selected-row { background-color: rgba(79, 70, 229, 0.15) !important; }
-            .sku-cell { color: #60a5fa !important; }
+            .selected-row { background-color: rgba(255, 255, 255, 0.05) !important; }
+            .sku-cell { color: #38bdf8 !important; }
             .category-badge { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
             .gst-badge { background: rgba(219, 39, 119, 0.1) !important; color: #f472b6 !important; border-color: rgba(219, 39, 119, 0.2) !important; }
             .unit-badge { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.7) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
@@ -677,18 +697,34 @@ import { LanguageService } from '../../../core/services/language.service';
         }
 
         .dialog-footer {
-            background-color: #1e293b !important;
+            background-color: #0f172a !important;
             border-top-color: rgba(255, 255, 255, 0.1) !important;
-            .selection-info { color: rgba(255, 255, 255, 0.6) !important; .count { color: #60a5fa !important; } }
+            .selection-info { color: rgba(255, 255, 255, 0.6) !important; .count { color: #38bdf8 !important; } }
             .back-btn { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
         }
 
-        mat-paginator, ::ng-deep .mat-mdc-paginator { background: #1e293b !important; color: #ffffff !important; }
+        mat-paginator, ::ng-deep .mat-mdc-paginator { background: #0f172a !important; color: #ffffff !important; }
         ::ng-deep {
             .mat-mdc-paginator-range-label, .mat-mdc-select-value, .mat-mdc-paginator-navigation-next, .mat-mdc-paginator-navigation-previous { color: #ffffff !important; }
             .mat-mdc-checkbox-frame { border-color: #ffffff !important; }
-            .mat-mdc-option { background: #1e293b !important; color: #ffffff !important; &:hover { background: rgba(255,255,255,0.05) !important; } }
-            .mat-mdc-autocomplete-panel { background: #1e293b !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+            .mat-mdc-checkbox {
+                --mdc-checkbox-selected-icon-color: #ffffff !important;
+                --mdc-checkbox-selected-checkmark-color: #0f172a !important;
+                .mdc-checkbox__background { border-color: rgba(255, 255, 255, 0.7) !important; }
+                &.mat-mdc-checkbox-checked .mdc-checkbox__background, 
+                &.mat-mdc-checkbox-indeterminate .mdc-checkbox__background { 
+                    background-color: #ffffff !important; 
+                    border-color: #ffffff !important; 
+                }
+
+                ::ng-deep {
+                  .mdc-checkbox__checkmark { color: #020617 !important; }
+                  .mdc-checkbox__checkmark-path { stroke: #020617 !important; stroke-width: 4px !important; }
+                  .mdc-checkbox__mixedmark { border-color: #020617 !important; border-width: 2px !important; }
+                }
+            }
+            .mat-mdc-option { background: #0f172a !important; color: #ffffff !important; &:hover { background: rgba(255,255,255,0.05) !important; } }
+            .mat-mdc-autocomplete-panel { background: #0f172a !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
         }
     }
   `]
@@ -930,7 +966,27 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (res) => {
-        this.dataSource.data = res.items || [];
+        // 🎯 Fix: Recalculate expiryDate for each item to ignore empty expired batches
+        const items = (res.items || []).map((item: any) => {
+          let activeExpiryDate = item.expiryDate;
+          
+          if (item.history && item.history.length > 0) {
+            const validStockBatches = item.history.filter((h: any) => (h.availableStock || h.availableQty || 0) > 0);
+            if (validStockBatches.length > 0) {
+              const dates = validStockBatches
+                .map((h: any) => h.expiryDate)
+                .filter((d: any) => d && d !== 'NA')
+                .map((d: any) => new Date(d).getTime());
+              
+              if (dates.length > 0) {
+                activeExpiryDate = new Date(Math.min(...dates));
+              }
+            }
+          }
+          return { ...item, expiryDate: activeExpiryDate };
+        });
+
+        this.dataSource.data = items;
         this.totalRecords = res.totalCount || 0;
         this.cdr.detectChanges();
       },
@@ -1057,16 +1113,35 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
   }
 
   isExpired(row: any): boolean {
-    // If the product is out of stock / purged, it cannot be actively expired.
-    // This allows it to show 'N/A' and be selectable for new purchases.
+    // Strictly show expired status only in sale mode as per user requirement.
+    if (this.data?.mode !== 'sale') return false;
+
+    // If the product is out of stock / purged, it cannot be actively expired for the selection list.
     if ((row.currentStock || 0) <= 0) return false;
 
     const date = row.expiryDate;
     if (!date || date === 'NA') return false;
-    const expDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return expDate <= today;
+
+    const expDate = new Date(date).getTime();
+    const today = new Date().setHours(0, 0, 0, 0);
+
+    // 🎯 SMART CHECK: If we have stock but the expiry date is in the past,
+    // and we have multiple batches (history) or we've already detected a valid batch,
+    // we should NOT mark the whole row as expired if there's even one valid packet.
+    if (expDate <= today) {
+       // If history is available, we already recalculated the 'best' expiry date in loadProducts.
+       // If history is NOT available (API limitation), but we have stock,
+       // showing 'EXPIRED' for 1 valid packet is a BUG. 
+       // In this case, we prefer to show 'AVAILABLE' to allow the sale if the API is sending bad row data.
+       if (!row.history || row.history.length === 0) {
+         // If we have stock but the main date is old, assume there's a valid batch the API isn't telling us about 
+         // as the main row expiry. 
+         return false; 
+       }
+       return true;
+    }
+
+    return false;
   }
 
   close() {

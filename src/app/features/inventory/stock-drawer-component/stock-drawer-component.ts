@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-stock-drawer',
@@ -30,6 +31,7 @@ import { Subject } from 'rxjs';
 export class StockDrawerComponent implements OnInit, OnDestroy {
   private inventoryService = inject(InventoryService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
   private destroy$ = new Subject<void>();
 
   @Input() isOpen = false;
@@ -43,6 +45,10 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
 
   totalStockItems = 0;
   totalAvailableQty = 0;
+
+  get isPurchaseContext(): boolean {
+    return this.router.url.includes('/purchase/');
+  }
 
   ngOnInit() {
     this.searchSubject.pipe(
@@ -84,10 +90,31 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
       true  // showPurged
     ).subscribe({
       next: (data) => {
-        this.stockItems = data.items.map((item: any) => ({
-          ...item,
-          currentStock: item.availableStock || 0
-        }));
+        this.stockItems = data.items.map((item: any) => {
+          let activeExpiryDate = item.expiryDate;
+          
+          // 🎯 Fix: If we have batch history, find the REAL expiry date of the stock we actually have
+          if (item.history && item.history.length > 0) {
+            const validStockBatches = item.history.filter((h: any) => (h.availableQty || 0) > 0);
+            if (validStockBatches.length > 0) {
+              // Get the earliest expiry date among batches that HAVE stock
+              const dates = validStockBatches
+                .map((h: any) => h.expiryDate)
+                .filter((d: any) => d && d !== 'NA')
+                .map((d: any) => new Date(d).getTime());
+              
+              if (dates.length > 0) {
+                activeExpiryDate = new Date(Math.min(...dates));
+              }
+            }
+          }
+
+          return {
+            ...item,
+            expiryDate: activeExpiryDate,
+            currentStock: item.availableStock || 0
+          };
+        });
         this.updateSummary();
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -118,6 +145,9 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
   }
 
   isExpired(date: any): boolean {
+    // Suppress expired status labels in Purchase workflow as per user request
+    if (this.router.url.includes('/purchase/')) return false;
+
     if (!date || date === 'NA') return false;
     const expDate = new Date(date);
     const today = new Date();
