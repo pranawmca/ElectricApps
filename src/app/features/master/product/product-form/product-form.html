@@ -162,10 +162,16 @@
         <input matInput type="number" formControlName="mrp" placeholder="0.00">
         <span matPrefix>&nbsp;₹&nbsp;</span>
       </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Discount</mat-label>
+        <input matInput type="number" formControlName="discount" placeholder="0.00">
+        <span matPrefix>&nbsp;₹&nbsp;</span>
+      </mat-form-field>
       
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Sale Rate</mat-label>
-        <input matInput type="number" formControlName="saleRate" placeholder="0.00">
+        <mat-label>Sale Rate (Auto-calculated)</mat-label>
+        <input matInput type="number" formControlName="saleRate" placeholder="0.00" readonly style="color: #666; background: rgba(0,0,0,0.03);">
         <span matPrefix>&nbsp;₹&nbsp;</span>
       </mat-form-field>
       

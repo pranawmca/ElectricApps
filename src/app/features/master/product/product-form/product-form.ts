@@ -234,6 +234,7 @@ export class ProductForm implements OnInit, OnDestroy {
                 damagedStock: res.damagedStock,
                 defaultWarehouseId: res.defaultWarehouseId,
                 defaultRackId: res.defaultRackId,
+                discount: res.discount || 0,
                 isExpiryRequired: res.isExpiryRequired || false,
                 imageUrl: res.imageUrl
               });
@@ -437,6 +438,7 @@ export class ProductForm implements OnInit, OnDestroy {
       minStock: [0, [Validators.min(0)]],
       description: [null],
       saleRate: [0, [Validators.min(0)]],
+      discount: [0, [Validators.min(0)]],
       productType: [null, [Validators.required]],
       damagedStock: [0],
       defaultWarehouseId: [null, [Validators.required]],
@@ -444,6 +446,24 @@ export class ProductForm implements OnInit, OnDestroy {
       isExpiryRequired: [false],
       imageUrl: [null]
     });
+
+    // Subscriptions for calculation
+    this.productsForm.get('mrp')?.valueChanges.subscribe(() => this.calculateSaleRate());
+    this.productsForm.get('discount')?.valueChanges.subscribe(() => this.calculateSaleRate());
+  }
+
+  private calculateSaleRate() {
+    const mrp = Number(this.productsForm.get('mrp')?.value) || 0;
+    const discount = Number(this.productsForm.get('discount')?.value) || 0;
+
+    if (discount === 0) {
+      // Logic: No discount means Sale Rate = MRP
+      this.productsForm.get('saleRate')?.setValue(mrp, { emitEvent: false });
+    } else {
+      // Logic: MRP - Discount
+      const saleRate = Math.max(0, mrp - discount);
+      this.productsForm.get('saleRate')?.setValue(saleRate, { emitEvent: false });
+    }
   }
 
   loadInitialLookups() {
@@ -620,6 +640,7 @@ export class ProductForm implements OnInit, OnDestroy {
       trackInventory: Boolean(formValue.trackInventory),
       isActive: Boolean(formValue.isActive),
       description: formValue.description?.trim(),
+      discount: Number(formValue.discount),
       saleRate: Number(formValue.saleRate),
       productType: formValue.productType ? String(formValue.productType) : '',
       damagedStock: formValue.damagedStock ? Number(formValue.damagedStock) : 0,
