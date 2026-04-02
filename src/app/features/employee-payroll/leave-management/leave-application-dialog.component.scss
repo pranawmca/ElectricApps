@@ -1,0 +1,114 @@
+.dialog-container {
+    padding: 12px;
+    background: transparent;
+    
+    .dialog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        border-bottom: 2px solid #3b82f6;
+        padding-bottom: 16px;
+        
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            
+            .header-icon {
+                color: #3b82f6;
+                font-size: 28px;
+                width: 28px;
+                height: 28px;
+            }
+            
+            h2 {
+                margin: 0;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #f8fafc;
+            }
+        }
+        
+        .close-btn {
+            color: #94a3b8;
+            &:hover { color: #f43f5e; }
+        }
+    }
+}
+
+.mat-typography {
+    .subtitle {
+        margin-bottom: 24px;
+        font-size: 0.95rem;
+    }
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    .full-width {
+        width: 100%;
+    }
+    
+    .date-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+}
+
+.dialog-footer {
+    padding: 24px 12px 12px;
+    
+    button {
+        padding: 0 24px;
+        height: 48px;
+        font-weight: 600;
+        border-radius: 8px;
+        mat-icon { margin-right: 8px; }
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        &:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            filter: brightness(1.2);
+        }
+        
+        &:disabled {
+            opacity: 0.4;
+            background: #1e293b !important;
+            color: rgba(255, 255, 255, 0.3) !important;
+            cursor: not-allowed;
+            border-color: transparent !important;
+        }
+    }
+}
+
+// Dark Mode Support
+:host-context(.dark-mode) {
+    .dialog-container {
+        color: #e2e8f0;
+    }
+    
+    ::ng-deep {
+        .mat-mdc-dialog-surface {
+            background: #0f172a !important;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+        }
+        .mat-mdc-form-field-label {
+            color: #94a3b8 !important;
+        }
+    }
+}

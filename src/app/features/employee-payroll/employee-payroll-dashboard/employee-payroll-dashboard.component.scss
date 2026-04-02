@@ -1,0 +1,88 @@
+.dashboard-wrapper {
+    padding: 30px;
+    background: transparent;
+    max-width: 1600px;
+    margin: 0 auto;
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+        margin-bottom: 40px;
+        @media screen and (max-width: 1200px) { grid-template-columns: repeat(2, 1fr); }
+        @media screen and (max-width: 600px) { grid-template-columns: 1fr; }
+
+        .stat-card {
+            padding: 24px;
+            border-radius: 24px;
+            border: none;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            &:hover { transform: translateY(-8px); }
+
+            .card-glow { position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; border-radius: 50%; opacity: 0.1; filter: blur(30px); }
+
+            .stat-avatar { 
+                width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+                mat-icon { font-size: 28px; width: 28px; height: 28px; }
+            }
+
+            mat-card-title { font-size: 2rem !important; font-weight: 800; letter-spacing: -1px; color: #0f172a; margin-top: 15px !important; }
+            mat-card-subtitle { font-size: 1rem; font-weight: 600; color: #64748b; margin-top: 5px !important; }
+        }
+    }
+
+    .content-row {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 30px;
+        @media screen and (max-width: 1024px) { grid-template-columns: 1fr; }
+    }
+
+    .section-title { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; &::before { content: ''; width: 4px; height: 1.5em; background: #3b82f6; border-radius: 4px; } }
+
+    .grid-container {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;
+        .action-card {
+            background: white; padding: 40px 30px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; border: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); cursor: pointer; transition: all 0.3s;
+            mat-icon { font-size: 40px; width: 40px; height: 40px; transition: transform 0.3s; }
+            span { font-weight: 700; font-size: 1.1rem; color: #334155; transition: color 0.3s; }
+            &:hover { background: #f8fafc; transform: scale(1.03); mat-icon { transform: scale(1.15); } span { color: #3b82f6; } }
+        }
+    }
+
+    .timeline-card {
+        border-radius: 24px; border: none; background: white; height: 100%; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column;
+        mat-card-header { padding: 30px 30px 10px !important; display: flex; justify-content: space-between; align-items: center; mat-card-title { margin: 0 !important; font-weight: 800; } }
+        mat-card-content { flex: 1; padding: 20px 30px !important; }
+    }
+
+    .activity-feed {
+        display: flex; flex-direction: column;
+        .feed-item {
+            position: relative; padding: 0 0 30px 25px; border-left: 2px solid #f1f5f9;
+            &.no-border { border-left: none; padding-bottom: 0; }
+            .feed-marker {
+                position: absolute; left: -7px; top: 0; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                &.attendance { background: #10b981; } &.leave { background: #f59e0b; } &.payroll { background: #6366f1; }
+            }
+            .feed-header { display: flex; justify-content: space-between; margin-bottom: 8px; h4 { margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a; } .feed-time { font-size: 0.8rem; color: #94a3b8; font-weight: 600; } }
+            p { margin: 0; font-size: 0.9rem; color: #64748b; line-height: 1.6; }
+        }
+    }
+}
+
+/* 🌙 DARK MODE OVERRIDES (SAPPHIRE POLISH) */
+:host-context(.dark-mode) {
+    .dashboard-wrapper {
+        .stat-card, .action-card, .timeline-card { background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+        .section-title, .section-title span, .feed-header h4, .timeline-card mat-card-title { color: #ffffff !important; }
+        .stat-card mat-card-title, .action-card span { color: #ffffff !important; }
+        .stat-card mat-card-subtitle, .feed-desc, .feed-time, .feed-item p { color: rgba(255, 255, 255, 0.8) !important; }
+        .action-card:hover { background: rgba(255, 255, 255, 0.04); }
+        .feed-item { border-left-color: rgba(255, 255, 255, 0.1); .feed-marker { border-color: #0f172a; box-shadow: 0 0 15px rgba(0,0,0,0.5); } }
+    }
+}

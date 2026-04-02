@@ -1,0 +1,102 @@
+<div class="leave-wrapper">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Leave Directory</h1>
+            <p class="page-subtitle">Track, approve or manage employee leave cycles</p>
+        </div>
+        <div class="header-actions" *ngIf="canAdd">
+            <button mat-flat-button color="primary" (click)="openApplyDialog()">
+                <mat-icon>add_circle</mat-icon>
+                APPLY LEAVE
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Widgets -->
+    <div class="summary-row">
+        <mat-card class="summary-card pending">
+            <div class="card-content">
+                <div class="info">
+                    <h3>12</h3>
+                    <span>Pending Requests</span>
+                </div>
+                <mat-icon>hourglass_empty</mat-icon>
+            </div>
+        </mat-card>
+        <mat-card class="summary-card approved">
+            <div class="card-content">
+                <div class="info">
+                    <h3>45</h3>
+                    <span>Approved (MTD)</span>
+                </div>
+                <mat-icon>check_circle</mat-icon>
+            </div>
+        </mat-card>
+        <mat-card class="summary-card rejected">
+            <div class="card-content">
+                <div class="info">
+                    <h3>05</h3>
+                    <span>Rejected</span>
+                </div>
+                <mat-icon>cancel</mat-icon>
+            </div>
+        </mat-card>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="table-container mat-elevation-z3">
+        <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="employee">
+                <th mat-header-cell *matHeaderCellDef> Employee </th>
+                <td mat-cell *matCellDef="let leave"> 
+                    <div class="emp-info">
+                        <span class="name">{{leave.employee}}</span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef> Leave Type </th>
+                <td mat-cell *matCellDef="let leave"> 
+                    <mat-chip-set>
+                        <mat-chip>{{leave.type}}</mat-chip>
+                    </mat-chip-set>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dates">
+                <th mat-header-cell *matHeaderCellDef> Duration </th>
+                <td mat-cell *matCellDef="let leave"> 
+                    <span class="date-range">
+                        {{leave.from | date: 'dd MMM'}} - {{leave.to | date: 'dd MMM yyyy'}}
+                    </span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="reason">
+                <th mat-header-cell *matHeaderCellDef> Reason </th>
+                <td mat-cell *matCellDef="let leave"> {{leave.reason}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let leave"> 
+                    <span class="status-chip" [attr.data-status]="leave.status">{{leave.status}}</span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let leave">
+                    <div class="btn-group" *ngIf="canApprove">
+                        <button mat-icon-button color="primary" matTooltip="Approve"><mat-icon>check</mat-icon></button>
+                        <button mat-icon-button color="warn" matTooltip="Reject"><mat-icon>close</mat-icon></button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+</div>

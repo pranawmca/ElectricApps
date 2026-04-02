@@ -1,0 +1,71 @@
+.leave-wrapper {
+    padding: 30px; max-width: 1440px; margin: 0 auto;
+
+    .page-header {
+        display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px;
+        @media screen and (max-width: 768px) { flex-direction: column; gap: 20px; text-align: center; align-items: center; }
+        
+        .page-title { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.025em; }
+        .page-subtitle { font-size: 1.1rem; color: #64748b; margin: 4px 0 0 0; font-weight: 600; }
+        .header-actions button { height: 48px; padding: 0 24px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    }
+
+    .summary-row {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px;
+        @media screen and (max-width: 768px) { grid-template-columns: 1fr; }
+        .summary-card {
+            border: none; border-radius: 24px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            .card-content { display: flex; justify-content: space-between; align-items: center; .info { h3 { margin: 0; font-size: 2.5rem; font-weight: 800; } span { font-weight: 700; font-size: 1.1rem; } } mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: 0.15; } }
+            
+            &.pending { background: #fef9c3; color: #a16207; }
+            &.approved { background: #dcfce7; color: #15803d; }
+            &.rejected { background: #fee2e2; color: #b91c1c; }
+        }
+    }
+
+    .table-container {
+        border-radius: 20px; overflow: hidden; background: white; border: 1px solid #f1f5f9; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        table { width: 100%; border-collapse: collapse; }
+        .mat-header-row { background: #f8fafc; height: 64px; }
+        .mat-header-cell { padding: 15px 24px; color: #64748b; font-weight: 800; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; }
+        .mat-cell { padding: 16px 24px; border-bottom: 1px solid #f1f5f9; color: #334155; font-weight: 600; font-size: 0.95rem; }
+        .status-chip { 
+            padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+            &[data-status="Approved"] { background: #dcfce7; color: #15803d; }
+            &[data-status="Pending"] { background: #fef9c3; color: #a16207; }
+            &[data-status="Rejected"] { background: #fee2e2; color: #b91c1c; }
+        }
+        .btn-group { display: flex; gap: 8px; button { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.03); border-radius: 8px; mat-icon { font-size: 20px; } } }
+    }
+}
+
+/* 🌙 DARK MODE OVERRIDES */
+:host-context(.dark-mode) {
+    .leave-wrapper {
+        .page-header { 
+            .page-title { color: #ffffff !important; } 
+            .page-subtitle { color: rgba(255, 255, 255, 0.7) !important; } 
+        }
+        .table-container { 
+            background: #0f172a; 
+            border-color: rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); 
+            .mat-cell { color: #ffffff !important; } 
+            .mat-header-cell { color: rgba(255, 255, 255, 0.9) !important; } 
+            ::ng-deep .mat-mdc-chip { 
+                --mdc-chip-label-text-color: #ffffff !important; 
+                --mdc-chip-elevated-container-color: rgba(255, 255, 255, 0.1) !important;
+                background-color: rgba(255, 255, 255, 0.1) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                .mdc-evolution-chip__text-label { color: #ffffff !important; }
+            }
+        }
+        .summary-card { 
+            &.pending { background: rgba(254, 249, 195, 0.1); color: #facc15; }
+            &.approved { background: rgba(187, 247, 208, 0.1); color: #10b981; }
+            &.rejected { background: rgba(254, 202, 202, 0.1); color: #ef4444; }
+        }
+        .mat-header-row { background: #1e293b !important; }
+        .table-container .btn-group button { background: rgba(255,255,255,0.05); &:hover { background: rgba(255,255,255,0.1); } }
+    }
+}

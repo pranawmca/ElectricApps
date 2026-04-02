@@ -1,0 +1,121 @@
+<div class="attendance-wrapper">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Attendance & Time-sheets</h1>
+            <p class="page-subtitle">{{currentDate | date: 'EEEE, MMMM d, yyyy'}}</p>
+        </div>
+        <div class="header-actions">
+            <mat-button-toggle-group [(ngModel)]="attendanceMethod" aria-label="Attendance Method">
+                <mat-button-toggle value="Manual">Manual</mat-button-toggle>
+                <mat-button-toggle value="Biometric">Biometric</mat-button-toggle>
+            </mat-button-toggle-group>
+            <button mat-flat-button color="primary">
+                <mat-icon>download</mat-icon>
+                Export
+            </button>
+        </div>
+    </div>
+
+    <div class="content-body">
+        <!-- Manual Entry Card -->
+        <mat-card *ngIf="attendanceMethod === 'Manual' && canAdd" class="entry-card animate-in">
+            <mat-card-header>
+                <mat-card-title>Quick Punch</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="form-grid">
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Select Employee</mat-label>
+                        <mat-select>
+                            <mat-option value="1">EMP001 - John Doe</mat-option>
+                            <mat-option value="2">EMP002 - Sarah Smith</mat-option>
+                        </mat-select>
+                        <mat-icon matPrefix>person</mat-icon>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Check In</mat-label>
+                        <input matInput type="time">
+                        <mat-icon matSuffix>login</mat-icon>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Check Out</mat-label>
+                        <input matInput type="time">
+                        <mat-icon matSuffix>logout</mat-icon>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Remarks / Notes</mat-label>
+                        <input matInput placeholder="Optional notes...">
+                        <mat-icon matSuffix>edit_note</mat-icon>
+                    </mat-form-field>
+                </div>
+            </mat-card-content>
+            <mat-card-actions align="end">
+                <button mat-flat-button color="accent">SUBMIT PUNCH</button>
+            </mat-card-actions>
+        </mat-card>
+
+        <!-- Biometric Status Card -->
+        <mat-card *ngIf="attendanceMethod === 'Biometric'" class="biometric-card animate-in">
+            <div class="biometric-content">
+                <div class="status-indicator online">
+                    <mat-icon class="pulse-icon">sensors</mat-icon>
+                </div>
+                <div class="status-details">
+                    <h3>Biometric Sync Active</h3>
+                    <p>Scanning logs from cloud terminal in real-time.</p>
+                </div>
+                <button mat-stroked-button color="primary">RE-SYNC NOW</button>
+            </div>
+        </mat-card>
+
+        <!-- Logs Table -->
+        <div class="table-container mat-elevation-z3">
+            <table mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef> Employee </th>
+                    <td mat-cell *matCellDef="let log"> {{log.name}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="code">
+                    <th mat-header-cell *matHeaderCellDef> Code </th>
+                    <td mat-cell *matCellDef="let log"> {{log.code}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="checkIn">
+                    <th mat-header-cell *matHeaderCellDef> In Time </th>
+                    <td mat-cell *matCellDef="let log"> {{log.checkIn}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="checkOut">
+                    <th mat-header-cell *matHeaderCellDef> Out Time </th>
+                    <td mat-cell *matCellDef="let log"> {{log.checkOut}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef> Status </th>
+                    <td mat-cell *matCellDef="let log"> 
+                        <span class="status-chip" [attr.data-status]="log.status">{{log.status}}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="method">
+                    <th mat-header-cell *matHeaderCellDef> Method </th>
+                    <td mat-cell *matCellDef="let log"> {{log.method}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let log">
+                        <button *ngIf="canAdd" mat-icon-button color="primary"><mat-icon>edit_calendar</mat-icon></button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        </div>
+    </div>
+</div>

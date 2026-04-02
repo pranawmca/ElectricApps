@@ -1,0 +1,79 @@
+.attendance-wrapper {
+    padding: 30px; 
+    max-width: 1440px; 
+    margin: 0 auto;
+
+    .page-header {
+        display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px;
+        @media screen and (max-width: 1024px) { flex-direction: column; gap: 20px; text-align: center; align-items: center; }
+        
+        .page-title { font-size: 2.22rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.025em; }
+        .page-subtitle { font-size: 1.1rem; color: #64748b; margin: 4px 0 0 0; font-weight: 600; }
+        .header-actions {
+            display: flex; gap: 20px; align-items: center;
+            .mat-button-toggle-group { border-radius: 12px; overflow: hidden; border: none; background: #f1f5f9; padding: 4px; .mat-button-toggle { border-left: none; background: transparent; &.mat-button-toggle-checked { background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); .mat-button-toggle-label-content { color: #3b82f6; } } } }
+            button { height: 48px; padding: 0 24px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        }
+    }
+
+    .content-body { display: flex; flex-direction: column; gap: 30px; }
+
+    .entry-card {
+        border-radius: 24px; border: none; background: white; padding: 30px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        .form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; @media screen and (max-width: 768px) { grid-template-columns: 1fr; } .full-width { grid-column: span 3; @media screen and (max-width: 768px) { grid-column: span 1; } } }
+    }
+
+    .biometric-card {
+        border-radius: 24px; border: none; background: #eff6ff; padding: 30px; border-left: 6px solid #10b981;
+        .biometric-content {
+            display: flex; align-items: center; gap: 24px;
+            @media screen and (max-width: 768px) { flex-direction: column; text-align: center; }
+            .status-indicator { width: 64px; height: 64px; border-radius: 16px; background: white; display: flex; align-items: center; justify-content: center; color: #10b981; .pulse-icon { font-size: 36px; width: 36px; height: 36px; animation: pulse 2s infinite; } }
+            .status-details { flex: 1; h3 { margin: 0; font-size: 1.25rem; font-weight: 800; color: #1e3a8a; } p { margin: 5px 0 0; font-size: 1rem; color: #60a5fa; font-weight: 600; } }
+            button { height: 48px; border-radius: 12px; font-weight: 700; border-width: 2px; }
+        }
+    }
+
+    .table-container {
+        border-radius: 20px; overflow: hidden; background: white; border: 1px solid #f1f5f9;
+        table { width: 100%; border-collapse: collapse; }
+        .mat-header-row { background: #f8fafc; height: 64px; }
+        .mat-header-cell { padding: 15px 24px; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #f1f5f9; }
+        .mat-cell { padding: 16px 24px; border-bottom: 1px solid #f1f5f9; color: #334155; font-weight: 600; }
+        .status-chip { 
+            padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; 
+            &[data-status="Present"] { background: #dcfce7; color: #15803d; }
+            &[data-status="Late"] { background: #fef9c3; color: #a16207; }
+            &[data-status="Absent"] { background: #fee2e2; color: #b91c1c; }
+        }
+    }
+}
+
+@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+
+/* 🌙 DARK MODE OVERRIDES */
+:host-context(.dark-mode) {
+    .attendance-wrapper {
+        .page-header { 
+            .page-title { color: #ffffff !important; } 
+            .page-subtitle { color: rgba(255, 255, 255, 0.7) !important; } 
+        }
+        .header-card, .entry-card, .table-container { 
+            background: #0f172a; 
+            border-color: rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); 
+            .mat-card-title, .status-details h3, .mat-cell, h3, ::ng-deep .mat-mdc-card-title { color: #ffffff !important; } 
+            .mat-card-subtitle, .mat-header-cell { color: rgba(255, 255, 255, 0.9) !important; } 
+        }
+        .header-actions .mat-button-toggle-group { 
+            background: #1e293b; 
+            ::ng-deep .mat-mdc-button-toggle-label-content { color: rgba(255, 255, 255, 0.8) !important; }
+            .mat-mdc-button-toggle-checked { 
+                background: #0f172a; 
+                ::ng-deep .mat-mdc-button-toggle-label-content { color: #ffffff !important; } 
+            } 
+        }
+        .biometric-card { background: rgba(16, 185, 129, 0.1); border-left-color: #10b981; .status-indicator { background: #1e293b; color: #10b981; } .status-details { h3 { color: #ffffff !important; } p { color: #10b981; } } }
+        .mat-header-row { background: #1e293b !important; } 
+    }
+}

@@ -1,0 +1,83 @@
+<div class="salary-wrapper">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Payroll & Salary Slips</h1>
+            <p class="page-subtitle">Generate and distribute monthly compensation statements</p>
+        </div>
+        <div class="header-actions">
+            <mat-form-field appearance="outline" class="select-field">
+                <mat-label>Month</mat-label>
+                <mat-select [(ngModel)]="selectedMonth">
+                    <mat-option *ngFor="let m of months" [value]="m">{{m}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="select-field year">
+                <mat-label>Year</mat-label>
+                <mat-select [(ngModel)]="selectedYear">
+                    <mat-option *ngFor="let y of years" [value]="y">{{y}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button mat-flat-button class="run-btn" *ngIf="canProcess">
+                <mat-icon>auto_awesome</mat-icon>
+                RUN PAYROLL
+            </button>
+        </div>
+    </div>
+
+    <div class="table-container mat-elevation-z3">
+        <div class="table-header">
+            <h3>Payroll Summary: {{selectedMonth}} {{selectedYear}}</h3>
+        </div>
+        <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="employee">
+                <th mat-header-cell *matHeaderCellDef> Staff Member </th>
+                <td mat-cell *matCellDef="let slip"> {{slip.name}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="code">
+                <th mat-header-cell *matHeaderCellDef> ID </th>
+                <td mat-cell *matCellDef="let slip"> {{slip.code}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="breakdown">
+                <th mat-header-cell *matHeaderCellDef> Breakdown </th>
+                <td mat-cell *matCellDef="let slip"> 
+                    <div class="breakdown-cell">
+                        <span>Basic: {{slip.basic | currency:'INR'}}</span>
+                        <span>HRA: {{slip.hra | currency:'INR'}}</span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="totals">
+                <th mat-header-cell *matHeaderCellDef> Net Payable </th>
+                <td mat-cell *matCellDef="let slip"> 
+                    <div class="total-cell">
+                        <span class="gross">Gross: {{slip.gross | currency:'INR'}}</span>
+                        <span class="net">NET: {{slip.net | currency:'INR'}}</span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let slip"> 
+                    <span class="status-chip" [attr.data-status]="slip.status">{{slip.status}}</span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let slip">
+                    <button mat-icon-button color="warn" matTooltip="Download PDF" *ngIf="canDownload"><mat-icon>picture_as_pdf</mat-icon></button>
+                    <button mat-icon-button color="primary" matTooltip="Email Slip" *ngIf="canProcess"><mat-icon>alternate_email</mat-icon></button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+</div>

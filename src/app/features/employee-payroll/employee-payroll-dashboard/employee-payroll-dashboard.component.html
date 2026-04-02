@@ -1,0 +1,67 @@
+<div class="dashboard-wrapper">
+  <!-- Top Stats Strip -->
+  <div class="stats-row">
+    <mat-card *ngFor="let stat of stats" class="stat-card animate-card">
+      <div class="card-glow" [style.background]="stat.color"></div>
+      <mat-card-header>
+        <div mat-card-avatar class="stat-avatar" [style.background-color]="stat.color + '20'" [style.color]="stat.color">
+          <mat-icon>{{stat.icon}}</mat-icon>
+        </div>
+        <mat-card-title>{{stat.value}}</mat-card-title>
+        <mat-card-subtitle>{{stat.label}}</mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+  </div>
+
+  <div class="content-row">
+    <!-- Quick Actions Section -->
+    <div class="actions-column">
+      <h2 class="section-title">Module Control</h2>
+      <div class="grid-container">
+        <mat-card class="action-card" routerLink="employees">
+          <mat-icon color="primary">group_add</mat-icon>
+          <span>Staff Records</span>
+        </mat-card>
+        <mat-card class="action-card" routerLink="attendance">
+          <mat-icon style="color: #10b981;">fingerprint</mat-icon>
+          <span>Time Logs</span>
+        </mat-card>
+        <mat-card class="action-card" routerLink="leaves">
+          <mat-icon style="color: #f59e0b;">event_note</mat-icon>
+          <span>Leave Request</span>
+        </mat-card>
+        <mat-card class="action-card" routerLink="salary-slips">
+          <mat-icon style="color: #6366f1;">payments</mat-icon>
+          <span>Salary Slips</span>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Timeline/Events Section -->
+    <div class="events-column">
+      <mat-card class="timeline-card">
+        <mat-card-header>
+          <mat-card-title>Recent Activity</mat-card-title>
+          <button mat-icon-button><mat-icon>refresh</mat-icon></button>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="activity-feed">
+            <div *ngFor="let activity of recentActivities; let last = last" class="feed-item" [class.no-border]="last">
+              <div class="feed-marker" [class]="activity.type"></div>
+              <div class="feed-content">
+                <div class="feed-header">
+                  <h4>{{activity.title}}</h4>
+                  <span class="feed-time">{{activity.time}}</span>
+                </div>
+                <p class="feed-desc">{{activity.desc}}</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-button color="primary">VIEW ALL LOGS</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

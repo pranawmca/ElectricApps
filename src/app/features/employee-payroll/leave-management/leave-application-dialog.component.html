@@ -1,0 +1,56 @@
+<div class="dialog-container" [formGroup]="leaveForm">
+    <div class="dialog-header">
+        <div class="title-group">
+            <mat-icon class="header-icon">beach_access</mat-icon>
+            <h2 mat-dialog-title>Apply New Leave</h2>
+        </div>
+        <button mat-icon-button (click)="onCancel()" class="close-btn">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-dialog-content class="mat-typography">
+        <p class="subtitle text-muted">Fill out the request below to apply for a professional absence.</p>
+
+        <div class="form-grid">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Leave Category</mat-label>
+                <mat-select formControlName="leaveType">
+                    <mat-option *ngFor="let type of leaveTypes" [value]="type">{{type}}</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
+
+            <div class="date-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>From Date</mat-label>
+                    <input matInput [matDatepicker]="picker1" formControlName="startDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                    <mat-datepicker #picker1></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>To Date</mat-label>
+                    <input matInput [matDatepicker]="picker2" formControlName="endDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Reason for Leave</mat-label>
+                <textarea matInput formControlName="reason" rows="4" placeholder="Briefly describe why you are taking leave..."></textarea>
+                <mat-icon matSuffix>description</mat-icon>
+                <mat-hint align="end">{{leaveForm.get('reason')?.value?.length || 0}} / 100 characters minimum</mat-hint>
+            </mat-form-field>
+        </div>
+    </mat-dialog-content>
+
+    <div mat-dialog-actions align="end" class="dialog-footer">
+        <button mat-button (click)="onCancel()" color="warn">Discard</button>
+        <button mat-flat-button class="submit-btn" (click)="onSubmit()" [disabled]="leaveForm.invalid">
+            <mat-icon>send</mat-icon>
+            SUBMIT REQUEST
+        </button>
+    </div>
+</div>

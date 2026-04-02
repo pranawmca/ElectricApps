@@ -64,6 +64,11 @@ export const routes: Routes = [
         path: 'finance',
         data: { breadcrumb: 'Finance' },
         loadChildren: () => import('./routes/finance.routes').then(m => m.FINANCE_ROUTES)
+      },
+      {
+        path: 'employee-payroll',
+        data: { breadcrumb: 'Employee Payroll' },
+        loadChildren: () => import('./routes/employee-payroll.routes').then(m => m.EMPLOYEE_PAYROLL_ROUTES)
       }
     ]
   },
