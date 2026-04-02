@@ -5,7 +5,7 @@
       <p class="page-subtitle">Manage your workforce, roles, and profiles</p>
     </div>
     <div class="header-actions" *ngIf="canAdd">
-      <button mat-flat-button color="primary" [routerLink]="['/app/employee-payroll/employees/add']">
+      <button mat-flat-button class="add-btn" [routerLink]="['/app/employee-payroll/employees/add']">
         <mat-icon>person_add</mat-icon>
         Add New Employee
       </button>

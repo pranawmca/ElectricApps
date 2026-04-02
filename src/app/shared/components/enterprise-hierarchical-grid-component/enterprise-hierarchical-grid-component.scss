@@ -1637,6 +1637,12 @@ button[color="success"] {
     color: rgba(255, 255, 255, 0.5) !important;
   }
 
+  .empty-state-container { 
+    background-color: #1e293b !important; 
+    .empty-title { color: #ffffff !important; }
+    .empty-subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+    .empty-icon { color: rgba(255, 255, 255, 0.2) !important; }
+  }
   .no-data-msg { color: rgba(255, 255, 255, 0.3) !important; }
 
   /* ⚡ EXECUTIVE WHITE CHECKBOXES FORCE ⚡ */

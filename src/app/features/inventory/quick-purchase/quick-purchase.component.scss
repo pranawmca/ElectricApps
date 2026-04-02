@@ -596,13 +596,20 @@ input[type=number] {
     }
     
     .barcode-status {
-      background: #0f172a !important; /* Midnight Navy */
+      background: #0f172a !important; 
       border-color: rgba(59, 130, 246, 0.3) !important;
       .status-label { color: rgba(255, 255, 255, 0.5) !important; }
       .last-scanned { color: #ffffff !important; }
       mat-icon { color: #3b82f6 !important; }
       &.scanning { background: rgba(59, 130, 246, 0.2) !important; border-color: #3b82f6 !important; }
     }
+
+    /* ⚡ CHECHBOX FORCE ⚡ */
+    mat-checkbox {
+      span { color: #ffffff !important; }
+    }
+    
+    .tax-type-toggle-group { color: #ffffff !important; }
 
     /* 🎯 UNIFIED STEALTH BUTTONS (Synced Save & Cancel) */
     .save-btn, .back-btn {
@@ -651,35 +658,36 @@ input[type=number] {
   }
 
   .items-section {
-    border-top-color: rgba(255, 255, 255, 0.05) !important;
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+    background: transparent !important;
     .section-title {
-      span { color: #ffffff !important; }
+      span { color: #ffffff !important; font-weight: 700 !important; }
       
-      /* 🎯 SYNCED SEARCH BUTTON (Scanner Theme) */
       button {
-        background: #0f172a !important; /* Midnight Navy */
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(59, 130, 246, 0.3) !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
 
-        mat-icon { color: #3b82f6 !important; } /* Sapphire Icon */
+        mat-icon { color: #3b82f6 !important; }
 
         &:hover:not(:disabled) {
-          background: rgba(59, 130, 246, 0.1) !important;
-          border-color: #3b82f6 !important;
+          filter: brightness(1.2);
+          transform: translateY(-1px);
         }
       }
     }
   }
 
   .items-grid {
-    background-color: #1e293b !important;
-    border-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: #0f172a !important; /* Midnight Deep */
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    min-height: 100px;
 
     .item-header {
-      background-color: #0f172a !important;
-      color: rgba(255, 255, 255, 0.5) !important;
-      border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+      background-color: #1e293b !important; /* Sapphire */
+      color: rgba(255, 255, 255, 0.7) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.1) !important;
     }
 
     .item-row {

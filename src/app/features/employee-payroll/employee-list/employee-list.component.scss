@@ -11,7 +11,14 @@
         
         .page-title { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.025em; }
         .page-subtitle { font-size: 1.1rem; color: #64748b; margin: 4px 0 0 0; font-weight: 500; }
-        .header-actions { button { height: 48px; padding: 0 24px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); } }
+        .header-actions { 
+            .add-btn { 
+                height: 48px; padding: 0 24px; font-weight: 700; border-radius: 12px; 
+                background-color: #3b82f6; color: #ffffff;
+                transition: all 0.2s ease;
+                &:hover { background-color: #2563eb; transform: translateY(-1px); }
+            }
+        }
     }
 
     .filter-container {
@@ -53,6 +60,12 @@
         .page-header { 
             .page-title { color: #ffffff !important; } 
             .page-subtitle { color: rgba(255,255,255,0.7) !important; } 
+            .add-btn { 
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.3);
+                &:hover { filter: brightness(1.2); }
+            }
         }
         .filter-container { .mat-label { color: rgba(255,255,255,0.8) !important; } input { color: #ffffff !important; } }
         .table-container { 
@@ -62,11 +75,15 @@
             .mat-header-row { background: #1e293b; .mat-header-cell { border-bottom-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9) !important; } } 
             .mat-cell { 
                 border-bottom-color: rgba(255,255,255,0.05); 
-                color: rgba(255,255,255,0.9) !important; 
-                .emp-profile .full-name { color: #ffffff !important; } 
-                .dept-chip { background: rgba(59, 130, 246, 0.1); color: #60a5fa; } 
+                color: #ffffff !important; 
+                .emp-profile .name-info .full-name { color: #ffffff !important; } 
+                .dept-chip { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+                &.mat-column-name { color: #ffffff !important; span { color: #ffffff !important; } }
             } 
         }
         .mat-paginator { background: #1e293b; color: #ffffff; border-top-color: rgba(255,255,255,0.1); ::ng-deep .mat-mdc-paginator-container { color: #ffffff; } }
+        
+        /* ⚡ GLOBAL NAME FORCE - NO MORE GREY ⚡ */
+        .full-name { color: #ffffff !important; }
     }
 }
