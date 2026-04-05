@@ -240,12 +240,22 @@
                     <span class="value">₹ {{ subTotal | number:'1.2-2' }}</span>
                   </div>
 
-                  <div class="summary-row tax-highlight">
-                    <span class="label">
-                      Total Tax
-                      <span class="tax-badge text-uppercase">{{ soForm.get('taxType')?.value === 'local' ? 'CGST+SGST' : 'IGST' }}</span>
-                    </span>
-                    <span class="value tax-plus">+ ₹ {{ totalTax | number:'1.2-2' }}</span>
+                  <!-- Local Tax (CGST + SGST) -->
+                  <ng-container *ngIf="soForm.get('taxType')?.value === 'local'">
+                      <div class="summary-row tax-highlight">
+                          <span class="label">CGST (GST)</span>
+                          <span class="value tax-plus">+ ₹ {{ totalTax / 2 | number:'1.2-2' }}</span>
+                      </div>
+                      <div class="summary-row tax-highlight">
+                          <span class="label">SGST (GST)</span>
+                          <span class="value tax-plus">+ ₹ {{ totalTax / 2 | number:'1.2-2' }}</span>
+                      </div>
+                  </ng-container>
+
+                  <!-- Inter-State Tax (IGST) -->
+                  <div class="summary-row tax-highlight" *ngIf="soForm.get('taxType')?.value === 'interState'">
+                      <span class="label">IGST (GST)</span>
+                      <span class="value tax-plus">+ ₹ {{ totalTax | number:'1.2-2' }}</span>
                   </div>
 
                   <div class="summary-divider"></div>

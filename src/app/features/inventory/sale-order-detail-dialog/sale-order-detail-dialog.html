@@ -81,9 +81,28 @@
             <span class="label">Sub Total</span>
             <span class="value">{{((data.subTotal || data.SubTotal) || 0) | currency:'INR':'symbol':'1.2-2'}}</span>
         </div>
-        <div class="summary-row">
+        <!-- Local Tax (CGST + SGST) -->
+        <ng-container *ngIf="(data.taxType || data.TaxType) === 'local'">
+            <div class="summary-row">
+                <span class="label">CGST (GST)</span>
+                <span class="value">{{ ((data.totalTax || data.TotalTax || 0) / 2) | currency:'INR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">SGST (GST)</span>
+                <span class="value">{{ ((data.totalTax || data.TotalTax || 0) / 2) | currency:'INR':'symbol':'1.2-2' }}</span>
+            </div>
+        </ng-container>
+
+        <!-- Inter-State Tax (IGST) -->
+        <div class="summary-row" *ngIf="(data.taxType || data.TaxType) === 'interState'">
+            <span class="label">IGST (GST)</span>
+            <span class="value">{{ ((data.totalTax || data.TotalTax) || 0) | currency:'INR':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <!-- Default (Legacy or unknown) -->
+        <div class="summary-row" *ngIf="!(data.taxType || data.TaxType)">
             <span class="label">Total Tax</span>
-            <span class="value">{{((data.totalTax || data.TotalTax) || 0) | currency:'INR':'symbol':'1.2-2'}}</span>
+            <span class="value">{{ ((data.totalTax || data.TotalTax) || 0) | currency:'INR':'symbol':'1.2-2' }}</span>
         </div>
         <div class="summary-row grand-total">
             <span class="label">Grand Total</span>

@@ -178,10 +178,26 @@ export class SaleOrderDetailDialog implements OnInit {
                         <span class="label">Sub Total</span>
                         <span class="value">${subTotal}</span>
                     </div>
+                    ${(this.data.taxType || this.data.TaxType) === 'local' ? `
+                    <div class="summary-row">
+                        <span class="label">CGST (GST)</span>
+                        <span class="value">${this.currencyPipe.transform((this.data.totalTax || this.data.TotalTax || 0) / 2, 'INR')}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">SGST (GST)</span>
+                        <span class="value">${this.currencyPipe.transform((this.data.totalTax || this.data.TotalTax || 0) / 2, 'INR')}</span>
+                    </div>
+                    ` : (this.data.taxType || this.data.TaxType) === 'interState' ? `
+                    <div class="summary-row">
+                        <span class="label">IGST (GST)</span>
+                        <span class="value">${totalTax}</span>
+                    </div>
+                    ` : `
                     <div class="summary-row">
                         <span class="label">Total Tax</span>
                         <span class="value">${totalTax}</span>
                     </div>
+                    `}
                     <div class="summary-row grand-total">
                         <span class="label">Grand Total</span>
                         <span class="value">${grandTotal}</span>

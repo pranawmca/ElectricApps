@@ -111,6 +111,7 @@
               <div class="col-rate">{{languageService.translate('MRP (₹)')}}</div>
               <div class="col-rate">{{languageService.translate('Disc (₹)')}}</div>
               <div class="col-rate">{{languageService.translate('Rate (₹)')}}</div>
+              <div class="col-gst">{{languageService.translate('GST (%)')}}</div>
               <div class="col-total">{{languageService.translate('Total (₹)')}}</div>
               <div class="col-action"></div>
             </div>
@@ -140,17 +141,22 @@
               </div>
               <div class="col-rate">
                 <mat-form-field appearance="outline" dense>
-                  <input matInput type="number" formControlName="mrp" class="hide-arrows">
+                  <input matInput type="number" formControlName="mrp" class="hide-arrows" readonly style="color: #64748b;">
                 </mat-form-field>
               </div>
               <div class="col-rate">
                 <mat-form-field appearance="outline" dense>
-                  <input matInput type="number" formControlName="discountAmount" class="hide-arrows">
+                  <input matInput type="number" formControlName="discountAmount" class="hide-arrows" readonly style="color: #64748b;">
                 </mat-form-field>
               </div>
               <div class="col-rate">
                 <mat-form-field appearance="outline" dense>
                   <input matInput type="number" formControlName="rate" class="hide-arrows" readonly>
+                </mat-form-field>
+              </div>
+              <div class="col-gst">
+                <mat-form-field appearance="outline" dense>
+                  <input matInput type="number" formControlName="gstPercent" class="hide-arrows" readonly style="color: #64748b;">
                 </mat-form-field>
               </div>
               <div class="col-total">
@@ -170,12 +176,41 @@
                       <span>{{languageService.translate('Sub Total')}}</span>
                       <span class="value">{{ subTotal | currency:'INR':'symbol':'1.2-2' }}</span>
                   </div>
-                  <div class="summary-row">
-                      <span>{{languageService.translate('Total Tax (GST):')}}</span>
-                      <span class="value tax-value">
-                          {{ totalTax | currency:'INR':'symbol':'1.2-2' }}
-                          <small class="tax-type-tag">({{ saleForm.get('taxType')?.value === 'local' ? 'CGST+SGST' : 'IGST' }})</small>
-                      </span>
+                  <!-- Local Tax (CGST + SGST) -->
+                  <ng-container *ngIf="saleForm.get('taxType')?.value === 'local'">
+                      <div class="summary-row">
+                          <span>{{languageService.translate('CGST (GST):')}}</span>
+                          <span class="value tax-value">{{ totalTax / 2 | currency:'INR':'symbol':'1.2-2' }}</span>
+                      </div>
+                      <div class="summary-row">
+                          <span>{{languageService.translate('SGST (GST):')}}</span>
+                          <span class="value tax-value">{{ totalTax / 2 | currency:'INR':'symbol':'1.2-2' }}</span>
+                      </div>
+                  </ng-container>
+
+                  <!-- Inter-State Tax (IGST) -->
+                  <div class="summary-row" *ngIf="saleForm.get('taxType')?.value === 'interState'">
+                      <span>{{languageService.translate('IGST (GST):')}}</span>
+                      <span class="value tax-value">{{ totalTax | currency:'INR':'symbol':'1.2-2' }}</span>
+                  </div>
+
+                  <div style="border-top: 2px dashed #e2e8f0; margin: 12px 0;"></div>
+
+                  <!-- TDS & TCS Adjustments -->
+                  <div class="summary-row extra-tax-row">
+                      <span>{{languageService.translate('TDS (%)')}}</span>
+                      <div class="tax-input-group">
+                          <input type="number" formControlName="tdsPercent" class="small-tax-input" placeholder="0">
+                          <span class="tax-calc-val warn-text">- {{ tdsAmount | currency:'INR':'symbol':'1.2-2' }}</span>
+                      </div>
+                  </div>
+
+                  <div class="summary-row extra-tax-row" style="margin-bottom: 0;">
+                      <span>{{languageService.translate('TCS (%)')}}</span>
+                      <div class="tax-input-group">
+                          <input type="number" formControlName="tcsPercent" class="small-tax-input" placeholder="0">
+                          <span class="tax-calc-val info-text">+ {{ tcsAmount | currency:'INR':'symbol':'1.2-2' }}</span>
+                      </div>
                   </div>
 
                   <div class="summary-row grand-total">
