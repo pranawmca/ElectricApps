@@ -83,11 +83,9 @@ export class SaleOrderDetailDialog implements OnInit {
               ${item.rackName ? `<small style="color: #666; font-size: 10px;">Location: <b>${item.rackName}</b></small>` : ''}
             </td>
             <td style="text-align: center;">${item.qty || item.Qty} <small>(${item.unit || item.Unit || 'Nos'})</small></td>
+            <td style="text-align: right;">${this.currencyPipe.transform(item.mrp || item.MRP || 0, 'INR')}</td>
+            <td style="text-align: right;">${this.currencyPipe.transform(item.discountAmount || item.DiscountAmount || 0, 'INR')}</td>
             <td style="text-align: right;">${this.currencyPipe.transform(item.rate || item.Rate, 'INR')}</td>
-            <td style="text-align: center;">${item.discountPercent || item.DiscountPercent || 0}%</td>
-            <td style="text-align: center;">${item.gstPercent || item.GSTPercent || 0}%</td>
-            <td style="text-align: center;">${(item.manufacturingDate || item.ManufacturingDate) ? this.datePipe.transform(item.manufacturingDate || item.ManufacturingDate, 'dd/MM/yyyy') : '—'}</td>
-            <td style="text-align: center;">${(item.expiryDate || item.ExpiryDate) ? this.datePipe.transform(item.expiryDate || item.ExpiryDate, 'dd/MM/yyyy') : '—'}</td>
             <td style="text-align: right;">${this.currencyPipe.transform(item.total || item.Total || ((item.qty || item.Qty) * (item.rate || item.Rate)), 'INR')}</td>
         </tr>
     `).join('');
@@ -114,8 +112,8 @@ export class SaleOrderDetailDialog implements OnInit {
                     .info-group .value { font-weight: 600; font-size: 14px; }
 
                     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                    th { background: #f1f5f9; padding: 10px; text-align: left; font-size: 12px; text-transform: uppercase; color: #555; }
-                    td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
+                    th { background: #f1f5f9; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; color: #555; }
+                    td { padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; }
                     
                     .invoice-summary { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-end; }
                     .summary-row { display: flex; justify-content: space-between; width: 250px; padding: 5px 0; }
@@ -161,15 +159,13 @@ export class SaleOrderDetailDialog implements OnInit {
                 <table>
                     <thead>
                         <tr>
-                            <th style="text-align: center;">#</th>
-                            <th>Product Name</th>
-                            <th style="text-align: center;">Qty</th>
-                            <th style="text-align: right;">Rate</th>
-                            <th style="text-align: center;">Disc</th>
-                            <th style="text-align: center;">GST (%)</th>
-                            <th style="text-align: center;">Mfg Date</th>
-                            <th style="text-align: center;">Exp Date</th>
-                            <th style="text-align: right;">Total</th>
+                            <th style="text-align: center; width: 30px;">#</th>
+                            <th style="width: 250px;">Product Name</th>
+                            <th style="text-align: center; width: 80px;">Qty</th>
+                            <th style="text-align: right; width: 90px;">MRP</th>
+                            <th style="text-align: right; width: 90px;">Disc (Amt)</th>
+                            <th style="text-align: right; width: 90px;">Sale Rate</th>
+                            <th style="text-align: right; width: 100px;">Total</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -6,7 +6,7 @@ import { InventoryService } from '../service/inventory.service';
 import { ProductService } from '../../master/product/service/product.service';
 import { NotificationService } from '../../shared/notification.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Observable, debounceTime, distinctUntilChanged, map, startWith, Subject, takeUntil, finalize } from 'rxjs';
+import { Observable, debounceTime, distinctUntilChanged, map, startWith, Subject, takeUntil, finalize, merge } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductSelectionDialogComponent } from '../../../shared/components/product-selection-dialog/product-selection-dialog';
@@ -348,7 +348,9 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             qty: [product.qty || 1, [Validators.required, Validators.min(0.01), this.stockValidator()]],
             unit: [{ value: product.unit || 'PCS', disabled: true }],
             rate: [product.rate || product.Rate || product.saleRate || product.salePrice || product.price || product.mrp || 0, [Validators.required, Validators.min(0)]],
-            discountPercent: [product.discountPercent || product.discount || 0],
+            mrp: [product.mrp || product.MRP || 0],
+            discountAmount: [product.discount || product.Discount || 0],
+            discountPercent: [product.discountPercent || 0],
             gstPercent: [product.gstPercent ?? product.defaultGst ?? 18],
             total: [{ value: 0, disabled: true }],
             isExpiryRequired: [product.isExpiryRequired || false],
@@ -515,6 +517,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             qty: [1, [Validators.required, Validators.min(0.01), this.stockValidator()]],
             unit: ['PCS'],
             rate: [0, [Validators.required, Validators.min(0)]],
+            mrp: [0],
+            discountAmount: [0],
             discountPercent: [0],
             gstPercent: [18],
             total: [{ value: 0, disabled: true }],
@@ -569,7 +573,30 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
     private setupItemCalculations(index: number) {
         const item = this.items.at(index);
-        item.valueChanges.pipe(debounceTime(100)).subscribe(() => {
+        
+        // 🎯 LOGIC: MRP - DISCOUNT = SALE RATE (Inclusive)
+        const mrpCtrl = item.get('mrp');
+        const discCtrl = item.get('discountAmount');
+        const rateCtrl = item.get('rate');
+
+        if (mrpCtrl && discCtrl && rateCtrl) {
+            merge(mrpCtrl.valueChanges, discCtrl.valueChanges).pipe(
+                takeUntil(this.destroy$),
+                debounceTime(50)
+            ).subscribe(() => {
+                const mrp = Number(mrpCtrl.value || 0);
+                const disc = Number(discCtrl.value || 0);
+                const newRate = mrp - disc;
+                rateCtrl.patchValue(newRate, { emitEvent: false });
+                this.calculateItemTotal(index);
+                this.cdr.detectChanges();
+            });
+        }
+
+        item.valueChanges.pipe(
+            debounceTime(100),
+            takeUntil(this.destroy$)
+        ).subscribe(() => {
             this.calculateItemTotal(index);
         });
     }
@@ -577,32 +604,30 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
     private calculateItemTotal(index: number) {
         const item = this.items.at(index);
         const qty = item.get('qty')?.value || 0;
-        const rate = item.get('rate')?.value || 0;
-        const disc = item.get('discountPercent')?.value || 0;
-        const gst = item.get('gstPercent')?.value || 0;
-        const netRate = rate * (1 - disc / 100);
-        const tax = netRate * (gst / 100);
-        const total = qty * (netRate + tax);
+        const rate = item.get('rate')?.value || 0; // Inclusive Sale Rate
+        const total = qty * rate;
         item.get('total')?.patchValue(total.toFixed(2), { emitEvent: false });
     }
 
     get subTotal(): number {
         return this.items.controls.reduce((sum, ctrl) => {
             const qty = parseFloat(ctrl.get('qty')?.value) || 0;
-            const rate = parseFloat(ctrl.get('rate')?.value) || 0;
-            const disc = parseFloat(ctrl.get('discountPercent')?.value) || 0;
-            return sum + (qty * rate * (1 - disc / 100));
+            const rate = parseFloat(ctrl.get('rate')?.value) || 0; // Inclusive
+            const gst = parseFloat(ctrl.get('gstPercent')?.value) || 0;
+            const itemTotal = qty * rate;
+            const itemSubtotal = itemTotal / (1 + gst / 100);
+            return sum + itemSubtotal;
         }, 0);
     }
 
     get totalTax(): number {
         return this.items.controls.reduce((sum, ctrl) => {
             const qty = parseFloat(ctrl.get('qty')?.value) || 0;
-            const rate = parseFloat(ctrl.get('rate')?.value) || 0;
-            const disc = parseFloat(ctrl.get('discountPercent')?.value) || 0;
+            const rate = parseFloat(ctrl.get('rate')?.value) || 0; // Inclusive
             const gst = parseFloat(ctrl.get('gstPercent')?.value) || 0;
-            const netRate = rate * (1 - disc / 100);
-            return sum + (qty * netRate * (gst / 100));
+            const itemTotal = qty * rate;
+            const itemTax = itemTotal - (itemTotal / (1 + gst / 100));
+            return sum + itemTax;
         }, 0);
     }
 
@@ -756,10 +781,12 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                         productName: i.productName,
                         qty: i.qty,
                         unit: i.unit,
+                        mrp: i.mrp || 0,
+                        discountAmount: i.discountAmount || 0,
                         rate: i.rate,
-                        discountPercent: i.discountPercent,
+                        discountPercent: i.discountPercent || 0,
                         gstPercent: i.gstPercent,
-                        taxAmount: (i.rate * (1 - (i.discountPercent || 0) / 100)) * ((i.gstPercent || 0) / 100) * i.qty,
+                        taxAmount: Number(i.total) - (Number(i.total) / (1 + (i.gstPercent || 0) / 100)),
                         total: i.total,
                         warehouseId: i.warehouseId || null,
                         rackId: i.rackId || null,

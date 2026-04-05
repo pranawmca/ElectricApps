@@ -97,10 +97,10 @@ export class SharedPrintService {
         const items = (data.items || []).map((i: any) => ({
              name: i.productName || i.name,
              qty: i.qty,
-             rate: i.rate,
-             discountPercent: i.discountPercent,
-             taxPercent: i.taxPercent || i.gstPercent,
-             amount: i.total || (i.qty * i.rate * (1 - (i.discountPercent || 0)/100))
+             mrp: i.mrp || i.MRP || i.rate || i.Rate || 0,
+             discountAmount: i.discountAmount || i.DiscountAmount || 0,
+             rate: i.rate || i.Rate || 0,
+             amount: i.total || i.Total || (i.qty * (i.rate || i.Rate || 0))
         }));
 
         let grandTotal = data.grandTotal || 0;
@@ -125,7 +125,7 @@ export class SharedPrintService {
             amountInWords: this.numberToWords(Math.round(grandTotal)),
             savingsInfo: {
                 totalPcs,
-                mrpTotal: items.reduce((sum: number, i: any) => sum + (i.qty * i.rate), 0),
+                mrpTotal: items.reduce((sum: number, i: any) => sum + (i.qty * i.mrp), 0),
                 totalSaving: data.totalDiscount || 0
             }
         };
@@ -137,8 +137,9 @@ export class SharedPrintService {
                 <td style="text-align: center;">${index + 1}</td>
                 <td>${item.name}</td>
                 <td style="text-align: center;">${item.qty}</td>
+                <td style="text-align: right;">${this.currencyPipe.transform(item.mrp, 'INR')}</td>
+                <td style="text-align: right;">${this.currencyPipe.transform(item.discountAmount, 'INR')}</td>
                 <td style="text-align: right;">${this.currencyPipe.transform(item.rate, 'INR')}</td>
-                <td style="text-align: center;">${item.discountPercent || 0}%</td>
                 <td style="text-align: right;">${this.currencyPipe.transform(item.amount, 'INR')}</td>
             </tr>
         `).join('');
@@ -216,9 +217,10 @@ export class SharedPrintService {
                                 <th style="text-align: center; width: 30px;">#</th>
                                 <th>Product / Description</th>
                                 <th style="text-align: center; width: 60px;">Qty</th>
-                                <th style="text-align: right; width: 100px;">Rate</th>
-                                <th style="text-align: center; width: 60px;">Disc%</th>
-                                <th style="text-align: right; width: 120px;">Total</th>
+                                <th style="text-align: right; width: 90px;">MRP</th>
+                                <th style="text-align: right; width: 90px;">Disc (Amt)</th>
+                                <th style="text-align: right; width: 90px;">Sale Rate</th>
+                                <th style="text-align: right; width: 110px;">Total</th>
                             </tr>
                         </thead>
                         <tbody>

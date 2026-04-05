@@ -17,7 +17,6 @@
 
     <div class="order-title-group">
       <h2>ORDER #{{data.soNumber || data.SONumber}}</h2>
-      <span class="status-pill" [ngClass]="(data.status || data.Status)?.toLowerCase()">{{data.status || data.Status}}</span>
     </div>
 
     <button mat-icon-button mat-dialog-close class="close-btn">
@@ -52,11 +51,9 @@
             <th class="col-idx text-center">#</th>
             <th class="col-product">Product Name</th>
             <th class="col-qty text-center">Qty</th>
-            <th class="col-rate text-right">Rate</th>
-            <th class="col-disc text-center">Disc</th>
-            <th class="col-gst text-center">GST (%)</th>
-            <th class="col-date text-center">Mfg Date</th>
-            <th class="col-date text-center">Exp Date</th>
+            <th class="col-rate text-right">MRP</th>
+            <th class="col-disc text-center">Disc (Amt)</th>
+            <th class="col-rate text-right">Sale Rate</th>
             <th class="col-total text-right">Total</th>
           </tr>
         </thead>
@@ -68,11 +65,9 @@
                 <div class="qty-val">{{item.qty || item.Qty}}</div>
                 <div class="unit-val">{{item.unit || item.Unit || 'Nos'}}</div>
             </td>
+            <td class="col-rate text-right">{{(item.mrp || item.MRP || 0) | currency:'INR':'symbol':'1.0-2'}}</td>
+            <td class="col-disc text-center">{{(item.discountAmount || item.DiscountAmount || 0) | currency:'INR':'symbol':'1.0-2'}}</td>
             <td class="col-rate text-right">{{(item.rate || item.Rate) | currency:'INR':'symbol':'1.0-2'}}</td>
-            <td class="col-disc text-center">{{item.discountPercent || item.DiscountPercent || item.discount || item.Discount || 0}}%</td>
-            <td class="col-gst text-center">{{item.gstPercent || item.GSTPercent || item.gst || item.GST || item.tax || item.Tax || 0}}%</td>
-            <td class="col-date text-center text-muted">{{(item.manufacturingDate || item.ManufacturingDate) ? ((item.manufacturingDate || item.ManufacturingDate) | date:'dd/MM/yyyy') : '—'}}</td>
-            <td class="col-date text-center text-muted">{{(item.expiryDate || item.ExpiryDate) ? ((item.expiryDate || item.ExpiryDate) | date:'dd/MM/yyyy') : '—'}}</td>
             <td class="col-total text-right">{{(item.total || item.Total || ((item.qty || item.Qty) * (item.rate || item.Rate))) | currency:'INR':'symbol':'1.0-2'}}</td>
           </tr>
         </tbody>
@@ -81,6 +76,7 @@
 
     <!-- Summary Section -->
     <div class="invoice-summary">
+      <div class="summary-box">
         <div class="summary-row">
             <span class="label">Sub Total</span>
             <span class="value">{{((data.subTotal || data.SubTotal) || 0) | currency:'INR':'symbol':'1.2-2'}}</span>
@@ -93,16 +89,17 @@
             <span class="label">Grand Total</span>
             <span class="value">{{((data.grandTotal || data.GrandTotal) || 0) | currency:'INR':'symbol':'1.2-2'}}</span>
         </div>
+      </div>
     </div>
 
   </div>
 
   <!-- Footer Actions -->
   <div mat-dialog-actions class="dialog-actions">
-    <button mat-raised-button color="primary" (click)="print()">
-      <mat-icon>print</mat-icon> Print
+    <button mat-raised-button color="primary" (click)="print()" class="print-btn">
+      <mat-icon>print</mat-icon> PRINT INVOICE
     </button>
-    <button mat-raised-button mat-dialog-close color="warn">Close</button>
+    <button mat-raised-button mat-dialog-close class="close-dialog-btn">CLOSE</button>
   </div>
 
 </div>

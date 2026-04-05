@@ -15,9 +15,9 @@ export interface ThermalReceiptData {
   items: Array<{
     name: string;
     qty: number;
+    mrp: number;
+    discountAmount: number;
     rate: number;
-    discountPercent?: number;
-    taxPercent?: number;
     amount: number;
   }>;
   subTotal?: string;
@@ -42,14 +42,13 @@ export class ThermalPrintService {
 
   printReceipt(data: ThermalReceiptData) {
     const itemsHtml = data.items.map((item, index) => {
-      const discountTxt = item.discountPercent ? `${item.discountPercent}%` : '-';
       return `
         <tr><td colspan="5" class="item-name">${index + 1}. ${item.name}</td></tr>
         <tr class="item-details">
-           <td></td> <!-- SN space -->
            <td style="text-align: center;">${item.qty}</td>
+           <td style="text-align: right;">${item.mrp.toFixed(2)}</td>
+           <td style="text-align: right;">${item.discountAmount.toFixed(2)}</td>
            <td style="text-align: right;">${item.rate.toFixed(2)}</td>
-           <td style="text-align: center;">${discountTxt}</td>
            <td style="text-align: right;">${item.amount.toFixed(2)}</td>
         </tr>
       `;
@@ -162,11 +161,11 @@ export class ThermalPrintService {
         <table>
             <thead>
                 <tr>
-                    <th style="width: 10%;">S.N</th>
-                    <th style="width: 20%;">Qty</th>
-                    <th style="width: 25%; text-align: right;">Rate</th>
-                    <th style="width: 20%;">Dsc%</th>
-                    <th style="width: 25%; text-align: right;">Amt</th>
+                    <th style="width: 12%;">Qty</th>
+                    <th style="width: 22%; text-align: right;">MRP</th>
+                    <th style="width: 20%; text-align: right;">Disc(Amt)</th>
+                    <th style="width: 22%; text-align: right;">Sale Rate</th>
+                    <th style="width: 24%; text-align: right;">Total</th>
                 </tr>
             </thead>
             <tbody>
