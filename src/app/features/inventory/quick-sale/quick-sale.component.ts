@@ -26,6 +26,7 @@ import { ProductForm } from '../../master/product/product-form/product-form';
 import { FinanceService } from '../../finance/service/finance.service';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { LanguageService } from '../../../core/services/language.service';
+import { LocationTrackerDialogComponent } from '../purchase-return/location-tracker-dialog/location-tracker-dialog.component';
 
 @Component({
     selector: 'app-quick-sale',
@@ -78,6 +79,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
     units: any[] = [];
     warehouses: any[] = [];
     racksByItem: any[][] = [];
+    allRacks: any[] = [];
     filteredUnits: Observable<any[]>[] = [];
     isScanning = false;
     lastScannedCode = '';
@@ -145,6 +147,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         this.loadCustomers();
         this.loadUnits();
         this.loadWarehouses();
+        this.loadAllRacks();
         this.initBarcodeListener();
 
         this.route.paramMap.subscribe(params => {
@@ -239,17 +242,16 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         });
     }
 
+    loadAllRacks() {
+        this.locationService.getRacks().subscribe((res: any) => {
+            this.allRacks = res || [];
+        });
+    }
+
     onWarehouseChange(index: number) {
         const warehouseId = this.items.at(index).get('warehouseId')?.value;
         if (warehouseId) {
-            this.locationService.getRacksByWarehouse(warehouseId).subscribe({
-                next: (res: any) => {
-                    this.racksByItem[index] = res || [];
-                },
-                error: () => {
-                    this.racksByItem[index] = [];
-                }
-            });
+            this.racksByItem[index] = this.allRacks.filter(r => r.warehouseId === warehouseId);
         } else {
             this.racksByItem[index] = [];
         }
@@ -293,22 +295,28 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                     if (!isDuplicate) {
                         const mappedProduct = {
                             ...product,
-                            rackName: product.defaultRackName || product.rackName || 'NA'
+                            rackName: product.defaultRackName || product.rackName || ''
                         };
                         this.addProductToForm(mappedProduct);
                         const idx = this.items.length - 1;
-                        if (mappedProduct.defaultWarehouseId) {
-                            this.locationService.getRacksByWarehouse(mappedProduct.defaultWarehouseId).subscribe({
-                                next: (racks: any[]) => {
-                                    this.racksByItem[idx] = racks || [];
-                                    if (mappedProduct.defaultRackId) {
-                                        this.items.at(idx).get('rackId')?.setValue(mappedProduct.defaultRackId, { emitEvent: false });
-                                    }
-                                },
-                                error: () => {
-                                    this.racksByItem[idx] = [];
+                        const whId = mappedProduct.defaultWarehouseId || mappedProduct.warehouseId;
+                        if (whId) {
+                            const racks = this.allRacks.filter(r => r.warehouseId === whId);
+                            this.racksByItem[idx] = racks || [];
+                            const targetRackId = mappedProduct.defaultRackId || mappedProduct.rackId;
+                            if (targetRackId) {
+                                this.items.at(idx).get('rackId')?.setValue(targetRackId, { emitEvent: false });
+                                // Also update rackName for immediate display in hints
+                                const foundRack = racks.find((r: any) => r.id === targetRackId);
+                                if (foundRack) {
+                                    this.items.at(idx).get('rackName')?.setValue(foundRack.name, { emitEvent: false });
+                                    this.cdr.detectChanges();
                                 }
-                            });
+                            } else if (mappedProduct.defaultRackName) {
+                                // If no rackId but we have a name, use it
+                                this.items.at(idx).get('rackName')?.setValue(mappedProduct.defaultRackName, { emitEvent: false });
+                                this.cdr.detectChanges();
+                            }
                         }
                     }
                 });
@@ -342,7 +350,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             productName: [product.productName || product.name, Validators.required],
             sku: [product.sku || ''],
             availableStock: [product.currentStock || 0],
-            rackName: [product.rackName || 'NA'],
+            rackName: [product.rackName || product.defaultRackName || ''],
             warehouseId: [product.warehouseId || product.defaultWarehouseId || null],
             rackId: [product.rackId || product.defaultRackId || null],
             qty: [product.qty || 1, [Validators.required, Validators.min(0.01), this.stockValidator()]],
@@ -557,6 +565,30 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         this.filteredUnits.splice(index, 1);
     }
 
+    openLocationTracker(item: any) {
+        const warehouseId = item.get('warehouseId')?.value;
+        const rackId = item.get('rackId')?.value;
+        const availableStock = item.get('availableStock')?.value ?? 0;
+        const unit = item.get('unit')?.value || '';
+        const productId = item.get('productId')?.value;
+
+        const warehouseName = this.getWarehouseName(warehouseId);
+        const rackName = this.getRackName(
+            this.items.controls.indexOf(item),
+            rackId
+        );
+
+        this.dialog.open(LocationTrackerDialogComponent, {
+            width: '450px',
+            data: {
+                warehouseName: warehouseName,
+                rackName: rackName,
+                productId: productId,
+                description: `Current quantity at this location: ${availableStock} ${unit}`
+            }
+        });
+    }
+
     getWarehouseName(warehouseId: any): string {
         if (!warehouseId) return 'No WH';
         const wh = this.warehouses.find(w => w.id === warehouseId);
@@ -565,12 +597,17 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
     getRackName(index: number, rackId: any): string {
         const item = this.items.at(index);
+        // 1. Try static rackName field first (set from product data)
         const staticName = item.get('rackName')?.value;
-        if (staticName && staticName !== 'NA') return staticName;
-        if (!rackId) return 'No Rack';
-        const racks = this.racksByItem[index] || [];
-        const rack = racks.find((r: any) => r.id === rackId);
-        return rack ? rack.name : 'No Rack';
+        if (staticName && staticName.trim() !== '' && staticName !== 'NA') return staticName;
+        // 2. Try loaded racks list
+        if (rackId) {
+            const racks = this.racksByItem[index] || [];
+            const rack = racks.find((r: any) => r.id === rackId);
+            if (rack) return rack.name;
+        }
+        // 3. Fallback
+        return rackId ? '...' : 'No Rack';
     }
 
     private setupItemCalculations(index: number) {

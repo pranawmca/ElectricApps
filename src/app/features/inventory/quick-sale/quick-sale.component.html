@@ -123,11 +123,13 @@
               <div class="col-product">
                    <mat-form-field appearance="outline" dense class="product-info-field">
                       <input matInput formControlName="productName" readonly placeholder="Selected Product">
-                      <mat-hint class="product-hints" *ngIf="item.get('productId')?.value">
-                          Stock: <span class="stock">{{item.get('availableStock')?.value}} {{item.get('unit')?.value}}</span>
-                          &nbsp;| <span class="wh-hint">WH: {{getWarehouseName(item.get('warehouseId')?.value)}}</span>
-                          &nbsp;/ <span class="rack-hint">Rack: {{getRackName(i, item.get('rackId')?.value)}}</span>
-                      </mat-hint>
+                      <mat-hint class="product-hints" *ngIf="item.get('productId')?.value" (click)="openLocationTracker(item)" style="cursor:pointer">
+                           <span class="wh-hint">WH: {{getWarehouseName(item.get('warehouseId')?.value)}}</span>
+                           <span class="sep">/</span>
+                           <span class="rack-hint">Rack: {{getRackName(i, item.get('rackId')?.value)}}</span>
+                           <span class="sep">/</span>
+                           <span class="stock-label">Stock:</span><span class="stock">{{item.get('availableStock')?.value}} {{item.get('unit')?.value}}</span>
+                       </mat-hint>
                 </mat-form-field>
               </div>
               <div class="col-qty">
