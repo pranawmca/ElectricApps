@@ -220,89 +220,119 @@ mat-card.so-card {
 /* --- Items List Section --- */
 
 .items-section {
-  background: transparent !important; /* Remove grey bg */
+  background: transparent !important;
   border: none !important;
-  box-shadow: none !important; /* Flatten for clean look */
+  box-shadow: none !important;
   padding: 0 !important;
-  margin-top: 16px;
+  margin-top: 12px;
+  min-width: 1000px; // Ensure consistent width like quick sale
 }
 
-.item-row {
-  display: grid;
-  grid-template-columns: 2fr 0.6fr 100px 100px 0.75fr 0.75fr 130px 130px 1.2fr 1.1fr 48px;
-  gap: 12px; /* Increased breathing room */
-  align-items: start;
-  background: white;
-  padding: 16px 8px; /* Less horizontal padding, more vertical */
-  margin-bottom: 8px;
+.item-header {
+  display: flex;
+  align-items: center;
+  background-color: #f8fafc;
+  padding: 10px 12px;
+  border-bottom: 1.5px solid #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 8px 8px 0 0;
+}
 
+/* Core Column Flex Definitions (Applied to BOTH Header & Row) - Consolidated */
+.col-product   { flex: 1; min-width: 160px; position: relative; } /* Slightly shrunk to give space */
+.col-qty-group { flex: 0.6; min-width: 110px; text-align: left; padding-left: 2px; } 
+.col-qty       { flex: 0.3; min-width: 55px; margin-left: 6px; } /* Reduced margin */
+.col-unit      { flex: 0.3; min-width: 70px; margin-left: 6px; } 
+.col-mrp       { flex: 0.4; min-width: 85px; margin-left: 6px; } /* Increased width */
+.col-disc      { flex: 0.3; min-width: 65px; margin-left: 6px; }
+.col-rate      { flex: 0.45; min-width: 100px; margin-left: 6px; } /* Increased width for RATE */
+.col-gst       { flex: 0.25; min-width: 50px; margin-left: 6px; }
+.col-mfg       { flex: 0.35; min-width: 80px; margin-left: 6px; }
+.col-exp       { flex: 0.35; min-width: 80px; margin-left: 6px; }
+.col-taxamt    { flex: 0.35; min-width: 80px; margin-left: 6px; }
+.col-total     { flex: 0.5; min-width: 90px; margin-left: 6px; }
+.col-action    { flex: 0 0 35px; margin-left: 4px; text-align: center; }
+
+.item-row {
+  display: flex;
+  align-items: center; /* Back to center for perfect alignment */
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  background: white;
+  min-height: 60px; /* Reduced min-height slightly */
   transition: background-color 0.2s;
 
-  &:last-child {
-    border-bottom: none;
-  }
-
   &:hover {
-    background-color: #fafafa; /* Very subtle hover state */
+    background-color: #fbfcfd;
   }
 
-  /* Compact inputs for tables */
+  /* Compact Look for form fields */
   mat-form-field {
-    font-size: 14px;
+    width: 100%;
     
-    .mat-mdc-form-field-subscript-wrapper {
-        height: 1.5em; /* Prevent layout jumping on errors */
+    ::ng-deep .mat-mdc-text-field-wrapper {
+        height: 38px !important;
+        background-color: transparent !important;
+        padding: 0 8px !important;
+        display: flex;
+        align-items: center; /* Internal centering */
     }
 
-    /* Hide Up/Down spin buttons for number inputs */
-    input[type='number']::-webkit-outer-spin-button,
-    input[type='number']::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+    ::ng-deep .mat-mdc-form-field-infix {
+        padding: 4px 0 !important; /* Perfect vertical centering for text */
+        min-height: 38px !important;
+        display: flex;
+        align-items: center;
     }
 
-    input[type='number'] {
-      -moz-appearance: textfield;
-      appearance: textfield;
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none !important; /* Hide standard subscript strictly */
     }
   }
 
-  .delete-btn {
-    margin-top: 4px; /* Center align with inputs */
-    color: rgba(0,0,0,0.54);
-    
-    &:hover {
-      color: #f44336; /* Material Error Red */
-      background-color: rgba(244, 67, 54, 0.04);
-    }
+  /* Specific fix for Unit text clipping (font size reduction) */
+  .col-unit mat-form-field {
+      font-size: 11px; /* Smaller font for units */
+      
+      ::ng-deep .mat-mdc-text-field-wrapper {
+          padding: 0 4px !important; /* Extremely tight padding */
+      }
+      
+      input {
+          text-transform: uppercase;
+      }
   }
 
-  /* N/A State Styling (Premium) */
-  .na-field {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 48px;
-    padding: 0 8px;
-    background: #f8fafc;
-    border: 1px dashed #cbd5e1;
+  /* Custom Stock Hint Positioning - Shifted further down */
+  .stock-hint {
+    position: absolute;
+    bottom: -12px;
+    left: 4px;
+    width: 280px;
+    font-size: 10px;
+    white-space: nowrap;
+    color: #64748b;
+    z-index: 5;
+    
+    strong { color: #10b981; font-weight: 700; }
+  }
+
+  .date-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #334155;
+    background: #f1f5f9;
+    padding: 2px 6px;
     border-radius: 4px;
-
-    .na-label {
-      font-size: 10px;
-      color: #64748b;
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .na-badge {
-      font-size: 11px;
-      font-weight: 700;
-      color: #94a3b8;
-      letter-spacing: 0.5px;
-    }
   }
+
+  .na-txt { font-size: 11px; color: #94a3b8; font-weight: 600; }
+  .tax-txt { font-size: 12px; font-weight: 700; color: #f97316; }
+  .total-txt { font-size: 13px; font-weight: 800; color: #10b981; }
 }
 
 /* Table Action Buttons */
@@ -507,6 +537,10 @@ mat-card.so-card {
           }
         }
       }
+    }
+
+    .col-qty-group {
+      text-align: left;
     }
 
     .summary-divider {

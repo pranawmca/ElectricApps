@@ -194,10 +194,12 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
             qty: [item.qty, [Validators.required, Validators.min(1)]],
             unit: [item.unit || 'PCS'],
             rate: [item.rate, [Validators.required, Validators.min(0.01)]],
-            discountPercent: [item.discountPercent || 0],
+            mrp: [item.mrp || item.MRP || 0],
+            discountAmount: [item.discountAmount || item.DiscountAmount || 0],
             gstPercent: [item.gstPercent || 0],
             taxAmount: [item.taxAmount],
             total: [{ value: item.total, disabled: true }],
+            netRate: [{ value: (item.rate || 0) - (item.discountAmount || 0), disabled: true }], // Calculated Selling Rate
             availableStock: [0], 
             warehouseId: [item.warehouseId],
             rackId: [item.rackId],
@@ -349,11 +351,13 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       productId: [productId, Validators.required],
       qty: [product.qty || 1, [Validators.required, Validators.min(1), Validators.max(product.currentStock || product.availableStock || 0)]],
       unit: [product.unit || 'PCS'],
-      rate: [product.rate || product.saleRate || 0, [Validators.required, Validators.min(0.01)]],
-      discountPercent: [product.discount || product.discountPercent || 0],
+      rate: [product.mrp || product.MRP || product.saleRate || 0, [Validators.required, Validators.min(0.01)]],
+      mrp: [product.mrp || product.MRP || 0],
+      discountAmount: [product.discount || product.Discount || 0],
       gstPercent: [product.defaultGst ?? product.gstPercent ?? 18],
       taxAmount: [0],
       total: [{ value: 0, disabled: true }],
+      netRate: [{ value: 0, disabled: true }], // Missing control that caused UI break
       availableStock: [product.currentStock || product.availableStock || 0],
       warehouseId: [product.warehouseId || null],
       rackId: [product.rackId || null],
@@ -595,10 +599,12 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       qty: [1, [Validators.required, Validators.min(1)]],
       unit: [''], // Note: Isse disabled mat rakhein, getRawValue handle kar lega
       rate: [0, [Validators.required, Validators.min(0.01)]],
-      discountPercent: [0],
+      mrp: [0],
+      discountAmount: [0],
       gstPercent: [0],
       taxAmount: [0],
       total: [{ value: 0, disabled: true }],
+      netRate: [{ value: 0, disabled: true }], // Added for UI sync with Quick Sale
       availableStock: [0],
       rackName: [''], // Added Rack Name
       isExpiryRequired: [false],
@@ -732,17 +738,18 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     const row = typeof indexOrRow === 'number' ? (this.items.at(indexOrRow) as FormGroup) : (indexOrRow as FormGroup);
     if (!row) return;
     const qty = +row.get('qty')?.value || 0;
-    const rate = +row.get('rate')?.value || 0;
-    const disc = +row.get('discountPercent')?.value || 0;
+    const rate = +row.get('rate')?.value || 0; // Treatment: Exclusive Base Rate (MRP)
+    const disc = +row.get('discountAmount')?.value || 0;
     const gst = +row.get('gstPercent')?.value || 0;
 
-    const amount = qty * rate;
-    const discountAmount = amount * (disc / 100);
-    const taxable = amount - discountAmount;
+    const netRate = rate - disc;
+    const amount = qty * netRate;
+    const taxable = amount;
     const tax = taxable * (gst / 100);
     const total = taxable + tax;
 
     row.patchValue({
+      netRate: netRate.toFixed(2),
       taxAmount: tax.toFixed(2),
       total: total.toFixed(2)
     }, { emitEvent: false });
@@ -942,8 +949,10 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
               productName: val.productSearch?.productName || val.productSearch?.name || (typeof val.productSearch === 'string' ? val.productSearch : ''),
               qty: Number(val.qty),
               unit: val.unit || 'PCS', // Ensure unit is not null
-              rate: Number(val.rate),
-              discountPercent: Number(val.discountPercent) || 0,
+              rate: (Number(val.rate) - Number(val.discountAmount)), // Net Rate (MRP - Disc)
+              mrp: Number(val.mrp) || 0,
+              discountAmount: Number(val.discountAmount) || 0,
+              discountPercent: 0, // Using amount
               gstPercent: Number(val.gstPercent) || 0,
               taxAmount: Number(val.taxAmount) || 0,
               total: Number(val.total) || 0,

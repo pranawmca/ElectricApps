@@ -101,114 +101,116 @@
           </div>
         </div>
 
-        <div formArrayName="items" class="items-section card shadow-sm p-2 bg-light">
+        <div formArrayName="items" class="items-section">
+          <!-- Table Header (Matching Quick Sale Style) -->
+          <div class="item-header">
+            <div class="col-product">PRODUCT*</div>
+            <div class="col-qty-group text-left">QTY/PKT/KG UNIT</div>
+            <div class="col-mrp text-right">MRP (₹)</div>
+            <div class="col-disc text-right">DISC (₹)</div>
+            <div class="col-rate text-right">RATE (₹)</div>
+            <div class="col-gst text-center">GST (%)</div>
+            <div class="col-mfg text-center">MFG</div>
+            <div class="col-exp text-center">EXP</div>
+            <div class="col-taxamt text-right">TAX AMT</div>
+            <div class="col-total text-right">TOTAL</div>
+            <div class="col-action"></div>
+          </div>
+
           <div class="item-row" *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="product-field">
-              <mat-label>Search Product</mat-label>
-              <input matInput formControlName="productSearch" [matAutocomplete]="auto">
-              <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProductFn" (optionSelected)="onProductChange(i, $event)">
-                <mat-option *ngFor="let p of filteredProducts[i] | async" [value]="p">
-                  <div class="d-flex justify-content-between align-items-center w-100">
-                    <div>
-                      <span>{{p.productName || p.name}}</span>
-                      <small class="text-muted mx-1">({{p.sku}})</small>
+            <div class="col-product">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <input matInput formControlName="productSearch" [matAutocomplete]="auto" placeholder="Search Product...">
+                <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProductFn" (optionSelected)="onProductChange(i, $event)">
+                  <mat-option *ngFor="let p of filteredProducts[i] | async" [value]="p">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                      <div>
+                        <span>{{p.productName || p.name}}</span>
+                        <small class="text-muted mx-1">({{p.sku}})</small>
+                      </div>
+                      <div class="text-end">
+                         <small [style.color]="p.currentStock > 0 ? '#10b981' : '#ef4444'" style="font-weight: 700; display: block;">
+                           {{ p.currentStock > 0 ? 'Stock: ' + p.currentStock : 'Out of Stock' }}
+                         </small>
+                         <small class="text-muted" style="font-size: 10px;" *ngIf="p.defaultRackName">
+                           Loc: {{p.defaultRackName}}
+                         </small>
+                      </div>
                     </div>
-                    <div class="text-end">
-                       <small [style.color]="p.currentStock > 0 ? '#10b981' : '#ef4444'" style="font-weight: 700; display: block;">
-                         {{ p.currentStock > 0 ? 'Stock: ' + p.currentStock : 'Out of Stock' }}
-                       </small>
-                       <small class="text-muted" style="font-size: 10px;" *ngIf="p.defaultRackName">
-                         Loc: {{p.defaultRackName}}
-                       </small>
-                    </div>
-                  </div>
-                </mat-option>
-              </mat-autocomplete>
-              <mat-hint *ngIf="items.at(i).get('productId')?.value" class="stock-hint">
-                <ng-container *ngIf="getStockForProduct(i) > 0; else outOfStock">
-                  Stock: <strong [style.color]="'#10b981'">{{ getStockForProduct(i) }}</strong>
-                  <span class="mx-2 text-muted">|</span>
-                  Pick From: <strong class="text-primary">{{ getRackName(i) }}</strong>
-                </ng-container>
-                <ng-template #outOfStock>
-                  <strong [style.color]="'#ef4444'">Product Not Available (Stock: {{ getStockForProduct(i) }})</strong>
-                </ng-template>
-              </mat-hint>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="qty-field">
-              <mat-label>Qty</mat-label>
-              <input matInput type="number" formControlName="qty" (input)="updateTotal(i)"
-                     [matTooltip]="items.at(i).get('qty')?.errors?.['max'] ? 'Exceeds Stock! Max allowed: ' + items.at(i).get('availableStock')?.value : ''"
-                     matTooltipPosition="above">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="unit-field">
-              <mat-label>Unit</mat-label>
-              <input type="text" matInput formControlName="unit" [matAutocomplete]="autoUnitSo" readonly style="pointer-events:none; color:#888;">
-              <mat-autocomplete #autoUnitSo="matAutocomplete">
-                <mat-option *ngFor="let u of filteredUnits[i] | async" [value]="u.name">
-                  {{u.name}}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="rate-field">
-              <mat-label>Rate</mat-label>
-              <input matInput type="number" formControlName="rate" (input)="updateTotal(i)" readonly style="color:#888;">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="disc-field">
-              <mat-label>Disc %</mat-label>
-              <input matInput type="number" formControlName="discountPercent" (input)="updateTotal(i)" readonly style="color:#888;">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="gst-field">
-              <mat-label>GST %</mat-label>
-              <input matInput type="number" formControlName="gstPercent" (input)="updateTotal(i)" readonly style="color:#888;">
-            </mat-form-field>
-
-            <ng-container *ngIf="items.at(i).get('isExpiryRequired')?.value">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mfg-field">
-                <mat-label>Mfg Date *</mat-label>
-                <input matInput [value]="items.at(i).get('manufacturingDate')?.value | date:'dd/MM/yy'" required readonly style="color:#888;">
-                <mat-icon matSuffix style="color:#888; font-size: 20px;">calendar_today</mat-icon>
-                <mat-error *ngIf="items.at(i).get('manufacturingDate')?.hasError('required')">Required</mat-error>
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-hint *ngIf="items.at(i).get('productId')?.value" class="stock-hint">
+                  <ng-container *ngIf="getStockForProduct(i) > 0; else outOfStock">
+                    Stock: <strong>{{ getStockForProduct(i) }}</strong> | Pick From: <strong>{{ getRackName(i) }}</strong>
+                  </ng-container>
+                  <ng-template #outOfStock>
+                    <strong style="color: #ef4444">Not Available ({{ getStockForProduct(i) }})</strong>
+                  </ng-template>
+                </mat-hint>
               </mat-form-field>
+            </div>
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="exp-field">
-                <mat-label>Exp Date *</mat-label>
-                <input matInput [value]="items.at(i).get('expiryDate')?.value | date:'dd/MM/yy'" required readonly style="color:#888;">
-                <mat-icon matSuffix style="color:#888; font-size: 20px;">calendar_today</mat-icon>
-                <mat-error *ngIf="items.at(i).get('expiryDate')?.hasError('required')">Required</mat-error>
-                <mat-error *ngIf="items.at(i).get('expiryDate')?.hasError('matDatepickerMin')">Must be after Mfg Date</mat-error>
+            <div class="col-qty">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="qty" (input)="updateTotal(i)"
+                       [matTooltip]="items.at(i).get('qty')?.errors?.['max'] ? 'Exceeds Stock!' : ''">
               </mat-form-field>
-            </ng-container>
+            </div>
 
-            <ng-container *ngIf="!items.at(i).get('isExpiryRequired')?.value">
-              <div class="na-field mfg-field">
-                <span class="na-label">Mfg Date</span>
-                <span class="na-badge">N/A</span>
+            <div class="col-unit">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <input type="text" matInput formControlName="unit" readonly style="color:#64748b; background: #f8fafc;">
+              </mat-form-field>
+            </div>
+
+            <div class="col-mrp">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="rate" (input)="updateTotal(i)" readonly style="color:#64748b; background: #f8fafc;">
+              </mat-form-field>
+            </div>
+
+            <div class="col-disc">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="discountAmount" (input)="updateTotal(i)" readonly style="color:#64748b; background: #f8fafc;">
+              </mat-form-field>
+            </div>
+
+            <div class="col-rate">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="netRate" readonly style="color:#64748b; background: #f8fafc;">
+              </mat-form-field>
+            </div>
+
+            <div class="col-gst">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="gstPercent" readonly style="color:#64748b; background: #f8fafc;">
+              </mat-form-field>
+            </div>
+
+            <div class="col-mfg">
+              <div class="date-badge" *ngIf="items.at(i).get('isExpiryRequired')?.value">
+                {{ (items.at(i).get('manufacturingDate')?.value | date:'dd/MM/yy') || '--' }}
               </div>
+              <span class="na-txt" *ngIf="!items.at(i).get('isExpiryRequired')?.value">N/A</span>
+            </div>
 
-              <div class="na-field exp-field">
-                <span class="na-label">Exp Date</span>
-                <span class="na-badge">N/A</span>
+            <div class="col-exp">
+              <div class="date-badge" *ngIf="items.at(i).get('isExpiryRequired')?.value">
+                {{ (items.at(i).get('expiryDate')?.value | date:'dd/MM/yy') || '--' }}
               </div>
-            </ng-container>
+              <span class="na-txt" *ngIf="!items.at(i).get('isExpiryRequired')?.value">N/A</span>
+            </div>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tax-field">
-              <mat-label>Tax Amt</mat-label>
-              <input matInput formControlName="taxAmount" readonly>
-            </mat-form-field>
+            <div class="col-taxamt">
+              <span class="tax-txt">₹{{ items.at(i).get('taxAmount')?.value || '0' }}</span>
+            </div>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="total-field">
-              <mat-label>Total</mat-label>
-              <input matInput formControlName="total" readonly class="font-weight-bold">
-            </mat-form-field>
+            <div class="col-total">
+               <span class="total-txt">₹{{ items.at(i).get('total')?.value || '0' }}</span>
+            </div>
 
             <button mat-icon-button type="button" color="warn" class="delete-btn" (click)="removeItem(i)">
-              <mat-icon>delete_outline</mat-icon>
+              <mat-icon>remove_circle_outline</mat-icon>
             </button>
           </div>
         </div>

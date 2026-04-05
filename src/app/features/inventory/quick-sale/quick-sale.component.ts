@@ -352,6 +352,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             discountAmount: [product.discount || product.Discount || 0],
             discountPercent: [product.discountPercent || 0],
             gstPercent: [product.gstPercent ?? product.defaultGst ?? 18],
+            taxAmount: [0],
             total: [{ value: 0, disabled: true }],
             isExpiryRequired: [product.isExpiryRequired || false],
             manufacturingDate: [formatDt(product.manufacturingDate)],
@@ -521,6 +522,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             discountAmount: [0],
             discountPercent: [0],
             gstPercent: [18],
+            taxAmount: [0],
             total: [{ value: 0, disabled: true }],
             isExpiryRequired: [false],
             manufacturingDate: [null],
@@ -601,11 +603,27 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         });
     }
 
+    isExpired(date: any): boolean {
+        if (!date) return false;
+        const exp = new Date(date);
+        exp.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return exp <= today;
+    }
+
     private calculateItemTotal(index: number) {
         const item = this.items.at(index);
         const qty = item.get('qty')?.value || 0;
         const rate = item.get('rate')?.value || 0; // Inclusive Sale Rate
+        const gst = item.get('gstPercent')?.value || 0;
         const total = qty * rate;
+
+        // Calculate GST Amount (Inclusive)
+        const taxableAmount = total / (1 + gst / 100);
+        const taxAmount = total - taxableAmount;
+
+        item.get('taxAmount')?.patchValue(taxAmount.toFixed(2), { emitEvent: false });
         item.get('total')?.patchValue(total.toFixed(2), { emitEvent: false });
     }
 

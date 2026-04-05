@@ -105,14 +105,17 @@
         <div class="items-scroll-container">
           <div class="items-grid" formArrayName="items">
             <div class="item-header">
-              <div class="col-product">{{languageService.translate('Product Description*')}}</div>
+              <div class="col-product">{{languageService.translate('Product')}}*</div>
               <div class="col-qty">{{languageService.translate('Qty/Pkt/kg')}}</div>
               <div class="col-unit">{{languageService.translate('Unit')}}</div>
               <div class="col-rate">{{languageService.translate('MRP (₹)')}}</div>
               <div class="col-rate">{{languageService.translate('Disc (₹)')}}</div>
               <div class="col-rate">{{languageService.translate('Rate (₹)')}}</div>
               <div class="col-gst">{{languageService.translate('GST (%)')}}</div>
-              <div class="col-total">{{languageService.translate('Total (₹)')}}</div>
+              <div class="col-mfg">{{languageService.translate('Mfg')}}</div>
+              <div class="col-exp">{{languageService.translate('Exp')}}</div>
+              <div class="col-taxamt">{{languageService.translate('Tax Amt')}}</div>
+              <div class="col-total">{{languageService.translate('Total')}}</div>
               <div class="col-action"></div>
             </div>
 
@@ -159,6 +162,24 @@
                   <input matInput type="number" formControlName="gstPercent" class="hide-arrows" readonly style="color: #64748b;">
                 </mat-form-field>
               </div>
+
+              <div class="col-mfg">
+                  <div class="date-chip" [class.na-chip]="!item.get('manufacturingDate')?.value">
+                      {{ (item.get('manufacturingDate')?.value | date:'dd/MM/yy') || '--' }}
+                  </div>
+              </div>
+              
+              <div class="col-exp">
+                  <div class="date-chip" [class.na-chip]="!item.get('expiryDate')?.value" 
+                       [class.expired-chip]="item.get('isExpiryRequired')?.value && item.get('expiryDate')?.value && isExpired(item.get('expiryDate')?.value)">
+                      {{ (item.get('expiryDate')?.value | date:'dd/MM/yy') || '--' }}
+                  </div>
+              </div>
+
+              <div class="col-taxamt">
+                  <div class="tax-badge">₹{{ item.get('taxAmount')?.value || '0.00' }}</div>
+              </div>
+
               <div class="col-total">
                   <div class="total-badge">{{ item.get('total')?.value | currency:'INR':'symbol':'1.2-2' }}</div>
               </div>
