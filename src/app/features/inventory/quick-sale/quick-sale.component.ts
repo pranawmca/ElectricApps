@@ -355,9 +355,9 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             rackId: [product.rackId || product.defaultRackId || null],
             qty: [product.qty || 1, [Validators.required, Validators.min(0.01), this.stockValidator()]],
             unit: [{ value: product.unit || 'PCS', disabled: true }],
-            rate: [product.rate || product.Rate || product.saleRate || product.salePrice || product.price || product.mrp || 0, [Validators.required, Validators.min(0)]],
-            mrp: [product.mrp || product.MRP || 0],
-            discountAmount: [product.discount || product.Discount || 0],
+            rate: [(parseFloat(product.rate || product.Rate || product.saleRate || product.salePrice || product.price || product.mrp || 0)).toFixed(2), [Validators.required, Validators.min(0)]],
+            mrp: [(parseFloat(product.mrp || product.MRP || 0)).toFixed(2)],
+            discountAmount: [(parseFloat(product.discount || product.Discount || 0)).toFixed(2)],
             discountPercent: [product.discountPercent || 0],
             gstPercent: [product.gstPercent ?? product.defaultGst ?? 18],
             taxAmount: [0],
@@ -623,10 +623,10 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                 takeUntil(this.destroy$),
                 debounceTime(50)
             ).subscribe(() => {
-                const mrp = Number(mrpCtrl.value || 0);
-                const disc = Number(discCtrl.value || 0);
+                const mrp = parseFloat(mrpCtrl.value || 0);
+                const disc = parseFloat(discCtrl.value || 0);
                 const newRate = mrp - disc;
-                rateCtrl.patchValue(newRate, { emitEvent: false });
+                rateCtrl.patchValue(newRate.toFixed(2), { emitEvent: false });
                 this.calculateItemTotal(index);
                 this.cdr.detectChanges();
             });

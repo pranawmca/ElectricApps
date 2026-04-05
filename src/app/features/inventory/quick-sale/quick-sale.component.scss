@@ -287,18 +287,18 @@
 
   /* Ultra-Compact Grid Columns */
   .col-product { flex: 1.1; min-width: 160px; position: relative; overflow: visible; }
-  .col-qty     { flex: 0.35; min-width: 65px;  margin-left: 6px; }
+  .col-qty     { flex: 0.35; min-width: 65px;  margin-left: 6px; position: relative; overflow: visible; }
   .col-unit    { 
-    flex: 0.35; min-width: 65px; margin-left: 6px;
+    flex: 0.35; min-width: 65px; margin-left: 6px; position: relative; overflow: visible;
     input { font-size: 11px !important; }
   }
-  .col-rate    { flex: 0.4;  min-width: 75px;  margin-left: 6px; }
-  .col-gst     { flex: 0.25; min-width: 50px;  margin-left: 6px; }
-  .col-mfg     { flex: 0.4;  min-width: 80px;  margin-left: 6px; }
-  .col-exp     { flex: 0.4;  min-width: 80px;  margin-left: 6px; }
-  .col-taxamt  { flex: 0.4;  min-width: 80px;  margin-left: 6px; text-align: left; }
-  .col-total   { flex: 0.55; min-width: 90px;  margin-left: 6px; white-space: nowrap; text-align: left; }
-  .col-action  { flex: 0 0 32px; text-align: center; margin-left: 4px; }
+  .col-rate    { flex: 0.4;  min-width: 75px;  margin-left: 6px; position: relative; overflow: visible; }
+  .col-gst     { flex: 0.25; min-width: 50px;  margin-left: 6px; position: relative; overflow: visible; }
+  .col-mfg     { flex: 0.4;  min-width: 80px;  margin-left: 6px; position: relative; overflow: visible; }
+  .col-exp     { flex: 0.4;  min-width: 80px;  margin-left: 6px; position: relative; overflow: visible; }
+  .col-taxamt  { flex: 0.4;  min-width: 80px;  margin-left: 6px; text-align: left; position: relative; overflow: visible; }
+  .col-total   { flex: 0.55; min-width: 90px;  margin-left: 6px; white-space: nowrap; text-align: left; position: relative; overflow: visible; }
+  .col-action  { flex: 0 0 32px; text-align: center; margin-left: 4px; position: relative; overflow: visible; }
 
   /* Date Chip — compact display for MFG / EXP dates */
   .date-chip {
@@ -390,6 +390,19 @@
     font-weight: 700;
     font-size: 13px;
     color: #065f46;
+  }
+
+  mat-error {
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    color: #ff4d4f !important; /* Premium Red */
+    position: absolute;
+    bottom: -15px;
+    left: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 200;
   }
 
   /* Premium Stock Hint Positioning */
@@ -770,12 +783,24 @@
   .tax-type-toggle {
     background: rgba(255, 255, 255, 0.05) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
+
     mat-button-toggle {
-      color: rgba(255, 255, 255, 0.5) !important;
       border-left-color: rgba(255, 255, 255, 0.1) !important;
+      background: transparent !important;
+
+      ::ng-deep .mat-button-toggle-button {
+          background-color: transparent !important;
+      }
+
+      ::ng-deep .mat-button-toggle-label-content {
+         color: rgba(255, 255, 255, 0.5) !important;
+      }
       
       &.mat-button-toggle-checked {
-        color: #ffffff !important;
+        background-color: #10b981 !important;
+        ::ng-deep .mat-button-toggle-label-content {
+          color: #ffffff !important;
+        }
         mat-icon { color: #ffffff !important; }
       }
     }
