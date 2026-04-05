@@ -666,7 +666,18 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       switchMap(value => {
         if (typeof value !== 'string' || value.length < 1) return of([]);
         this.isProductLoading[index] = true;
-        return this.productService.searchProducts(value).pipe(
+        
+        // 🎯 USE GETPAGED TO FETCH FULL MASTER DATA (DISCOUNT, MRP, GST)
+        const request: any = {
+          pageNumber: 1,
+          pageSize: 20,
+          search: value,
+          sortBy: 'productName',
+          sortDirection: 'asc'
+        };
+
+        return this.productService.getPaged(request).pipe(
+          map(res => res.items || []),
           finalize(() => this.isProductLoading[index] = false),
           catchError(() => of([]))
         );
@@ -738,19 +749,20 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     const row = typeof indexOrRow === 'number' ? (this.items.at(indexOrRow) as FormGroup) : (indexOrRow as FormGroup);
     if (!row) return;
     const qty = +row.get('qty')?.value || 0;
-    const rate = +row.get('rate')?.value || 0; // Treatment: Exclusive Base Rate (MRP)
+    const mrp = +row.get('rate')?.value || 0; // Column MRP
     const disc = +row.get('discountAmount')?.value || 0;
     const gst = +row.get('gstPercent')?.value || 0;
 
-    const netRate = rate - disc;
-    const amount = qty * netRate;
-    const taxable = amount;
-    const tax = taxable * (gst / 100);
-    const total = taxable + tax;
+    const netRate = mrp - disc; // Selling Rate (Inclusive)
+    const total = qty * netRate; // Total (Inclusive)
+    
+    // Calculate GST Amount (Inclusive)
+    const taxableAmount = total / (1 + gst / 100);
+    const taxAmount = total - taxableAmount;
 
     row.patchValue({
       netRate: netRate.toFixed(2),
-      taxAmount: tax.toFixed(2),
+      taxAmount: taxAmount.toFixed(2),
       total: total.toFixed(2)
     }, { emitEvent: false });
 
