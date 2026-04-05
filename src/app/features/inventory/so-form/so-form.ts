@@ -24,6 +24,9 @@ import { BatchSelectionDialogComponent } from '../../../shared/components/batch-
 import { ActivatedRoute } from '@angular/router';
 import { ProductForm } from '../../master/product/product-form/product-form';
 import { SharedPrintService } from '../../../core/services/shared-print.service';
+import { LocationService } from '../../master/locations/services/locations.service';
+import { LocationTrackerDialogComponent } from '../purchase-return/location-tracker-dialog/location-tracker-dialog.component';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-so-form',
@@ -89,6 +92,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
   private barcodeHelper = inject(BarcodeReaderHelper);
   private inventoryService = inject(InventoryService);
   private sharedPrintService = inject(SharedPrintService);
+  private locationService = inject(LocationService);
+  public languageService = inject(LanguageService);
 
   soForm!: FormGroup;
   isLoading = false;
@@ -105,6 +110,9 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
   grandTotal = 0;
   allUnits: any[] = [];
   customers: any = [];
+  warehouses: any[] = [];
+  allRacks: any[] = [];
+  racksByItem: any[][] = [];
   public generatedSoNumber: string = 'NEW ORDER';
   minDate: Date = new Date();
   
@@ -126,6 +134,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     this.initForm();
     this.loadCustomers();
     this.loadUnits();
+    this.loadWarehouses();
+    this.loadAllRacks();
 
     this.filteredCustomersSo = this.soForm.get('customerSearch')!.valueChanges.pipe(
       startWith(''),
@@ -189,7 +199,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
         // Add saved items
         order.items.forEach((item: any, idx: number) => {
           const row = this.fb.group({
-            productSearch: [{ id: item.productId, productName: item.productName }, Validators.required],
+            productSearch: [{ value: item.productName || item.product?.productName || '', disabled: false }],
             productId: [item.productId, Validators.required],
             qty: [item.qty, [Validators.required, Validators.min(1)]],
             unit: [item.unit || 'PCS'],
@@ -203,8 +213,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
             availableStock: [0], 
             warehouseId: [item.warehouseId],
             rackId: [item.rackId],
-            rackName: [item.rackName || ''],
-            isExpiryRequired: [!!item.expiryDate],
+            rackName: [item.rackName || item.product?.rackName || ''],
+            isExpiryRequired: [item.isExpiryRequired || item.product?.isExpiryRequired || false],
             manufacturingDate: [item.manufacturingDate],
             expiryDate: [item.expiryDate]
           });
@@ -827,12 +837,59 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  getStockForProduct(index: number): number {
-    return this.items.at(index).get('availableStock')?.value || 0;
+  loadWarehouses() {
+    this.locationService.getWarehouses().subscribe((res: any) => {
+      this.warehouses = res || [];
+    });
   }
 
-  getRackName(index: number): string {
-    return this.items.at(index).get('rackName')?.value || 'Not Assigned';
+  loadAllRacks() {
+    this.locationService.getRacks().subscribe((res: any) => {
+      this.allRacks = res || [];
+    });
+  }
+
+  getWarehouseName(warehouseId: any): string {
+    if (!warehouseId) return 'No WH';
+    const wh = this.warehouses.find(w => w.id === warehouseId);
+    return wh ? wh.name : 'No WH';
+  }
+
+  getRackName(index: number, rackId: any): string {
+    const item = this.items.at(index);
+    if (!item) return 'No Rack';
+
+    // 1. Try static rackName from form first
+    const staticName = item.get('rackName')?.value;
+    if (staticName && staticName !== 'N/A' && staticName !== 'Not Assigned') return staticName;
+
+    // 2. Try from global racks
+    const globalRack = this.allRacks.find(r => r.id === rackId || r.rackId === rackId);
+    return globalRack ? (globalRack.name || globalRack.rackName) : 'No Rack';
+  }
+
+  openLocationTracker(item: any) {
+    const warehouseId = item.get('warehouseId')?.value;
+    const rackId = item.get('rackId')?.value;
+    const availableStock = item.get('availableStock')?.value ?? 0;
+    const unit = item.get('unit')?.value || '';
+    const productId = item.get('productId')?.value;
+
+    const warehouseName = this.getWarehouseName(warehouseId);
+    const rackName = this.getRackName(
+      this.items.controls.indexOf(item),
+      rackId
+    );
+
+    this.dialog.open(LocationTrackerDialogComponent, {
+      width: '450px',
+      data: {
+        warehouseName: warehouseName,
+        rackName: rackName,
+        productId: productId,
+        description: `Current quantity at this location: ${availableStock} ${unit}`
+      }
+    });
   }
 
   openAddCustomerDialog() {

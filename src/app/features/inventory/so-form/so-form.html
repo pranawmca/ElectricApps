@@ -119,6 +119,17 @@
 
           <div class="item-row" *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
             <div class="col-product">
+              <!-- Clickable Stock Tracker Hint (Midnight Polish Style) -->
+              <div class="stock-hint" 
+                   *ngIf="items.at(i).get('productId')?.value" 
+                   (click)="openLocationTracker(items.at(i))" 
+                   style="cursor: pointer;"
+                   matTooltip="Click to open Inventory Tracker">
+                 {{ getWarehouseName(items.at(i).get('warehouseId')?.value) }} / 
+                 Rack: {{ getRackName(i, items.at(i).get('rackId')?.value) }} / 
+                 Stock : <strong>{{ items.at(i).get('availableStock')?.value }}</strong>
+              </div>
+
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <input matInput formControlName="productSearch" [matAutocomplete]="auto" placeholder="Search Product...">
                 <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProductFn" (optionSelected)="onProductChange(i, $event)">
@@ -139,14 +150,6 @@
                     </div>
                   </mat-option>
                 </mat-autocomplete>
-                <mat-hint *ngIf="items.at(i).get('productId')?.value" class="stock-hint">
-                  <ng-container *ngIf="getStockForProduct(i) > 0; else outOfStock">
-                    Stock: <strong>{{ getStockForProduct(i) }}</strong> | Pick From: <strong>{{ getRackName(i) }}</strong>
-                  </ng-container>
-                  <ng-template #outOfStock>
-                    <strong style="color: #ef4444">Not Available ({{ getStockForProduct(i) }})</strong>
-                  </ng-template>
-                </mat-hint>
               </mat-form-field>
             </div>
 
