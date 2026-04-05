@@ -240,6 +240,13 @@ mat-card.so-card {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-radius: 8px 8px 0 0;
+  transition: all 0.3s ease;
+}
+
+.readonly-field {
+  color: #64748b !important;
+  background: #f1f5f9 !important;
+  border-radius: 4px;
 }
 
 /* Core Column Flex Definitions (Applied to BOTH Header & Row) - Consolidated */
@@ -927,10 +934,38 @@ mat-card.so-card {
   }
 
   /* ⚡ ITEM ROWS DEEP SLATE ⚡ */
+  .item-header {
+    background: #0f172a !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
   .item-row {
     background: #0f172a !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
     &:hover { background: #1e293b !important; }
+
+    ::ng-deep .mat-mdc-text-field-wrapper {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        
+        .mat-mdc-input-element {
+            color: #ffffff !important;
+        }
+    }
+
+    .readonly-field {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .date-badge {
+        background: #1e293b !important;
+        color: #ffffff !important;
+    }
+
+    .tax-txt { color: #fb923c !important; }
+    .total-txt { color: #4ade80 !important; }
   }
 
   .add-item-btn {

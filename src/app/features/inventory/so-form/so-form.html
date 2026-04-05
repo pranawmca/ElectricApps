@@ -152,38 +152,38 @@
 
             <div class="col-qty">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <input matInput type="number" formControlName="qty" (input)="updateTotal(i)"
+                <input matInput type="number" formControlName="qty" step="0.01" (input)="updateTotal(i)"
                        [matTooltip]="items.at(i).get('qty')?.errors?.['max'] ? 'Exceeds Stock!' : ''">
               </mat-form-field>
             </div>
 
             <div class="col-unit">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <input type="text" matInput formControlName="unit" readonly style="color:#64748b; background: #f8fafc;">
+                <input type="text" matInput formControlName="unit" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
             <div class="col-mrp">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <input matInput type="number" formControlName="rate" (input)="updateTotal(i)" readonly style="color:#64748b; background: #f8fafc;">
+                <input matInput type="number" formControlName="rate" step="0.01" (input)="updateTotal(i)" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
             <div class="col-disc">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <input matInput type="number" formControlName="discountAmount" (input)="updateTotal(i)" readonly style="color:#64748b; background: #f8fafc;">
+                <input matInput type="number" formControlName="discountAmount" step="0.01" (input)="updateTotal(i)" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
             <div class="col-rate">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <input matInput type="number" formControlName="netRate" readonly style="color:#64748b; background: #f8fafc;">
+                <input matInput type="number" formControlName="netRate" step="0.01" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
             <div class="col-gst">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <input matInput type="number" formControlName="gstPercent" readonly style="color:#64748b; background: #f8fafc;">
+                <input matInput type="number" formControlName="gstPercent" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
