@@ -959,6 +959,11 @@ mat-card.so-card {
         color: rgba(255, 255, 255, 0.5) !important;
     }
 
+    .stock-hint {
+        color: rgba(255, 255, 255, 0.5) !important;
+        strong { color: #38bdf8 !important; }
+    }
+
     .date-badge {
         background: #1e293b !important;
         color: #ffffff !important;

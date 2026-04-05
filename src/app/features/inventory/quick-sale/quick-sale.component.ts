@@ -690,6 +690,14 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         return this.items.controls.reduce((sum, ctrl) => sum + (parseFloat(ctrl.get('total')?.value) || 0), 0);
     }
 
+    get totalItemsQty(): number {
+        return this.items.controls.reduce((total, control) => total + (Number(control.get('qty')?.value) || 0), 0);
+    }
+
+    get totalDiscount(): number {
+        return this.items.controls.reduce((sum, ctrl) => sum + (parseFloat(ctrl.get('discountAmount')?.value || 0) * (parseFloat(ctrl.get('qty')?.value) || 0)), 0);
+    }
+
     get tdsAmount(): number { return (this.subTotal * (this.saleForm.get('tdsPercent')?.value || 0)) / 100; }
     get tcsAmount(): number { return (this.subTotal * (this.saleForm.get('tcsPercent')?.value || 0)) / 100; }
     get finalGrandTotal(): number { return this.grandTotal - this.tdsAmount + this.tcsAmount; }

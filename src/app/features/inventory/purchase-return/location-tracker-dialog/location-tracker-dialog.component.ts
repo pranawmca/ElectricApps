@@ -79,19 +79,21 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
     .header {
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      color: white;
+      color: #ffffff !important;
       padding: 20px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      button { color: #ffffff !important; }
 
       .title-section {
         display: flex;
         align-items: center;
         gap: 16px;
 
-        h3 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; }
-        p { margin: 0; font-size: 0.8rem; opacity: 0.7; }
+        h3 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; color: #ffffff !important; }
+        p { margin: 0; font-size: 0.8rem; opacity: 1 !important; color: rgba(255, 255, 255, 0.9) !important; }
       }
 
       .pulse-icon {
