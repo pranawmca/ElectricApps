@@ -60,6 +60,11 @@ export class ProductForm implements OnInit, OnDestroy {
   isSearchingUnits = false;
 
   previewImage: string | ArrayBuffer | null = null;
+  
+  // Pricing Summaries (Auto-Calculated)
+  landingCost = 0;
+  marginAmount = 0;
+  marginPercentage = 0;
 
   ngOnInit() {
     this.createForm();
@@ -450,20 +455,31 @@ export class ProductForm implements OnInit, OnDestroy {
     // Subscriptions for calculation
     this.productsForm.get('mrp')?.valueChanges.subscribe(() => this.calculateSaleRate());
     this.productsForm.get('discount')?.valueChanges.subscribe(() => this.calculateSaleRate());
+    this.productsForm.get('basePurchasePrice')?.valueChanges.subscribe(() => this.calculateSaleRate());
+    this.productsForm.get('defaultGst')?.valueChanges.subscribe(() => this.calculateSaleRate());
+    
+    // Initial Calc
+    this.calculateSaleRate();
   }
 
   private calculateSaleRate() {
+    const base = Number(this.productsForm.get('basePurchasePrice')?.value) || 0;
+    const gst = Number(this.productsForm.get('defaultGst')?.value) || 0;
     const mrp = Number(this.productsForm.get('mrp')?.value) || 0;
     const discount = Number(this.productsForm.get('discount')?.value) || 0;
 
-    if (discount === 0) {
-      // Logic: No discount means Sale Rate = MRP
-      this.productsForm.get('saleRate')?.setValue(mrp, { emitEvent: false });
-    } else {
-      // Logic: MRP - Discount
-      const saleRate = Math.max(0, mrp - discount);
-      this.productsForm.get('saleRate')?.setValue(saleRate, { emitEvent: false });
-    }
+    // 1. Calculate Landing Cost (Total Cost to Business)
+    this.landingCost = base + (base * (gst / 100));
+
+    // 2. Calculate Final Sale Rate
+    const saleRate = Math.max(0, mrp - discount);
+    this.productsForm.get('saleRate')?.setValue(saleRate, { emitEvent: false });
+
+    // 3. Calculate Margin Info
+    this.marginAmount = saleRate - this.landingCost;
+    this.marginPercentage = this.landingCost > 0 ? (this.marginAmount / this.landingCost) * 100 : 0;
+    
+    this.cdr.detectChanges();
   }
 
   loadInitialLookups() {

@@ -299,3 +299,121 @@ mat-card.product-card.is-modal {
     &:hover { background: rgba(255,255,255,0.05) !important; color: #fff !important; }
   }
 }
+
+/* 📊 Price Summary Card Styling */
+.price-summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+  .summary-header {
+    background: #f8fafc; // Normal professional grey in light mode
+    color: #1e293b;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e2e8f0;
+    
+    mat-icon { font-size: 20px; width: 20px; height: 20px; color: #6366f1; }
+  }
+
+  .summary-content {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  .summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #1e293b;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    &.highlight {
+      background: #f0fdf4;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid #dcfce7;
+      min-width: 180px;
+
+      .label { color: #166534; }
+      .value { color: #15803d; }
+      
+      .profit-box {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        .percentage { font-size: 13px; font-weight: 800; color: #15803d; opacity: 0.9; }
+      }
+
+      &.negative {
+        background: #fef2f2;
+        border-color: #fee2e2;
+        .label { color: #991b1b; }
+        .value, .percentage { color: #dc2626 !important; }
+      }
+    }
+  }
+}
+
+/* 🌑 DARK MODE POLISHED OVERRIDES 🌑 */
+:host-context(.dark-mode) {
+  .price-summary-card {
+    background: #0f172a !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+
+    .summary-header {
+      background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%) !important; // Dark Polished Gradient
+      color: #f8fafc !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      
+      mat-icon { color: #60a5fa !important; } // Blue sapphire icon
+    }
+
+    .summary-item {
+      .value { color: #f8fafc !important; }
+      .label { color: rgba(255, 255, 255, 0.5) !important; }
+
+      &.highlight {
+        background: rgba(16, 185, 129, 0.08) !important;
+        border-color: rgba(16, 185, 129, 0.15) !important;
+        .label { color: #10b981 !important; }
+        .value, .percentage { color: #34d399 !important; }
+
+        &.negative {
+          background: rgba(239, 68, 68, 0.08) !important;
+          border-color: rgba(239, 68, 68, 0.15) !important;
+          .label { color: #f87171 !important; }
+          .value, .percentage { color: #ef4444 !important; }
+        }
+      }
+    }
+  }
+}
+

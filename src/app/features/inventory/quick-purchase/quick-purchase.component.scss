@@ -699,6 +699,14 @@ input[type=number] {
       ::ng-deep .mat-mdc-text-field-wrapper {
         background-color: rgba(255, 255, 255, 0.02) !important;
         border-color: rgba(255, 255, 255, 0.1) !important;
+        
+        /* ⚡ FORCE WHITE PLACEHOLDERS FOR DATE FIELDS ⚡ */
+        .mat-mdc-form-field-infix {
+          input::placeholder {
+            color: #ffffff !important;
+            opacity: 1 !important;
+          }
+        }
       }
     }
 
@@ -731,11 +739,11 @@ input[type=number] {
     background: rgba(255, 255, 255, 0.05) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     mat-button-toggle {
-      color: rgba(255, 255, 255, 0.5) !important;
+      color: #94a3b8 !important; /* Soft Slate Gray - Much more visible than semi-transparent white */
       border-left-color: rgba(255, 255, 255, 0.1) !important;
       
       &.mat-button-toggle-checked {
-        color: #ffffff !important;
+        color: #ffffff !important; 
         mat-icon { color: #ffffff !important; }
       }
     }

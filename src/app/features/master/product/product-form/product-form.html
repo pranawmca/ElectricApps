@@ -262,6 +262,31 @@
       </mat-form-field>
 
     </form>
+
+    <!-- 📊 Real-time Price Summary Card (The User's Request) -->
+    <div class="price-summary-card mt-4">
+      <div class="summary-header">
+        <mat-icon>analytics</mat-icon>
+        <span>Pricing & Profit Summary</span>
+      </div>
+      <div class="summary-content">
+        <div class="summary-item">
+          <span class="label">Total Landing Cost (Incl. GST)</span>
+          <span class="value">₹{{ landingCost | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Proposed Sale Rate</span>
+          <span class="value">₹{{ productsForm.get('saleRate')?.value | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-item highlight" [class.negative]="marginAmount < 0">
+          <span class="label">Gross Profit Margin</span>
+          <div class="profit-box">
+            <span class="value">₹{{ marginAmount | number:'1.2-2' }}</span>
+            <span class="percentage">({{ marginPercentage | number:'1.1-1' }}%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </mat-card-content>
 </mat-card>
 </div>
