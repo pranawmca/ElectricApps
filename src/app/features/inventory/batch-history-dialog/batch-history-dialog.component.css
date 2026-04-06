@@ -121,3 +121,49 @@
 }
 
 .no-data-msg mat-icon { font-size: 48px; width: 48px; height: 48px; }
+
+/* 🌑 DARK MODE POLISH (MIDNIGHT SLATE) 🌑 */
+:host-context(.dark-mode) {
+    .batch-history-dialog {
+        background-color: #0f172a !important; /* Deep Midnight */
+        color: #f8fafc !important;
+    }
+
+    .dialog-header {
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .batch-info-banner {
+        background: #1e293b !important; /* Midnight Slate Card */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .info-item .label {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .info-item .value {
+        color: #ffffff !important;
+    }
+
+    /* Table Consistency */
+    ::ng-deep {
+        .mat-mdc-header-cell { color: rgba(255, 255, 255, 0.5) !important; font-weight: 700 !important; }
+        .mat-mdc-cell { color: #f8fafc !important; }
+        
+        .mat-mdc-table { background: transparent !important; }
+        .mat-mdc-row:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
+    }
+
+    .type-badge {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #f8fafc !important;
+    }
+
+    /* Keep Action badges readable */
+    .purchase, .quickgrn, .grn, .quickpurchase {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #10b981 !important;
+    }
+}
