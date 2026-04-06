@@ -82,31 +82,27 @@
     </div>
   </div>
 
-  <div class="table-section-card">
-    <div class="p-3 border-bottom d-flex align-items-center bg-light mb-4 flex-wrap gap-3">
-      <!-- Desktop Spacer -->
-      <div class="d-none d-md-block" style="flex: 1;"></div>
+  <div class="table-section-card mt-4">
+    <div class="pt-4 pb-3 border-bottom d-flex align-items-center bg-light mb-4 title-row-premium" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; padding-left: 30px !important; padding-right: 30px !important;">
+      <span class="badge border text-primary bg-white px-3 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2" 
+            style="font-size: 0.85rem; font-weight: 600; border-color: #dee2e6 !important; flex-shrink: 0; margin-right: 25px !important; display: flex !important; align-items: center !important;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;">inventory_2</mat-icon>
+        <span style="display: flex; align-items: center; height: 18px;">{{ items.length }} Products</span>
+      </span>
 
-      <!-- Title in Center -->
-      <h6 class="m-0 fw-bold d-flex align-items-center justify-content-center flex-grow-1 flex-md-grow-0" style="white-space: nowrap; margin-top: -4px; min-width: 200px;">
-        <mat-icon class="text-primary" style="margin-right: 8px;">inventory_2</mat-icon> 
-        <span>Linked Products</span>
-      </h6>
+      <button type="button" mat-stroked-button color="primary" class="btn-sm-responsive" style="flex-shrink: 0; margin-right: 25px !important;" (click)="openBulkAddDialog()">
+        <mat-icon>list_alt</mat-icon> <span class="d-none d-sm-inline">Bulk </span>Add
+      </button>        
+
+      <button type="button" mat-flat-button class="add-item-btn btn-sm-responsive" style="flex-shrink: 0; margin-right: 25px !important;" (click)="addItemRow()">
+        <mat-icon>add</mat-icon> Add<span class="d-none d-sm-inline"> Product</span>
+      </button> 
       
-      <!-- Buttons on Right / Center on Mobile -->
-      <div class="d-flex gap-3 align-items-center justify-content-center justify-content-md-end" style="flex: 1; min-width: 250px;">
-        <span class="badge border text-primary bg-white px-3 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2" 
-              style="font-size: 0.85rem; font-weight: 600; border-color: #dee2e6 !important;">
-          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">inventory_2</mat-icon>
-          {{ items.length }} Products
-        </span>
-
-        <button type="button" mat-stroked-button color="primary" class="btn-sm-responsive" (click)="openBulkAddDialog()">
-          <mat-icon>list_alt</mat-icon> <span class="d-none d-sm-inline">Bulk </span>Add
-        </button>        
-        <button type="button" mat-flat-button class="add-item-btn btn-sm-responsive" (click)="addItemRow()">
-          <mat-icon>add</mat-icon> Add<span class="d-none d-sm-inline"> Product</span>
-        </button>        
+      <div class="list-search-wrapper mt-1" style="flex-grow: 1; min-width: 250px; flex-shrink: 1; margin-top: 4px !important;">
+        <mat-form-field appearance="outline" class="no-subscript compact-search" style="width: 100%;">
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [(ngModel)]="searchTerm" placeholder="Search products in this list..." [ngModelOptions]="{standalone: true}">
+        </mat-form-field>
       </div>
     </div>
     
@@ -127,7 +123,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+          <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i" [hidden]="!isItemVisible(i)">
             <td class="col-search">
               <mat-form-field appearance="outline" class="w-100 no-subscript" subscriptSizing="dynamic">
                 <input type="text" matInput placeholder="Search..." formControlName="productSearch" [matAutocomplete]="auto">

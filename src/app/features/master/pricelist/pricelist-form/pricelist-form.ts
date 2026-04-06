@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output, OnChanges, SimpleChanges, AfterViewInit, OnDestroy } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { Validators, FormBuilder, ReactiveFormsModule, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { Validators, FormBuilder, ReactiveFormsModule, FormGroup, FormArray, FormControl, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../../shared/material/material/material-module';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,7 +15,7 @@ import { ProductSelectionDialogComponent } from '../../../../shared/components/p
 @Component({
   selector: 'app-pricelist-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
   templateUrl: './pricelist-form.html',
   styleUrl: './pricelist-form.scss',
   animations: [
@@ -96,6 +96,7 @@ export class PricelistForm implements OnInit, OnChanges, AfterViewInit, OnDestro
 
   isEditMode = false;
   showError = false;
+  searchTerm: string = '';
   constructor(private fb: FormBuilder, private dialog: MatDialog) { }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -320,6 +321,14 @@ export class PricelistForm implements OnInit, OnChanges, AfterViewInit, OnDestro
     if (!product) return '';
     if (typeof product === 'string') return product;
     return product.name || product.productName || '';
+  }
+
+  isItemVisible(index: number): boolean {
+    if (!this.searchTerm) return true;
+    const row = this.items.at(index);
+    const product = row.get('productSearch')?.value;
+    const name = this.displayFn(product).toLowerCase();
+    return name.includes(this.searchTerm.toLowerCase());
   }
 
   removeItem(index: number) {

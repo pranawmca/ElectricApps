@@ -226,8 +226,17 @@
       </div>
     </div>
 
-    <!-- Search Bar -->
-... (lines 228-251) ...
+    <div class="dues-search-bar">
+      <mat-icon>search</mat-icon>
+      <input type="text" 
+             placeholder="Search customer name..." 
+             [(ngModel)]="duesSearchQuery" 
+             class="dues-search-input"
+             id="dues-search">
+      <div class="clear-search" *ngIf="duesSearchQuery" (click)="duesSearchQuery = ''">
+        <mat-icon>close</mat-icon>
+      </div>
+    </div>
 
     <!-- Dues Table -->
     <div *ngIf="!isDuesLoading && filteredCustomerDues.length > 0" class="dues-table-wrap">

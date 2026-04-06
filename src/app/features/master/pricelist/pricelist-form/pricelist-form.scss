@@ -111,7 +111,6 @@
     }
   }
 
-  /* Table Action Buttons */
   .add-item-btn {
     background: #f1f5f9 !important;
     color: #4f46e5 !important;
@@ -599,6 +598,9 @@ textarea.table-control {
   .pricelist-header, 
   .header-form-card, 
   .table-section-card,
+  .table-responsive-box,
+  .p-3.border-bottom.bg-light,
+  .title-row-premium,
   mat-card-actions {
     background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
@@ -649,7 +651,7 @@ textarea.table-control {
     th {
       background: #0f172a !important;
       color: #94a3b8 !important;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.12) !important;
     }
 
     td {
@@ -683,6 +685,38 @@ textarea.table-control {
   .back-btn {
     color: #94a3b8 !important;
     &:hover { background-color: rgba(255,255,255,0.05) !important; color: #fff !important; }
+  }
+
+  .submit-btn,
+  .cancel-btn,
+  .back-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    mat-icon {
+      color: #ffffff !important;
+      margin-right: 8px;
+    }
+  }
+
+  .submit-btn {
+    background: rgba(79, 70, 229, 0.25) !important;
+    color: #a5b4fc !important;
+    &:hover {
+      background: rgba(79, 70, 229, 0.35) !important;
+      color: #ffffff !important;
+    }
   }
 
   .add-item-btn {

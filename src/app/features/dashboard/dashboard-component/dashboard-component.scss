@@ -929,6 +929,93 @@
   }
 }
 
+/* ================= Dark Mode Polished Look for Dues Modal ================= */
+:host-context(.dark-mode),
+:host-context([class*="dark-mode"]) {
+  .dues-modal {
+    background: rgba(15, 23, 42, 0.95) !important; 
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8) !important;
+
+    .dues-search-bar {
+      background: #111b33 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+      
+      .dues-search-input {
+        color: #ffffff !important;
+        &::placeholder { color: #64748b !important; }
+      }
+      mat-icon { color: #64748b !important; }
+    }
+
+    .dues-table-wrap::-webkit-scrollbar-thumb {
+      background: #334155 !important;
+    }
+
+    .dues-table {
+      thead tr {
+        background: #1e293b !important;
+        th {
+          color: #94a3b8 !important;
+          border-bottom: 2px solid rgba(255, 255, 255, 0.15) !important;
+        }
+      }
+
+      tbody tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        
+        &:hover { background: rgba(255, 255, 255, 0.03) !important; }
+        
+        td { color: #cbd5e1 !important; }
+
+        &.overdue-row {
+          background: rgba(220, 38, 38, 0.08) !important;
+          &:hover { background: rgba(220, 38, 38, 0.15) !important; }
+        }
+
+        &.selected-row {
+          background: rgba(59, 130, 246, 0.12) !important;
+          td { color: #ffffff !important; }
+        }
+        
+        .name-col span { color: #f1f5f9; }
+      }
+    }
+
+    .amount-badge {
+      background: rgba(233, 30, 99, 0.15) !important;
+      color: #f472b6 !important;
+      border: 1px solid rgba(233, 30, 99, 0.2) !important;
+    }
+
+    .status-pill {
+      &.status-pending { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; }
+      &.status-overdue { background: rgba(239, 68, 68, 0.15) !important; color: #f87171 !important; }
+    }
+    
+    .overdue-tag {
+      background: rgba(239, 68, 68, 0.2) !important;
+      color: #fca5a5 !important;
+    }
+
+    .dues-modal-footer {
+      background: #0f172a !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #94a3b8 !important;
+    }
+    
+    .dues-empty {
+      h3 { color: #ffffff !important; }
+      p { color: rgba(255, 255, 255, 0.6) !important; }
+    }
+    
+    .dues-loading p {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+}
+
 /* ======================== Responsive Modal ======================== */
 @media (max-width: 600px) {
   .dues-modal {
