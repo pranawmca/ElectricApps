@@ -331,12 +331,12 @@ th.mat-mdc-header-cell.select-col {
       /* Hover states */
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
-        background-color: #f0f7ff !important;
-        border-color: #00796b !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+        background-color: rgba(255, 255, 255, 0.1) !important; /* Subtle Dark Polished Hover */
+        border-color: rgba(255, 255, 255, 0.2) !important;
 
         mat-icon {
-          color: #00796b !important;
+          color: #ffffff !important;
         }
       }
 
@@ -354,9 +354,9 @@ th.mat-mdc-header-cell.select-col {
   }
 }
 
-/* Hover effect on selected row (thoda dark blue) */
+/* Hover effect on selected row (no background as per user request) */
 .selected-row:hover td {
-  background-color: #e3f0ff;
+  background-color: transparent !important;
 }
 
 /* ✅ 3. STICKY COLUMN FIX (FOR TABLE ROWS) */
@@ -365,16 +365,16 @@ th.mat-mdc-header-cell.select-col {
   background-color: inherit !important;
 }
 
-/* ✅ SELECTED ROW - STICKY COLORS (Edge-to-Edge Blue) */
+/* ✅ SELECTED ROW - GHOST HIGHLIGHT (No Blue) */
 .selected-row {
-  background-color: #f0f7ff !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
 
   /* Sticky columns ka background override karein taaki gaps na dikhein */
   .sticky-left,
   .sticky-right,
   &.mat-mdc-row td.mat-mdc-cell.sticky-right,
   &.mat-mdc-row td.mat-mdc-cell.sticky-left {
-    background-color: #f0f7ff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
   }
 }
 
@@ -782,18 +782,18 @@ th.mat-mdc-header-cell.select-col {
         color: #ffffff !important;
       }
 
-      /* ✅ DARK MODE SELECTION FIX - Always Dark with White Font */
+      /* ✅ DARK MODE SELECTION FIX - Always Transparent/Ghost with White Font */
       tr.mat-mdc-row.selected-row,
       .selected-row {
-        background-color: #0f172a !important; /* Consistent Dark Background */
+        background-color: transparent !important; 
         
         td.mat-mdc-cell {
-          background-color: #0f172a !important;
+          background-color: transparent !important;
           color: #ffffff !important; /* Font White force */
         }
 
         .sticky-left, .sticky-right {
-          background-color: #0f172a !important;
+          background-color: transparent !important;
         }
       }
 
@@ -814,7 +814,7 @@ th.mat-mdc-header-cell.select-col {
 
       tr.mat-mdc-row:hover .sticky-left,
       tr.mat-mdc-row:hover .sticky-right {
-        background-color: #1e40af !important;
+        background-color: #2d3748 !important; /* Neutral Slate Hover for Sticky Columns */
       }
 
       /* Actions Column Polishing */

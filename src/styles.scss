@@ -1252,8 +1252,7 @@ body.floating-nav {
 }
 
 .mat-mdc-row:hover {
-  transform: translateX(4px);
-  background-color: rgba(var(--dg-primary-theme-rgb), 0.05) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important; /* Extremely subtle ghost hover */
 }
 
 /* CUSTOM SCROLLBARS FOR PREMIMUM LOOK */
@@ -1382,11 +1381,18 @@ body[class*="theme-"].dark-mode {
     height: 42px !important;
     padding: 0 28px !important;
 
-    /* Primary/Action Tints */
+    /* Primary/Action Tints - FORCE MATCHING BACKGROUND */
     &.mat-primary, &.submit-btn, &.save-btn, &.apply-btn {
+      background: rgba(255, 255, 255, 0.08) !important;
       color: #a5b4fc !important;
+      
+      &:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.15) !important;
+          color: #ffffff !important;
+      }
     }
     &.mat-warn, &.cancel-btn {
+      background: rgba(255, 255, 255, 0.08) !important;
       color: #fca5a5 !important;
     }
 
@@ -1402,5 +1408,38 @@ body[class*="theme-"].dark-mode {
       margin-right: 8px;
       margin-left: -4px;
     }
+  }
+
+  /* 💎 ⚡ SELECTION CLEANUP - TOTAL DESTRUCTION OF BLUE HIGHLIGHTS ⚡ 💎 */
+  /* Target EVERY possible selection/checked state class to kill blue backgrounds */
+  .mat-mdc-row.mdc-data-table__row--selected,
+  .mat-row-selected,
+  .mat-mdc-row.mat-mdc-row-selected,
+  .selected-row,
+  .mat-mdc-row:hover,
+  .mat-mdc-row:hover .mat-mdc-cell,
+  .mat-mdc-row-selected .mat-mdc-cell {
+      background-color: transparent !important;
+      background-image: none !important;
+      
+      /* Target the sticky cells specifically as they are extra stubborn */
+      .sticky-left, .sticky-right, .mat-mdc-cell.sticky-left, .mat-mdc-cell.sticky-right {
+          background-color: transparent !important;
+          background-image: none !important;
+      }
+  }
+
+  /* 💎 KILL BLUE CHECKBOX BACKGROUNDS 💎 */
+  .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background,
+  .mat-mdc-checkbox.mat-mdc-checkbox-indeterminate .mdc-checkbox__background,
+  .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
+  .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
+      background-color: #ffffff !important; /* Force White Checkbox Background */
+      border-color: #ffffff !important;
+  }
+
+  /* 💎 KILL BLUE RIPPLES 💎 */
+  .mat-mdc-checkbox .mat-ripple-element {
+      background-color: transparent !important;
   }
 }
