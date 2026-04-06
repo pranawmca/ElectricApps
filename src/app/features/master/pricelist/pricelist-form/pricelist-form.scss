@@ -687,42 +687,4 @@ textarea.table-control {
     &:hover { background-color: rgba(255,255,255,0.05) !important; color: #fff !important; }
   }
 
-  .submit-btn,
-  .cancel-btn,
-  .back-btn {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: none !important;
-    color: #ffffff !important;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.15) !important;
-      transform: translateY(-1.5px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
-    }
-
-    mat-icon {
-      color: #ffffff !important;
-      margin-right: 8px;
-    }
-  }
-
-  .submit-btn {
-    background: rgba(79, 70, 229, 0.25) !important;
-    color: #a5b4fc !important;
-    &:hover {
-      background: rgba(79, 70, 229, 0.35) !important;
-      color: #ffffff !important;
-    }
-  }
-
-  .add-item-btn {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #60a5fa !important;
-    &:hover { background: #ffffff !important; color: #0f172a !important; }
-  }
 }

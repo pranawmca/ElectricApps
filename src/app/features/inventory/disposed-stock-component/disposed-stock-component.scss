@@ -79,11 +79,11 @@
   .location-field { max-width: 180px; }
   
   .apply-btn {
-    height: 52px;
-    border-radius: 8px;
+    height: 42px !important;
+    border-radius: 999px !important; /* Enforced Pill Shape specifically on this page as requested */
     padding: 0 24px;
     font-weight: 600;
-    margin-bottom: 22px; /* Mat-form-field ke subscript space ke sath align karne ke liye */
+    margin-bottom: 22px; /* Correctly nudges the button up to align with the visual center of the input fields */
   }
 }
 
@@ -320,6 +320,26 @@ table {
       
       .mat-mdc-select-value-text { color: #ffffff !important; }
       .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+    }
+  }
+
+  .apply-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    color: #a5b4fc !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+      transform: translateY(-2px);
+    }
+    
+    mat-icon {
+      color: #a5b4fc !important;
+      margin-right: 8px;
     }
   }
 

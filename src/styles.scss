@@ -605,7 +605,7 @@ html.dark-mode {
   background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
   color: white !important;
   box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39) !important;
-  border-radius: 12px !important;
+  border-radius: 999px !important; /* Reverted to premium pill shape */
   font-weight: 600 !important;
   letter-spacing: 0.5px !important;
   height: 42px !important;
@@ -640,7 +640,7 @@ html.dark-mode {
   color: #64748b !important;
   background-color: transparent !important;
   font-weight: 600 !important;
-  border-radius: 12px !important;
+  border-radius: 999px !important; /* Reverted to premium pill shape */
   height: 42px !important;
   padding: 0 20px !important;
   transition: all 0.2s ease !important;
@@ -1353,13 +1353,54 @@ body.floating-nav {
 /* Polish Action Buttons in Popups Globally */
 .mat-mdc-dialog-actions, mat-dialog-actions {
     padding: 15px 24px 20px !important;
+}
+
+/* ==========================================================================
+   🚨 ULTIMATE DARK MODE NUCLEAR BUTTON PROTECTION 🚨
+   Pill Shaped (999px) + Dark Polished Look
+   ========================================================================== */
+html.dark-mode, body.dark-mode, .dark-mode, 
+html[class*="theme-"].dark-mode, 
+body[class*="theme-"].dark-mode {
+
+  /* ⚡ NUCLEAR TARGETING FOR PILL SHAPE ⚡ */
+  & .mat-mdc-raised-button, & .mat-mdc-flat-button, & .mat-mdc-stroked-button,
+  & .mat-raised-button, & .mat-flat-button, & .mat-stroked-button,
+  & .mat-button, & .mat-mdc-button,
+  & .apply-btn, & .submit-btn, & .cancel-btn, & .back-btn, & .save-btn, & .add-item-btn {
     
-    button.mat-mdc-flat-button, 
-    button.mat-mdc-raised-button {
-        height: 42px !important;
-        border-radius: 10px !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    background-image: none !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 999px !important; /* PILL SHAPE ENFORCED */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease !important;
+    text-transform: none !important;
+    height: 42px !important;
+    padding: 0 28px !important;
+
+    /* Primary/Action Tints */
+    &.mat-primary, &.submit-btn, &.save-btn, &.apply-btn {
+      color: #a5b4fc !important;
     }
+    &.mat-warn, &.cancel-btn {
+      color: #fca5a5 !important;
+    }
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.15) !important;
+      background-image: none !important;
+      transform: translateY(-2px);
+      color: #ffffff !important;
+    }
+
+    mat-icon, .mat-icon {
+      color: inherit !important;
+      margin-right: 8px;
+      margin-left: -4px;
+    }
+  }
 }
