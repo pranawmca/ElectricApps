@@ -156,9 +156,22 @@ export class MainLayoutComponent implements OnInit {
     this.availableThemes = this.themeService.availableThemes;
 
     this.breakpointObserver
-      .observe([Breakpoints.Handset])
+      .observe([Breakpoints.Handset, '(max-width: 959px)'])
       .subscribe(result => {
+        const wasMobile = this.isMobile;
         this.isMobile = result.matches;
+        
+        // If transitioning from Mobile to Desktop, force sidenav to open
+        if (wasMobile && !this.isMobile) {
+           this.isSidenavOpened = true; // Full view
+           // Use a timeout to ensure Material is ready for mode switch
+           setTimeout(() => {
+              if (this.sidenav && !this.sidenav.opened) {
+                this.sidenav.open();
+              }
+           }, 100);
+        }
+        
         this.cdr.detectChanges();
       });
 

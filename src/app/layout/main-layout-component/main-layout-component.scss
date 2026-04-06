@@ -593,6 +593,12 @@
     background-color: #0f172a !important;
   }
 
+  /* ⚡ FORCE DARK SIDENAV BACKGROUND ⚡ */
+  .sidenav {
+    background-color: #1e1b2e !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
   /* Breadcrumb Wrapper Polish */
   .breadcrumb {
     background: #1e293b !important;
