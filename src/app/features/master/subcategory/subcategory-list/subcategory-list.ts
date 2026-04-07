@@ -46,7 +46,7 @@ export class SubcategoryList implements OnInit, OnChanges {
   canAdd: boolean = true;
   canDelete: boolean = true;
 
-  data: SubCategory[] = [];
+  data: any[] = [];
   totalCount = 0;
 
   selectedRows: any[] = [];
@@ -56,42 +56,26 @@ export class SubcategoryList implements OnInit, OnChanges {
   grid!: ServerDatagridComponent<any>;
 
 
-  columns: GridColumn[] = [
-    { field: 'categoryName', header: 'Category', sortable: true, width: 300, visible: true },
-    { field: 'subcategoryName', header: 'Subcategory', sortable: true, width: 300, visible: true },
-    { field: 'subcategoryCode', header: 'Code', sortable: true, width: 150, visible: true },
-    { field: 'defaultGst', header: 'GST %', sortable: true, width: 150, visible: true },
-    { field: 'description', header: 'Description', sortable: true, width: 150, visible: true },
-    {
-      field: 'isActive',
-      header: 'Status',
-      sortable: true, width: 100, visible: true,
-      cell: (row: any) => row.isActive ? 'Yes' : 'No'
-    }
-  ];
-
+  // --- Hierarchical Expansion Logic ---
+  nestedData: { [key: string]: SubCategory[] } = {};
+  nestedLoading: { [key: string]: boolean } = {};
 
   ngOnInit(): void {
     this.canAdd = this.permissionService.hasPermission('CanAdd');
     this.canDelete = this.permissionService.hasPermission('CanDelete');
 
-    // Global loader ON
     this.isDashboardLoading = true;
     this.isFirstLoad = true;
     this.loadingService.setLoading(true);
-    this.cdr.detectChanges();
 
-    // Initial load
     this.loadSubCategories({
       pageNumber: 1,
       pageSize: 10,
       sortDirection: 'desc'
     });
 
-    // Safety timeout - force stop loader after 10 seconds
     setTimeout(() => {
       if (this.isDashboardLoading) {
-        console.warn('[SubcategoryList] Force stopping loader after 10s timeout');
         this.isDashboardLoading = false;
         this.isFirstLoad = false;
         this.loadingService.setLoading(false);
@@ -100,26 +84,34 @@ export class SubcategoryList implements OnInit, OnChanges {
     }, 10000);
   }
 
+  columns: GridColumn[] = [
+    { field: 'categoryName', header: 'Category Name', sortable: true, width: 300, visible: true },
+    { field: 'categoryCode', header: 'Code', sortable: true, width: 150, visible: true },
+    { field: 'description', header: 'Description', sortable: true, width: 300, visible: true },
+    {
+      field: 'isActive',
+      header: 'Status',
+      sortable: true, width: 100, visible: true,
+      cell: (row: any) => row.isActive ? 'Active' : 'Inactive'
+    }
+  ];
+
   loadSubCategories(request: GridRequest): void {
-    this.lastRequest = request; // ✅ store last state
+    this.lastRequest = request;
     this.loading = true;
 
-    this.subCategoryService.getPaged(request).subscribe({
+    this.categoryService.getPaged(request).subscribe({
       next: res => {
-        this.data = res.items;
-        console.log(this.data);
+        this.data = res.items as any; // Now Category level
         this.totalCount = res.totalCount;
 
-        // Update Summary Stats
         this.summaryStats = [
-          { label: 'Total Subcategories', value: this.totalCount, icon: 'category', type: 'total' },
-          { label: 'Active Status', value: this.totalCount > 0 ? 'Managed' : 'None', icon: 'verified', type: 'active' },
+          { label: 'Total Categories', value: this.totalCount, icon: 'category', type: 'total' },
+          { label: 'Hierarchy View', value: 'Active', icon: 'account_tree', type: 'info' },
           { label: 'Organization', value: 'Master Data', icon: 'inventory_2', type: 'info' }
         ];
 
         this.loading = false;
-
-        // Turn off global loader on first load
         if (this.isFirstLoad) {
           this.isFirstLoad = false;
           this.isDashboardLoading = false;
@@ -128,15 +120,26 @@ export class SubcategoryList implements OnInit, OnChanges {
         this.cdr.detectChanges();
       },
       error: err => {
-        console.error(err);
         this.loading = false;
+        this.isDashboardLoading = false;
+        this.loadingService.setLoading(false);
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
-        // Turn off global loader on first load
-        if (this.isFirstLoad) {
-          this.isFirstLoad = false;
-          this.isDashboardLoading = false;
-          this.loadingService.setLoading(false);
-        }
+  loadNestedSubcategories(category: any): void {
+    if (this.nestedData[category.id]) return; // Already loaded
+
+    this.nestedLoading[category.id] = true;
+    this.subCategoryService.getByCategoryId(category.id).subscribe({
+      next: (subs) => {
+        this.nestedData[category.id] = subs;
+        this.nestedLoading[category.id] = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.nestedLoading[category.id] = false;
         this.cdr.detectChanges();
       }
     });

@@ -1,7 +1,7 @@
 export interface Product {
   id?: any;
-  categoryId: number;
-  subcategoryId: number;
+  categoryId: any;
+  subcategoryId: any;
   productName: string;
   name?: string;
   sku?: string;
@@ -30,8 +30,8 @@ export interface Product {
   damagedStock: number;
   description?: string;
   defaultWarehouseId?: string;
+  defaultWarehouseName?: string;
   defaultRackId?: string;
-  isExpiryRequired?: boolean;
   defaultRackName?: string;
   rackName?: string;
   imageUrl?: string;

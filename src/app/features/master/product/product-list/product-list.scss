@@ -33,13 +33,6 @@
   }
 }
 
-.disabled-content {
-  pointer-events: none;
-  user-select: none;
-  opacity: 0.5;
-  filter: blur(2px);
-}
-
 .header-actions {
   display: flex;
   justify-content: space-between;
@@ -48,14 +41,6 @@
   margin-bottom: 12px;
   flex-shrink: 0;
 
-  .d-flex {
-    gap: 16px;
-    
-    button:not(:last-child) {
-      margin-right: 16px !important;
-    }
-  }
-
   h1 {
     margin: 0;
     font-size: 24px;
@@ -63,217 +48,118 @@
     color: #1e293b;
     letter-spacing: -0.02em;
   }
+
+  .d-flex {
+    gap: 0 !important;
+    button {
+      margin-left: 10px !important;
+      &:first-child { margin-left: 0 !important; }
+    }
+  }
 }
 
-/* Premium Buttons */
-.main-add-btn {
-  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+/* 🏢 ERP STANDARD SLATE BUTTONS (Matched to PriceList) */
+.main-add-btn, .mini-add-btn, .delete-action-btn, .sync-action-btn, .reorder-action-btn {
+  background: #1e293b !important; /* Standard ERP Dark Slate */
   color: white !important;
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39) !important;
   border-radius: 12px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.5px !important;
-  height: 42px !important;
-  padding: 0 20px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+  height: 40px !important; 
+  padding: 0 16px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.2s ease;
+  cursor: pointer;
   white-space: nowrap !important;
-  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
   
-  mat-icon {
-    margin-right: 8px;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
+  mat-icon { margin-right: 6px; font-size: 18px; width: 18px; height: 18px; }
+  
   &:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45) !important;
+    background: #0f172a !important; /* Slightly darker on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
   }
 }
 
 .delete-action-btn {
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 14px 0 rgba(225, 29, 72, 0.3) !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.5px !important;
-  height: 42px !important;
-  padding: 0 20px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
-  border: none;
-
-  mat-icon {
-    margin-right: 8px;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  &:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;
-  }
-
-  &:disabled {
-    background: #e2e8f0 !important;
-    color: #94a3b8 !important;
-    box-shadow: none !important;
-    transform: none !important;
-    cursor: not-allowed;
-  }
+  background: #991b1b !important; /* Standard Dark Red for Delete */
+  &:hover { background: #7f1d1d !important; }
 }
 
-.reorder-action-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3) !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.5px !important;
-  height: 42px !important;
-  padding: 0 20px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
-  border: none;
-
-  mat-icon {
-    margin-right: 8px;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  &:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
-  }
+.mini-add-btn {
+  height: 32px !important;
+  font-size: 11px !important;
+  border-radius: 20px !important;
+  text-transform: uppercase;
+  padding: 0 12px !important;
 }
 
-.sync-action-btn {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.3) !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.5px !important;
-  height: 42px !important;
-  padding: 0 20px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
-  border: none;
-
-  mat-icon {
-    margin-right: 8px;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    animation: spin-once 0.5s ease-in-out;
-  }
-
-  &:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
-  }
-
-  &:disabled {
-    background: #e2e8f0 !important;
-    color: #94a3b8 !important;
-    box-shadow: none !important;
-    transform: none !important;
-    cursor: not-allowed;
-  }
+/* 🌳 PREMIUM HIERARCHICAL STYLING (LIGHT MODE NORMAL) */
+.nested-content-container {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 24px;
 }
 
-@keyframes spin-once {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.category-badge {
+  width: 44px; height: 44px;
+  background: white;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #6366f1; border: 1px solid #e2e8f0;
 }
 
-
-
-/* Filter Alert Banner */
-.filter-alert-banner {
-  background: #fff8f1 !important;
-  border: 1px solid #ffdec0 !important;
-  padding: 12px 20px !important;
-  border-radius: 12px !important;
-  margin-bottom: 20px !important;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(245, 124, 0, 0.08);
-
-  .alert-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #9a5b10;
-    font-weight: 500;
-    font-size: 14px;
-    
-    mat-icon {
-      color: #f57c00;
-    }
-  }
-
-  .view-all-btn {
-    font-weight: 700 !important;
-    letter-spacing: 0.5px !important;
-    color: #f57c00 !important;
-    text-transform: uppercase;
-    font-size: 12px !important;
-    
-    &:hover {
-      background: rgba(245, 124, 0, 0.05) !important;
-    }
-  }
+.table-card {
+  background: white;
+  border-radius: 12px; border: 1px solid #e2e8f0;
+  overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-top: 16px;
 }
 
-// ==========================================================================
-// FULL PAGE DARK MODE POLISH
-// ==========================================================================
+.nested-table {
+  width: 100%; border-collapse: collapse;
+  th { background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+  td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; background: white; color: #1e293b; }
+  .sub-name { color: #1e293b; font-weight: 600; font-size: 14px; }
+  .x-small { font-size: 11px; color: #64748b; }
+  .product-mini-img { width: 44px !important; height: 44px !important; border-radius: 8px !important; object-fit: cover !important; border: 1px solid #e2e8f0; }
+  .brand-tag { font-size: 10px; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  .location-badge {
+    padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; border: 1px solid transparent;
+    &.warehouse { background: #eff6ff; color: #3b82f6; border-color: #dbeafe; }
+    &.rack { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+  }
+  .price-breakdown { .sale-price { color: #1e293b; font-weight: 700; font-size: 13px; } .base-price { color: #64748b; font-size: 11px; } }
+  .gst-badge { background: #f0fdfa; color: #0d9488; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; border: 1px solid #ccfbf1; }
+}
+
+/* 🌙 FULL MIDNIGHT SLATE DARK MODE ENHANCEMENT */
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
-
-  .header-actions h1 {
-    color: #f8fafc !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #020617 !important;
+  .list-container { background: #0f172a !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+  .header-actions h1 { color: #f8fafc !important; }
+  .nested-content-container {
+    background: linear-gradient(to bottom, #0f172a, #020617) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    .title-text { color: #f8fafc !important; }
+    .text-muted { color: #94a3b8 !important; }
+    .category-badge { background: #1e293b !important; border-color: rgba(255, 255, 255, 0.1) !important; color: #60a5fa !important; }
   }
-
-  .list-container {
-    background: #1e293b !important;
-    border-color: rgba(255, 255, 255, 0.05) !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-  }
-
-  /* Filter Alert Panel - Executive Dark Amber */
-  .filter-alert-banner {
-    background: rgba(245, 158, 11, 0.1) !important;
-    border: 1px solid rgba(245, 158, 11, 0.2) !important;
-    box-shadow: 0 8px 16px rgba(180, 83, 9, 0.1) !important;
-
-    .alert-content {
-      color: #fcd34d !important;
+  .table-card { background: #0f172a !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; }
+  .nested-table {
+    th { background: #1e293b !important; color: #cbd5e1 !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
+    td { border-bottom-color: rgba(255, 255, 255, 0.03) !important; color: #e2e8f0 !important; background: transparent !important; }
+    .sub-name { color: #ffffff !important; }
+    .x-small { color: #94a3b8 !important; }
+    .brand-tag { background: rgba(59, 130, 246, 0.1) !important; color: #60a5fa !important; }
+    .location-badge {
+      &.warehouse { background: rgba(59, 130, 246, 0.1) !important; color: #60a5fa !important; border-color: rgba(59, 130, 246, 0.2) !important; }
+      &.rack { background: rgba(255, 255, 255, 0.05) !important; color: #94a3b8 !important; border-color: rgba(255, 255, 255, 0.05) !important; }
     }
-
-    .view-all-btn {
-      color: #fbbf24 !important;
-      &:hover { background: rgba(251, 191, 36, 0.1) !important; }
-    }
+    .price-breakdown { .sale-price { color: #f1f5f9 !important; } .base-price { color: #94a3b8 !important; } }
+    .gst-badge { background: rgba(13, 148, 136, 0.1) !important; color: #4fd1c5 !important; border-color: rgba(13, 148, 136, 0.2) !important; }
   }
 }

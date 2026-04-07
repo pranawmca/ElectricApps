@@ -1,7 +1,7 @@
 <div class="container-fluid" [class.disabled-content]="isDashboardLoading">
   
   <div class="header-actions">
-    <h1 class="page-title m-0">All Sub Categories</h1>
+    <h1 class="page-title m-0">Categories & Subcategories</h1>
     <div class="d-flex gap-2">
       <ng-container *appPermission="'BULK_DELETE'">
         <button *ngIf="canDelete && selectedRows.length > 0" mat-raised-button color="warn" class="delete-action-btn" (click)="confirmBulkDelete()" [disabled]="loading">
@@ -20,11 +20,95 @@
 
   <div class="list-container">
     <div class="grid-wrapper">
-      <app-server-datagrid gridKey="subcategory-grid" [columns]="columns" [data]="data" [totalCount]="totalCount"
-        [loading]="loading && !isDashboardLoading" (loadData)="loadSubCategories($event)"
-        (selectionChange)="onSelectionChange($event)" (editAction)="onEdit($event)"
+      <app-server-datagrid gridKey="subcategory-grid" 
+        [columns]="columns" 
+        [data]="data" 
+        [totalCount]="totalCount"
+        [loading]="loading && !isDashboardLoading" 
+        [expandable]="true"
+        [expandedTemplate]="subcategoryTemplate"
+        (loadData)="loadSubCategories($event)"
+        (selectionChange)="onSelectionChange($event)" 
+        (editAction)="onEdit($event)"
         (delete)="deleteCategory($event[0])">
       </app-server-datagrid>
     </div>
+
+    <ng-template #subcategoryTemplate let-category>
+      <div class="nested-content-container p-4" (mouseenter)="loadNestedSubcategories(category)">
+        <div class="nested-header d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="category-badge">
+              <mat-icon>category</mat-icon>
+            </div>
+            <div>
+              <h4 class="mb-0 fw-bold title-text">
+                Subcategories under {{ category.categoryName }}
+              </h4>
+              <p class="mb-0 text-muted small">Manage all items belonging to this category</p>
+            </div>
+          </div>
+          
+          <button mat-flat-button class="mini-add-btn" 
+                  [routerLink]="['/app/master/subcategories/add']" 
+                  [queryParams]="{categoryId: category.id}">
+            <mat-icon>add</mat-icon>
+            Add Subcategory
+          </button>
+        </div>
+        
+        <div *ngIf="nestedLoading[category.id]" class="p-5 text-center">
+            <mat-spinner diameter="30" class="mx-auto mb-3"></mat-spinner>
+            <p class="text-muted small">Syncing subcategories...</p>
+        </div>
+
+        <div class="table-card" *ngIf="!nestedLoading[category.id] && nestedData[category.id]?.length">
+          <table class="nested-table">
+            <thead>
+              <tr>
+                <th style="width: 40%">Subcategory Detail</th>
+                <th style="width: 20%">Code</th>
+                <th style="width: 15%">GST Rate</th>
+                <th style="width: 15%">Status</th>
+                <th style="width: 10%; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of nestedData[category.id]" class="nested-item-row">
+                <td>
+                  <div class="d-flex flex-column">
+                    <span class="fw-bold sub-name">{{ s.subcategoryName }}</span>
+                    <span class="text-muted x-small text-truncate" style="max-width: 300px;">{{ s.description || 'No description available' }}</span>
+                  </div>
+                </td>
+                <td><code class="code-tag">{{ s.subcategoryCode }}</code></td>
+                <td><span class="gst-badge">{{ s.defaultGst }}% GST</span></td>
+                <td>
+                  <span class="status-indicator" [ngClass]="s.isActive ? 'active' : 'inactive'">
+                    {{ s.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="mini-actions">
+                    <button mat-icon-button (click)="onEdit(s)" matTooltip="Edit Subcategory">
+                      <mat-icon>edit_note</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteCategory(s)" matTooltip="Delete Subcategory">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="!nestedLoading[category.id] && !nestedData[category.id]?.length" class="empty-nested-state p-5 text-center">
+            <mat-icon class="empty-icon">inventory_2</mat-icon>
+            <p class="mt-2 text-muted fw-bold">No subcategories found</p>
+            <p class="small text-muted">Click the add button above to create the first subcategory.</p>
+        </div>
+      </div>
+    </ng-template>
   </div>
 </div>

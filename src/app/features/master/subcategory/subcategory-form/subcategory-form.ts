@@ -42,6 +42,7 @@ export class SubcategoryForm implements OnInit, OnDestroy {
     this.detectMode();
     this.initForm();
     this.loadCategories();
+    this.checkQueryParams();
   }
 
   ngOnDestroy(): void {
@@ -98,6 +99,13 @@ export class SubcategoryForm implements OnInit, OnDestroy {
 
   displayCategoryFn(category: any): string {
     return category ? `[${category.categoryCode}] - ${category.categoryName}` : '';
+  }
+
+  private checkQueryParams(): void {
+    const categoryId = this.route.snapshot.queryParamMap.get('categoryId');
+    if (categoryId && !this.isEditMode) {
+      this.subcategoryForm.get('categoryId')?.setValue(categoryId);
+    }
   }
 
   onCategorySelected(event: any): void {

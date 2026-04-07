@@ -70,6 +70,7 @@ export class ProductForm implements OnInit, OnDestroy {
     this.createForm();
     this.setupAutocomplete();
     this.loadInitialLookups();
+    this.checkQueryParams();
 
     if (this.data) {
       this.isDialog = true;
@@ -499,7 +500,7 @@ export class ProductForm implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  onCategoryChange(categoryId: number): void {
+  onCategoryChange(categoryId: number, subIdToSet: string | null = null): void {
     // Purana selection aur list clear karo
     this.subcategories = [];
     this.productsForm.get('subcategoryId')?.setValue(null);
@@ -517,13 +518,32 @@ export class ProductForm implements OnInit, OnDestroy {
       .subscribe({
         next: (data: any) => {
           this.subcategories = data;
-          // Trigger subcategory autocomplete reset to current list
-          this.productsForm.get('subcategorySearch')?.setValue('');
+
+          // If we had a subId to pre-fill (from query params)
+          if (subIdToSet) {
+            this.productsForm.get('subcategoryId')?.setValue(subIdToSet);
+          }
+
+          // Sync Autocomplete text for Category and Subcategory
+          this.syncAutocomplete(categoryId, subIdToSet || this.productsForm.get('subcategoryId')?.value);
+
+          this.productsForm.get('subcategorySearch')?.setValue(this.productsForm.get('subcategorySearch')?.value);
         },
         error: err => {
           console.error('Failed to load subcategories', err);
         }
       });
+  }
+
+  private checkQueryParams() {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const catId = params['categoryId'];
+      const subId = params['subcategoryId'];
+      if (catId) {
+        this.productsForm.get('categoryId')?.setValue(Number(catId));
+        this.onCategoryChange(Number(catId), subId);
+      }
+    });
   }
 
   onSave(): void {

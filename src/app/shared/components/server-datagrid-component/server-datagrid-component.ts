@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, OnDestroy, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, OnDestroy, inject, TemplateRef } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PageEvent } from '@angular/material/paginator';
 import { GridRequest } from '../../models/grid-request.model';
 import { GridColumn } from '../../../shared/models/grid-column.model';
@@ -24,8 +25,19 @@ import { PermissionService } from '../../../core/services/permission.service';
   imports: [CommonModule, MaterialModule, DragDropModule, PermissionDirective],
   templateUrl: './server-datagrid-component.html',
   styleUrl: './server-datagrid-component.scss',
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed, void', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      transition('expanded <=> void', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+    ]),
+  ],
 })
 export class ServerDatagridComponent<T> implements OnChanges, OnInit, OnDestroy {
+  @Input() expandable = false;
+  @Input() expandedTemplate?: TemplateRef<any>;
+  expandedRow: T | null = null;
   @Input() columns: GridColumn[] = [];
   @Input() data: T[] = [];
   @Input() totalCount = 0;
@@ -164,7 +176,18 @@ export class ServerDatagridComponent<T> implements OnChanges, OnInit, OnDestroy 
 
   clearSelection(): void { this.selection.clear(); this.emitSelection(); }
   get visibleColumns() { return this.columns.filter(c => c.visible); }
-  displayedColumnsWithActions(): string[] { return ['select', ...this.visibleColumns.map(c => c.field), 'actions']; }
+  displayedColumnsWithActions(): string[] {
+    const cols = ['select'];
+    if (this.expandable) cols.push('expand');
+    cols.push(...this.visibleColumns.map(c => c.field));
+    cols.push('actions');
+    return cols;
+  }
+
+  toggleExpand(row: T, event: MouseEvent): void {
+    event.stopPropagation();
+    this.expandedRow = this.expandedRow === row ? null : row;
+  }
   toggleRow(row: any): void { this.selection.has(row) ? this.selection.delete(row) : this.selection.add(row); this.emitSelection(); }
   toggleAll(event: any): void { event.checked ? this.data.forEach(row => this.selection.add(row)) : this.selection.clear(); this.emitSelection(); }
   emitSelection(): void { this.selectionChange.emit(Array.from(this.selection)); }

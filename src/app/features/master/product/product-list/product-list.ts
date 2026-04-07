@@ -12,15 +12,18 @@ import { GridRequest } from '../../../../shared/models/grid-request.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { LoadingService } from '../../../../core/services/loading.service';
+import { LocationTrackerDialogComponent } from '../../../inventory/purchase-return/location-tracker-dialog/location-tracker-dialog.component';
 import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
 import { PermissionService } from '../../../../core/services/permission.service';
 import { PermissionDirective } from '../../../../core/directives/permission.directive';
+import { SubCategoryService } from '../../subcategory/services/subcategory.service';
+import { SubCategory } from '../../subcategory/modesls/subcategory.model';
 
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MaterialModule, ServerDatagridComponent, SummaryStatsComponent, PermissionDirective],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MaterialModule, ServerDatagridComponent, SummaryStatsComponent, PermissionDirective, LocationTrackerDialogComponent],
 
   providers: [DatePipe],
   templateUrl: './product-list.html',
@@ -50,40 +53,24 @@ export class ProductList implements OnInit {
 
   constructor(
     private service: ProductService,
+    private subCategoryService: SubCategoryService, // Added
     private router: Router,
     private dialog: MatDialog,
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef) { }
 
+  nestedData: { [key: string]: Product[] } = {};
+  nestedLoading: { [key: string]: boolean } = {};
+
   columns = [
-    { field: 'categoryName', header: 'Category', sortable: true, width: 150, visible: true },
-    { field: 'subcategoryName', header: 'Subcategory', sortable: true, width: 140, visible: true },
-    { field: 'productName', header: 'Product', sortable: true, width: 150, visible: true },
-    { field: 'sku', header: 'SKU', sortable: true, width: 75, visible: true },
-    { field: 'unit', header: 'Unit', sortable: true, width: 75, visible: true },
-
-    // UPDATED: Quick Order Column Add kiya hai
+    { field: 'categoryName', header: 'Category', sortable: true, width: 250, visible: true },
+    { field: 'subcategoryName', header: 'Subcategory Name', sortable: true, width: 300, visible: true },
+    { field: 'subcategoryCode', header: 'Subcategory Code', sortable: true, width: 150, visible: true },
     {
-      field: 'reorder',
-      header: 'Order',
-      width: 100,
-      visible: true,
-      cell: (row: any) => row.currentStock <= row.minStock ? '🛒 Reorder' : '-',
-      action: (row: any) => this.navigateToCreatePO(row)
-    },
-
-    { field: 'defaultGst', header: 'GST %', sortable: true, width: 75, visible: true },
-    { field: 'hsnCode', header: 'HSN Code', sortable: true, width: 80, visible: true },
-    { field: 'minStock', header: 'Min Stock', sortable: true, width: 80, visible: true },
-    { field: 'currentStock', header: 'Current Stock', sortable: true, width: 80, visible: true },
-    { field: 'trackInventory', sortable: true, width: 75, visible: true, header: 'Track Inv', cell: (row: any) => row.trackInventory ? 'Yes' : 'No' },
-    { field: 'isExpiryRequired', sortable: true, width: 75, visible: true, header: 'Expiry', cell: (row: any) => row.isExpiryRequired ? 'Yes' : 'No' },
-    {
-      field: 'createdAt',
-      header: 'Created On',
-      sortable: true, width: 120, visible: true,
-      cell: (row: any) =>
-        row.createdAt ? this.datePipe.transform(row.createdAt, 'dd-MMM-yyyy') : '-'
+      field: 'isActive',
+      header: 'Status',
+      sortable: true, width: 100, visible: true,
+      cell: (row: any) => row.isActive ? 'Active' : 'Inactive'
     }
   ];
 
@@ -124,34 +111,18 @@ export class ProductList implements OnInit {
     this.lastRequest = request;
     this.cdr.detectChanges();
 
-    const apiCall: any = this.isLowStockFilterActive
-      ? this.service.getLowStockProducts()
-      : this.service.getPaged(request);
+    this.subCategoryService.getPaged(request).subscribe({
+      next: res => {
+        this.data = res.items as any; // Subcategories
+        this.totalCount = res.totalCount;
 
-    apiCall.subscribe({
-      next: (res: any) => {
-        this.data = this.isLowStockFilterActive ? (res as any) : res.items;
-        this.totalCount = this.isLowStockFilterActive ? this.data.length : res.totalCount;
-
-        // Calculate Low Stock Count
-        const lowStockCount = this.data.filter(p => p.currentStock <= p.minStock).length;
-
-        // Update Summary Stats
         this.summaryStats = [
-          { label: 'Total Products', value: this.totalCount, icon: 'inventory_2', type: 'total' },
-          {
-            label: 'Low Stock',
-            value: lowStockCount,
-            icon: 'warning',
-            type: lowStockCount > 0 ? 'overdue' : 'active',
-            badge: lowStockCount > 0 ? 'Action Required' : 'Healthy'
-          },
-          { label: 'Organization', value: 'Master Data', icon: 'account_tree', type: 'info' }
+          { label: 'Subcategories', value: this.totalCount, icon: 'category', type: 'total' },
+          { label: 'Hierarchy View', value: 'Enabled', icon: 'account_tree', type: 'info' },
+          { label: 'Products', value: 'Categorized', icon: 'inventory_2', type: 'info' }
         ];
 
         this.loading = false;
-
-        // Turn off global loader on first load
         if (this.isFirstLoad) {
           this.isFirstLoad = false;
           this.isDashboardLoading = false;
@@ -159,16 +130,38 @@ export class ProductList implements OnInit {
         }
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
-        console.error(err);
+      error: err => {
         this.loading = false;
-
-        // Turn off global loader on first load
         if (this.isFirstLoad) {
           this.isFirstLoad = false;
           this.isDashboardLoading = false;
           this.loadingService.setLoading(false);
         }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadNestedProducts(subcategory: any): void {
+    if (this.nestedData[subcategory.id]) return;
+
+    this.nestedLoading[subcategory.id] = true;
+    const request: GridRequest = {
+      pageNumber: 1,
+      pageSize: 100, // Load all products for the subcategory
+      filters: {
+        'subcategoryid': subcategory.id 
+      }
+    };
+
+    this.service.getPaged(request).subscribe({
+      next: (res) => {
+        this.nestedData[subcategory.id] = res.items;
+        this.nestedLoading[subcategory.id] = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.nestedLoading[subcategory.id] = false;
         this.cdr.detectChanges();
       }
     });

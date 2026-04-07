@@ -20,7 +20,7 @@
   </div>
 
   <div class="table-wrapper">
-    <table mat-table [dataSource]="data" class="server-datagrid" cdkDropList cdkDropListOrientation="horizontal"
+    <table mat-table [dataSource]="data" multiTemplateDataRows class="server-datagrid" cdkDropList cdkDropListOrientation="horizontal"
       (cdkDropListDropped)="dropColumn($event)">
 
       <ng-container matColumnDef="select">
@@ -34,6 +34,17 @@
         </th>
         <td mat-cell *matCellDef="let row" class="sticky-left select-col">
           <mat-checkbox [checked]="selection.has(row)" (change)="toggleRow(row)"></mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef class="expand-col">
+          <div class="header-container-inner"><div class="filter-row placeholder"></div></div>
+        </th>
+        <td mat-cell *matCellDef="let row" class="expand-col">
+          <button mat-icon-button (click)="toggleExpand(row, $event)">
+            <mat-icon>{{expandedRow === row ? 'expand_less' : 'expand_more'}}</mat-icon>
+          </button>
         </td>
       </ng-container>
 
@@ -105,9 +116,29 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumnsWithActions(); sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumnsWithActions()" class="clickable-row"
-        [class.selected-row]="selection.has(row)">
+      
+      <!-- Main Row -->
+      <tr mat-row *matRowDef="let row; columns: displayedColumnsWithActions()" class="clickable-row product-row"
+        [class.selected-row]="selection.has(row)"
+        [class.expanded-row]="expandedRow === row">
       </tr>
+
+      <!-- Expanded Detail Row -->
+      <ng-container *ngIf="expandable">
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumnsWithActions().length">
+          <div class="row-detail-content"
+               [@detailExpand]="row === expandedRow ? 'expanded' : 'collapsed'">
+            <ng-container *ngIf="expandedTemplate" 
+                          [ngTemplateOutlet]="expandedTemplate" 
+                          [ngTemplateOutletContext]="{ $implicit: row }">
+            </ng-container>
+          </div>
+        </td>
+      </ng-container>
     </table>
   </div>
 

@@ -57,6 +57,10 @@ export class SubCategoryService {
         }
         return this.api.get<{ exists: boolean, message: string }>(url);
     }
+
+    getByCategoryId(categoryId: string): Observable<SubCategory[]> {
+        return this.api.get<SubCategory[]>(`subcategories/by-category/${categoryId}`);
+    }
 }
 
 

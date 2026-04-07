@@ -140,3 +140,222 @@
     }
   }
 }
+/* 🌳 PREMIUM HIERARCHICAL STYLING */
+.nested-content-container {
+  background: linear-gradient(to bottom, #f8fafc, #ffffff);
+  border-bottom: 1px solid #e2e8f0;
+  animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  .title-text {
+    color: #1e293b;
+    font-size: 1rem;
+    letter-spacing: -0.2px;
+  }
+}
+
+.category-badge {
+  width: 42px;
+  height: 42px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6366f1;
+  border: 1px solid #e2e8f0;
+  
+  mat-icon { font-size: 22px; width: 22px; height: 22px; }
+}
+
+.mini-add-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  border-radius: 25px !important; /* Pill shape matches header */
+  border: none !important;
+  height: 34px !important;
+  padding: 0 16px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4) !important;
+    filter: brightness(1.1);
+  }
+}
+
+.table-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-top: 16px; /* 👈 Space added between button and table */
+}
+
+.nested-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .nested-item-row:hover {
+    background-color: #fcfdfe;
+  }
+
+  .sub-name { color: #334155; font-size: 13.5px; }
+  .x-small { font-size: 11px; color: #94a3b8; }
+  
+  .code-tag {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .gst-badge {
+    background: #e0f2f1;
+    color: #00796b;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
+.status-indicator {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  &.active {
+    background: #f0fdf4;
+    color: #166534;
+    &::before { background: #22c55e; }
+  }
+
+  &.inactive {
+    background: #fef2f2;
+    color: #991b1b;
+    &::before { background: #ef4444; }
+  }
+}
+
+.mini-actions {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+
+  button { 
+    width: 32px; 
+    height: 32px; 
+    line-height: 32px;
+    
+    mat-icon { font-size: 18px; color: #64748b; }
+    &:hover mat-icon { color: #4361ee; }
+    &[color="warn"]:hover mat-icon { color: #ef4444; }
+  }
+}
+
+.empty-nested-state {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+  
+  .empty-icon { font-size: 40px; width: 40px; height: 40px; color: #cbd5e1; }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🌙 DARK MODE ENHANCEMENTS */
+:host-context(.dark-mode) {
+  .nested-content-container {
+    background: linear-gradient(to bottom, #0f172a, #020617) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+    
+    .title-text { color: #f8fafc !important; }
+  }
+
+  .category-badge {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #60a5fa !important;
+  }
+
+  .mini-add-btn {
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+    &:hover { filter: brightness(1.2) !important; color: white !important; }
+  }
+
+  .table-card {
+    background: #0f172a !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .nested-table {
+    th { background: rgba(255, 255, 255, 0.05) !important; color: #94a3b8 !important; border-bottom-color: rgba(255,255,255,0.1) !important; }
+    td { border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
+    .nested-item-row:hover { background-color: rgba(255, 255, 255, 0.02) !important; }
+    .sub-name { color: #f1f5f9 !important; }
+    .code-tag { background: #1e293b !important; color: #cbd5e1 !important; }
+    .gst-badge { background: rgba(0, 121, 107, 0.2) !important; color: #4db6ac !important; }
+  }
+
+  .status-indicator {
+    &.active { background: rgba(34, 197, 94, 0.1) !important; color: #4ade80 !important; }
+    &.inactive { background: rgba(239, 68, 68, 0.1) !important; color: #f87171 !important; }
+  }
+
+  .empty-nested-state {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}

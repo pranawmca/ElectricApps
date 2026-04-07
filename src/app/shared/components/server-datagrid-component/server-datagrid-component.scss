@@ -140,7 +140,7 @@
     height: auto !important; // Header filters ke hisaab se adjust hoga
   }
 
-  tr.mat-mdc-row {
+  tr.mat-mdc-row:not(.detail-row) {
     height: 38px !important; // 38px-40px is perfect for Enterprise look
 
     // Hover effect for both normal and sticky cells
@@ -190,7 +190,43 @@
   }
 }
 
-/* 5. Header Content (Compact Filters) */
+/* ✅ EXPANDABLE ROW STYLES */
+.expand-col {
+  width: 48px;
+  text-align: center !important;
+  padding: 0 !important;
+
+  button {
+    color: #64748b;
+    transition: transform 0.2s;
+  }
+}
+
+.detail-row {
+  background: #fcfdfe;
+}
+
+.row-detail-content {
+  overflow: hidden;
+  display: flex;
+  padding: 0;
+  border-left: 4px solid #00796b;
+  background: #fff;
+}
+
+.expanded-row {
+  background-color: #f0f7f6 !important;
+  font-weight: 500;
+  
+  td {
+    border-bottom-width: 0 !important;
+    background-color: inherit !important;
+  }
+
+  .expand-col button {
+    color: #00796b !important;
+  }
+}
 .header-container-inner {
   padding: 8px 0 !important;
 
@@ -834,6 +870,25 @@ th.mat-mdc-header-cell.select-col {
 
     .grid-loader {
       background: rgba(15, 23, 42, 0.8) !important;
+    }
+    /* Expandable Row Dark Mode */
+    .detail-row {
+      background: #020617 !important;
+    }
+    
+    .row-detail-content {
+      background: #0f172a !important;
+      border-left-color: #60a5fa !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .expanded-row {
+      background-color: rgba(96, 165, 250, 0.1) !important;
+      color: #ffffff !important;
+      
+      .expand-col button {
+        color: #60a5fa !important;
+      }
     }
   }
 }
