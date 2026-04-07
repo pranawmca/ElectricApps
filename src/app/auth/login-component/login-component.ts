@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { finalize } from 'rxjs';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -18,7 +18,7 @@ import { CompanyService } from '../../features/company/services/company.service'
   templateUrl: './login-component.html',
   styleUrl: './login-component.scss',
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
   loginForm: FormGroup;
   forgotPasswordMode = false;
   resetPasswordMode = false;
@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
   }
 
   private dialog = inject(MatDialog);
-  private cdr = inject(ChangeDetectorRef);
+  public cdr = inject(ChangeDetectorRef);
   private permissionService = inject(PermissionService);
   private companyService = inject(CompanyService);
   private titleService = inject(Title);
@@ -95,29 +95,6 @@ export class LoginComponent implements OnInit {
     // Dynamic Tab Title Fallback
     this.titleService.setTitle(this.welcomeMessage + ' - Login');
 
-    // Handle browser autofill which might not trigger standard input events
-    const autofillCheckInterval = setInterval(() => {
-      let changed = false;
-      const emailEl = this.emailInputField?.nativeElement;
-      const pwdEl = this.passwordInputField?.nativeElement;
-
-      if (emailEl && emailEl.value && this.loginForm.get('Email')?.value !== emailEl.value) {
-        this.loginForm.get('Email')?.patchValue(emailEl.value);
-        changed = true;
-      }
-      if (pwdEl && pwdEl.value && this.loginForm.get('Password')?.value !== pwdEl.value) {
-        this.loginForm.get('Password')?.patchValue(pwdEl.value);
-        changed = true;
-      }
-
-      if (changed || this.loginForm.valid) {
-        this.cdr.detectChanges();
-      }
-    }, 500);
-
-    // Stop checking after 6 seconds to save resources
-    setTimeout(() => clearInterval(autofillCheckInterval), 6000);
-
     // Fetch Company Profile for Dynamic Title
     this.companyService.getCompanyProfile().subscribe({
       next: (profile) => {
@@ -130,6 +107,52 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => console.warn('Failed to load company profile for login title', err)
     });
+  }
+
+  ngAfterViewInit() {
+    // Handle browser autofill which might not trigger standard input events
+    // Start checking frequently, then slow down
+    let checkCount = 0;
+    const autofillCheckInterval = setInterval(() => {
+      checkCount++;
+      let changed = false;
+      const emailEl = this.emailInputField?.nativeElement;
+      const pwdEl = this.passwordInputField?.nativeElement;
+
+      if (emailEl && emailEl.value && this.loginForm.get('Email')?.value !== emailEl.value) {
+        this.loginForm.get('Email')?.setValue(emailEl.value, { emitEvent: true });
+        changed = true;
+      }
+      if (pwdEl && pwdEl.value && this.loginForm.get('Password')?.value !== pwdEl.value) {
+        this.loginForm.get('Password')?.setValue(pwdEl.value, { emitEvent: true });
+        changed = true;
+      }
+
+      if (changed) {
+        this.loginForm.markAsDirty();
+        this.loginForm.updateValueAndValidity();
+        this.cdr.detectChanges();
+      } else if (this.loginForm.valid) {
+        // Even if no change detected, if form is valid, ensure UI reflects it
+        this.cdr.detectChanges();
+      }
+
+      // Stop after 20 checks (~10 seconds)
+      if (checkCount > 20) {
+        clearInterval(autofillCheckInterval);
+      }
+    }, 500);
+
+    // Also run a one-time check after a second to catch late autofills
+    setTimeout(() => {
+       const emailEl = this.emailInputField?.nativeElement;
+       const pwdEl = this.passwordInputField?.nativeElement;
+       if (emailEl?.value || pwdEl?.value) {
+         if (emailEl?.value) this.loginForm.get('Email')?.setValue(emailEl.value);
+         if (pwdEl?.value) this.loginForm.get('Password')?.setValue(pwdEl.value);
+         this.cdr.detectChanges();
+       }
+    }, 1000);
   }
 
   toggleChangePasswordMode() {

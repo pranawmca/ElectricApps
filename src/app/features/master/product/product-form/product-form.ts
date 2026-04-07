@@ -59,7 +59,7 @@ export class ProductForm implements OnInit, OnDestroy {
   isSearchingSubcategories = false;
   isSearchingUnits = false;
 
-  previewImage: string | ArrayBuffer | null = null;
+  previewImage: string | ArrayBuffer | null = '/assets/images/placeholder-product.png';
   
   // Pricing Summaries (Auto-Calculated)
   landingCost = 0;
@@ -244,7 +244,7 @@ export class ProductForm implements OnInit, OnDestroy {
                 imageUrl: res.imageUrl
               });
 
-              this.previewImage = res.imageUrl || null;
+              this.previewImage = res.imageUrl || '/assets/images/placeholder-product.png';
 
               if (res.defaultWarehouseId) {
                 this.onWarehouseChange(res.defaultWarehouseId, false);
@@ -304,42 +304,17 @@ export class ProductForm implements OnInit, OnDestroy {
 
   downloadTemplate() {
     const data = [
-      ["Category", "Subcategory", "ProductName", "SKU", "Brand", "Unit", "BasePrice", "MRP", "SaleRate", "GST%", "HSNCode", "MinStock", "DamagedStock", "ProductType", "TrackInventory", "Active", "Description"],
-      // --- Electrical Products ---
-      ["Smart Electrical", "Fans", "Ceiling Fan 48 Inch", "ELEC001", "Havells", "PIECE", 1800, 2500, 2200, 18, "8414", 10, 0, "finished", "TRUE", "TRUE", "High speed decorative fan"],
-      ["Smart Electrical", "Lights", "LED Bulb 9W", "ELEC002", "Philips", "PIECE", 60, 120, 100, 12, "8539", 50, 0, "finished", "TRUE", "TRUE", "Cool day light LED"],
-      ["Smart Electrical", "Switches", "Modular Switch 6A", "ELEC003", "Anchor", "PIECE", 25, 45, 35, 18, "8536", 100, 0, "finished", "TRUE", "TRUE", "Smooth modular switch"],
-      ["Smart Electrical", "Wires", "Copper Wire 1.5 SQMM", "ELEC004", "Polycab", "ROLL", 900, 1300, 1150, 18, "8544", 20, 0, "finished", "TRUE", "TRUE", "FR PVC insulated wire"],
-      ["Smart Electrical", "Appliances", "Electric Kettle 1.5L", "ELEC005", "Prestige", "PIECE", 750, 1200, 1050, 18, "8516", 5, 0, "finished", "TRUE", "TRUE", "Stainless steel kettle"],
-      ["Smart Electrical", "Protection", "MCB Single Pole 16A", "ELEC006", "Schneider", "PIECE", 150, 250, 220, 18, "8536", 15, 0, "finished", "TRUE", "TRUE", "C-Curve circuit breaker"],
-      ["Smart Electrical", "Cables", "Coaxial Cable 90M", "ELEC007", "Finolex", "ROLL", 1100, 1600, 1400, 18, "8544", 10, 0, "finished", "TRUE", "TRUE", "TV signal cable"],
-      ["Smart Electrical", "Tools", "Digital Multimeter", "ELEC008", "Mastech", "PIECE", 450, 800, 700, 18, "9030", 5, 0, "finished", "TRUE", "TRUE", "Auto-ranging multimeter"],
-      ["Smart Electrical", "Batteries", "Inverter Battery 150Ah", "ELEC009", "Luminous", "PIECE", 12000, 16000, 14500, 28, "8507", 3, 0, "finished", "TRUE", "TRUE", "Tall tubular battery"],
-      ["Smart Electrical", "Accessories", "Extension Board 4-Way", "ELEC010", "Goldmedal", "PIECE", 280, 450, 400, 18, "8536", 20, 0, "finished", "TRUE", "TRUE", "Surge protected strip"],
-
-      // --- Grocery Products ---
-      ["Grains & Pulses", "Rice", "Premium Basmati Rice", "GROC001", "Fortune", "KG", 80, 120, 110, 5, "1006", 50, 0, "finished", "TRUE", "TRUE", "Long grain aromatic rice"],
-      ["Grains & Pulses", "Flour", "Chakki Fresh Atta", "GROC002", "Aashirvaad", "KG", 35, 55, 50, 5, "1101", 100, 0, "finished", "TRUE", "TRUE", "Whole wheat flour"],
-      ["Grains & Pulses", "Pulses", "Toor Dal", "GROC003", "Tata Sampann", "KG", 130, 170, 160, 5, "0713", 60, 0, "finished", "TRUE", "TRUE", "Unpolished toor dal"],
-      ["Edible Oils", "Mustard Oil", "Kachi Ghani Mustard Oil", "GROC004", "Engine", "LITER", 140, 190, 180, 5, "1514", 20, 0, "finished", "TRUE", "TRUE", "Pure mustard oil"],
-      ["Edible Oils", "Refined Oil", "Refined Sunflower Oil", "GROC005", "Saffola", "LITER", 110, 150, 140, 5, "1512", 25, 0, "finished", "TRUE", "TRUE", "Healthy cooking oil"],
-      ["Spices", "Powder Spices", "Turmeric Powder", "GROC006", "MDH", "PACKET", 20, 30, 28, 5, "0910", 40, 0, "finished", "TRUE", "TRUE", "Pure turmeric powder"],
-      ["Spices", "Powder Spices", "Red Chilli Powder", "GROC007", "Everest", "PACKET", 25, 40, 35, 5, "0904", 40, 0, "finished", "TRUE", "TRUE", "Spicy red chilli powder"],
-      ["Beverages", "Tea", "Masala Tea", "GROC008", "Tata Tea", "PACKET", 120, 180, 170, 5, "0902", 15, 0, "finished", "TRUE", "TRUE", "Aromatic tea with spices"],
-      ["Beverages", "Coffee", "Instant Coffee", "GROC009", "Nescafe", "JAR", 150, 220, 210, 18, "2101", 10, 0, "finished", "TRUE", "TRUE", "Rich instant coffee"],
-      ["Snacks", "Biscuits", "Marie Gold", "GROC010", "Britannia", "PACKET", 15, 25, 22, 12, "1905", 50, 0, "finished", "TRUE", "TRUE", "Classic tea biscuits"],
-      ["Snacks", "Namkeen", "Aloo Bhujia", "GROC011", "Haldiram", "PACKET", 40, 60, 55, 12, "2106", 30, 0, "finished", "TRUE", "TRUE", "Savory potato snack"],
-      ["Dairy", "Ghee", "Desi Ghee", "GROC012", "Amul", "LITER", 550, 650, 620, 12, "0405", 5, 0, "finished", "TRUE", "TRUE", "Pure cow ghee"],
-      ["Dairy", "Paneer", "Fresh Paneer", "GROC013", "Mother Dairy", "PACKET", 70, 90, 85, 5, "0406", 12, 0, "finished", "TRUE", "TRUE", "Soft melting paneer"],
-      ["Cleaning", "Detergent", "Detergent Powder", "GROC014", "Surf Excel", "KG", 120, 160, 150, 18, "3402", 20, 0, "finished", "TRUE", "TRUE", "Tough stain removal powder"],
-      ["Cleaning", "Dishwash", "Dishwash Bar", "GROC015", "Vim", "PIECE", 10, 20, 18, 18, "3402", 100, 0, "finished", "TRUE", "TRUE", "Grease cutting dishwash bar"],
-      ["Personal Care", "Soap", "Bathing Soap", "GROC016", "Dove", "PIECE", 40, 55, 52, 18, "3401", 40, 0, "finished", "TRUE", "TRUE", "Moisturizing bathing bar"],
-      ["Personal Care", "Shampoo", "Anti-Dandruff Shampoo", "GROC017", "Head & Shoulders", "BOTTLE", 180, 250, 230, 18, "3305", 15, 0, "finished", "TRUE", "TRUE", "Dandruff protection shampoo"],
-      ["Noodles & Pasta", "Noodles", "Instant Noodles 2-Min", "GROC018", "Maggi", "PACKET", 10, 14, 12, 12, "1902", 144, 0, "finished", "TRUE", "TRUE", "Quick instant noodles"],
-      ["Sauces & Spreads", "Ketchup", "Tomato Ketchup", "GROC019", "Kissan", "BOTTLE", 110, 150, 140, 12, "2103", 10, 0, "finished", "TRUE", "TRUE", "Fresh tomato ketchup"],
-      ["Sauces & Spreads", "Jam", "Mixed Fruit Jam", "GROC020", "Kissan", "JAR", 130, 180, 170, 12, "2007", 8, 0, "finished", "TRUE", "TRUE", "Delicious mixed fruit jam"],
-      ["Groceries", "Sugar", "Refined Sugar", "GROC021", "Madhur", "KG", 38, 48, 45, 5, "1701", 50, 0, "finished", "TRUE", "TRUE", "Clean refined sugar"],
-      ["Groceries", "Salt", "Iodized Salt", "GROC022", "Tata Salt", "PACKET", 18, 28, 25, 0, "2501", 40, 0, "finished", "TRUE", "TRUE", "Desh ka namak"]
+      ["Category", "Subcategory", "ProductName", "SKU", "Brand", "Unit", "BasePrice", "MRP", "Discount", "SaleRate", "GST%", "HSNCode", "MinStock", "DamagedStock", "ProductType", "TrackInventory", "RequiresExpiry", "Active", "DefaultWarehouse", "DefaultRack", "Description"],
+      ["Smart Electrical", "Fans", "Ceiling Fan", "ELEC001", "Havells", "PIECE", 1800, 2500, 10, 2200, 18, "8414", 10, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "High speed decorative fan"],
+      ["Smart Electrical", "Lights", "LED Bulb 9W", "ELEC002", "Philips", "PIECE", 60, 120, 15, 100, 12, "8539", 50, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack R7", "Cool day light LED"],
+      ["Smart Electrical", "Switches", "Modular Switch", "ELEC003", "Anchor", "PIECE", 25, 45, 5, 35, 18, "8536", 100, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "Smooth modular switch"],
+      ["Smart Electrical", "Wires", "Copper Wire 2.5mm", "ELEC004", "Polycab", "ROLL", 900, 1300, 10, 1150, 18, "8544", 20, 0, "finished", "TRUE", "FALSE", "TRUE", "Cable & Wire Warehouse", "Rack C2", "FR PVC insulated wire"],
+      ["Smart Electrical", "Appliances", "Electric Kettle", "ELEC005", "Prestige", "PIECE", 750, 1200, 12, 1050, 18, "8516", 5, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack R10", "Stainless steel kettle"],
+      ["Smart Electrical", "Protection", "MCB Single Pole", "ELEC006", "Schneider", "PIECE", 150, 250, 10, 220, 18, "8536", 15, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "C-Curve circuit breaker"],
+      ["Smart Electrical", "Cables", "Coaxial Cable", "ELEC007", "Finolex", "ROLL", 1100, 1600, 10, 1400, 18, "8544", 10, 0, "finished", "TRUE", "FALSE", "TRUE", "Cable & Wire Warehouse", "Rack C2", "TV signal cable"],
+      ["Smart Electrical", "Tools", "Digital Multimeter", "ELEC008", "Mastech", "PIECE", 450, 800, 10, 700, 18, "8030", 5, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "Auto-ranging multimeter"],
+      ["Smart Electrical", "Batteries", "Inverter Battery", "ELEC009", "Luminous", "PIECE", 12000, 16000, 15, 14500, 28, "8507", 3, 0, "finished", "TRUE", "TRUE", "TRUE", "Main Warehouse", "Rack R2", "Tall tubular battery"],
+      ["Smart Electrical", "Fittings", "Wall Bracket", "ELEC010", "Murphy", "PIECE", 350, 600, 10, 520, 18, "9405", 20, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "Adjustable wall fitting"]
     ];
 
     const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);

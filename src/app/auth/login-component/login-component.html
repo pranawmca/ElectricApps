@@ -12,12 +12,12 @@
       <form [formGroup]="loginForm" (ngSubmit)="Login()" *ngIf="!changePasswordMode && !forgotPasswordMode && !resetPasswordMode">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Email</mat-label>
-          <input matInput formControlName="Email" type="email" name="email" autocomplete="email" #emailInputField>
+          <input matInput formControlName="Email" type="email" name="email" autocomplete="email" #emailInputField (input)="cdr.detectChanges()">
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Password</mat-label>
-          <input matInput type="password" formControlName="Password" name="password" autocomplete="current-password" #passwordInputField>
+          <input matInput type="password" formControlName="Password" name="password" autocomplete="current-password" #passwordInputField (input)="cdr.detectChanges()">
         </mat-form-field>
 
         <div class="form-options">

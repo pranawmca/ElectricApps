@@ -14,24 +14,41 @@ try {
   $sheet = $workbook.Worksheets.Item(1)
   
   # Headers
-  $headers = @("Category", "Subcategory", "ProductName", "SKU", "Brand", "Unit", "BasePrice", "MRP", "SaleRate", "GST%", "HSNCode", "MinStock", "DamagedStock", "ProductType", "TrackInventory", "Active", "Description")
-  
-  for ($i = 0; $i -lt $headers.Length; $i++) {
-    $sheet.Cells.Item(1, $i + 1) = $headers[$i]
-  }
+  # Headers (Assigned Individually to Ensure no column is skipped)
+  $sheet.Cells.Item(1, 1) = "Category"
+  $sheet.Cells.Item(1, 2) = "Subcategory"
+  $sheet.Cells.Item(1, 3) = "ProductName"
+  $sheet.Cells.Item(1, 4) = "SKU"
+  $sheet.Cells.Item(1, 5) = "Brand"
+  $sheet.Cells.Item(1, 6) = "Unit"
+  $sheet.Cells.Item(1, 7) = "BasePrice"
+  $sheet.Cells.Item(1, 8) = "MRP"
+  $sheet.Cells.Item(1, 9) = "Discount"
+  $sheet.Cells.Item(1, 10) = "SaleRate"
+  $sheet.Cells.Item(1, 11) = "GST%"
+  $sheet.Cells.Item(1, 12) = "HSNCode"
+  $sheet.Cells.Item(1, 13) = "MinStock"
+  $sheet.Cells.Item(1, 14) = "DamagedStock"
+  $sheet.Cells.Item(1, 15) = "ProductType"
+  $sheet.Cells.Item(1, 16) = "TrackInventory"
+  $sheet.Cells.Item(1, 17) = "RequiresExpiry"
+  $sheet.Cells.Item(1, 18) = "Active"
+  $sheet.Cells.Item(1, 19) = "DefaultWarehouse"
+  $sheet.Cells.Item(1, 20) = "DefaultRack"
+  $sheet.Cells.Item(1, 21) = "Description"
   
   # Data from Screenshot (10 Records)
   $data = @(
-    @("Smart Electrical", "Smart Switch", "WiFi Smart Switch 6A", "SS001", "Wipro", "Nos", 450, 699, 650, 18, "853650", 10, 0, "Finished", "TRUE", "TRUE", "App controlled smart switch"),
-    @("Smart Electrical", "Smart Switch", "WiFi Smart Switch 16A", "SS002", "Havells", "Nos", 650, 999, 920, 18, "853650", 8, 0, "Finished", "TRUE", "TRUE", "Heavy load smart switch"),
-    @("Smart Electrical", "Smart Switch", "Touch Smart Switch", "SS003", "Anchor", "Nos", 900, 1399, 1250, 18, "853650", 6, 0, "Finished", "TRUE", "TRUE", "Touch panel switch"),
-    @("Smart Electrical", "Smart Switch", "Voice Control Switch", "SS004", "Philips", "Nos", 1200, 1799, 1650, 18, "853650", 5, 0, "Finished", "TRUE", "TRUE", "Alexa enabled switch"),
-    @("Smart Electrical", "Smart Switch", "Remote Smart Switch", "SS005", "Syska", "Nos", 700, 1099, 980, 18, "853650", 7, 0, "Finished", "TRUE", "TRUE", "Remote controlled switch"),
-    @("Smart Electrical", "Smart Switch", "Glass Panel Smart Switch", "SS006", "GM", "Nos", 1500, 2199, 1990, 18, "853650", 4, 0, "Finished", "TRUE", "TRUE", "Premium glass panel"),
-    @("Smart Electrical", "Smart Switch", "2 Module Smart Switch", "SS007", "Legrand", "Nos", 850, 1299, 1150, 18, "853650", 6, 0, "Finished", "TRUE", "TRUE", "Dual module switch"),
-    @("Smart Electrical", "Smart Switch", "4 Module Smart Switch", "SS008", "Legrand", "Nos", 1100, 1699, 1550, 18, "853650", 5, 0, "Finished", "TRUE", "TRUE", "Four module switch"),
-    @("Smart Electrical", "Smart Switch", "Dimmer Smart Switch", "SS009", "Panasonic", "Nos", 980, 1499, 1350, 18, "853650", 6, 0, "Finished", "TRUE", "TRUE", "Smart dimmer switch"),
-    @("Smart Electrical", "Smart Switch", "Fan Control Smart Switch", "SS010", "Orient", "Nos", 1050, 1599, 1420, 18, "853650", 6, 0, "Finished", "TRUE", "TRUE", "Fan speed smart control")
+    @("Smart Electrical", "Fans", "Ceiling Fan", "ELEC001", "Havells", "PIECE", 1800, 2500, 10, 2200, 18, "8414", 10, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "High speed decorative fan"),
+    @("Smart Electrical", "Lights", "LED Bulb 9W", "ELEC002", "Philips", "PIECE", 60, 120, 15, 100, 12, "8539", 50, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack R7", "Cool day light LED"),
+    @("Smart Electrical", "Switches", "Modular Switch", "ELEC003", "Anchor", "PIECE", 25, 45, 5, 35, 18, "8536", 100, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "Smooth modular switch"),
+    @("Smart Electrical", "Wires", "Copper Wire 2.5mm", "ELEC004", "Polycab", "ROLL", 900, 1300, 10, 1150, 18, "8544", 20, 0, "finished", "TRUE", "FALSE", "TRUE", "Cable & Wire Warehouse", "Rack C2", "FR PVC insulated wire"),
+    @("Smart Electrical", "Appliances", "Electric Kettle", "ELEC005", "Prestige", "PIECE", 750, 1200, 12, 1050, 18, "8516", 5, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack R10", "Stainless steel kettle"),
+    @("Smart Electrical", "Protection", "MCB Single Pole", "ELEC006", "Schneider", "PIECE", 150, 250, 10, 220, 18, "8536", 15, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "C-Curve circuit breaker"),
+    @("Smart Electrical", "Cables", "Coaxial Cable", "ELEC007", "Finolex", "ROLL", 1100, 1600, 10, 1400, 18, "8544", 10, 0, "finished", "TRUE", "FALSE", "TRUE", "Cable & Wire Warehouse", "Rack C2", "TV signal cable"),
+    @("Smart Electrical", "Tools", "Digital Multimeter", "ELEC008", "Mastech", "PIECE", 450, 800, 10, 700, 18, "8030", 5, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "Auto-ranging multimeter"),
+    @("Smart Electrical", "Batteries", "Inverter Battery", "ELEC009", "Luminous", "PIECE", 12000, 16000, 15, 14500, 28, "8507", 3, 0, "finished", "TRUE", "TRUE", "TRUE", "Main Warehouse", "Rack R2", "Tall tubular battery"),
+    @("Smart Electrical", "Fittings", "Wall Bracket", "ELEC010", "Murphy", "PIECE", 350, 600, 10, 520, 18, "9405", 20, 0, "finished", "TRUE", "FALSE", "TRUE", "Main Warehouse", "Rack A3", "Adjustable wall fitting")
   )
 
   for ($i = 0; $i -lt $data.Length; $i++) {
@@ -41,7 +58,7 @@ try {
   }
 
   # Formatting
-  $headerRange = $sheet.Range("A1", "Q1")
+  $headerRange = $sheet.Range("A1", "U1")
   $headerRange.Font.Bold = $true
   $sheet.Columns.AutoFit()
 
