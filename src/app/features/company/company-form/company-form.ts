@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../shared/material/material/material-module';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { merge } from 'rxjs';
 
 import { CompanyService } from '../services/company.service';
 import { CompanyProfileDto, UpsertCompanyRequest } from '../model/company.model';
@@ -35,6 +36,7 @@ export class CompanyForm implements OnInit {
 
     ngOnInit(): void {
         this.createForm();
+        this.setupDisclaimerSync();
         this.route.paramMap.subscribe(params => {
             this.companyId = params.get('id');
             this.resetImageStates();
@@ -53,6 +55,38 @@ export class CompanyForm implements OnInit {
                     bankInfo: { id: 0, accountType: 'Current' }
                 });
                 this.signatories.clear();
+            }
+        });
+    }
+
+    private setupDisclaimerSync() {
+        // Sale Return Sync
+        merge(
+            this.companyForm.get('saleReturnWindowValue')!.valueChanges,
+            this.companyForm.get('saleReturnWindowUnit')!.valueChanges
+        ).subscribe(() => {
+            const val = this.companyForm.get('saleReturnWindowValue')?.value;
+            const unit = this.companyForm.get('saleReturnWindowUnit')?.value;
+            if (val && unit) {
+                this.companyForm.get('saleReturnPolicyDisclaimer')?.setValue(
+                    `As per company policy, items received more than ${val} ${unit.toLowerCase()} ago are blocked for return. Please ensure returns are processed within this window.`,
+                    { emitEvent: false }
+                );
+            }
+        });
+
+        // Purchase Return Sync
+        merge(
+            this.companyForm.get('purchaseReturnWindowValue')!.valueChanges,
+            this.companyForm.get('purchaseReturnWindowUnit')!.valueChanges
+        ).subscribe(() => {
+            const val = this.companyForm.get('purchaseReturnWindowValue')?.value;
+            const unit = this.companyForm.get('purchaseReturnWindowUnit')?.value;
+            if (val && unit) {
+                this.companyForm.get('purchaseReturnPolicyDisclaimer')?.setValue(
+                    `As per company policy, items received more than ${val} ${unit.toLowerCase()} ago are blocked for return. Please ensure returns are processed within this window.`,
+                    { emitEvent: false }
+                );
             }
         });
     }
