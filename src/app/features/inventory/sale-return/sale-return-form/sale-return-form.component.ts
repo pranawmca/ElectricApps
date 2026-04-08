@@ -70,6 +70,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
     isFromDashboard: boolean = false;
     returnWindowLabel: string = '72-Hour';
     returnWindowHours: number = 72;
+    returnPolicyDisclaimer: string = 'Items sold/received more than 3 days ago are blocked for return as per company policy.';
 
     warehouses: any[] = [];
     racks: any[] = [];
@@ -125,8 +126,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         this.companyService.getCompanyProfile().subscribe({
             next: (profile) => {
                 if (profile) {
-                    const value = profile.returnWindowValue || 72;
-                    const unit = profile.returnWindowUnit || 'Hours';
+                    const value = profile.saleReturnWindowValue || 72;
+                    const unit = profile.saleReturnWindowUnit || 'Hours';
                     
                     this.returnWindowHours = unit === 'Hours' ? value : 
                                              unit === 'Days' ? value * 24 : 
@@ -135,6 +136,10 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
                     this.returnWindowLabel = unit === 'Hours' ? `${value}-Hour` : 
                                              unit === 'Days' ? `${value}-Day` : 
                                              unit === 'Months' ? `${value}-Month` : `${value}-Hour`;
+                    
+                    if (profile.saleReturnPolicyDisclaimer) {
+                        this.returnPolicyDisclaimer = profile.saleReturnPolicyDisclaimer;
+                    }
                     this.cdr.detectChanges();
                 }
             }
@@ -755,9 +760,17 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
 
     formatRemainingTime(hours: number): string {
         if (hours <= 0) return 'Expired';
-        // Round to nearest hour for cleaner display as requested ("n hrs")
-        const h = Math.round(hours);
-        return `${h} hrs`;
+        
+        if (hours >= 24) {
+            const days = Math.floor(hours / 24);
+            const remainingHrs = Math.round(hours % 24);
+            return remainingHrs > 0 ? `${days}d ${remainingHrs}h` : `${days} Days`;
+        } else if (hours >= 1) {
+            return `${Math.round(hours)} Hours`;
+        } else {
+            const mins = Math.round(hours * 60);
+            return `${mins} Mins`;
+        }
     }
 
     goBack() {

@@ -43,8 +43,12 @@ export class CompanyForm implements OnInit {
             } else {
                 this.companyForm.reset({
                     isActive: true,
-                    returnWindowValue: 72,
-                    returnWindowUnit: 'Hours',
+                    saleReturnWindowValue: 72,
+                    saleReturnWindowUnit: 'Hours',
+                    saleReturnPolicyDisclaimer: '',
+                    purchaseReturnWindowValue: 72,
+                    purchaseReturnWindowUnit: 'Hours',
+                    purchaseReturnPolicyDisclaimer: '',
                     address: { id: 0, country: 'India' },
                     bankInfo: { id: 0, accountType: 'Current' }
                 });
@@ -81,8 +85,12 @@ export class CompanyForm implements OnInit {
             smtpPort: [587],
             smtpUseSsl: [true],
             isActive: [true],
-            returnWindowValue: [72, Validators.required],
-            returnWindowUnit: ['Hours', Validators.required],
+            saleReturnWindowValue: [72, Validators.required],
+            saleReturnWindowUnit: ['Hours', Validators.required],
+            saleReturnPolicyDisclaimer: [''],
+            purchaseReturnWindowValue: [72, Validators.required],
+            purchaseReturnWindowUnit: ['Hours', Validators.required],
+            purchaseReturnPolicyDisclaimer: [''],
 
             // Address Nested Group
             address: this.fb.group({
@@ -141,8 +149,12 @@ export class CompanyForm implements OnInit {
                 // Reset form to base state before patching
                 this.companyForm.reset({
                     isActive: true,
-                    returnWindowValue: 72,
-                    returnWindowUnit: 'Hours',
+                    saleReturnWindowValue: 72,
+                    saleReturnWindowUnit: 'Hours',
+                    saleReturnPolicyDisclaimer: '',
+                    purchaseReturnWindowValue: 72,
+                    purchaseReturnWindowUnit: 'Hours',
+                    purchaseReturnPolicyDisclaimer: '',
                     address: { id: 0, country: 'India' },
                     bankInfo: { id: 0, accountType: 'Current' }
                 });

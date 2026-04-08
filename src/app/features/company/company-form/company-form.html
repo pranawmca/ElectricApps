@@ -420,46 +420,102 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Section: Return Policy -->
+      <!-- Section: Return Policy Settings -->
       <mat-card class="section-card">
         <mat-card-header>
           <mat-icon mat-card-avatar color="warn">update</mat-icon>
           <mat-card-title>Return Policy Settings</mat-card-title>
-          <mat-card-subtitle>Configure the time window for Purchase and Sale returns</mat-card-subtitle>
+          <mat-card-subtitle>Configure the time window and disclaimers for Purchase and Sale returns</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content class="pt-4">
-          <div class="flex-row flex-wrap gap-4 flex-center">
-            <div class="flex-column gap-1">
-              <span class="text-sm font-semibold text-gray-600">Return Window Duration</span>
-              <div class="flex-row gap-2 flex-center">
-                <mat-form-field appearance="outline" class="min-w-100">
-                  <mat-label>Value</mat-label>
-                  <input matInput type="number" formControlName="returnWindowValue" min="0">
-                  <mat-icon matSuffix>timer</mat-icon>
-                </mat-form-field>
+          
+          <!-- Sale Return Policy Subcommittee -->
+          <div class="policy-subsection mb-6 p-4 rounded bg-slate-50 border border-slate-100">
+            <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-indigo-700">
+              <mat-icon class="icon-sm">shopping_bag</mat-icon>
+              Sale Return Policy (Customers)
+            </h3>
+            
+            <div class="flex-row flex-wrap gap-4 flex-center">
+              <div class="flex-column gap-1">
+                <span class="text-sm font-semibold text-gray-600">Sale Return Window</span>
+                <div class="flex-row gap-2 flex-center">
+                  <mat-form-field appearance="outline" class="min-w-100">
+                    <mat-label>Value</mat-label>
+                    <input matInput type="number" formControlName="saleReturnWindowValue" min="0">
+                    <mat-icon matSuffix>timer</mat-icon>
+                  </mat-form-field>
 
-                <mat-form-field appearance="outline" class="min-w-150">
-                  <mat-label>Unit</mat-label>
-                  <mat-select formControlName="returnWindowUnit">
-                    <mat-option value="Hours">Hours</mat-option>
-                    <mat-option value="Days">Days</mat-option>
-                    <mat-option value="Months">Months</mat-option>
-                  </mat-select>
-                  <mat-icon matSuffix>calendar_month</mat-icon>
-                </mat-form-field>
+                  <mat-form-field appearance="outline" class="min-w-150">
+                    <mat-label>Unit</mat-label>
+                    <mat-select formControlName="saleReturnWindowUnit">
+                      <mat-option value="Hours">Hours</mat-option>
+                      <mat-option value="Days">Days</mat-option>
+                      <mat-option value="Months">Months</mat-option>
+                    </mat-select>
+                    <mat-icon matSuffix>calendar_month</mat-icon>
+                  </mat-form-field>
+                </div>
               </div>
-              <mat-hint class="text-xs text-gray-500">
-                Return window will close automatically after this period from order date.
-              </mat-hint>
-            </div>
 
-            <div class="alert-info p-3 rounded bg-blue-50 border border-blue-100 flex-row gap-2 max-w-400">
-              <mat-icon color="primary">info</mat-icon>
-              <span class="text-xs text-blue-800">
-                <strong>Note:</strong> Windows higher than 72 hours might require manager approval for tax compliance in some regions.
-              </span>
+              <div class="flex-grow-1 min-w-300">
+                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Sale Return Disclaimer (displayed on Sale Return UI)</mat-label>
+                    <textarea matInput formControlName="saleReturnPolicyDisclaimer" rows="2" 
+                              placeholder="Ex: Sale items cannot be returned after [XX Hours] as per company terms."></textarea>
+                    <mat-icon matSuffix>policy</mat-icon>
+                 </mat-form-field>
+              </div>
             </div>
           </div>
+
+          <!-- Purchase Return Policy Subcommittee -->
+          <div class="policy-subsection p-4 rounded bg-slate-50 border border-slate-100">
+            <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-emerald-700">
+              <mat-icon class="icon-sm">local_shipping</mat-icon>
+              Purchase Return Policy (Suppliers)
+            </h3>
+            
+            <div class="flex-row flex-wrap gap-4 flex-center">
+              <div class="flex-column gap-1">
+                <span class="text-sm font-semibold text-gray-600">Purchase Return Window</span>
+                <div class="flex-row gap-2 flex-center">
+                  <mat-form-field appearance="outline" class="min-w-100">
+                    <mat-label>Value</mat-label>
+                    <input matInput type="number" formControlName="purchaseReturnWindowValue" min="0">
+                    <mat-icon matSuffix>timer</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="min-w-150">
+                    <mat-label>Unit</mat-label>
+                    <mat-select formControlName="purchaseReturnWindowUnit">
+                      <mat-option value="Hours">Hours</mat-option>
+                      <mat-option value="Days">Days</mat-option>
+                      <mat-option value="Months">Months</mat-option>
+                    </mat-select>
+                    <mat-icon matSuffix>calendar_month</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="flex-grow-1 min-w-300">
+                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Purchase Return Disclaimer (displayed on Purchase Return UI)</mat-label>
+                    <textarea matInput formControlName="purchaseReturnPolicyDisclaimer" rows="2" 
+                              placeholder="Ex: Supplier return window expired: Items must be returned within [XX Hours]."></textarea>
+                    <mat-icon matSuffix>policy</mat-icon>
+                 </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert-info p-3 mt-4 rounded bg-blue-50 border border-blue-100 flex-row gap-2">
+            <mat-icon color="primary">info</mat-icon>
+            <span class="text-xs text-blue-800">
+              <strong>Note:</strong> Windows higher than 72 hours might require manager approval for tax compliance in some regions.
+            </span>
+          </div>
+
         </mat-card-content>
       </mat-card>
 

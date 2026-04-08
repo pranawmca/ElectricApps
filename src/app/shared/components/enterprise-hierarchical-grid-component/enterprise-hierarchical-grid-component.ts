@@ -127,10 +127,14 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
 
   private loadReturnPolicy() {
     this.companyService.getCompanyProfile().subscribe({
-      next: (profile) => {
+      next: (profile: any) => {
         if (profile) {
-          const value = profile.returnWindowValue || 72;
-          const unit = profile.returnWindowUnit || 'Hours';
+          // Use Purchase policy if entity is related to Purchase/PO, otherwise use Sale policy
+          const isPurchase = this.entityName.toLowerCase().includes('purchase') || 
+                             this.entityName.toLowerCase().includes('po');
+          
+          const value = isPurchase ? (profile.purchaseReturnWindowValue || 72) : (profile.saleReturnWindowValue || 72);
+          const unit = isPurchase ? (profile.purchaseReturnWindowUnit || 'Hours') : (profile.saleReturnWindowUnit || 'Hours');
           
           this.returnWindowHours = unit === 'Hours' ? value : 
                                    unit === 'Days' ? value * 24 : 
