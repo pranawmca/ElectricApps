@@ -406,6 +406,26 @@ form#saleReturnForm {
             }
         }
     }
+
+    /* ⚡ NUCLEAR DARK MODE POLISH FOR GRID INPUTS ⚡ [cite: 2026-04-08] */
+    ::ng-deep [data-theme='dark-polished'] & {
+        .reason-input, .small-input {
+            .mat-mdc-text-field-wrapper {
+                background-color: #1e293b !important; // EXACT MATCH FOR REMARKS BOX
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+                
+                input {
+                    color: #ffffff !important;
+                    &::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+                }
+            }
+            
+            &:focus-within .mat-mdc-text-field-wrapper {
+                border-color: #3b82f6 !important;
+            }
+        }
+    }
 }
 
 .footer-summary {
@@ -915,6 +935,23 @@ input[type=number] {
           color: rgba(255, 255, 255, 0.7) !important;
           border-color: rgba(255, 255, 255, 0.1) !important;
           * { color: rgba(255, 255, 255, 0.7) !important; }
+      }
+
+      /* ⚡ POLISHED GRID INPUTS (DARK MODE) ⚡ [cite: 2026-04-08] */
+      .reason-input, .small-input {
+          ::ng-deep .mat-mdc-text-field-wrapper {
+              background-color: #1e293b !important; // EXACT MATCH FOR REMARKS/GRID CELL
+              border: 1px solid rgba(255, 255, 255, 0.1) !important;
+              box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+              
+              input {
+                  color: #ffffff !important;
+                  &::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+              }
+          }
+          &:focus-within ::ng-deep .mat-mdc-text-field-wrapper {
+              border-color: #3b82f6 !important;
+          }
       }
   }
 

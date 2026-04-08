@@ -794,11 +794,26 @@ table.clean-table {
 // ==========================================================================
 // PURCHASE RETURN FORM DARK MODE POLISH (THE END)
 // ==========================================================================
-:host-context(.dark-mode) {
+:host-context([data-theme='dark-polished']), :host-context(.dark-mode) {
   background-color: #0f172a !important;
 
   .page-container {
     background-color: #0f172a !important;
+  }
+
+  // ⚡ DYNAMIC GRID INPUT POLISH ⚡ [cite: 2026-04-08]
+  .mat-column-reason, .mat-column-returnQty {
+      ::ng-deep .mat-mdc-form-field {
+          .mat-mdc-text-field-wrapper {
+              background-color: #1e293b !important; // MATCH REMARKS
+              border: 1px solid rgba(255, 255, 255, 0.1) !important;
+              box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+              
+              input {
+                  color: #ffffff !important;
+              }
+          }
+      }
   }
 
   .page-header {
