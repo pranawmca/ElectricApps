@@ -27,6 +27,7 @@ export interface ThermalReceiptData {
   amountInWords?: string;
   roundOff?: string;
   footerMessage?: string;
+  returnPolicyDisclaimer?: string;
   savingsInfo?: {
     totalPcs: number;
     mrpTotal: number;
@@ -193,6 +194,7 @@ export class ThermalPrintService {
         
         <div class="footer">
             <div>${data.footerMessage || 'Thank You for Business! Visit Again.'}</div>
+            ${data.returnPolicyDisclaimer ? `<div style="margin-top: 5px; font-weight: bold; border-top: 1px dashed #ccc; padding-top: 5px;">Return Policy: ${data.returnPolicyDisclaimer}</div>` : ''}
         </div>
 
       </body>

@@ -519,6 +519,81 @@
         </mat-card-content>
       </mat-card>
 
+      <!-- Section: Print & Document Settings [cite: 2026-04-08] -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar color="primary">print</mat-icon>
+          <mat-card-title>Print & Document Settings</mat-card-title>
+          <mat-card-subtitle>Configure footer messages for your printed invoices and documents</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="pt-4">
+          <div class="flex-column gap-4">
+            
+            <div class="flex-row flex-wrap gap-4">
+                <!-- Sale Invoice Footer -->
+                <div class="flex-1 min-w-300 p-4 rounded bg-indigo-50/50 border border-indigo-100/50">
+                  <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-indigo-700">
+                    <mat-icon class="icon-sm">description</mat-icon>
+                    Sale Invoice Footer (A4 & Thermal)
+                  </h3>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>General Terms / Footer Message</mat-label>
+                    <textarea matInput formControlName="invoiceFooterMessage" rows="3" 
+                              placeholder="Example: Thank you for your business! Goods once sold cannot be returned. Subject to local jurisdiction."></textarea>
+                    <mat-icon matSuffix>edit_note</mat-icon>
+                    <mat-hint class="text-indigo-600 font-medium">
+                      <strong>Note:</strong> Your Sale Return Policy Disclaimer (configured above) will be automatically appended after this message.
+                    </mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <!-- Sale Order Footer -->
+                <div class="flex-1 min-w-300 p-4 rounded bg-blue-50 border border-blue-100">
+                    <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-blue-700">
+                      <mat-icon class="icon-sm">assignment</mat-icon>
+                      Sale Order Footer
+                    </h3>
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Order Terms</mat-label>
+                      <textarea matInput formControlName="saleOrderFooterMessage" rows="3" 
+                                placeholder="Example: This is a Sale Order, not an Invoice. Delivery is subject to availability."></textarea>
+                      <mat-icon matSuffix>sticky_note_2</mat-icon>
+                    </mat-form-field>
+                  </div>
+            </div>
+
+            <div class="flex-row flex-wrap gap-4">
+              <!-- Estimate Footer -->
+              <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
+                <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-slate-700">
+                  <mat-icon class="icon-sm">history_edu</mat-icon>
+                  Estimate / Quotation Footer
+                </h3>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Quotation Terms</mat-label>
+                  <textarea matInput formControlName="estimateFooterMessage" rows="2" 
+                            placeholder="Example: This estimate is valid for 7 days. Prices may vary."></textarea>
+                </mat-form-field>
+              </div>
+
+              <!-- Purchase Order Footer -->
+              <div class="flex-1 min-w-300 p-4 rounded bg-emerald-50/50 border border-emerald-100/50">
+                <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-emerald-700">
+                  <mat-icon class="icon-sm">list_alt</mat-icon>
+                  Purchase Order Footer
+                </h3>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Supplier Instructions</mat-label>
+                  <textarea matInput formControlName="purchaseOrderFooterMessage" rows="2" 
+                            placeholder="Example: Delivery expected within 48 hours. Quality check mandatory."></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+
+          </div>
+        </mat-card-content>
+      </mat-card>
+
       <!-- Footer -->
 
       <form-footer 

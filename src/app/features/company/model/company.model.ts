@@ -30,6 +30,10 @@ export interface CompanyProfileDto {
     purchaseReturnWindowValue: number;
     purchaseReturnWindowUnit: string;
     purchaseReturnPolicyDisclaimer?: string;
+    invoiceFooterMessage: string | null;
+    estimateFooterMessage: string | null;
+    purchaseOrderFooterMessage: string | null;
+    saleOrderFooterMessage: string | null;
     address: AddressDto; // Nested Object
     bankInfo: BankDetailDto; // Nested Object
     authorizedSignatories: AuthorizedSignatoryDto[];
@@ -102,6 +106,10 @@ export interface UpsertCompanyRequest {
     purchaseReturnWindowValue: number;
     purchaseReturnWindowUnit: string;
     purchaseReturnPolicyDisclaimer?: string;
+    invoiceFooterMessage: string | null;
+    estimateFooterMessage: string | null;
+    purchaseOrderFooterMessage: string | null;
+    saleOrderFooterMessage: string | null;
     address: AddressDto;
     bankInfo: BankDetailDto;
     authorizedSignatories: AuthorizedSignatoryDto[];

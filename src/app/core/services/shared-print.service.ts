@@ -30,7 +30,7 @@ export class SharedPrintService {
         this.configService.getPrintFormat(pageName).subscribe(format => {
             this.companyService.getCompanyProfile().subscribe({
                 next: (companyInfo) => {
-                    const mappedData = this.mapDataToThermalFormat(companyInfo, docType, data);
+                    const mappedData = this.mapDataToThermalFormat(companyInfo, docType, data, pageName);
                     if (format === 'THERMAL') {
                         this.thermalService.printReceipt(mappedData);
                     } else {
@@ -40,7 +40,7 @@ export class SharedPrintService {
                 },
                 error: () => {
                    // Fallback without company info
-                   const mappedData = this.mapDataToThermalFormat(null, docType, data);
+                   const mappedData = this.mapDataToThermalFormat(null, docType, data, pageName);
                    if (format === 'THERMAL') {
                         this.thermalService.printReceipt(mappedData);
                    } else {
@@ -51,7 +51,7 @@ export class SharedPrintService {
         });
     }
 
-    private mapDataToThermalFormat(companyInfo: any, docType: 'SO' | 'PO' | 'SR' | 'PR', data: any): ThermalReceiptData {
+    private mapDataToThermalFormat(companyInfo: any, docType: 'SO' | 'PO' | 'SR' | 'PR', data: any, pageName: string): ThermalReceiptData {
         const addr = companyInfo?.address;
         const addressStr = addr 
             ? `${addr.addressLine1}, ${addr.addressLine2 ? addr.addressLine2 + ', ' : ''}${addr.city}, ${addr.state} - ${addr.pinCode}`
@@ -64,13 +64,21 @@ export class SharedPrintService {
         let receiptNo = '';
         let docDate = '';
 
+        // Handle Document Logic (Title, Labels, Footers) [cite: 2026-04-08]
+        let footerMsg = '';
+        let returnPolicy = '';
+
         if (docType === 'SO') {
-             title = 'RETAIL INVOICE';
-             receiptNoLabel = 'Bill No';
-             receiptNo = data.soNumber;
-             partyNameLabel = 'Customer';
-             partyName = data.customerName;
-             docDate = data.soDate;
+            const isOrder = pageName.toLowerCase().includes('order');
+            title = isOrder ? 'SALE ORDER' : 'RETAIL INVOICE';
+            receiptNoLabel = isOrder ? 'Order No' : 'Bill No';
+            receiptNo = data.soNumber;
+            partyNameLabel = 'Customer';
+            partyName = data.customerName;
+            docDate = data.soDate;
+
+            footerMsg = isOrder ? (companyInfo?.saleOrderFooterMessage || '') : (companyInfo?.invoiceFooterMessage || '');
+            returnPolicy = companyInfo?.saleReturnPolicyDisclaimer || '';
         } else if (docType === 'PO') {
              title = 'PURCHASE ORDER';
              receiptNoLabel = 'PO No';
@@ -78,6 +86,7 @@ export class SharedPrintService {
              partyNameLabel = 'Supplier';
              partyName = data.supplierName;
              docDate = data.poDate;
+             footerMsg = companyInfo?.purchaseOrderFooterMessage || '';
         } else if (docType === 'SR') {
              title = 'CREDIT NOTE (SALE RETURN)';
              receiptNoLabel = 'Return No';
@@ -85,6 +94,7 @@ export class SharedPrintService {
              partyNameLabel = 'Customer';
              partyName = data.customerName;
              docDate = data.returnDate;
+             returnPolicy = companyInfo?.saleReturnPolicyDisclaimer || '';
         } else if (docType === 'PR') {
              title = 'DEBIT NOTE (PURCHASE RETURN)';
              receiptNoLabel = 'Return No';
@@ -92,6 +102,7 @@ export class SharedPrintService {
              partyNameLabel = 'Supplier';
              partyName = data.supplierName;
              docDate = data.returnDate;
+             returnPolicy = companyInfo?.purchaseReturnPolicyDisclaimer || '';
         }
 
         const items = (data.items || []).map((i: any) => ({
@@ -111,7 +122,7 @@ export class SharedPrintService {
             companyName: companyInfo?.name || 'My Company',
             address: addressStr,
             contactInfo: `Ph: ${companyInfo?.primaryPhone || ''}`,
-            gstin: companyInfo?.taxNumber,
+            gstin: companyInfo?.gstin || companyInfo?.taxNumber, // Normalizing field name
             receiptNoLabel,
             receiptNo,
             date: docDate,
@@ -123,6 +134,8 @@ export class SharedPrintService {
             totalTax: (data.totalTax || 0).toFixed(2),
             grandTotal: grandTotal.toFixed(2),
             amountInWords: this.numberToWords(Math.round(grandTotal)),
+            footerMessage: footerMsg,
+            returnPolicyDisclaimer: returnPolicy,
             savingsInfo: {
                 totalPcs,
                 mrpTotal: items.reduce((sum: number, i: any) => sum + (i.qty * i.mrp), 0),
@@ -232,6 +245,18 @@ export class SharedPrintService {
                         <div class="words-section">
                             <p style="font-size: 12px; margin: 0;">Amount in Words:</p>
                             <div class="value">Rupees ${data.amountInWords}</div>
+
+                            <div style="margin-top: 30px; padding: 15px; border: 1px dashed #d1d5db; border-radius: 8px; background: #f9fafb;">
+                                ${data.footerMessage ? `<p style="margin: 0 0 10px 0; font-size: 14px; color: #374151;">${data.footerMessage}</p>` : ''}
+                                ${data.returnPolicyDisclaimer ? `
+                                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                                        <div style="padding-top: 2px;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a56db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                        </div>
+                                        <p style="margin: 0; font-size: 12px; font-weight: 700; color: #1a56db;">Return Policy: <span style="font-weight: 500; font-style: italic; color: #4b5563;">${data.returnPolicyDisclaimer}</span></p>
+                                    </div>
+                                ` : ''}
+                            </div>
                         </div>
                         <div class="invoice-summary">
                             <div class="summary-row"><span class="label">Sub Total</span><span class="value">₹${data.subTotal || '0.00'}</span></div>

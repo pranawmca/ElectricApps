@@ -51,6 +51,10 @@ export class CompanyForm implements OnInit {
                     purchaseReturnWindowValue: 72,
                     purchaseReturnWindowUnit: 'Hours',
                     purchaseReturnPolicyDisclaimer: '',
+                    invoiceFooterMessage: '',
+                    estimateFooterMessage: '',
+                    purchaseOrderFooterMessage: '',
+                    saleOrderFooterMessage: '',
                     address: { id: 0, country: 'India' },
                     bankInfo: { id: 0, accountType: 'Current' }
                 });
@@ -125,6 +129,10 @@ export class CompanyForm implements OnInit {
             purchaseReturnWindowValue: [72, Validators.required],
             purchaseReturnWindowUnit: ['Hours', Validators.required],
             purchaseReturnPolicyDisclaimer: [''],
+            invoiceFooterMessage: [''],
+            estimateFooterMessage: [''],
+            purchaseOrderFooterMessage: [''],
+            saleOrderFooterMessage: [''],
 
             // Address Nested Group
             address: this.fb.group({
@@ -189,6 +197,10 @@ export class CompanyForm implements OnInit {
                     purchaseReturnWindowValue: 72,
                     purchaseReturnWindowUnit: 'Hours',
                     purchaseReturnPolicyDisclaimer: '',
+                    invoiceFooterMessage: '',
+                    estimateFooterMessage: '',
+                    purchaseOrderFooterMessage: '',
+                    saleOrderFooterMessage: '',
                     address: { id: 0, country: 'India' },
                     bankInfo: { id: 0, accountType: 'Current' }
                 });
