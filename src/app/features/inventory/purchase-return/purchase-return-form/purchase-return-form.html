@@ -26,8 +26,8 @@
       <div class="alert-content">
         <mat-icon>warning_amber</mat-icon>
         <div class="text-group">
-          <strong>72-Hour Return Policy Window</strong>
-          <span>Items from GRNs received more than 3 days ago are blocked for return as per company policy.</span>
+          <strong>{{ returnWindowLabel }} Return Policy Window</strong>
+          <span>Items from GRNs received more than {{ returnWindowLabel }} ago are blocked for return as per company policy.</span>
         </div>
       </div>
     </div>
@@ -120,7 +120,7 @@
                                      Stock: {{item.currentStock}}
                                    </span> | 
                                    <span class="policy-badge-mini" [ngClass]="item.isReturnable ? 'active' : 'expired'">
-                                      {{ item.isReturnable ? formatRemainingTime(item.remainingHours) + ' left' : 'Over 3 Days' }}
+                                      {{ item.isReturnable ? formatRemainingTime(item.remainingHours) + ' left' : 'Expired' }}
                                    </span>)
                                  </small>
                               </span>

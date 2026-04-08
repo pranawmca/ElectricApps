@@ -13,6 +13,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { NotificationService } from '../../../features/shared/notification.service';
 import { ConfirmDialogComponent } from '../confirm-dialog-component/confirm-dialog-component';
 import { MatDialog } from '@angular/material/dialog';
+import { CompanyService } from '../../../features/company/services/company.service';
 
 import { ResizableColumnDirective } from '../../../shared/directives/resizable-column.directive';
 
@@ -85,6 +86,9 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
 
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
+  private companyService = inject(CompanyService);
+  
+  returnWindowHours: number = 72;
 
   @ViewChild(MatSort) sort!: MatSort;
   sortChildDir: boolean = true;
@@ -117,7 +121,24 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
     });
 
     this.dataSource.sort = null;
+    this.loadReturnPolicy();
     setTimeout(() => { this.triggerDataLoad(); }, 0);
+  }
+
+  private loadReturnPolicy() {
+    this.companyService.getCompanyProfile().subscribe({
+      next: (profile) => {
+        if (profile) {
+          const value = profile.returnWindowValue || 72;
+          const unit = profile.returnWindowUnit || 'Hours';
+          
+          this.returnWindowHours = unit === 'Hours' ? value : 
+                                   unit === 'Days' ? value * 24 : 
+                                   unit === 'Months' ? value * 30 * 24 : value;
+          this.cdr.detectChanges();
+        }
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -680,7 +701,7 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
     const now = new Date();
     const diffInHours = (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60);
     
-    return diffInHours <= 72;
+    return diffInHours <= this.returnWindowHours;
   }
 
   scrollTable(direction: 'left' | 'right') {

@@ -37,6 +37,8 @@ export class PurchaseReturnForm implements OnInit {
   isQuick: boolean = false;
   isPolicyViolated: boolean = false;
   isFromDashboard: boolean = false;
+  returnWindowLabel: string = '72-Hour';
+  returnWindowHours: number = 72;
 
   private sharedPrintService = inject(SharedPrintService);
 
@@ -82,7 +84,28 @@ export class PurchaseReturnForm implements OnInit {
   ngOnInit(): void {
     this.isQuick = (this.route as any).snapshot.data['isQuick'] || false;
     this.initForm();
+    this.loadReturnPolicy();
     this.GetSuppliersForPurchaseReturnAndAutoSelect();
+  }
+
+  private loadReturnPolicy() {
+    this.companyService.getCompanyProfile().subscribe({
+      next: (profile) => {
+        if (profile) {
+          const value = profile.returnWindowValue || 72;
+          const unit = profile.returnWindowUnit || 'Hours';
+          
+          this.returnWindowHours = unit === 'Hours' ? value : 
+                                   unit === 'Days' ? value * 24 : 
+                                   unit === 'Months' ? value * 30 * 24 : value;
+          
+          this.returnWindowLabel = unit === 'Hours' ? `${value}-Hour` : 
+                                   unit === 'Days' ? `${value}-Day` : 
+                                   unit === 'Months' ? `${value}-Month` : `${value}-Hour`;
+          this.cdr.detectChanges();
+        }
+      }
+    });
   }
 
   GetSuppliersForPurchaseReturnAndAutoSelect() {
@@ -252,7 +275,7 @@ export class PurchaseReturnForm implements OnInit {
       const recDate = new Date(rDate);
       const diffMs = now.getTime() - recDate.getTime();
       const diffHrs = diffMs / (1000 * 60 * 60);
-      const calcRemainingHrs = 72 - diffHrs;
+      const calcRemainingHrs = this.returnWindowHours - diffHrs;
       
       // If backend didn't send it or sent 0, use front-end calculation
       const backendHrs = item.returnWindowRemainingHours ?? item.ReturnWindowRemainingHours ?? 0;
@@ -328,7 +351,7 @@ export class PurchaseReturnForm implements OnInit {
   onItemToggle(item: any) {
     if (!item.isReturnable) {
         item.selected = false;
-        this.openDialog(false, `Return Not Allowed: GRN (${item.grnRef}) was received more than 3 days ago. Returns are only accepted within 72 hours of receipt.`);
+        this.openDialog(false, `Return Not Allowed: GRN (${item.grnRef}) was received more than ${this.returnWindowLabel} ago. Returns are only accepted within the defined company policy window.`);
         this.cdr.detectChanges();
         return;
     }

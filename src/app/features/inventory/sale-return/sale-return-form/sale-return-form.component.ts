@@ -68,6 +68,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
     minDate: Date = new Date();
     isQuick: boolean = false;
     isFromDashboard: boolean = false;
+    returnWindowLabel: string = '72-Hour';
+    returnWindowHours: number = 72;
 
     warehouses: any[] = [];
     racks: any[] = [];
@@ -93,6 +95,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         this.isQuick = (this.route as any).snapshot.data['isQuick'] || false;
         this.loadCustomersLookup();
         this.loadLocations();
+        this.loadReturnPolicy();
         this.updateSummaryStats();
         
         this.route.params.subscribe(params => {
@@ -114,6 +117,26 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
                 this.returnForm.get('saleOrderId')?.disable();
                 this.returnForm.patchValue({ customerId: Number(customerId) });
                 this.onCustomerChange(Number(customerId), Number(saleOrderId));
+            }
+        });
+    }
+
+    private loadReturnPolicy() {
+        this.companyService.getCompanyProfile().subscribe({
+            next: (profile) => {
+                if (profile) {
+                    const value = profile.returnWindowValue || 72;
+                    const unit = profile.returnWindowUnit || 'Hours';
+                    
+                    this.returnWindowHours = unit === 'Hours' ? value : 
+                                             unit === 'Days' ? value * 24 : 
+                                             unit === 'Months' ? value * 30 * 24 : value;
+                    
+                    this.returnWindowLabel = unit === 'Hours' ? `${value}-Hour` : 
+                                             unit === 'Days' ? `${value}-Day` : 
+                                             unit === 'Months' ? `${value}-Month` : `${value}-Hour`;
+                    this.cdr.detectChanges();
+                }
             }
         });
     }
@@ -454,7 +477,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
             const hasAnyReturnableItems = rawValue.items.some((i: any) => i.isReturnable);
             const errorMessage = hasAnyReturnableItems 
                 ? 'Please enter return quantity for at least one available item.'
-                : 'Return Window Closed: All selected items have exceeded the 72-hour return policy and cannot be processed.';
+                : `Return Window Closed: All selected items have exceeded the ${this.returnWindowLabel} return policy and cannot be processed.`;
 
             this.dialog.open(StatusDialogComponent, {
                 width: '400px',

@@ -32,7 +32,7 @@
         <div class="alert-content">
             <mat-icon>assignment_late</mat-icon>
             <div class="text-group">
-                <strong>72-Hour Return Policy Window</strong>
+                <strong>{{ returnWindowLabel }} Return Policy Window</strong>
                 <span>Items sold/received more than 3 days ago are blocked for return as per company policy.</span>
             </div>
         </div>
@@ -202,7 +202,7 @@
                     <ng-container matColumnDef="returnQty">
                         <th mat-header-cell *matHeaderCellDef appResizableColumn> Return Qty </th>
                         <td mat-cell *matCellDef="let element" [formGroup]="element">
-                            <mat-form-field appearance="outline" class="small-input" subscriptSizing="dynamic" [matTooltip]="!element.get('isReturnable').value ? 'Return Window Closed (72h Policy)' : ''">
+                            <mat-form-field appearance="outline" class="small-input" subscriptSizing="dynamic" [matTooltip]="!element.get('isReturnable').value ? 'Return Window Closed (' + returnWindowLabel + ' Policy)' : ''">
                                 <input matInput type="number" formControlName="returnQty"
                                     (input)="element.get('returnQty').markAsTouched()"
                                     [matTooltip]="element.get('returnQty')?.hasError('max') ? 'Max allowed: ' + element.get('quantity').value : (element.get('returnQty')?.hasError('required') ? 'Qty required' : '')"

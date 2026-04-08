@@ -24,6 +24,8 @@ export interface CompanyProfileDto {
     smtpPort: number | null;
     smtpUseSsl: boolean;
     isActive: boolean;
+    returnWindowValue: number;
+    returnWindowUnit: string;
     address: AddressDto; // Nested Object
     bankInfo: BankDetailDto; // Nested Object
     authorizedSignatories: AuthorizedSignatoryDto[];
@@ -90,6 +92,8 @@ export interface UpsertCompanyRequest {
     smtpHost: string | null;
     smtpPort: number | null;
     smtpUseSsl: boolean;
+    returnWindowValue: number;
+    returnWindowUnit: string;
     address: AddressDto;
     bankInfo: BankDetailDto;
     authorizedSignatories: AuthorizedSignatoryDto[];

@@ -187,7 +187,7 @@
                 <button mat-icon-button color="accent" *ngIf="row.status?.toLowerCase() === 'confirmed' && row.isDispatchPending && row.paymentStatus !== 'Unpaid'" (click)="$event.stopPropagation(); handleAction('CREATE_OUTWARD', row)" matTooltip="Create Outward Gate Pass">
                   <mat-icon>local_shipping</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" *ngIf="row.status === 'Confirmed' && (entityName === 'Sale Order' || entityName === 'Sale')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Sale Return' : 'Sale Return Closed (72 hrs crossed)'">
+                <button mat-icon-button color="warn" *ngIf="row.status === 'Confirmed' && (entityName === 'Sale Order' || entityName === 'Sale')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Sale Return' : 'Sale Return Closed (' + returnWindowHours + ' hrs crossed)'">
                   <mat-icon [style.opacity]="isWithinReturnWindow(row) ? 1 : 0.5">assignment_return</mat-icon>
                 </button>
                 <button mat-icon-button color="warn" *ngIf="canDelete && row.status?.toLowerCase() === 'draft'" (click)="$event.stopPropagation(); handleAction('DELETE', row)" matTooltip="Delete">
@@ -243,7 +243,7 @@
                   <button mat-icon-button color="primary" *ngIf="((row.totalReceived || 0) < (row.totalOrdered || 0)) && (( (row.totalAccepted || 0) + (row.totalRejected || 0) ) < (row.totalOrdered || 0))" (click)="$event.stopPropagation(); handleAction('CREATE_GRN', row)" matTooltip="Inward Replacement/Pending Items">
                     <mat-icon>local_shipping</mat-icon>
                   </button>
-                  <button mat-icon-button color="warn" *ngIf="(entityName === 'Purchase' || entityName === 'PO')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('PURCHASE_RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Purchase Return' : 'Purchase Return Closed (72 hrs crossed)'">
+                  <button mat-icon-button color="warn" *ngIf="(entityName === 'Purchase' || entityName === 'PO')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('PURCHASE_RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Purchase Return' : 'Purchase Return Closed (' + returnWindowHours + ' hrs crossed)'">
                     <mat-icon [style.opacity]="isWithinReturnWindow(row) ? 1 : 0.5">assignment_return</mat-icon>
                   </button>
                   <mat-icon *ngIf="!((row.totalRejected || 0) > 0) && !((row.totalAccepted || 0) < (row.totalOrdered || 0))" style="color: #4caf50;" matTooltip="Order Completed">verified</mat-icon>

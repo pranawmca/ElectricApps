@@ -43,6 +43,8 @@ export class CompanyForm implements OnInit {
             } else {
                 this.companyForm.reset({
                     isActive: true,
+                    returnWindowValue: 72,
+                    returnWindowUnit: 'Hours',
                     address: { id: 0, country: 'India' },
                     bankInfo: { id: 0, accountType: 'Current' }
                 });
@@ -79,6 +81,8 @@ export class CompanyForm implements OnInit {
             smtpPort: [587],
             smtpUseSsl: [true],
             isActive: [true],
+            returnWindowValue: [72, Validators.required],
+            returnWindowUnit: ['Hours', Validators.required],
 
             // Address Nested Group
             address: this.fb.group({
@@ -137,6 +141,8 @@ export class CompanyForm implements OnInit {
                 // Reset form to base state before patching
                 this.companyForm.reset({
                     isActive: true,
+                    returnWindowValue: 72,
+                    returnWindowUnit: 'Hours',
                     address: { id: 0, country: 'India' },
                     bankInfo: { id: 0, accountType: 'Current' }
                 });
