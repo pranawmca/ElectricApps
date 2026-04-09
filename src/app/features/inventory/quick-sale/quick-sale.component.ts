@@ -1022,7 +1022,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                         // ✅ Trigger Auto-Print after Quick Sale payment acknowledgment
                         this.soService.getSaleOrderById(data.id).subscribe({
                             next: (fullOrder) => {
-                                this.sharedPrintService.printDocument('Quick Sale Invoice', 'SO', fullOrder);
+                                this.sharedPrintService.printDocument('Quick Sale Order', 'SO', fullOrder);
                                 this.router.navigate(['/app/quick-inventory/sale/list']);
                             },
                             error: () => this.router.navigate(['/app/quick-inventory/sale/list'])

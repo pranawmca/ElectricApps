@@ -8,6 +8,7 @@ import { MaterialModule } from '../../../shared/material/material/material-modul
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { LoadingService } from '../../../core/services/loading.service';
+import { PrintConfigService } from '../../../core/services/print-config.service';
 
 export interface ModuleGroup {
   name: string;
@@ -51,6 +52,7 @@ export class PrintSettings implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private loadingService = inject(LoadingService);
+  private printConfigService = inject(PrintConfigService);
 
   ngOnInit() {
     this.initialLoad();
@@ -161,6 +163,7 @@ export class PrintSettings implements OnInit {
               this.loading = false;
               this.loadingService.setLoading(false);
               this.cdr.detectChanges();
+              this.printConfigService.clearCache();
               this.dialog.open(StatusDialogComponent, {
                 width: '400px',
                 data: { isSuccess: true, message: 'Print settings saved successfully!' },

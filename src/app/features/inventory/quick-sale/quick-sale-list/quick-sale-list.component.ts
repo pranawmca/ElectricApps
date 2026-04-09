@@ -452,7 +452,7 @@ export class QuickSaleListComponent implements OnInit {
       next: (fullOrder) => {
         this.isLoading = false;
         this.cdr.detectChanges();
-        this.sharedPrintService.printDocument('Quick Sale Invoice', 'SO', fullOrder);
+        this.sharedPrintService.printDocument('Quick Sale Order', 'SO', fullOrder);
       },
       error: (err) => {
         this.isLoading = false;

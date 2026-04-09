@@ -69,14 +69,20 @@ export class SharedPrintService {
         let returnPolicy = '';
 
         if (docType === 'SO') {
-            const isOrder = pageName.toLowerCase().includes('order');
+            // Quick Sale is always a finalized sale (Invoice), while Standard Sale Order depends on its page name
+            const isQuickSale = pageName === 'Quick Sale Order';
+            const isStandardOrder = pageName === 'Standard Sale Order';
+            
+            // It's an order only if it's explicitly a Standard Sale Order and NOT a Quick Sale
+            const isOrder = isStandardOrder && !isQuickSale;
+            
             title = isOrder ? 'SALE ORDER' : 'RETAIL INVOICE';
             receiptNoLabel = isOrder ? 'Order No' : 'Bill No';
             receiptNo = data.soNumber;
             partyNameLabel = 'Customer';
             partyName = data.customerName;
             docDate = data.soDate;
-
+            
             footerMsg = isOrder ? (companyInfo?.saleOrderFooterMessage || '') : (companyInfo?.invoiceFooterMessage || '');
             returnPolicy = isOrder ? '' : (companyInfo?.saleReturnPolicyDisclaimer || '');
         } else if (docType === 'PO') {
