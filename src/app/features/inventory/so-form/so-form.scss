@@ -1016,9 +1016,20 @@ mat-card.so-card {
       .summary-divider { background: rgba(255, 255, 255, 0.05) !important; }
     }
     .grand-total-container {
-        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+        background: #1e293b !important; /* Matched to Slate 800 */
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
     .card-action-bar { background: #1e293b !important; }
+
+    /* TDS/TCS inputs matched to summary card background (Slate 800) */
+    .footer-tax-input {
+      background-color: #1e293b !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+      border-radius: 4px;
+      padding: 4px 8px;
+      &::placeholder { color: rgba(255, 255, 255, 0.3) !important; }
+    }
   }
 
   .barcode-status {

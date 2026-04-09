@@ -16,16 +16,50 @@ import { DateHelper } from '../../../shared/models/date-helper';
 import { NotificationService } from '../../shared/notification.service';
 import { ProductSelectionDialogComponent } from '../../../shared/components/product-selection-dialog/product-selection-dialog';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
+import { LocationTrackerDialogComponent } from '../purchase-return/location-tracker-dialog/location-tracker-dialog.component';
 import { BarcodeReaderHelper } from '../../../shared/barcode-reader-helper/barcode-reader-helper.service';
+import { LocationService } from '../../master/locations/services/locations.service';
 import { SharedPrintService } from '../../../core/services/shared-print.service';
 
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ProductForm } from '../../master/product/product-form/product-form';
 
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, DateAdapter, NativeDateAdapter } from '@angular/material/core';
+
+/** Custom Date Adapter to force dd/mm/yy format */
+export class CustomDateAdapter extends NativeDateAdapter {
+  override format(date: Date, displayFormat: Object): string {
+    if (displayFormat === 'input') {
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear().toString().substring(2);
+      return `${day}/${month}/${year}`;
+    }
+    return date.toDateString();
+  }
+}
+
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: { month: 'short', year: 'numeric', day: 'numeric' },
+  },
+  display: {
+    dateInput: 'input',
+    monthYearLabel: { year: 'numeric', month: 'short' },
+    dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
+    monthYearA11yLabel: { year: 'numeric', month: 'long' },
+  },
+};
+
 @Component({
   selector: 'app-po-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  providers: [
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }
+  ],
   templateUrl: './po-form.html',
   styleUrl: './po-form.scss',
   animations: [
@@ -77,6 +111,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
 
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
+  private locationService = inject(LocationService);
   private cdr = inject(ChangeDetectorRef);
   private supplierService = inject(SupplierService);
   private inventoryService = inject(InventoryService);
@@ -99,6 +134,8 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
   isLoadingPriceLists = false;
   isLoading = false;
   allUnits: any[] = [];
+  warehouses: any[] = [];
+  racks: any[] = [];
   grandTotal = 0;
   totalTaxAmount = 0;
   subTotal = 0;
@@ -128,6 +165,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
     this.loadSuppliers();
     this.bindDropdownPriceList();
     this.loadUnits();
+    this.loadWarehouses();
 
     if (id && id !== '0') {
       this.poId = id;
@@ -153,7 +191,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
 
   private initBarcodeListener() {
     this.barcodeHelper.onScan().pipe(takeUntil(this.destroy$)).subscribe(code => {
-      console.log('📦 Barcode Scanned:', code);
+      console.log('ðŸ“¦ Barcode Scanned:', code);
       this.isScanning = true;
       this.lastScannedCode = code;
       this.handleBarcodeScan(code);
@@ -261,6 +299,10 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       total: [{ value: 0, disabled: true }],
       currentStock: [product.currentStock || 0],
       sku: [product.sku || ''],
+      warehouseId: [product.warehouseId || product.defaultWarehouseId || null],
+      warehouseName: [product.defaultWarehouseName || product.warehouseName || 'Main WH'],
+      rackId: [product.rackId || product.defaultRackId || null],
+      rackName: [product.defaultRackName || product.rackName || 'Rack-1'],
       mfgDate: [null, product.isExpiryRequired ? Validators.required : null],
       expDate: [null, product.isExpiryRequired ? Validators.required : null],
       isExpiryRequired: [product.isExpiryRequired ?? false],
@@ -305,6 +347,10 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       total: [{ value: 0, disabled: true }],
       currentStock: [data.currentStock || 0],
       sku: [data.sku || ''],
+      warehouseId: [data.warehouseId || data.defaultWarehouseId || null],
+      warehouseName: [data.warehouseName || data.defaultWarehouseName || 'Main WH'],
+      rackId: [data.rackId || data.defaultRackId || null],
+      rackName: [data.rackName || data.defaultRackName || 'Rack-1'],
       mfgDate: [null, data.isExpiryRequired ? Validators.required : null],
       expDate: [null, data.isExpiryRequired ? Validators.required : null],
       isExpiryRequired: [data.isExpiryRequired ?? false],
@@ -409,6 +455,10 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       total: [{ value: item.total, disabled: true }],
       currentStock: [item.currentStock || 0],
       sku: [item.sku || ''],
+      warehouseId: [item.warehouseId || item.defaultWarehouseId || null],
+      warehouseName: [item.warehouseName || item.defaultWarehouseName || 'Main WH'],
+      rackId: [item.rackId || item.defaultRackId || null],
+      rackName: [item.rackName || item.defaultRackName || 'Rack-1'],
       mfgDate: [item.mfgDate ? new Date(item.mfgDate) : null],
       expDate: [item.expDate ? new Date(item.expDate) : null],
       isExpiryRequired: [item.isExpiryRequired ?? false],
@@ -426,7 +476,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
   onSupplierChange(supplierId: number): void {
     if (!supplierId) return;
     this.supplierService.getSupplierById(supplierId).subscribe((res: any) => {
-      console.log('🔍 Supplier Data Received:', res);
+      console.log('ðŸ” Supplier Data Received:', res);
 
       // Checking multiple common casing variations for the price list property
       const pListId = res.defaultpricelistId || res.defaultPriceListId || res.priceListId;
@@ -437,12 +487,12 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       this.poForm.get('isTaxApplicable')?.setValue(!this.selectedSupplierIsUnregistered, { emitEvent: true });
 
       if (pListId) {
-        console.log('✅ Auto-populating Price List ID:', pListId);
+        console.log('âœ… Auto-populating Price List ID:', pListId);
         this.poForm.get('priceListId')?.setValue(pListId);
         this.isPriceListAutoSelected = true;
         this.refreshAllItemRates(pListId);
       } else {
-        console.warn('⚠️ No default price list found for this supplier in Master.');
+        console.warn('âš ï¸ No default price list found for this supplier in Master.');
         this.isPriceListAutoSelected = false;
       }
       this.cdr.detectChanges();
@@ -499,6 +549,10 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       qty: 1,
       currentStock: product.currentStock || 0,
       sku: product.sku || '',
+      warehouseId: product.warehouseId || product.defaultWarehouseId || null,
+      warehouseName: product.defaultWarehouseName || product.warehouseName || 'Main WH',
+      rackId: product.rackId || product.defaultRackId || null,
+      rackName: product.defaultRackName || product.rackName || 'Rack-1',
       isExpiryRequired: product.isExpiryRequired ?? false,
       mfgDate: null,
       expDate: null
@@ -591,6 +645,10 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       total: [{ value: 0, disabled: true }],
       currentStock: [0],
       sku: [''],
+      warehouseId: [null],
+      warehouseName: [''],
+      rackId: [null],
+      rackName: [''],
       mfgDate: [null],
       expDate: [null],
       isExpiryRequired: [false],
@@ -783,12 +841,12 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
           }))
         };
 
-        console.log('🚀 Final PO Payload for backend:', payload);
+        console.log('ðŸš€ Final PO Payload for backend:', payload);
         const request$ = this.isEditMode ? this.poService.update(this.poId, payload) : this.inventoryService.savePoDraft(payload);
 
         request$.subscribe({
           next: (res) => {
-            console.log('✅ PO Save Success. Backend Response:', res);
+            console.log('âœ… PO Save Success. Backend Response:', res);
             this.isLoading = false;
             this.notification.showStatus(true, `PO ${this.isEditMode ? 'Updated' : 'Saved'} Successfully`);
             
@@ -804,7 +862,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
             }
           },
           error: (err) => {
-            console.group('❌ PO Save Failed');
+            console.group('âŒ PO Save Failed');
             console.error('Error Object:', err);
             console.error('Status:', err.status);
             console.error('Server Message:', err.error?.message || err.message);
@@ -819,4 +877,45 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
   }
 
   goBack() { this.router.navigate(['/app/inventory/polist']); }
+
+  openLocationTracker(row: any) {
+    const productId = row.get('productId')?.value;
+    const warehouseId = row.get('warehouseId')?.value;
+    const warehouseName = row.get('warehouseName')?.value || 'Main WH';
+    const rackName = row.get('rackName')?.value || 'Rack-1';
+    const currentStock = row.get('currentStock')?.value || 0;
+    const unit = row.get('unit')?.value || 'PCS';
+
+    this.dialog.open(LocationTrackerDialogComponent, {
+      width: '450px',
+      data: {
+        productId: productId,
+        warehouseName: warehouseName,
+        rackName: rackName,
+        description: `Product: ${row.get('productName')?.value}. Current Stock: ${currentStock} ${unit}`
+      }
+    });
+  }
+  loadWarehouses() {
+    this.locationService.getWarehouses().subscribe((data: any) => {
+      this.warehouses = data || [];
+    });
+    this.locationService.getRacks().subscribe((data: any) => {
+      this.racks = data || [];
+    });
+  }
+
+  getWarehouseName(val: any) {
+    const id = (val && typeof val === 'object') ? val.id : val;
+    if (!id || id === '0' || id === 'null') return 'Main WH';
+    const wh = this.warehouses.find((w: any) => w.id == id || w.warehouseId == id);
+    return wh ? wh.warehouseName : 'Main WH';
+  }
+
+  getRackName(val: any) {
+    const id = (val && typeof val === 'object') ? val.id : val;
+    if (!id || id === '0' || id === 'null') return 'Rack-1';
+    const rack = this.racks.find((r: any) => r.id == id || r.rackId == id);
+    return rack ? rack.rackName : 'Rack-1';
+  }
 }

@@ -19,7 +19,7 @@
         <mat-spinner diameter="20" *ngIf="isSaving"></mat-spinner>
         <span>{{languageService.translate('Confirm Sale & Deduct Stock')}}</span>
       </button>
-      <button mat-stroked-button (click)="router.navigate(['/app/quick-inventory/sale/list'])" [disabled]="isSaving">
+      <button mat-raised-button (click)="router.navigate(['/app/quick-inventory/sale/list'])" [disabled]="isSaving">
         <mat-icon>close</mat-icon>
         <span>{{languageService.translate('Cancel')}}</span>
       </button>
@@ -97,7 +97,7 @@
       <div class="items-section">
         <div class="section-title">
              <span>{{languageService.translate('Items to Sell')}}</span>
-             <button mat-flat-button color="primary" (click)="openProductDialog()">
+             <button mat-raised-button color="primary" (click)="openProductDialog()">
                  <mat-icon>search</mat-icon> {{languageService.translate('Search & Add Products')}}
              </button>
         </div>

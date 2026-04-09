@@ -113,19 +113,20 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
     .content {
       padding: 24px;
-      background: #f8fafc;
+      background: var(--app-bg);
+      color: var(--app-text);
     }
 
     .map-visual {
       height: 200px;
-      background: #e2e8f0;
+      background: var(--card-bg);
       border-radius: 12px;
       margin-bottom: 24px;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--border-color);
       overflow: hidden;
 
       .warehouse-grid {
@@ -137,9 +138,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         height: 100%;
 
         .grid-cell {
-          background: white;
+          background: var(--app-bg);
           border-radius: 6px;
-          border: 1px solid #dee2e6;
+          border: 1px solid var(--border-color);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -155,15 +156,15 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             color: #94a3b8;
 
             &.active {
-              background: #dbeafe;
+              background: rgba(37, 99, 235, 0.15);
               border: 2px solid #3b82f6;
-              color: #2563eb;
+              color: #3b82f6;
               position: relative;
 
               .marker {
                 transform: translateY(-2px);
                 animation: float 2s infinite ease-in-out;
-                mat-icon { font-size: 24px; width: 24px; height: 24px; }
+                mat-icon { font-size: 24px; width: 24px; height: 24px; color: #3b82f6; }
               }
             }
           }
@@ -176,7 +177,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         right: 12px;
 
         .status-badge {
-          background: rgba(15, 23, 42, 0.8);
+          background: rgba(15, 23, 42, 0.85);
           color: white;
           padding: 4px 10px;
           border-radius: 20px;
@@ -186,6 +187,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
           align-items: center;
           gap: 6px;
           backdrop-filter: blur(4px);
+          border: 1px solid rgba(255,255,255,0.1);
 
           .dot {
             width: 6px;
@@ -214,40 +216,42 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     .info-card {
       display: flex;
       gap: 16px;
-      background: white;
+      background: var(--card-bg);
       padding: 16px;
       border-radius: 12px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--border-color);
       margin-bottom: 20px;
 
       .info-item {
         flex: 1;
         label { font-size: 0.65rem; color: #64748b; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px; }
-        .value { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
-        .status-ok { color: #16a34a; }
+        .value { font-size: 0.9rem; font-weight: 700; color: var(--app-text); }
+        .status-ok { color: #22c55e; }
       }
     }
 
     .description-box {
-      background: #fffbeb;
-      border: 1px solid #fef3c7;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.2);
       padding: 12px 16px;
       border-radius: 8px;
 
-      label { font-size: 0.75rem; font-weight: 700; color: #92400e; margin-bottom: 4px; display: block; }
-      p { margin: 0; font-size: 0.85rem; color: #78350f; line-height: 1.5; }
+      label { font-size: 0.75rem; font-weight: 700; color: #f59e0b; margin-bottom: 4px; display: block; }
+      p { margin: 0; font-size: 0.85rem; color: var(--app-text); opacity: 0.9; line-height: 1.5; }
     }
 
     .footer {
       padding: 16px 24px;
-      background: white;
-      border-top: 1px solid #f1f5f9;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-color);
       text-align: right;
 
       button {
         border-radius: 20px;
         padding: 0 24px;
         font-weight: 600;
+        background: #3b82f6 !important;
+        color: white !important;
       }
     }
   `]

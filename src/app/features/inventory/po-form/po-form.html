@@ -131,39 +131,43 @@
 
     <div formArrayName="items" class="items-section mt-3">
       <div class="item-row" *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Search Product</mat-label>
-          <input type="text" matInput formControlName="productSearch" [matAutocomplete]="auto">
-          <div matSuffix *ngIf="isProductLoading[i]" style="display: flex; align-items: center; padding-right: 8px;">
-            <mat-spinner diameter="18"></mat-spinner>
+        <div style="position: relative; overflow: visible;">
+          <div class="stock-hint clickable" *ngIf="row.get('productId')?.value" 
+               (click)="openLocationTracker(row)" 
+               matTooltip="Click to track inventory location">
+            <span class="sku-hint">{{row.get('warehouseName')?.value}}</span>
+            <span class="sep">/</span>
+            <span class="sku-hint">Rack: {{row.get('rackName')?.value}}</span>
+            <span class="sep">/</span>
+            <span class="stock-val">Avail: <strong>{{row.get('currentStock')?.value || 0}}</strong></span>
           </div>
-          <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProductFn" (optionSelected)="onProductChange(i, $event)">
-            <mat-option *ngFor="let product of filteredProducts[i] | async" [value]="product">
-              <div class="product-option-row">
-                <span class="p-name">{{product.productName || product.name}}</span>
-                <span class="p-stock" [class.in-stock]="product.currentStock > 0" [class.no-stock]="product.currentStock <= 0">
-                  Stock: {{ product.currentStock || 0 }}
-                </span>
-              </div>
-              <small class="p-sku text-muted">SKU: {{product.sku}}</small>
-            </mat-option>
-          </mat-autocomplete>
-          
-          <mat-hint *ngIf="row.get('productId')?.value" class="stock-hint-container">
-            <span class="sku-hint">SKU: {{row.get('sku')?.value}}</span>
-            <span class="divider">|</span>
-            <span class="qty-hint" [class.stock-ok]="row.get('currentStock')?.value > 0" [class.stock-warn]="row.get('currentStock')?.value <= 0">
-              Avail: {{row.get('currentStock')?.value || 0}}
-            </span>
-          </mat-hint>
-        </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Search Product</mat-label>
+            <input type="text" matInput formControlName="productSearch" [matAutocomplete]="auto">
+            <div matSuffix *ngIf="isProductLoading[i]" style="display: flex; align-items: center; padding-right: 8px;">
+              <mat-spinner diameter="18"></mat-spinner>
+            </div>
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProductFn" (optionSelected)="onProductChange(i, $event)">
+              <mat-option *ngFor="let product of filteredProducts[i] | async" [value]="product">
+                <div class="product-option-row">
+                  <span class="p-name">{{product.productName || product.name}}</span>
+                  <span class="p-stock" [class.in-stock]="product.currentStock > 0" [class.no-stock]="product.currentStock <= 0">
+                    Stock: {{ product.currentStock || 0 }}
+                  </span>
+                </div>
+                <small class="p-sku text-muted">SKU: {{product.sku}}</small>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Qty</mat-label>
           <input matInput type="number" formControlName="qty" (input)="updateTotal(i)">
         </mat-form-field>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="unit-field">
           <mat-label>Unit</mat-label>
           <input type="text" matInput formControlName="unit" [matAutocomplete]="autoUnit" readonly style="pointer-events:none; color:#888;">
           <mat-autocomplete #autoUnit="matAutocomplete">
@@ -193,7 +197,7 @@
         <ng-container *ngIf="row.get('isExpiryRequired')?.value; else mfgNA">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
             <mat-label>Mfg Date *</mat-label>
-            <input matInput [matDatepicker]="mfgPicker" formControlName="mfgDate" placeholder="dd/mm/yyyy" required [max]="today">
+            <input matInput [matDatepicker]="mfgPicker" formControlName="mfgDate" placeholder="dd/mm/yy" required [max]="today">
             <mat-datepicker-toggle matIconSuffix [for]="mfgPicker"></mat-datepicker-toggle>
             <mat-datepicker #mfgPicker></mat-datepicker>
             <mat-error *ngIf="row.get('mfgDate')?.hasError('required')">Required</mat-error>
@@ -210,7 +214,7 @@
         <ng-container *ngIf="row.get('isExpiryRequired')?.value; else expNA">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
             <mat-label>Exp Date *</mat-label>
-            <input matInput [matDatepicker]="expDatePicker" formControlName="expDate" placeholder="dd/mm/yyyy" required [min]="getMinExpDate(row.get('mfgDate')?.value)">
+            <input matInput [matDatepicker]="expDatePicker" formControlName="expDate" placeholder="dd/mm/yy" required [min]="getMinExpDate(row.get('mfgDate')?.value)">
             <mat-datepicker-toggle matIconSuffix [for]="expDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #expDatePicker></mat-datepicker>
             <mat-error *ngIf="row.get('expDate')?.hasError('required')">Required</mat-error>
@@ -310,8 +314,8 @@
 
             <!-- Save Action Button inside the card for emphasis -->
             <div class="card-action-bar">
-              <button mat-raised-button color="primary" class="save-btn-premium w-100" (click)="saveDraft()" [disabled]="poForm.invalid || isLoading">
-                <mat-icon>{{ isEditMode ? 'cloud_upload' : 'save' }}</mat-icon> 
+              <button mat-raised-button color="primary" class="save-btn w-100" (click)="saveDraft()" [disabled]="poForm.invalid || isLoading">
+                <mat-icon>save</mat-icon> 
                 {{ isEditMode ? 'Update Draft (PO)' : 'Save Draft (PO)' }}
               </button>
             </div>

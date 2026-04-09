@@ -193,8 +193,8 @@ export class ThermalPrintService {
         ${savingsHtml}
         
         <div class="footer">
-            <div>${data.footerMessage || 'Thank You for Business! Visit Again.'}</div>
-            ${data.returnPolicyDisclaimer ? `<div style="margin-top: 5px; font-weight: bold; border-top: 1px dashed #ccc; padding-top: 5px;">Return Policy: ${data.returnPolicyDisclaimer}</div>` : ''}
+            <div style="font-size: 11px;">${data.footerMessage || 'Thank You for Business! Visit Again.'}</div>
+            ${data.returnPolicyDisclaimer ? `<div style="margin-top: 5px; font-weight: bold; border-top: 1px dashed #ccc; padding-top: 5px; font-size: 10px;">Return Policy: ${data.returnPolicyDisclaimer}</div>` : ''}
         </div>
 
       </body>

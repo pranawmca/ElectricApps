@@ -266,16 +266,16 @@ input[type=number] {
   }
 
   /* Grid Columns Updated for Date Tracking */
-  .col-product { flex: 1.2; min-width: 180px; }
-  .col-qty { flex: 0.6; min-width: 100px; margin-left: 8px; }
-  .col-unit { flex: 0.4; min-width: 90px; margin-left: 12px; }
-  .col-rate { flex: 0.6; min-width: 90px; margin-left: 8px; }
-  .col-disc { flex: 0.4; min-width: 60px; margin-left: 8px; }
-  .col-gst { flex: 0.5; min-width: 85px; margin-left: 8px; }
-  .col-mfg { flex: 0.8; min-width: 140px; margin-left: 8px; }
-  .col-exp { flex: 0.8; min-width: 140px; margin-left: 8px; }
-  .col-total { flex: 0.8; min-width: 100px; text-align: right; }
-  .col-action { flex: 0 0 45px; text-align: center; }
+  .col-product { flex: 1.2; min-width: 180px; position: relative; overflow: visible; }
+  .col-qty     { flex: 0.6; min-width: 100px; margin-left: 8px; position: relative; overflow: visible; input { font-size: 12px !important; } }
+  .col-unit    { flex: 0.4; min-width: 90px; margin-left: 12px; position: relative; overflow: visible; input { font-size: 11px !important; } }
+  .col-rate    { flex: 0.6; min-width: 90px; margin-left: 8px; position: relative; overflow: visible; input { font-size: 12px !important; font-weight: 600 !important; } }
+  .col-disc    { flex: 0.4; min-width: 60px; margin-left: 8px; position: relative; overflow: visible; input { font-size: 11px !important; } }
+  .col-gst     { flex: 0.5; min-width: 85px; margin-left: 8px; position: relative; overflow: visible; input { font-size: 11px !important; } }
+  .col-mfg     { flex: 0.8; min-width: 140px; margin-left: 8px; position: relative; overflow: visible; }
+  .col-exp     { flex: 0.8; min-width: 140px; margin-left: 8px; position: relative; overflow: visible; }
+  .col-total   { flex: 0.8; min-width: 100px; text-align: right; position: relative; overflow: visible; }
+  .col-action  { flex: 0 0 45px; text-align: center; position: relative; overflow: visible; }
 
   mat-form-field[dense] {
     width: 100%;
@@ -304,27 +304,29 @@ input[type=number] {
 
   .product-info-field {
     width: 100%;
-    margin-bottom: 8px; /* Give space for hint */
     ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-        margin-top: -6px;
-        position: relative;
-        padding-top: 4px; /* Space between input border and hint */
+        margin-top: 2px;
+        padding-top: 0;
     }
   }
 
-  .product-hints {
-    font-size: 11px;
-    color: #64748b;
+  /* Premium Stock Hint Positioning (Shared with Sale) */
+  .stock-hint {
+    position: absolute;
+    bottom: 0px;
+    left: 8px;
+    font-size: 10px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    padding-left: 2px;
-
-    .stock { color: #10b981; font-weight: 600; }
-    .rack { color: #8b5cf6; font-weight: 600; }
-    .wh-hint { color: #3b82f6; font-weight: 600; }
-    .rack-hint { color: #8b5cf6; font-weight: 600; }
+    color: #64748b;
+    z-index: 100;
+    letter-spacing: 0.1px;
+    background: transparent;
+    pointer-events: auto;
+    
+    .wh-name { color: #2563eb; font-weight: 700; }
+    .rack-name { color: #7c3aed; font-weight: 600; }
+    .stock-val { color: #059669; }
+    .sep { color: #cbd5e1; margin: 0 4px; }
   }
 
   .total-badge {
@@ -611,9 +613,32 @@ input[type=number] {
     
     .tax-type-toggle-group { color: #ffffff !important; }
 
-    /* 🎯 UNIFIED STEALTH BUTTONS (Synced Save & Cancel) */
-    .save-btn, .back-btn {
-      background: #1e293b !important; /* Unified Obsidian Slate */
+    .barcode-status, .back-btn {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+      backdrop-filter: blur(10px);
+      border-radius: 8px; /* Making it look like a pill/pill-button */
+      
+      mat-icon { color: #ffffff !important; }
+      
+      &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-1px);
+      }
+    }
+
+    .barcode-status {
+      &.scanning { background: rgba(59, 130, 246, 0.2) !important; border-color: #3b82f6 !important; }
+      .status-label { color: rgba(255, 255, 255, 0.5) !important; }
+      .last-scanned { color: #ffffff !important; }
+      mat-icon { color: #3b82f6 !important; }
+    }
+
+    /* 🎯 UNIFIED SAVE BUTTON (Standard Primary style) */
+    .save-btn {
+      background: #1e293b !important; /* Obsidian Slate */
       color: #ffffff !important;
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
@@ -622,8 +647,7 @@ input[type=number] {
 
       &:hover:not(:disabled) {
         background: #334155 !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
-        transform: translateY(-2px);
+        transform: translateY(-1px);
       }
     }
   }
@@ -714,10 +738,19 @@ input[type=number] {
       color: rgba(255, 255, 255, 0.4) !important;
     }
 
-    .small-tax-input {
-      background: rgba(255, 255, 255, 0.03) !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
-      color: #ffffff !important;
+  }
+
+  /* TDS/TCS Textbox back color slate 800 */
+  .tax-extra-row .tax-input-group .small-tax-input {
+    background-color: #1e293b !important; /* Slate 800 */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border-radius: 6px;
+    padding: 0 8px;
+
+    &:focus {
+      border-color: #3b82f6 !important;
+      background-color: #0f172a !important; /* Slate 900 for focus */
     }
   }
 

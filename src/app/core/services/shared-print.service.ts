@@ -78,7 +78,7 @@ export class SharedPrintService {
             docDate = data.soDate;
 
             footerMsg = isOrder ? (companyInfo?.saleOrderFooterMessage || '') : (companyInfo?.invoiceFooterMessage || '');
-            returnPolicy = companyInfo?.saleReturnPolicyDisclaimer || '';
+            returnPolicy = isOrder ? '' : (companyInfo?.saleReturnPolicyDisclaimer || '');
         } else if (docType === 'PO') {
              title = 'PURCHASE ORDER';
              receiptNoLabel = 'PO No';
@@ -247,13 +247,13 @@ export class SharedPrintService {
                             <div class="value">Rupees ${data.amountInWords}</div>
 
                             <div style="margin-top: 30px; padding: 15px; border: 1px dashed #d1d5db; border-radius: 8px; background: #f9fafb;">
-                                ${data.footerMessage ? `<p style="margin: 0 0 10px 0; font-size: 14px; color: #374151;">${data.footerMessage}</p>` : ''}
+                                ${data.footerMessage ? `<p style="margin: 0 0 10px 0; font-size: 12px; color: #374151; line-height: 1.5;">${data.footerMessage}</p>` : ''}
                                 ${data.returnPolicyDisclaimer ? `
                                     <div style="display: flex; gap: 8px; align-items: flex-start;">
                                         <div style="padding-top: 2px;">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a56db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a56db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                                         </div>
-                                        <p style="margin: 0; font-size: 12px; font-weight: 700; color: #1a56db;">Return Policy: <span style="font-weight: 500; font-style: italic; color: #4b5563;">${data.returnPolicyDisclaimer}</span></p>
+                                        <p style="margin: 0; font-size: 11px; font-weight: 700; color: #1a56db;">Return Policy: <span style="font-weight: 500; font-style: italic; color: #4b5563;">${data.returnPolicyDisclaimer}</span></p>
                                     </div>
                                 ` : ''}
                             </div>

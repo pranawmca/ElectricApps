@@ -292,7 +292,10 @@
     flex: 0.35; min-width: 65px; margin-left: 6px; position: relative; overflow: visible;
     input { font-size: 11px !important; }
   }
-  .col-rate    { flex: 0.4;  min-width: 75px;  margin-left: 6px; position: relative; overflow: visible; }
+  .col-rate    { 
+    flex: 0.4;  min-width: 75px;  margin-left: 6px; position: relative; overflow: visible; 
+    input { font-size: 12px !important; font-weight: 600 !important; }
+  }
   .col-gst     { flex: 0.25; min-width: 50px;  margin-left: 6px; position: relative; overflow: visible; }
   .col-mfg     { flex: 0.4;  min-width: 80px;  margin-left: 6px; position: relative; overflow: visible; }
   .col-exp     { flex: 0.4;  min-width: 80px;  margin-left: 6px; position: relative; overflow: visible; }
@@ -684,11 +687,25 @@
       .subtitle { color: rgba(255, 255, 255, 0.5) !important; }
     }
     
-    .barcode-status {
+    .barcode-status, button[mat-stroked-button] {
       background: rgba(255, 255, 255, 0.05) !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+      backdrop-filter: blur(10px);
+      
+      mat-icon { color: #ffffff !important; }
+      span { color: #ffffff !important; }
+
+      &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+      }
+    }
+
+    .barcode-status {
       .status-label { color: rgba(255, 255, 255, 0.5) !important; }
       .last-scanned { color: #ffffff !important; }
+      mat-icon { color: #10b981 !important; }
     }
   }
 
@@ -730,7 +747,23 @@
 
   .items-section {
     border-top-color: rgba(255, 255, 255, 0.05) !important;
-    .section-title span { color: #ffffff !important; }
+    .section-title {
+      span { color: #ffffff !important; font-weight: 700 !important; }
+      
+      button {
+        background: #1e293b !important; /* Midnight Slate */
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+
+        mat-icon { color: #3b82f6 !important; }
+
+        &:hover:not(:disabled) {
+          background: #334155 !important;
+          transform: translateY(-1px);
+        }
+      }
+    }
   }
 
   .items-scroll-container {
@@ -806,9 +839,17 @@
     }
   }
 
+  /* TDS/TCS Textbox back color slate 800 */
   .extra-tax-row .tax-input-group .small-tax-input {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: #1e293b !important; /* Slate 800 */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
+    border-radius: 6px;
+    padding: 0 8px;
+
+    &:focus {
+      border-color: #10b981 !important; /* Emerald for Sale focus */
+      background-color: #0f172a !important;
+    }
   }
 }

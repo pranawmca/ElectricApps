@@ -387,10 +387,18 @@ import { FormsModule } from '@angular/forms';
       --card-selected-bg: rgba(59, 130, 246, 0.08);
 
       .dg-pill-cancel, .dg-pill-confirm {
-        background: #1e293b !important; /* 🎯 Unified Midnight Slate for Dark mode */
-        color: #94a3b8 !important;
-        border-color: rgba(255, 255, 255, 0.05) !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+        background: #1e293b !important; 
+        color: #ffffff !important; /* Force white text in dark mode */
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+
+        &:hover:not(:disabled) { 
+          background: #334155 !important; /* Lighter slate hover for both buttons */
+          color: #ffffff !important;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.6) !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+        }
       }
     }
   `]

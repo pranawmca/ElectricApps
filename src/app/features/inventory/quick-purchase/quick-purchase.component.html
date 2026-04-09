@@ -123,14 +123,19 @@
 
           <div class="item-row" *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
             <div class="col-product">
-              <mat-form-field appearance="outline" dense class="product-info-field">
-                <input matInput formControlName="productName" readonly placeholder="Selected Product">
-                <mat-hint class="product-hints" *ngIf="item.get('productId')?.value">
-                   Stock: <span class="stock">{{item.get('availableStock')?.value}} {{item.get('unit')?.value}}</span>
-                   &nbsp;| 🏭 <span class="wh-hint">{{getWarehouseName(item.get('warehouseId')?.value)}}</span>
-                   / <span class="rack-hint">{{getRackName(i, item.get('rackId')?.value)}}</span>
-                </mat-hint>
-              </mat-form-field>
+               <div class="stock-hint" 
+                    *ngIf="item.get('productId')?.value" 
+                    matTooltip="Warehouse, Rack and Current Stock info">
+                  <span class="wh-name">{{getWarehouseName(item.get('warehouseId')?.value)}}</span>
+                  <span class="sep">/</span>
+                  <span class="rack-name">Rack: {{getRackName(i, item.get('rackId')?.value)}}</span>
+                  <span class="sep">/</span>
+                  <span class="stock-label">Stock:</span><span class="stock-val"><strong>{{item.get('availableStock')?.value}}</strong> {{item.get('unit')?.value}}</span>
+               </div>
+
+               <mat-form-field appearance="outline" dense class="product-info-field">
+                 <input matInput formControlName="productName" readonly placeholder="Selected Product">
+               </mat-form-field>
             </div>
             <div class="col-qty">
               <mat-form-field appearance="outline" dense>
