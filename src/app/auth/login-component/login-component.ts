@@ -27,6 +27,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
   companyName = '';
   companyTagline = '';
+  companyLogoUrl = '';
 
   @ViewChild('emailInputField') emailInputField!: ElementRef;
   @ViewChild('passwordInputField') passwordInputField!: ElementRef;
@@ -101,7 +102,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
         if (profile) {
           this.companyName = profile.name;
           this.companyTagline = profile.tagline;
-          this.titleService.setTitle(this.companyTagline || this.companyName || 'ElectricApps');
+          this.companyLogoUrl = profile.logoUrl || '';
+          this.titleService.setTitle(this.companyTagline || this.companyName || 'Enterprise ERP');
           this.cdr.detectChanges();
         }
       },

@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "ElectricApps": {
+    "EnterpriseERP": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -76,10 +76,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "ElectricApps:build:production"
+              "buildTarget": "EnterpriseERP:build:production"
             },
             "development": {
-              "buildTarget": "ElectricApps:build:development"
+              "buildTarget": "EnterpriseERP:build:development"
             }
           },
           "defaultConfiguration": "development"

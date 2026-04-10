@@ -16,7 +16,7 @@ FROM nginx:alpine
 
 # Copy built files from stage 1
 # Note: For Angular 17/18/19+, the path is usually dist/<project-name>/browser
-COPY --from=build /app/dist/ElectricApps/browser /usr/share/nginx/html
+COPY --from=build /app/dist/EnterpriseERP/browser /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf

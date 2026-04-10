@@ -1,158 +1,277 @@
-.login-wrapper {
+@import 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap';
+
+.login-page-container {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0e88da 0%, #064e7d 100%);
-  padding: 16px; // Ensures some space around the card on small screens
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #f8fafc;
+  overflow: hidden;
 
-  .login-card {
-    width: 100%;
-    max-width: 420px;
-    padding: 40px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: transform 0.3s ease;
+  /* --- BRAND SIDE (Clean Enterprise Sidebar) --- */
+  .brand-side {
+    position: relative;
+    flex: 1.2;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: white;
 
-    @media (max-width: 480px) {
-      padding: 24px;
-      border-radius: 16px;
+    @media (min-width: 1024px) {
+      display: flex;
     }
 
-    @media (max-width: 320px) {
-      padding: 16px;
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+
+      .brand-icon {
+        font-size: 40px;
+        height: 40px;
+        width: 40px;
+        color: #60a5fa;
+      }
+
+      .brand-title {
+        font-size: 32px;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -1px;
+        color: #ffffff !important;
+      }
     }
-  }
 
-  .login-header {
-    text-align: center;
-    margin-bottom: 32px;
-
-    h2 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 800;
-      color: #1a202c !important; /* Force visibility */
-      letter-spacing: -0.5px;
+    .brand-subtitle {
+      font-size: 18px;
+      color: #cbd5e1;
+      max-width: 440px;
+      line-height: 1.6;
+      margin-bottom: 60px;
     }
 
-    p {
-      color: #4a5568 !important; /* Darker subtext */
-      font-size: 15px;
-      margin-top: 10px;
-      line-height: 1.5;
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+
+      .feature-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: background 0.3s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        mat-icon {
+          color: #60a5fa;
+        }
+
+        span {
+          font-weight: 600;
+          font-size: 15px;
+        }
+      }
+    }
+
+    .brand-footer {
+      font-size: 13px;
+      color: #94a3b8;
       font-weight: 500;
     }
   }
 
-  form {
+  /* --- FORM SIDE (Standard Material Design) --- */
+  .form-side {
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  ::ng-deep {
-    .mat-mdc-form-field {
-      width: 100%;
-
-      .mat-mdc-text-field-wrapper {
-        background-color: #f7fafc !important;
-        border-radius: 10px !important;
-        transition: all 0.2s ease;
-      }
-
-      &.mat-focused .mat-mdc-text-field-wrapper {
-        background-color: #fff !important;
-        box-shadow: 0 0 0 2px rgba(14, 136, 218, 0.2);
-      }
-    }
-  }
-
-  .form-options {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 14px;
-    color: #4a5568;
-    gap: 12px;
-    flex-wrap: wrap; // Wrap options on small screens
-
-    @media (max-width: 360px) {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-
-      .forgot-link {
-        align-self: flex-end;
-      }
-    }
-
-    .forgot-link {
-      color: #0e88da;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: color 0.2s;
-
-      &:hover {
-        color: #064e7d;
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .login-btn {
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(circle at 70% 20%, rgba(224, 231, 255, 0.4) 0%, rgba(248, 250, 252, 1) 100%);
+    position: relative;
     width: 100%;
-    height: 52px;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    margin-top: 8px;
-    border-radius: 12px;
-    background-color: #0e88da;
-    color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(14, 136, 218, 0.3);
-    cursor: pointer;
+    overflow: hidden;
 
-    &:disabled {
-      background-color: #cbd5e0 !important;
-      color: #718096 !important;
-      cursor: not-allowed !important;
-      box-shadow: none !important;
-      transform: none !important;
+    /* Premium Background Decoration (Dot Grid) */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(rgba(148, 163, 184, 0.15) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
     }
 
-    &:hover:not(:disabled) {
-      background-color: #064e7d;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(14, 136, 218, 0.4);
+    /* Subtle Edge Glow */
+    &::after {
+      content: '';
+      position: absolute;
+      top: -150px;
+      right: -150px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(96, 165, 250, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(40px);
     }
 
-    &:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .loader-container {
+    .system-status {
+      position: absolute;
+      top: 24px;
+      right: 32px;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      z-index: 5;
 
-      ::ng-deep .mat-mdc-progress-spinner circle {
-        stroke: white !important;
+      .status-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #10b981;
+        box-shadow: 0 0 8px #10b981;
+      }
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+      
+      mat-card-header {
+        margin-bottom: 32px;
+        padding: 0;
+
+        mat-card-title {
+          font-size: 28px;
+          font-weight: 800;
+          color: #1e293b;
+          letter-spacing: -0.5px;
+          margin-bottom: 8px;
+        }
+
+        mat-card-subtitle {
+          font-size: 15px;
+          color: #64748b;
+          margin: 0;
+        }
+      }
+
+      mat-card-content {
+        padding: 0;
+      }
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      mat-form-field {
+        width: 100%;
+      }
+
+      .form-extras {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: -8px 0 16px;
+
+        @media (max-width: 400px) {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        ::ng-deep .mat-mdc-checkbox-label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #64748b;
+        }
+
+        .auth-links {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+
+          .small-btn {
+            height: 32px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 0 8px;
+          }
+        }
+      }
+
+      .submit-btn {
+        height: 56px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+
+        &.is-loading {
+          background-color: #3b82f6 !important;
+          opacity: 0.8;
+          cursor: wait !important;
+        }
+
+        &:disabled:not(.is-loading) {
+          background-color: #cbd5e1 !important;
+          color: #94a3b8 !important;
+        }
+
+        mat-spinner {
+          ::ng-deep circle {
+            stroke: #ffffff !important;
+          }
+        }
+      }
+
+      .full-width-btn {
+        width: 100%;
+        height: 48px;
+        margin-top: 8px;
+        color: #64748b;
+        font-weight: 600;
       }
     }
   }
 }
 
-.error-text {
-  color: #e53e3e;
-  font-size: 14px;
-  text-align: center;
-  margin-top: 10px;
-  font-weight: 500;
+/* Animations (Conservative) */
+.anim-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+.anim-slide-up { opacity: 0; animation: slideUp 0.6s ease-out 0.2s forwards; }
+.anim-slide-up-delayed { opacity: 0; animation: slideUp 0.6s ease-out 0.4s forwards; }
+.anim-scale-in { animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { 
+  from { opacity: 0; transform: translateY(20px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+@keyframes scaleIn { 
+  from { opacity: 0; transform: scale(0.95); } 
+  to { opacity: 1; transform: scale(1); } 
 }

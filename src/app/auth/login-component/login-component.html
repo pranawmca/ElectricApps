@@ -1,121 +1,145 @@
-<div class="login-wrapper">
-  <!-- <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar> -->
-
-  <mat-card class="login-card">
-    <div class="login-header">
-      <h2>{{ resetPasswordMode ? 'Reset Password' : (forgotPasswordMode ? 'Forgot Password' : (changePasswordMode ? 'Change Password' : (companyName ? 'Welcome to ' + companyName : welcomeMessage))) }}</h2>
-      <p>{{ resetPasswordMode ? 'Enter your new password' : (forgotPasswordMode ? 'Enter your email to receive a reset token' : (changePasswordMode ? 'Update your credentials' : (companyTagline || 'Enter your credentials to access the portal'))) }}</p>
-    </div>
-
-    <mat-card-content>
-      <!-- LOGIN FORM -->
-      <form [formGroup]="loginForm" (ngSubmit)="Login()" *ngIf="!changePasswordMode && !forgotPasswordMode && !resetPasswordMode">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="Email" type="email" name="email" autocomplete="email" #emailInputField (input)="cdr.detectChanges()">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Password</mat-label>
-          <input matInput type="password" formControlName="Password" name="password" autocomplete="current-password" #passwordInputField (input)="cdr.detectChanges()">
-        </mat-form-field>
-
-        <div class="form-options">
-          <mat-checkbox formControlName="rememberMe" color="primary">Remember me</mat-checkbox>
-          <div style="display: flex; gap: 10px; flex-direction: column; align-items: flex-end;">
-             <a class="forgot-link" (click)="toggleChangePasswordMode()" style="cursor: pointer;">Change Password?</a>
-             <a class="forgot-link" (click)="toggleForgotPasswordMode()" style="cursor: pointer;">Forgot Password?</a>
-          </div>
+<div class="login-page-container">
+  <!-- Branding Side (Standard Enterprise Sidebar) -->
+  <div class="brand-side">
+    <div class="brand-content">
+      <div class="logo-area anim-fade-in">
+        <mat-icon class="brand-icon">business</mat-icon>
+        <h1 class="brand-title">{{ companyName || 'Enterprise ERP' }}</h1>
+      </div>
+      <p class="brand-subtitle anim-slide-up">{{ companyTagline || 'Enterprise Resource Planning & Business Management' }}</p>
+      
+      <div class="feature-grid anim-slide-up-delayed">
+        <div class="feature-card">
+          <mat-icon>analytics</mat-icon>
+          <span>Advanced Analytics</span>
         </div>
+        <div class="feature-card">
+          <mat-icon>shield</mat-icon>
+          <span>Secure Infrastructure</span>
+        </div>
+        <div class="feature-card">
+          <mat-icon>cloud</mat-icon>
+          <span>Cloud Sync</span>
+        </div>
+      </div>
+    </div>
+    <div class="brand-footer">
+      <span>&copy; 2026 {{ companyName || 'Enterprise ERP' }}</span>
+    </div>
+  </div>
 
-        <button mat-flat-button color="primary" class="login-btn" [disabled]="loading || loginForm.invalid">
-          <span *ngIf="!loading">SIGN IN</span>
-          <div class="loader-container" *ngIf="loading">
-            <mat-spinner diameter="20" color="accent"></mat-spinner>
-            <span>Signing in...</span>
+  <!-- Form Side (Clean Material Design) -->
+  <div class="form-side">
+    <div class="system-status anim-fade-in">
+      <div class="status-indicator"></div>
+      <span>System Secure</span>
+      <span>v2.1.0</span>
+    </div>
+    <mat-card class="auth-card anim-scale-in">
+      <mat-card-header>
+        <mat-card-title>{{ resetPasswordMode ? 'Reset Password' : (forgotPasswordMode ? 'Forgot Password' : (changePasswordMode ? 'Update Password' : welcomeMessage)) }}</mat-card-title>
+        <mat-card-subtitle>{{ resetPasswordMode ? 'Create a new secure password' : (forgotPasswordMode ? 'Enter your email to reset' : (changePasswordMode ? 'Change your current credentials' : 'Sign in to your account')) }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- LOGIN FORM -->
+        <form [formGroup]="loginForm" (ngSubmit)="Login()" *ngIf="!changePasswordMode && !forgotPasswordMode && !resetPasswordMode" class="auth-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="Email" type="email" placeholder="name@company.com" #emailInputField (input)="cdr.detectChanges()">
+            <mat-icon matPrefix>mail</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="Password" #passwordInputField (input)="cdr.detectChanges()">
+            <mat-icon matPrefix>lock</mat-icon>
+          </mat-form-field>
+
+          <div class="form-extras">
+            <mat-checkbox formControlName="rememberMe" color="primary">Remember me</mat-checkbox>
+            <div class="auth-links">
+               <button type="button" mat-button color="primary" class="small-btn" (click)="toggleChangePasswordMode()">Change Password</button>
+               <button type="button" mat-button color="primary" class="small-btn" (click)="toggleForgotPasswordMode()">Forgot Password?</button>
+            </div>
           </div>
-        </button>
-      </form>
 
-      <!-- FORGOT PASSWORD FORM -->
-      <form [formGroup]="forgotPasswordForm" (ngSubmit)="onForgotPassword()" *ngIf="forgotPasswordMode">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="Email" placeholder="Enter your registered email">
-        </mat-form-field>
+          <button mat-flat-button color="primary" class="submit-btn" [disabled]="loading || loginForm.invalid" [class.is-loading]="loading">
+            <span *ngIf="!loading">SIGN IN</span>
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+          </button>
+        </form>
 
-        <button mat-flat-button color="primary" class="login-btn" [disabled]="loading || forgotPasswordForm.invalid">
-          <span *ngIf="!loading">SEND RESET LINK</span>
-          <div class="loader-container" *ngIf="loading">
-            <mat-spinner diameter="20" color="accent"></mat-spinner>
-            <span>Sending...</span>
-          </div>
-        </button>
+        <!-- FORGOT PASSWORD FORM -->
+        <form [formGroup]="forgotPasswordForm" (ngSubmit)="onForgotPassword()" *ngIf="forgotPasswordMode" class="auth-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Email Address</mat-label>
+            <input matInput formControlName="Email" placeholder="Enter registered email">
+            <mat-icon matPrefix>alternate_email</mat-icon>
+          </mat-form-field>
 
-        <button type="button" mat-button color="accent" (click)="toggleForgotPasswordMode()" style="margin-top: 10px; width: 100%;">
-          Back to Login
-        </button>
-      </form>
+          <button mat-flat-button color="primary" class="submit-btn" [disabled]="loading || forgotPasswordForm.invalid" [class.is-loading]="loading">
+            <span *ngIf="!loading">SEND RESET LINK</span>
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+          </button>
 
-      <!-- RESET PASSWORD FORM -->
-      <form [formGroup]="resetPasswordForm" (ngSubmit)="onResetPassword()" *ngIf="resetPasswordMode">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="Email" readonly>
-        </mat-form-field>
+          <button type="button" mat-button (click)="toggleForgotPasswordMode()" class="full-width-btn">
+            <mat-icon>arrow_back</mat-icon> Back to Login
+          </button>
+        </form>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Reset Token</mat-label>
-          <input matInput formControlName="ResetToken" placeholder="Paste token here">
-        </mat-form-field>
+        <!-- RESET PASSWORD FORM -->
+        <form [formGroup]="resetPasswordForm" (ngSubmit)="onResetPassword()" *ngIf="resetPasswordMode" class="auth-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="Email" readonly>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>New Password</mat-label>
-          <input matInput type="password" formControlName="NewPassword">
-        </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Reset Token</mat-label>
+            <input matInput formControlName="ResetToken">
+          </mat-form-field>
 
-        <button mat-flat-button color="primary" class="login-btn" [disabled]="loading || resetPasswordForm.invalid">
-          <span *ngIf="!loading">RESET PASSWORD</span>
-          <div class="loader-container" *ngIf="loading">
-            <mat-spinner diameter="20" color="accent"></mat-spinner>
-            <span>Processing...</span>
-          </div>
-        </button>
+          <mat-form-field appearance="outline">
+            <mat-label>New Password</mat-label>
+            <input matInput type="password" formControlName="NewPassword">
+          </mat-form-field>
 
-        <button type="button" mat-button color="accent" (click)="cancelReset()" style="margin-top: 10px; width: 100%;">
-          Cancel
-        </button>
-      </form>
+          <button mat-flat-button color="primary" class="submit-btn" [disabled]="loading || resetPasswordForm.invalid" [class.is-loading]="loading">
+            <span *ngIf="!loading">RESET PASSWORD</span>
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+          </button>
 
-      <!-- CHANGE PASSWORD FORM -->
-      <form [formGroup]="changePasswordForm" (ngSubmit)="ChangePassword()" *ngIf="changePasswordMode">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="Email">
-        </mat-form-field>
+          <button type="button" mat-button (click)="cancelReset()" class="full-width-btn">Cancel</button>
+        </form>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Old Password</mat-label>
-          <input matInput type="password" formControlName="OldPassword">
-        </mat-form-field>
+        <!-- CHANGE PASSWORD FORM -->
+        <form [formGroup]="changePasswordForm" (ngSubmit)="ChangePassword()" *ngIf="changePasswordMode" class="auth-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="Email">
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>New Password</mat-label>
-          <input matInput type="password" formControlName="NewPassword">
-        </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Old Password</mat-label>
+            <input matInput type="password" formControlName="OldPassword">
+          </mat-form-field>
 
-        <button mat-flat-button color="primary" class="login-btn" [disabled]="loading || changePasswordForm.invalid">
-          <span *ngIf="!loading">CHANGE PASSWORD</span>
-          <div class="loader-container" *ngIf="loading">
-            <mat-spinner diameter="20" color="accent"></mat-spinner>
-            <span>Processing...</span>
-          </div>
-        </button>
+          <mat-form-field appearance="outline">
+            <mat-label>New Password</mat-label>
+            <input matInput type="password" formControlName="NewPassword">
+          </mat-form-field>
 
-        <button type="button" mat-button color="accent" (click)="toggleChangePasswordMode()" style="margin-top: 10px; width: 100%;">
-          Back to Login
-        </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
+          <button mat-flat-button color="primary" class="submit-btn" [disabled]="loading || changePasswordForm.invalid" [class.is-loading]="loading">
+            <span *ngIf="!loading">CHANGE PASSWORD</span>
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+          </button>
+
+          <button type="button" mat-button (click)="toggleChangePasswordMode()" class="full-width-btn">
+            <mat-icon>arrow_back</mat-icon> Back to Login
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

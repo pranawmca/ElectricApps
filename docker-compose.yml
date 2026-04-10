@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  electric-apps-frontend:
+  enterprise-erp-ui:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: electric-apps-ui
+    container_name: enterprise-erp-ui
     ports:
       - "4201:80"
     restart: always
