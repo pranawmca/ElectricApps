@@ -402,7 +402,8 @@ export class GrnListComponent implements OnInit, AfterViewInit {
     // Navigate to Purchase Return Form with supplier pre-selected
     this.router.navigate([target], {
       queryParams: {
-        supplierId: row.supplierId
+        supplierId: row.supplierId,
+        grnNo: row.grnNo
       }
     });
   }

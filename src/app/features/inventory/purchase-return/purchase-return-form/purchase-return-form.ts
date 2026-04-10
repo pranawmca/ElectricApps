@@ -123,6 +123,7 @@ export class PurchaseReturnForm implements OnInit {
         this.route.queryParams.subscribe(params => {
           let sId = params['supplierId'];
           const poId = params['poId'];
+          const grnNo = params['grnNo'];
 
           if (poId) {
             this.isFromDashboard = true;
@@ -131,17 +132,16 @@ export class PurchaseReturnForm implements OnInit {
 
           // If supplierId is "0" or missing but poId exists, fetch PO to get supplierId
           if ((!sId || sId === '0') && poId) {
-            console.log('[PurchaseReturn] Supplier ID missing, fetching from PO:', poId);
             this.poService.getById(poId).subscribe({
               next: (po: any) => {
                 const fetchedSId = po.supplierId || po.partyId;
                 if (fetchedSId) {
-                  this.autoSelectSupplier(fetchedSId);
+                  this.autoSelectSupplier(fetchedSId, grnNo);
                 }
               }
             });
           } else if (sId && sId !== '0') {
-            this.autoSelectSupplier(Number(sId));
+            this.autoSelectSupplier(Number(sId), grnNo);
           }
         });
       },
@@ -149,11 +149,11 @@ export class PurchaseReturnForm implements OnInit {
     });
   }
 
-  private autoSelectSupplier(sId: number) {
+  private autoSelectSupplier(sId: number, grnNo?: string) {
     console.log('[PurchaseReturn] Auto-selecting supplierId:', sId);
     this.returnForm.get('supplierId')?.setValue(sId);
     this.returnForm.get('supplierId')?.disable(); // Lock the supplier to prevent mismatch
-    this.onSupplierChange(sId);
+    this.onSupplierChange(sId, grnNo);
   }
 
   initForm() {
@@ -178,7 +178,7 @@ export class PurchaseReturnForm implements OnInit {
   isLoadingStock: boolean = false;
   selectedSupplierName: string = ''; // Store selected name directly
 
-  onSupplierChange(supplierId: number) {
+  onSupplierChange(supplierId: number, grnNo?: string) {
     if (!supplierId) return;
 
     // Capture Name Immediately on Selection
@@ -223,6 +223,21 @@ export class PurchaseReturnForm implements OnInit {
         this.isPolicyViolated = combined.some(i => !i.isReturnable && !i.IsReturnable);
 
         this.groupStockByGrn();
+        
+        // Auto-select and Auto-expand if grnNo is provided [cite: 2026-04-10]
+        if (grnNo) {
+          const group = this.groupedReceivedStock.find(g => g.grnRef === grnNo);
+          if (group) {
+            this.expandedGrn = grnNo;
+            group.items.forEach((item: any) => {
+              if (item.itemType === 'Rejected' && item.isReturnable) {
+                item.selected = true;
+                this.onItemToggle(item);
+              }
+            });
+          }
+        }
+
         this.isLoadingStock = false;
         this.cdr.detectChanges();
       },
