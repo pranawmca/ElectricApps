@@ -109,6 +109,10 @@ export class InventoryService {
         return this.api.put('PurchaseOrders/UpdateStatus', payload);
     }
 
+    toggleDispatchStatus(id: number): Observable<any> {
+        return this.api.put(`PurchaseOrders/${id}/toggle-dispatch`, {});
+    }
+
     getPODataForGRN(poIds: string, grnHeaderId: number | null = null, gatePassNo: string | null = null): Observable<any> {
         let url = `GRN/GetPOData?poIds=${poIds}&`;
         if (grnHeaderId) url += `grnHeaderId=${grnHeaderId}&`;

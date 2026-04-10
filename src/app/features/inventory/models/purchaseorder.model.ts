@@ -10,6 +10,7 @@ export interface PurchaseOrderPayload {
   totalTax: number;
   grandTotal: number;
   items: PurchaseOrderItemPayload[];
+  isDispatched?: boolean;
 }
 
 export interface PurchaseOrderItemPayload {

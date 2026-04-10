@@ -457,6 +457,9 @@ export class QuickPurchaseListComponent implements OnInit {
       case 'PURCHASE_RETURN':
         this.onPurchaseReturn(row);
         break;
+      case 'TOGGLE_DISPATCH':
+        this.onToggleDispatch(row);
+        break;
       default:
         console.warn(`Action ${event.action} is not handled in Quick Purchase List.`);
         break;
@@ -584,6 +587,42 @@ export class QuickPurchaseListComponent implements OnInit {
           error: (err) => {
             this.isLoading = false;
             this.notification.showStatus(false, err.error?.message || 'Bulk rejection failed.');
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
+  }
+
+  onToggleDispatch(row: any) {
+    const title = row.isDispatched ? 'Reset Dispatch Status' : 'Confirm Dispatch';
+    const msg = row.isDispatched 
+      ? `Are you sure you want to reset this to "Pending" status?`
+      : `Has the supplier dispatched the goods? You will only be able to perform the inward (GRN) once the shipment is confirmed.`;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '450px',
+      data: {
+        title: title,
+        message: msg,
+        confirmText: row.isDispatched ? 'Yes, Reset' : 'Yes, Dispatched',
+        confirmColor: 'primary'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true;
+        this.cdr.detectChanges();
+        this.inventoryService.toggleDispatchStatus(row.id).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.notification.showStatus(true, `Dispatch status updated!`);
+            this.loadData(this.currentGridState);
+          },
+          error: (err) => {
+            this.isLoading = false;
+            this.notification.showStatus(false, 'Status update failed.');
             this.cdr.detectChanges();
           }
         });
