@@ -9,6 +9,7 @@ import { SystemLogService, SystemLog } from '../services/system-log.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LoadingService } from '../../../core/services/loading.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 
 @Component({
   selector: 'app-system-logs',
@@ -80,7 +81,6 @@ export class SystemLogsComponent implements OnInit {
   }
 
   viewDetails(log: SystemLog): void {
-     // Yahan aap ek dialog open kar sakte hain stack trace dikhane ke liye
      this.dialog.open(LogDetailsDialog, {
        data: log,
        width: '800px'
@@ -88,18 +88,30 @@ export class SystemLogsComponent implements OnInit {
   }
 
   clearAllLogs(): void {
-    if (confirm('Are you sure you want to clear all system logs? This cannot be undone.')) {
-      this.logService.clearLogs().subscribe({
-        next: () => {
-          this.snackBar.open('Logs cleared successfully', 'OK', { duration: 2000 });
-          this.loadLogs();
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirm Action',
+        message: 'Are you sure you want to clear all system logs? This cannot be undone.',
+        confirmText: 'Yes, Clear All',
+        cancelText: 'No, Keep Them',
+        confirmColor: 'warn'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.logService.clearLogs().subscribe({
+          next: () => {
+            this.snackBar.open('Logs cleared successfully', 'OK', { duration: 2000 });
+            this.loadLogs();
+          }
+        });
+      }
+    });
   }
 }
 
-// Internal Dialog Component for Exception details
 @Component({
   selector: 'log-details-dialog',
   standalone: true,
