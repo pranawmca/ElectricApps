@@ -53,6 +53,19 @@ const handle401Error = (
   authService: AuthService,
   router: Router
 ): Observable<HttpEvent<any>> => {
+  // 🕒 SECURITY CHECK: If user has been idle for too long, don't refresh, just logout
+  const lastActivity = localStorage.getItem('lastActivity');
+  const IDLE_TIME = 15 * 60 * 1000; // Match with IdleService
+  
+  if (lastActivity) {
+    const diff = Date.now() - parseInt(lastActivity);
+    if (diff >= IDLE_TIME) {
+      console.warn('[AuthInterceptor] User idle for too long → skipping refresh → logout');
+      authService.logout();
+      return throwError(() => new Error('Session expired due to inactivity'));
+    }
+  }
+
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
