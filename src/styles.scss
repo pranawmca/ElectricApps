@@ -352,21 +352,31 @@ html.dark-mode {
       color: rgba(255, 255, 255, 0.7) !important;
     }
 
-    .mat-mdc-paginator-navigation-button {
+    /* ⚡ PERMANENT ICON FIX (Nuclear Overrides) ⚡ */
+    .mat-mdc-paginator-navigation-button, 
+    .mat-paginator-navigation-button,
+    .mat-mdc-paginator {
+      /* MDC Variable Overrides */
+      --mat-paginator-enabled-icon-color: #ffffff !important;
+      --mat-paginator-disabled-icon-color: rgba(255, 255, 255, 0.25) !important;
+      --mat-paginator-container-text-color: #ffffff !important;
+
       color: #ffffff !important;
       
-      /* Nuclear targeting for SVGs and Paths */
-      svg, path { 
+      // Specifically target the SVG and its paths
+      svg, path, .mat-mdc-button-touch-target { 
         fill: #ffffff !important; 
         stroke: #ffffff !important;
         color: #ffffff !important;
+        filter: invert(1) brightness(100) !important; /* Forces black icons to white */
       }
 
-      &.mat-mdc-button-disabled { 
-        opacity: 0.3 !important; 
+      /* Handle disabled state visibility */
+      &.mat-mdc-button-disabled, &[disabled] { 
+        opacity: 0.25 !important; 
         svg, path { 
-          fill: rgba(255, 255, 255, 0.3) !important;
-          stroke: rgba(255, 255, 255, 0.3) !important;
+          fill: rgba(255, 255, 255, 0.4) !important;
+          stroke: rgba(255, 255, 255, 0.4) !important;
         }
       }
     }

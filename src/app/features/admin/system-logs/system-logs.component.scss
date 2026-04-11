@@ -182,9 +182,18 @@
             transform: translateY(-2px);
         }
     }
+}
 
-    /* ❗ Force Paginator Icons to White in Dark Mode */
+/* ⚡ TOP-LEVEL OVERRIDE FOR PAGINATOR VISIBILITY IN DARK MODE ⚡ */
+html.dark-mode {
     ::ng-deep .mat-mdc-paginator {
+        background-color: transparent !important;
+        
+        /* 1. MDC CSS Variable Overrides (New Material Engines) */
+        --mat-paginator-enabled-icon-color: #ffffff !important;
+        --mat-paginator-disabled-icon-color: rgba(255, 255, 255, 0.25) !important;
+        --mat-paginator-container-text-color: #ffffff !important;
+
         .mat-mdc-paginator-navigation-button {
             color: #ffffff !important;
             svg, path { 
@@ -193,12 +202,22 @@
                 color: #ffffff !important;
             }
             &.mat-mdc-button-disabled {
-                opacity: 0.3 !important;
-                svg, path { fill: rgba(255, 255, 255, 0.3) !important; }
+                opacity: 0.25 !important;
+                svg, path { 
+                    fill: rgba(255, 255, 255, 0.4) !important; 
+                    filter: none !important; 
+                }
+            }
+            
+            /* ⚡ THE NUCLEAR OPTION: Invert black icons to white ⚡ */
+            svg, .mat-icon, path {
+                filter: invert(1) brightness(100) !important;
             }
         }
+        
         .mat-mdc-select-value { color: #ffffff !important; }
         .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+        .mat-mdc-paginator-container { color: #ffffff !important; }
         .mat-mdc-paginator-range-label, .mat-mdc-paginator-page-size-label {
             color: rgba(255, 255, 255, 0.7) !important;
         }
