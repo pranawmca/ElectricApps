@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IdleService } from './core/services/idle.service';
@@ -7,6 +8,7 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { LoadingService } from './core/services/loading.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DialogPersistenceService } from './shared/services/dialog-persistence.service';
+import { CompanyService } from './features/company/services/company.service';
 
 @Component({
   selector: 'app-root',
@@ -22,10 +24,29 @@ export class App implements OnInit {
   private loadingService = inject(LoadingService);
   private cdr = inject(ChangeDetectorRef);
   private dialogPersistence = inject(DialogPersistenceService);
+  private titleService = inject(Title);
+  private companyService = inject(CompanyService);
 
   isGlobalLoading = false;
 
   ngOnInit(): void {
+    // Initial dynamic title
+    this.titleService.setTitle("Enterprise ERP");
+
+    // Company Tagline Fetching via API
+    this.companyService.getCompanyProfile().subscribe({
+      next: (profile) => {
+        if (profile && profile.tagline) {
+          this.titleService.setTitle(`${profile.name} | ${profile.tagline}`);
+        } else if (profile) {
+          this.titleService.setTitle(profile.name);
+        }
+      },
+      error: () => {
+        this.titleService.setTitle("Enterprise ERP");
+      }
+    });
+
     if (localStorage.getItem('access_token')) {
       this.idleService.startWatching();
     }
