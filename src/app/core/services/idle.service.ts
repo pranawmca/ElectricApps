@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 })
 export class IdleService {
 
-  // ⏱️ 15 minutes idle time (change as needed)
-  private readonly IDLE_TIME = 15 * 60 * 1000;
+  // ⏱️ 60 seconds idle time for testing (Change back to 15 * 60 * 1000 later)
+  private readonly IDLE_TIME = 60 * 1000;
 
   private timeoutId: any;
   private readonly events = [
@@ -22,12 +22,8 @@ export class IdleService {
     private router: Router,
     private ngZone: NgZone
   ) {
-    // Check when window gets focus (laptop wakeup/tab switch)
-    this.events.forEach(event => {
-       if (event === 'visibilitychange' || event === 'focus') return;
-    });
-
     window.addEventListener('focus', () => this.checkInactivity());
+    window.addEventListener('pageshow', () => this.checkInactivity()); // Reliable on wake-up
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         this.checkInactivity();
@@ -46,24 +42,31 @@ export class IdleService {
     this.removeEventListeners();
   }
 
-  private checkInactivity(): void {
+  private checkInactivity(): boolean {
     const lastActivity = localStorage.getItem('lastActivity');
     if (lastActivity) {
       const diff = Date.now() - parseInt(lastActivity);
       if (diff >= this.IDLE_TIME) {
-        console.warn('User was inactive for too long (checked on wake/focus) → auto logout');
+        console.warn('User was inactive for too long → auto logout');
         this.logout();
+        return true;
       }
     }
+    return false;
   }
 
   private logout(): void {
     console.warn('User idle → auto logout');
+    // Save current URL for redirect after login if needed
+    const currentUrl = this.router.url;
     localStorage.clear();
     this.router.navigate(['/login']);
   }
 
   private resetTimer = (): void => {
+    // Prevent resetting the timer if the user is already technically idle
+    if (this.checkInactivity()) return;
+
     localStorage.setItem('lastActivity', Date.now().toString());
     this.clearTimer();
 

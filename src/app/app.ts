@@ -47,7 +47,7 @@ export class App implements OnInit {
       }
     });
 
-    if (localStorage.getItem('access_token')) {
+    if (localStorage.getItem('accessToken')) {
       this.idleService.startWatching();
     }
 

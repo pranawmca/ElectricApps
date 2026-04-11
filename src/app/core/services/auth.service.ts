@@ -30,10 +30,16 @@ export class AuthService {
 
   // 🔄 REFRESH TOKENS
   refreshTokens(): Observable<any> {
-    const payload = {
-      accessToken: this.getAccessToken(),
-      refreshToken: this.getRefreshToken()
-    };
+    const accessToken = this.getAccessToken();
+    const refreshToken = this.getRefreshToken();
+
+    if (!accessToken || !refreshToken) {
+      console.warn('[AuthService] No tokens found for refresh');
+      this.logout();
+      return new Observable();
+    }
+
+    const payload = { accessToken, refreshToken };
     return this.api.post<any>('refresh', payload, this.baseUrl).pipe(
       tap(res => this.storeTokens(res))
     );
