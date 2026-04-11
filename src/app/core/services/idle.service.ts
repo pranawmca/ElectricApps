@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 })
 export class IdleService {
 
-  // ⏱️ 60 seconds idle time for testing (Change back to 15 * 60 * 1000 later)
-  private readonly IDLE_TIME = 60 * 1000;
+  // ⏱️ 15 minutes idle time (Production)
+  private readonly IDLE_TIME = 15 * 60 * 1000;
 
   private timeoutId: any;
   private readonly events = [
