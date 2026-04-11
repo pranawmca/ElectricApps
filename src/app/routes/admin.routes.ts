@@ -36,5 +36,11 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [PermissionGuard],
         loadComponent: () => import('../features/admin/print-settings/print-settings').then(m => m.PrintSettings),
         data: { breadcrumb: 'Print Settings' }
+    },
+    {
+        path: 'system-logs',
+        canActivate: [PermissionGuard],
+        loadComponent: () => import('../features/admin/system-logs/system-logs.component').then(m => m.SystemLogsComponent),
+        data: { breadcrumb: 'System Activity Logs' }
     }
 ];

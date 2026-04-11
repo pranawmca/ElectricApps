@@ -1,0 +1,206 @@
+.logs-container {
+    max-width: 1400px;
+    margin: 0 auto;
+
+    .text-gradient {
+        background: linear-gradient(45deg, #1e293b, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* grid-filter-container and field widths are specific to this component */
+    .grid-filter-container {
+        display: grid;
+        grid-template-columns: 240px 180px 350px auto;
+        gap: 20px;
+        align-items: center;
+        width: 100%;
+    }
+
+    .compact-field, .search-field {
+        width: 100%; 
+        ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+            display: none !important; 
+        }
+    }
+
+    .grid-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-self: end;
+    }
+
+    .refresh-btn {
+        background: rgba(var(--dg-primary-theme-rgb), 0.1) !important;
+        color: var(--dg-primary-theme) !important;
+    }
+
+    .rotating {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .clear-btn {
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+        color: white !important;
+        box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39) !important;
+        border-radius: 999px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+        height: 42px !important;
+        padding: 0 24px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: none !important;
+
+        mat-icon {
+            margin-right: 8px !important;
+            font-size: 20px !important;
+            width: 20px !important;
+            height: 20px !important;
+        }
+
+        &:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45) !important;
+        }
+
+        &:disabled {
+            background: #e2e8f0 !important;
+            color: #94a3b8 !important;
+            box-shadow: none !important;
+        }
+    }
+
+    table {
+        width: 100%;
+    }
+
+    .timestamp {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    .badge-service {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .level-indicator {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+
+        &.information { background: #dcfce7; color: #166534; }
+        &.warning { background: #fef9c3; color: #854d0e; }
+        &.error, &.fatal { background: #fee2e2; color: #991b1b; }
+    }
+
+    .message-cell {
+        max-width: 400px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    .error-row {
+        background-color: rgba(254, 226, 226, 0.2);
+    }
+
+    .huge-icon {
+        font-size: 48px;
+        height: 48px;
+        width: 48px;
+        color: #cbd5e1;
+    }
+
+    .empty-state {
+        padding: 40px;
+        color: #94a3b8;
+    }
+}
+
+// 🌑 Midnight Slate Dark Mode Implementation
+:host-context(html.dark-mode) {
+    .filter-card, .table-card {
+        background: #0f172a !important; /* Midnight Slate Card */
+        color: #f8fafc !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .text-gradient {
+        background: linear-gradient(45deg, #f8fafc, #3b82f6);
+        -webkit-background-clip: text;
+    }
+
+    .badge-service {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: #60a5fa !important;
+        border: 1px solid rgba(59, 130, 246, 0.2) !important;
+    }
+
+    .message-cell {
+        color: #cbd5e1 !important;
+    }
+    
+    .timestamp {
+        color: #94a3b8 !important;
+    }
+
+    /* Override Material Select inside grid during dark mode */
+    ::ng-deep .mat-mdc-select-value-text {
+        color: #f8fafc !important;
+    }
+
+    .clear-btn {
+        background: #1e293b !important; /* Slate 800 */
+        color: #f8fafc !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+        &:hover:not(:disabled) {
+            background: #334155 !important; /* Slate 700 on hover */
+            transform: translateY(-2px);
+        }
+    }
+
+    /* ❗ Force Paginator Icons to White in Dark Mode */
+    ::ng-deep .mat-mdc-paginator {
+        .mat-mdc-paginator-navigation-button {
+            color: #ffffff !important;
+            svg, path { 
+                fill: #ffffff !important; 
+                stroke: #ffffff !important;
+                color: #ffffff !important;
+            }
+            &.mat-mdc-button-disabled {
+                opacity: 0.3 !important;
+                svg, path { fill: rgba(255, 255, 255, 0.3) !important; }
+            }
+        }
+        .mat-mdc-select-value { color: #ffffff !important; }
+        .mat-mdc-select-arrow svg { fill: #ffffff !important; }
+        .mat-mdc-paginator-range-label, .mat-mdc-paginator-page-size-label {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+    }
+}

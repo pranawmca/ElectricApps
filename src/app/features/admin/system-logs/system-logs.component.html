@@ -1,0 +1,122 @@
+<div class="logs-container p-4">
+  <div class="header-section d-flex justify-content-between align-items-center mb-4">
+    <div class="title-area">
+      <h2 class="m-0 fw-bold text-gradient">System Activity Logs</h2>
+      <p class="text-muted small">Monitor real-time microservices activity and exceptions</p>
+    </div>
+  </div>
+
+  <!-- Filter Section - FORCED ONE ROW WITH GRID -->
+  <mat-card class="filter-card mb-3 border-0 shadow-sm">
+    <mat-card-content class="p-2">
+      <div class="grid-filter-container">
+        
+        <!-- Dropdown 1 -->
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-label>Service</mat-label>
+          <mat-select [(ngModel)]="filterService" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Services</mat-option>
+            <mat-option *ngFor="let service of serviceNames" [value]="service">{{service}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Dropdown 2 -->
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-label>Level</mat-label>
+          <mat-select [(ngModel)]="filterLevel" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Levels</mat-option>
+            <mat-option value="Information">Info</mat-option>
+            <mat-option value="Warning">Warn</mat-option>
+            <mat-option value="Error">Error</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Search Bar -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search Message</mat-label>
+          <input matInput placeholder="Search logs..." (keyup)="applySearch($event)">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Right Buttons -->
+        <div class="grid-actions">
+          <button mat-icon-button class="refresh-btn" (click)="loadLogs()" [disabled]="isLoading" matTooltip="Refresh">
+            <mat-icon [class.rotating]="isLoading">refresh</mat-icon>
+          </button>
+          
+          <button mat-flat-button color="warn" class="clear-btn" (click)="clearAllLogs()" [disabled]="isLoading">
+            <mat-icon>delete_sweep</mat-icon>
+            Clear All
+          </button>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Table Card -->
+  <mat-card class="table-card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table mat-table [dataSource]="dataSource" matSort>
+
+        <!-- Timestamp Column -->
+        <ng-container matColumnDef="timeStamp">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Time </th>
+          <td mat-cell *matCellDef="let row"> 
+            <span class="timestamp">{{row.timeStamp | date:'medium'}}</span>
+          </td>
+        </ng-container>
+
+        <!-- Service Column -->
+        <ng-container matColumnDef="serviceName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Service </th>
+          <td mat-cell *matCellDef="let row">
+            <span class="badge-service">{{row.serviceName}}</span>
+          </td>
+        </ng-container>
+
+        <!-- Level Column -->
+        <ng-container matColumnDef="level">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Level </th>
+          <td mat-cell *matCellDef="let row">
+            <span class="level-indicator" [ngClass]="row.level.toLowerCase()">
+              {{row.level}}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Message Column -->
+        <ng-container matColumnDef="message">
+          <th mat-header-cell *matHeaderCellDef> Message </th>
+          <td mat-cell *matCellDef="let row" class="message-cell"> 
+             {{row.message}} 
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <button mat-icon-button *ngIf="row.exception" (click)="viewDetails(row)" matTooltip="View Exception Details">
+              <mat-icon>terminal</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.error-row]="row.level === 'Error'"></tr>
+
+        <!-- No Data Row -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell p-4 text-center" colspan="5">
+            <div class="empty-state">
+              <mat-icon class="huge-icon">history_toggle_off</mat-icon>
+              <p>No activity logs found for the selected criteria.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of logs"></mat-paginator>
+  </mat-card>
+</div>
