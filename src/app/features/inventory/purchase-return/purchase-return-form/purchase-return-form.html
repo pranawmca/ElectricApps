@@ -115,7 +115,7 @@
                               <span class="item-details-inline">
                                  <strong class="item-name">{{item.productName}}</strong> 
                                  <small class="item-avail text-secondary"> 
-                                   (Rec: {{item.availableQty}} | Rate: {{item.rate | currency:'INR'}} | 
+                                   (Received: {{item.availableQty}} | Rate: {{item.rate | currency:'INR'}} | 
                                    <span [class.stock-danger]="item.currentStock < 0" [class.stock-success]="item.currentStock >= 0">
                                      Stock: {{item.currentStock}}
                                    </span> | 
