@@ -1,63 +1,28 @@
 <div class="logs-container p-4">
-  <div class="header-section d-flex justify-content-between align-items-center mb-4">
+  <div class="header-section" style="display: flex !important; justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 24px; width: 100%;">
     <div class="title-area">
       <h2 class="m-0 fw-bold text-gradient">System Activity Logs</h2>
-      <p class="text-muted small">Monitor real-time microservices activity and exceptions</p>
+      <p class="text-muted small m-0 mt-1">Monitor real-time microservices activity and exceptions</p>
+    </div>
+    
+    <div class="header-actions" style="display: flex !important; gap: 8px !important;">
+      <button mat-icon-button class="refresh-btn" (click)="loadLogs()" [disabled]="isLoading" matTooltip="Refresh">
+        <mat-icon [class.rotating]="isLoading">refresh</mat-icon>
+      </button>
+      
+      <button mat-flat-button color="warn" class="clear-btn" (click)="clearAllLogs()" [disabled]="isLoading">
+        <mat-icon>delete_sweep</mat-icon>
+        Clear All
+      </button>
     </div>
   </div>
 
-  <!-- Filter Section - FORCED ONE ROW WITH GRID -->
-  <mat-card class="filter-card mb-3 border-0 shadow-sm">
-    <mat-card-content class="p-2">
-      <div class="grid-filter-container">
-        
-        <!-- Dropdown 1 -->
-        <mat-form-field appearance="outline" class="compact-field">
-          <mat-label>Service</mat-label>
-          <mat-select [(ngModel)]="filterService" (selectionChange)="onFilterChange()">
-            <mat-option value="">All Services</mat-option>
-            <mat-option *ngFor="let service of serviceNames" [value]="service">{{service}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Dropdown 2 -->
-        <mat-form-field appearance="outline" class="compact-field">
-          <mat-label>Level</mat-label>
-          <mat-select [(ngModel)]="filterLevel" (selectionChange)="onFilterChange()">
-            <mat-option value="">All Levels</mat-option>
-            <mat-option value="Information">Info</mat-option>
-            <mat-option value="Warning">Warn</mat-option>
-            <mat-option value="Error">Error</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Search Bar -->
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search Message</mat-label>
-          <input matInput placeholder="Search logs..." (keyup)="applySearch($event)">
-          <mat-icon matPrefix>search</mat-icon>
-        </mat-form-field>
-
-        <!-- Right Buttons -->
-        <div class="grid-actions">
-          <button mat-icon-button class="refresh-btn" (click)="loadLogs()" [disabled]="isLoading" matTooltip="Refresh">
-            <mat-icon [class.rotating]="isLoading">refresh</mat-icon>
-          </button>
-          
-          <button mat-flat-button color="warn" class="clear-btn" (click)="clearAllLogs()" [disabled]="isLoading">
-            <mat-icon>delete_sweep</mat-icon>
-            Clear All
-          </button>
-        </div>
-
-      </div>
-    </mat-card-content>
-  </mat-card>
+  <!-- Header-level filters are now inside the table -->
 
   <!-- Table Card -->
   <mat-card class="table-card border-0 shadow-sm">
     <div class="table-responsive">
-      <table mat-table [dataSource]="dataSource" matSort>
+      <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSort($event)" matSortActive="timeStamp" matSortDirection="desc" matSortDisableClear>
 
         <!-- Timestamp Column -->
         <ng-container matColumnDef="timeStamp">
@@ -104,6 +69,52 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        
+        <!-- Header Filters Row -->
+        <tr mat-header-row *matHeaderRowDef="['filter-timeStamp', 'filter-serviceName', 'filter-level', 'filter-message', 'filter-actions']" class="filter-header-row"></tr>
+
+        <!-- Filter Columns Definitions -->
+        <ng-container matColumnDef="filter-timeStamp">
+          <th mat-header-cell *matHeaderCellDef></th>
+        </ng-container>
+
+        <ng-container matColumnDef="filter-serviceName">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-form-field appearance="outline" class="header-filter-field service-filter">
+              <mat-select [(ngModel)]="filterService" (selectionChange)="onFilterChange()" placeholder="Service">
+                <mat-option value="">All</mat-option>
+                <mat-option *ngFor="let service of serviceNames" [value]="service">{{service}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </th>
+        </ng-container>
+
+        <ng-container matColumnDef="filter-level">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-form-field appearance="outline" class="header-filter-field level-filter">
+              <mat-select [(ngModel)]="filterLevel" (selectionChange)="onFilterChange()" placeholder="Level">
+                <mat-option value="">All</mat-option>
+                <mat-option value="Information">Info</mat-option>
+                <mat-option value="Warning">Warn</mat-option>
+                <mat-option value="Error">Error</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </th>
+        </ng-container>
+
+        <ng-container matColumnDef="filter-message">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-form-field appearance="outline" class="header-filter-field">
+              <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onFilterChange()" placeholder="Search message...">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </th>
+        </ng-container>
+
+        <ng-container matColumnDef="filter-actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+        </ng-container>
+
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.error-row]="row.level === 'Error'"></tr>
 
         <!-- No Data Row -->
@@ -117,6 +128,13 @@
         </tr>
       </table>
     </div>
-    <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of logs"></mat-paginator>
+    <mat-paginator 
+      [length]="totalCount"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [pageSizeOptions]="[10, 25, 50, 100]" 
+      (page)="onPageChange($event)"
+      aria-label="Select page of logs">
+    </mat-paginator>
   </mat-card>
 </div>

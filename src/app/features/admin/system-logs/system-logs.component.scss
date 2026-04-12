@@ -8,27 +8,72 @@
         -webkit-text-fill-color: transparent;
     }
 
-    /* grid-filter-container and field widths are specific to this component */
-    .grid-filter-container {
-        display: grid;
-        grid-template-columns: 240px 180px 350px auto;
-        gap: 20px;
-        align-items: center;
-        width: 100%;
-    }
-
-    .compact-field, .search-field {
-        width: 100%; 
-        ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-            display: none !important; 
+    /* Header Filter Styling */
+    .filter-header-row {
+        height: 48px !important;
+        background: #f8fafc;
+        
+        th {
+            padding: 4px 8px !important;
+            border-bottom: 1px solid #e2e8f0;
         }
     }
 
-    .grid-actions {
+    .header-filter-field {
+        width: 100%;
+        font-size: 11px;
+        min-width: 120px; /* Default min-width */
+
+        &.service-filter {
+            min-width: 180px !important; /* Larger width for service names */
+        }
+        
+        &.level-filter {
+            min-width: 100px !important;
+        }
+
+        ::ng-deep {
+            .mat-mdc-form-field-subscript-wrapper {
+                display: none !important;
+            }
+            .mat-mdc-text-field-wrapper {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                background-color: white !important;
+                height: 32px !important;
+            }
+            .mat-mdc-form-field-flex {
+                height: 32px !important;
+                align-items: center !important;
+            }
+            .mat-mdc-form-field-infix {
+                padding-top: 4px !important;
+                padding-bottom: 4px !important;
+                min-height: 32px !important;
+                width: auto !important;
+            }
+            .mat-mdc-input-element {
+                margin-top: -4px !important;
+                font-size: 12px !important;
+            }
+            .mat-mdc-select-value {
+                font-size: 12px !important;
+            }
+            .mat-mdc-form-field-icon-suffix {
+                padding: 0 !important;
+                mat-icon {
+                    font-size: 16px !important;
+                    width: 16px !important;
+                    height: 16px !important;
+                }
+            }
+        }
+    }
+
+    .header-actions {
         display: flex;
         gap: 12px;
         align-items: center;
-        justify-self: end;
     }
 
     .refresh-btn {
@@ -169,6 +214,21 @@
     /* Override Material Select inside grid during dark mode */
     ::ng-deep .mat-mdc-select-value-text {
         color: #f8fafc !important;
+    }
+
+    .filter-header-row {
+        background: #020617 !important; /* Deeper slate for filter row */
+        th { border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
+    }
+
+    .header-filter-field {
+        ::ng-deep .mat-mdc-text-field-wrapper {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        ::ng-deep .mat-mdc-input-element {
+            color: #ffffff !important;
+        }
     }
 
     .clear-btn {

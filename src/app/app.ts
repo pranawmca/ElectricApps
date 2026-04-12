@@ -28,6 +28,7 @@ export class App implements OnInit {
   private companyService = inject(CompanyService);
 
   isGlobalLoading = false;
+  loadingMessage = 'Please wait...';
 
   ngOnInit(): void {
     // Initial dynamic title
@@ -53,6 +54,11 @@ export class App implements OnInit {
 
     this.loadingService.loading$.subscribe(isLoading => {
       this.isGlobalLoading = isLoading;
+      this.cdr.detectChanges();
+    });
+
+    this.loadingService.message$.subscribe(msg => {
+      this.loadingMessage = msg;
       this.cdr.detectChanges();
     });
 

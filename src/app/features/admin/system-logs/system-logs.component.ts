@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../shared/material/material/material-module';
 import { FormsModule } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
 import { SystemLogService, SystemLog } from '../services/system-log.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LoadingService } from '../../../core/services/loading.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 
 @Component({
@@ -21,12 +21,19 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 export class SystemLogsComponent implements OnInit {
   private logService = inject(SystemLogService);
   private loadingService = inject(LoadingService);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
   displayedColumns: string[] = ['timeStamp', 'serviceName', 'level', 'message', 'actions'];
   dataSource = new MatTableDataSource<SystemLog>([]);
   serviceNames: string[] = [];
+  
+  // Pagination & Sort State
+  totalCount = 0;
+  pageSize = 10;
+  pageIndex = 0;
+  searchTerm = '';
+  sortBy = 'TimeStamp';
+  sortOrder = 'DESC';
   
   filterService: string = '';
   filterLevel: string = '';
@@ -42,23 +49,57 @@ export class SystemLogsComponent implements OnInit {
 
   loadLogs(): void {
     this.isLoading = true;
-    this.loadingService.setLoading(true);
+    this.loadingService.setLoading(true, 'Fetching System Logs...');
     
-    this.logService.getLogs(this.filterLevel, this.filterService).subscribe({
-      next: (data) => {
-        this.dataSource.data = data;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.isLoading = false;
-        this.loadingService.setLoading(false);
-      },
-      error: (err) => {
-        console.error('Error fetching logs', err);
-        this.snackBar.open('Error loading logs. Make sure backend is running.', 'Close', { duration: 3000 });
-        this.isLoading = false;
-        this.loadingService.setLoading(false);
-      }
-    });
+    // Server-side call with a small artificial delay so the global loader is visible to the user
+    setTimeout(() => {
+      this.logService.getLogs(
+        this.pageIndex + 1, 
+        this.pageSize, 
+        this.filterLevel, 
+        this.filterService, 
+        this.searchTerm,
+        this.sortBy,
+        this.sortOrder
+      ).subscribe({
+        next: (response) => {
+          this.dataSource.data = response.items;
+          this.totalCount = response.totalCount;
+          this.isLoading = false;
+          this.loadingService.setLoading(false);
+        },
+        error: (err) => {
+          console.error('Error fetching logs', err);
+          this.dialog.open(StatusDialogComponent, {
+            data: {
+              isSuccess: false,
+              title: 'Load Failed',
+              message: 'Could not connect to the system logs service. Please ensure all microservices are running.',
+              status: 'error'
+            }
+          });
+          this.isLoading = false;
+          this.loadingService.setLoading(false);
+        }
+      });
+    }, 400); // 400ms delay for visual feedback
+  }
+
+  onSort(sort: Sort): void {
+    // Convert camelCase to PascalCase for backend column names if necessary
+    // Example: timeStamp -> TimeStamp
+    const pascalSort = sort.active.charAt(0).toUpperCase() + sort.active.slice(1);
+    
+    this.sortBy = pascalSort;
+    this.sortOrder = sort.direction ? sort.direction.toUpperCase() : 'DESC';
+    this.pageIndex = 0;
+    this.loadLogs();
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadLogs();
   }
 
   loadServiceNames(): void {
@@ -68,16 +109,15 @@ export class SystemLogsComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.pageIndex = 0;
     this.loadLogs();
   }
 
   applySearch(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.searchTerm = filterValue.trim();
+    this.pageIndex = 0;
+    this.loadLogs();
   }
 
   viewDetails(log: SystemLog): void {
@@ -101,12 +141,42 @@ export class SystemLogsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.logService.clearLogs().subscribe({
-          next: () => {
-            this.snackBar.open('Logs cleared successfully', 'OK', { duration: 2000 });
-            this.loadLogs();
-          }
-        });
+        this.isLoading = true;
+        this.loadingService.setLoading(true, 'Cleaning System Logs Database...');
+
+        // Artificial delay of 500ms so the user can actually see the global loader
+        setTimeout(() => {
+          this.logService.clearLogs().subscribe({
+            next: () => {
+              this.dialog.open(StatusDialogComponent, {
+                data: {
+                  isSuccess: true,
+                  title: 'Logs Cleared',
+                  message: 'All system logs have been permanently deleted.',
+                  status: 'success'
+                }
+              });
+              this.pageIndex = 0;
+              this.loadLogs();
+            },
+            error: (err) => {
+              console.error('Full Error Object:', err);
+              // Extracting the real error message if available
+              const errorMsg = err.error?.message || err.message || 'The database table might be locked or service could be unavailable.';
+              
+              this.dialog.open(StatusDialogComponent, {
+                data: {
+                  isSuccess: false,
+                  title: 'Operation Failed',
+                  message: `System Error: ${errorMsg}`,
+                  status: 'error'
+                }
+              });
+              this.isLoading = false;
+              this.loadingService.setLoading(false);
+            }
+          });
+        }, 500);
       }
     });
   }

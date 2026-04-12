@@ -13,19 +13,25 @@ export interface SystemLog {
   correlationId: string;
 }
 
+export interface PaginatedLogs {
+  items: SystemLog[];
+  totalCount: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class SystemLogService {
   private readonly api = inject(ApiService);
-  private readonly baseUrl = environment.api.identity; // Identity service handles logs
+  private readonly baseUrl = environment.api.identity;
 
-  getLogs(level?: string, serviceName?: string, limit: number = 200): Observable<SystemLog[]> {
-    let url = `SystemLogs?limit=${limit}`;
+  getLogs(page: number, pageSize: number, level?: string, serviceName?: string, search?: string, sortBy: string = 'TimeStamp', sortOrder: string = 'DESC'): Observable<PaginatedLogs> {
+    let url = `SystemLogs?pageNumber=${page}&pageSize=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     if (level) url += `&level=${level}`;
     if (serviceName) url += `&serviceName=${serviceName}`;
+    if (search) url += `&search=${search}`;
     
-    return this.api.get<SystemLog[]>(url, this.baseUrl);
+    return this.api.get<PaginatedLogs>(url, this.baseUrl);
   }
 
   getServiceNames(): Observable<string[]> {
