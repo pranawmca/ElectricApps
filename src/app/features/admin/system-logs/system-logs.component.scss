@@ -259,38 +259,38 @@
 html.dark-mode {
     ::ng-deep .mat-mdc-paginator {
         background-color: transparent !important;
-        
-        /* 1. MDC CSS Variable Overrides (New Material Engines) */
+        color: #ffffff !important;
+
+        /* MDC Variables for standard colors */
         --mat-paginator-enabled-icon-color: #ffffff !important;
-        --mat-paginator-disabled-icon-color: rgba(255, 255, 255, 0.25) !important;
+        --mat-paginator-disabled-icon-color: rgba(255, 255, 255, 0.2) !important;
         --mat-paginator-container-text-color: #ffffff !important;
 
+        .mat-mdc-paginator-range-label,
+        .mat-mdc-paginator-page-size-label {
+            color: #ffffff !important;
+        }
+
+        .mat-mdc-select-value-text {
+            color: #ffffff !important;
+        }
+
+        /* Target SVGs and Icons */
         .mat-mdc-paginator-navigation-button {
             color: #ffffff !important;
-            svg, path { 
-                fill: #ffffff !important; 
-                stroke: #ffffff !important;
-                color: #ffffff !important;
+            
+            svg { 
+                fill: #ffffff !important;
+                filter: brightness(0) invert(1) !important; /* Force black to white */
             }
+
             &.mat-mdc-button-disabled {
-                opacity: 0.25 !important;
-                svg, path { 
-                    fill: rgba(255, 255, 255, 0.4) !important; 
-                    filter: none !important; 
+                opacity: 0.3 !important;
+                svg { 
+                    fill: #ffffff !important;
+                    filter: brightness(0) invert(1) opacity(0.5) !important;
                 }
             }
-            
-            /* ⚡ THE NUCLEAR OPTION: Invert black icons to white ⚡ */
-            svg, .mat-icon, path {
-                filter: invert(1) brightness(100) !important;
-            }
-        }
-        
-        .mat-mdc-select-value { color: #ffffff !important; }
-        .mat-mdc-select-arrow svg { fill: #ffffff !important; }
-        .mat-mdc-paginator-container { color: #ffffff !important; }
-        .mat-mdc-paginator-range-label, .mat-mdc-paginator-page-size-label {
-            color: rgba(255, 255, 255, 0.7) !important;
         }
     }
 }
