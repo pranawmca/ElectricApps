@@ -94,9 +94,7 @@
             <mat-form-field appearance="outline" class="header-filter-field level-filter">
               <mat-select [(ngModel)]="filterLevel" (selectionChange)="onFilterChange()" placeholder="Level">
                 <mat-option value="">All</mat-option>
-                <mat-option value="Information">Info</mat-option>
-                <mat-option value="Warning">Warn</mat-option>
-                <mat-option value="Error">Error</mat-option>
+                <mat-option *ngFor="let level of logLevels" [value]="level">{{level}}</mat-option>
               </mat-select>
             </mat-form-field>
           </th>
@@ -105,8 +103,11 @@
         <ng-container matColumnDef="filter-message">
           <th mat-header-cell *matHeaderCellDef>
             <mat-form-field appearance="outline" class="header-filter-field">
-              <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onFilterChange()" placeholder="Search message...">
-              <mat-icon matSuffix>search</mat-icon>
+              <input matInput [(ngModel)]="searchTerm" 
+                     (input)="onSearchInput()" 
+                     placeholder="Search message...">
+              <mat-icon matSuffix *ngIf="searchTerm" (click)="clearSearch()" style="cursor: pointer;">close</mat-icon>
+              <mat-icon matSuffix *ngIf="!searchTerm">search</mat-icon>
             </mat-form-field>
           </th>
         </ng-container>

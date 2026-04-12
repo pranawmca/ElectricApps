@@ -35,7 +35,11 @@ export class SystemLogService {
   }
 
   getServiceNames(): Observable<string[]> {
-    return this.api.get<string[]>('SystemLogs/services', this.baseUrl);
+    return this.api.get<string[]>(`SystemLogs/services`, this.baseUrl);
+  }
+
+  getLevels(): Observable<string[]> {
+    return this.api.get<string[]>(`SystemLogs/levels`, this.baseUrl);
   }
 
   clearLogs(): Observable<string> {

@@ -26,6 +26,7 @@ export class SystemLogsComponent implements OnInit {
   displayedColumns: string[] = ['timeStamp', 'serviceName', 'level', 'message', 'actions'];
   dataSource = new MatTableDataSource<SystemLog>([]);
   serviceNames: string[] = [];
+  logLevels: string[] = [];
   
   // Pagination & Sort State
   totalCount = 0;
@@ -45,6 +46,7 @@ export class SystemLogsComponent implements OnInit {
   ngOnInit(): void {
     this.loadLogs();
     this.loadServiceNames();
+    this.loadLogLevels();
   }
 
   loadLogs(): void {
@@ -106,6 +108,40 @@ export class SystemLogsComponent implements OnInit {
     this.logService.getServiceNames().subscribe({
       next: (names) => this.serviceNames = names
     });
+  }
+
+  loadLogLevels(): void {
+    const standardLevels = ['Verbose', 'Debug', 'Information', 'Warning', 'Error', 'Fatal'];
+    this.logService.getLevels().subscribe({
+      next: (serverLevels) => {
+        // Combine standard levels with any custom ones from the server, removing duplicates
+        const combined = [...new Set([...standardLevels, ...serverLevels])];
+        this.logLevels = combined.sort();
+      },
+      error: () => {
+        // Fallback to standard levels if API fails
+        this.logLevels = standardLevels;
+      }
+    });
+  }
+
+  private searchTimeout: any;
+
+  onSearchInput(): void {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    // Debounce for 500ms before triggering search
+    this.searchTimeout = setTimeout(() => {
+      this.pageIndex = 0;
+      this.loadLogs();
+    }, 500);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.onFilterChange();
   }
 
   onFilterChange(): void {
