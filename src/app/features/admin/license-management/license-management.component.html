@@ -1,0 +1,81 @@
+<div class="list-container" [class.disabled-content]="loading">
+  <div class="header-actions">
+    <h1>License & Subscription Management</h1>
+    <button mat-flat-button color="primary" class="pill-btn" (click)="openAddDialog()">
+      <mat-icon>person_add</mat-icon> Add Customer
+    </button>
+  </div>
+
+  <app-summary-stats [stats]="summaryStats" [isLoading]="loading"></app-summary-stats>
+
+  <div class="table-container-wrapper">
+    <div class="grid-wrapper">
+      <table mat-table [dataSource]="dataSource">
+        <!-- Customer Column -->
+        <ng-container matColumnDef="customer">
+          <th mat-header-cell *matHeaderCellDef> Customer / Company </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="customer-info">
+              <span class="name">{{element.customerName}}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Plan Type Column -->
+        <ng-container matColumnDef="planType">
+          <th mat-header-cell *matHeaderCellDef> Plan </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="plan-badge" [class.premium]="element.planType === 'Premium'">
+              {{element.planType}}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Start Date Column -->
+        <ng-container matColumnDef="startDate">
+          <th mat-header-cell *matHeaderCellDef> Start Date </th>
+          <td mat-cell *matCellDef="let element"> {{element.startDate | date:'mediumDate'}} </td>
+        </ng-container>
+
+        <!-- End Date Column -->
+        <ng-container matColumnDef="endDate">
+          <th mat-header-cell *matHeaderCellDef> Expiry Date </th>
+          <td mat-cell *matCellDef="let element"> {{element.endDate | date:'mediumDate'}} </td>
+        </ng-container>
+
+        <!-- Days Remaining Column -->
+        <ng-container matColumnDef="daysRemaining">
+          <th mat-header-cell *matHeaderCellDef> Status / Days </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="days-indicator" [ngClass]="getDaysClass(element.daysRemaining)">
+              <mat-icon *ngIf="element.daysRemaining <= 0">error</mat-icon>
+              <span>{{element.daysRemaining <= 0 ? 'Expired' : element.daysRemaining + ' Days'}}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Management </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="action-buttons">
+              <button mat-flat-button color="primary" class="mini-btn" (click)="extend(element)" *ngIf="element.planType === 'Trial'">
+                <mat-icon>timer</mat-icon> +7 Days
+              </button>
+              <button mat-flat-button color="accent" class="mini-btn" (click)="upgrade(element)" *ngIf="element.planType === 'Trial'">
+                <mat-icon>workspace_premium</mat-icon> Activate Premium
+              </button>
+              <span *ngIf="element.planType === 'Premium'" class="premium-text">
+                <mat-icon>verified</mat-icon> Premium
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" sticky></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
+      </table>
+    </div>
+    <mat-paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons class="paginator"></mat-paginator>
+  </div>
+</div>

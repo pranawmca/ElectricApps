@@ -42,5 +42,11 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [PermissionGuard],
         loadComponent: () => import('../features/admin/system-logs/system-logs.component').then(m => m.SystemLogsComponent),
         data: { breadcrumb: 'System Activity Logs' }
+    },
+    {
+        path: 'subscriptions',
+        canActivate: [PermissionGuard],
+        loadComponent: () => import('../features/admin/license-management/license-management.component').then(m => m.LicenseManagementComponent),
+        data: { breadcrumb: 'License & Subscriptions' }
     }
 ];

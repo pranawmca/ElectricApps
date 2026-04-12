@@ -1,0 +1,50 @@
+<div class="payment-wrapper">
+  <div class="header">
+    <div class="logo">
+      <mat-icon>workspace_premium</mat-icon>
+      <span>Enterprise ERP</span>
+    </div>
+    <button mat-button (click)="logout()">
+      <mat-icon>logout</mat-icon> Logout
+    </button>
+  </div>
+
+  <div class="content">
+    <div class="expiry-alert">
+      <mat-icon>info</mat-icon>
+      <div>
+        <h2>Your access has expired</h2>
+        <p>Choose a plan below to unlock your dashboard and continue managing your business.</p>
+      </div>
+    </div>
+
+    <div class="pricing-cards">
+      <div class="card" *ngFor="let plan of plans" [class.recommended]="plan.recommended">
+        <div class="recommended-badge" *ngIf="plan.recommended">Recommended</div>
+        <h3 class="plan-name">{{plan.name}}</h3>
+        <div class="price">
+          <span class="value">{{plan.displayPrice}}</span>
+          <span class="period">/ {{plan.period}}</span>
+        </div>
+        
+        <ul class="features">
+          <li *ngFor="let feature of plan.features">
+            <mat-icon>check_circle</mat-icon>
+            {{feature}}
+          </li>
+        </ul>
+
+        <button mat-raised-button color="primary" class="pay-btn" (click)="processPayment(plan)">
+          Upgrade Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>© 2026 Enterprise ERP Solutions. All rights reserved.</p>
+    <div class="trust-icons">
+      <mat-icon>security</mat-icon> Secure Payments | <mat-icon>verified_user</mat-icon> 100% Data Safety
+    </div>
+  </div>
+</div>

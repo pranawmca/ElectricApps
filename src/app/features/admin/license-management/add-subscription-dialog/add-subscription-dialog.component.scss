@@ -1,0 +1,48 @@
+.dialog-container {
+    padding: 10px;
+    background: #ffffff;
+    
+    .dialog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        
+        h2 { margin: 0; font-weight: 700; color: #1e293b; }
+    }
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.row {
+    display: flex;
+    gap: 15px;
+    & > * { flex: 1; }
+}
+
+.full-width { width: 100%; }
+
+.pill-btn {
+    border-radius: 999px !important;
+    height: 42px !important;
+    padding: 0 24px !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+    color: white !important;
+}
+
+mat-dialog-actions {
+    padding: 20px 0 10px;
+}
+
+:host-context(html.dark-mode) {
+    .dialog-container {
+        background: #0f172a;
+        color: #f8fafc;
+        h2 { color: #f8fafc; }
+    }
+}

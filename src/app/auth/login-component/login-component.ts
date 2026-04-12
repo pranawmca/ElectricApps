@@ -199,7 +199,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
         // Reset permission cache so resolver fetches fresh data for this user's role
         this.permissionService.resetForLogin();
 
-        this.router.navigate(['/app/dashboard']);
+        if (this.auth.isSubscriptionExpired()) {
+          this.router.navigate(['/subscribe']);
+        } else {
+          this.router.navigate(['/app/dashboard']);
+        }
       },
       error: err => {
         console.error('Login error:', err);

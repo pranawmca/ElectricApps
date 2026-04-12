@@ -12,6 +12,12 @@ export const routes: Routes = [
         .then(m => m.LoginComponent)
   },
   {
+    path: 'subscribe',
+    loadComponent: () =>
+      import('./features/subscription/payment-page/payment-page.component')
+        .then(m => m.PaymentPageComponent)
+  },
+  {
     path: 'app',
     canActivate: [authGuard],
     resolve: { permissions: permissionsResolver },

@@ -97,6 +97,20 @@ export class AuthService {
     if (email) localStorage.setItem('email', email);
     if (userId) localStorage.setItem('userId', userId);
     if (userName) localStorage.setItem('userName', userName);
+
+    // Store Subscription Status
+    const isExpired = res.isSubscriptionExpired || res.IsSubscriptionExpired;
+    const subStatus = res.subscriptionStatus || res.SubscriptionStatus;
+    localStorage.setItem('isSubscriptionExpired', isExpired ? 'true' : 'false');
+    localStorage.setItem('subscriptionStatus', subStatus || 'Active');
+  }
+
+  isSubscriptionExpired(): boolean {
+    return localStorage.getItem('isSubscriptionExpired') === 'true';
+  }
+
+  getSubscriptionStatus(): string {
+    return localStorage.getItem('subscriptionStatus') || 'Active';
   }
 
   // 🔍 CHECK LOGIN STATUS
