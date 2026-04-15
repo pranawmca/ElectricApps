@@ -346,7 +346,12 @@ export class CompanyForm implements OnInit {
         if (file) {
             this.selectedLogo = file;
             const reader = new FileReader();
-            reader.onload = (e) => (this.logoPreview = e.target?.result as string);
+            reader.onload = (e) => {
+                const base64 = e.target?.result as string;
+                this.logoPreview = base64;
+                this.companyForm.get('logoUrl')?.setValue(base64);
+                this.cdr.detectChanges();
+            };
             reader.readAsDataURL(file);
         }
     }
