@@ -29,7 +29,7 @@ export class GatePassPrintDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<GatePassPrintDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { id: number }
+    @Inject(MAT_DIALOG_DATA) public data: { id: string }
   ) { }
 
   ngOnInit(): void {

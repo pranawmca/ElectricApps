@@ -12,6 +12,7 @@ import { StatusDialogComponent } from '../../../../shared/components/status-dial
 import * as XLSX from 'xlsx';
 import { Observable, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-subcategory-form',
@@ -28,6 +29,7 @@ export class SubcategoryForm implements OnInit, OnDestroy {
   private subcategorySvc = inject(SubCategoryService);
   private categoryService = inject(CategoryService);
   private router = inject(Router);
+  private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
 
   subcategoryForm!: FormGroup;
@@ -205,7 +207,8 @@ export class SubcategoryForm implements OnInit, OnDestroy {
       code: formValue.subcategoryCode, // Backend might expect 'Code'
       defaultGst: Number(formValue.defaultGst),
       description: formValue.description?.trim(),
-      isActive: Boolean(formValue.isActive)
+      isActive: Boolean(formValue.isActive),
+      companyId: this.authService.getCompanyId()
     };
 
     if (this.isEditMode && this.subCategoryId) {

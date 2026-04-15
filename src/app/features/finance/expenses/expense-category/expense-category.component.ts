@@ -42,7 +42,7 @@ export class ExpenseCategoryComponent implements OnInit {
     dataSource = new MatTableDataSource<any>([]);
     displayedColumns: string[] = ['name', 'description', 'isActive', 'actions'];
     isEditing = false;
-    editingId: number | null = null;
+    editingId: string | null = null;
     summaryStats: SummaryStat[] = [];
     isLoading = false;
 
@@ -162,7 +162,7 @@ export class ExpenseCategoryComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    deleteCategory(id: number): void {
+    deleteCategory(id: string): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
             data: {

@@ -28,7 +28,7 @@ export class SupplierLedgerComponent implements OnInit, AfterViewInit, OnDestroy
     filteredSuppliers!: Observable<Supplier[]>;
     suppliers: Supplier[] = [];
 
-    supplierId: number | null = null;
+    supplierId: string | null = null;
     ledgerData: any = null;
     displayedColumns: string[] = ['transactionDate', 'transactionType', 'referenceId', 'description', 'debit', 'credit', 'balance'];
     dataSource = new MatTableDataSource<any>([]);
@@ -114,7 +114,7 @@ export class SupplierLedgerComponent implements OnInit, AfterViewInit, OnDestroy
             this.routeSub = this.route.queryParams.subscribe(params => {
                 const sid = params['supplierId'];
                 if (sid) {
-                    this.supplierId = Number(sid);
+                    this.supplierId = sid;
                     this.preselectSupplier(this.supplierId);
                     this.loadLedger();
                     return; // loadLedger handles loader
@@ -139,7 +139,7 @@ export class SupplierLedgerComponent implements OnInit, AfterViewInit, OnDestroy
         this.loadLedger();
     }
 
-    preselectSupplier(id: number) {
+    preselectSupplier(id: string | null) {
         const supplier = this.suppliers.find(s => s.id === id);
         if (supplier) {
             this.supplierControl.setValue(supplier as any);
@@ -197,7 +197,7 @@ export class SupplierLedgerComponent implements OnInit, AfterViewInit, OnDestroy
         const end = this.filters.endDate;
         end.setHours(23, 59, 59, 999);
 
-        if (this.supplierId && this.supplierId > 0) {
+        if (this.supplierId) {
             // SINGLE SUPPLIER VIEW
             const request = {
                 supplierId: this.supplierId,

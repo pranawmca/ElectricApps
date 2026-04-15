@@ -28,7 +28,7 @@ export class CreditNoteViewComponent implements OnInit {
         });
     }
 
-    loadCreditNote(id: number) {
+    loadCreditNote(id: string) {
         this.isLoading = true;
         this.srService.getSaleReturnById(id).subscribe({
             next: (res) => {

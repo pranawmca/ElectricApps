@@ -10,7 +10,7 @@ export class SaleOrderService {
         return this.api.post('SaleOrder/save', orderData);
     }
 
-    deleteSaleOrder(id: number): Observable<any> {
+    deleteSaleOrder(id: string): Observable<any> {
         return this.api.delete(`saleorder/${id}`);
     }
 
@@ -37,11 +37,11 @@ export class SaleOrderService {
         return this.api.get<any>(`saleorder?${this.api.toQueryString(request)}`);
     }
 
-    updateSaleOrderStatus(id: number, status: string): Observable<any> {
+    updateSaleOrderStatus(id: string, status: string): Observable<any> {
         return this.api.patch(`saleorder/${id}/status`, { status: status });
     }
 
-    getSaleOrderById(id: number): Observable<any> {
+    getSaleOrderById(id: string): Observable<any> {
         return this.api.get<any>(`saleorder/${id}`);
     }
 
@@ -50,11 +50,11 @@ export class SaleOrderService {
     }
 
 
-    getOrdersByCustomer(customerId: number): Observable<any[]> {
+    getOrdersByCustomer(customerId: string): Observable<any[]> {
         return this.api.get<any[]>(`saleorder/orders-by-customer/${customerId}`);
     }
 
-    getSaleOrderItems(saleOrderId: number): Observable<any[]> {
+    getSaleOrderItems(saleOrderId: string): Observable<any[]> {
         return this.api.get<any[]>(`SaleOrder/grid-items/${saleOrderId}`);
     }
 

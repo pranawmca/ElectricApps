@@ -41,7 +41,7 @@ export class LocationService {
         return this.api.delete(`racks/${id}`);
     }
 
-    getRacksByWarehouse(warehouseId: string | number): Observable<Rack[]> {
+    getRacksByWarehouse(warehouseId: string): Observable<Rack[]> {
         return this.api.get<Rack[]>(`racks/warehouse/${warehouseId}`);
     }
 }

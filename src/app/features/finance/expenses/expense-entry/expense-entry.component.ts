@@ -48,7 +48,7 @@ export class ExpenseEntryComponent implements OnInit {
     paymentModes = ['Cash', 'Bank', 'UPI', 'Credit Card', 'Cheque'];
     displayedColumns: string[] = ['date', 'category', 'amount', 'mode', 'refNo', 'actions'];
     isEditing = false;
-    editingId: number | null = null;
+    editingId: string | null = null;
     summaryStats: SummaryStat[] = [];
     isLoading = false;
 
@@ -201,7 +201,7 @@ export class ExpenseEntryComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    deleteExpense(id: number): void {
+    deleteExpense(id: string): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
             data: {

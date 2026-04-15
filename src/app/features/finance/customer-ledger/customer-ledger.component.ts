@@ -30,7 +30,7 @@ export class CustomerLedgerComponent implements OnInit, AfterViewInit {
     filteredCustomers!: Observable<any[]>;
     customers: any[] = [];
 
-    customerId: number | null = null;
+    customerId: string | null = null;
     ledgerData: any = null;
     displayedColumns: string[] = ['transactionDate', 'transactionType', 'referenceId', 'description', 'debit', 'credit', 'balance'];
     dataSource = new MatTableDataSource<any>([]);
@@ -158,7 +158,7 @@ export class CustomerLedgerComponent implements OnInit, AfterViewInit {
             // Param check after load
             this.route.queryParams.subscribe(params => {
                 if (params['customerId']) {
-                    const id = Number(params['customerId']);
+                    const id = params['customerId'];
                     const customer = this.customers.find(c => c.id === id);
                     if (customer) {
                         this.customerControl.setValue(customer);
@@ -202,7 +202,7 @@ export class CustomerLedgerComponent implements OnInit, AfterViewInit {
         const end = new Date(this.filters.endDate);
         end.setHours(23, 59, 59, 999);
 
-        if (this.customerId && this.customerId > 0) {
+        if (this.customerId) {
             // SPECIFIC CUSTOMER VIEW (Original Logic)
             const request = {
                 customerId: this.customerId,

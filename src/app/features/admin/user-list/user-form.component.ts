@@ -57,7 +57,6 @@ import { MatDialog } from '@angular/material/dialog';
             <mat-option *ngFor="let role of roles" [value]="role.id">{{role.roleName}}</mat-option>
           </mat-select>
           <mat-icon matPrefix>admin_panel_settings</mat-icon>
-          <mat-error *ngIf="userForm.get('RoleIds')?.hasError('required')">At least one role is required</mat-error>
         </mat-form-field>
 
       </form>
@@ -249,7 +248,7 @@ export class UserFormComponent implements OnInit {
       UserName: [{ value: '', disabled: false }, Validators.required],
       Email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
       Password: ['', this.isEdit ? [] : [Validators.required]],
-      RoleIds: [[], Validators.required]
+      RoleIds: [[]]
     });
   }
 

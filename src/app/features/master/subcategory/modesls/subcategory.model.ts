@@ -9,4 +9,5 @@ export interface SubCategory {
   defaultGst: number;
   description?: string;
   isActive: boolean;
+  companyId?: string | null;
 }

@@ -13,6 +13,7 @@ import { StatusDialogComponent } from '../../../shared/components/status-dialog-
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { environment } from '../../../enviornments/environment';
 import { LoadingService } from '../../../core/services/loading.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-company-form',
@@ -29,6 +30,7 @@ export class CompanyForm implements OnInit {
     private router = inject(Router);
     private companyService = inject(CompanyService);
     private loadingService = inject(LoadingService);
+    private authService = inject(AuthService);
 
     companyForm!: FormGroup;
     loading = false;
@@ -55,8 +57,8 @@ export class CompanyForm implements OnInit {
                     estimateFooterMessage: '',
                     purchaseOrderFooterMessage: '',
                     saleOrderFooterMessage: '',
-                    address: { id: 0, country: 'India' },
-                    bankInfo: { id: 0, accountType: 'Current' }
+                    address: { id: '', country: 'India' },
+                    bankInfo: { id: '', accountType: 'Current' }
                 });
                 this.signatories.clear();
             }
@@ -136,7 +138,7 @@ export class CompanyForm implements OnInit {
 
             // Address Nested Group
             address: this.fb.group({
-                id: [0],
+                id: [''],
                 addressLine1: ['', Validators.required],
                 addressLine2: [''],
                 city: ['', Validators.required],
@@ -148,7 +150,7 @@ export class CompanyForm implements OnInit {
 
             // Bank Info Nested Group
             bankInfo: this.fb.group({
-                id: [0],
+                id: [''],
                 bankName: ['', Validators.required],
                 branchName: [''],
                 accountNumber: ['', Validators.required],
@@ -168,7 +170,7 @@ export class CompanyForm implements OnInit {
 
     addSignatory() {
         const sigForm = this.fb.group({
-            id: [0],
+            id: [''],
             personName: ['', Validators.required],
             designation: ['', Validators.required],
             signatureImageUrl: [''],
@@ -186,7 +188,7 @@ export class CompanyForm implements OnInit {
         if (!this.companyId) return;
         this.loading = true;
         this.loadingService.setLoading(true);
-        this.companyService.getById(+this.companyId).subscribe({
+        this.companyService.getById(this.companyId).subscribe({
             next: (res) => {
                 // Reset form to base state before patching
                 this.companyForm.reset({
@@ -259,42 +261,65 @@ export class CompanyForm implements OnInit {
             this.loadingService.setLoading(true);
             const payload: UpsertCompanyRequest = this.companyForm.value;
 
-            const request = this.companyId
-                ? this.companyService.updateCompany(+this.companyId, payload)
-                : this.companyService.insertCompany(payload);
-
-            request.subscribe({
-                next: (res: any) => {
-                    this.loading = false;
-                    this.loadingService.setLoading(false);
-                    // Handle both object {id: 1} and primitive integer responses
-                    const newId = (res && typeof res === 'object') ? res.id : res;
-
-                    this.dialog.open(StatusDialogComponent, {
-                        data: {
-                            isSuccess: true,
-                            message: (res && res.message) || 'Company saved successfully'
+            // 🏢 MULTI-TENANT ONBOARDING LOGIC
+            // If No CompanyId yet, we trigger the Identity Portal Setup first
+            if (!this.authService.getCompanyId()) {
+                this.companyService.setupTenant(payload.name).subscribe({
+                    next: (setupRes) => {
+                        console.log('[CompanyForm] Tenant Setup Successful', setupRes);
+                        
+                        // 🚀 IMPORTANT: Link the Identity GUID to the Company Profile
+                        if (setupRes.companyId) {
+                            payload.companyId = setupRes.companyId;
                         }
-                    }).afterClosed().subscribe(() => {
-                        if (this.selectedLogo) {
-                            this.uploadLogo(newId || +this.companyId!);
-                        }
-                        this.router.navigate(['/app/company']);
-                    });
-                },
-                error: (err) => {
-                    this.loading = false;
-                    this.loadingService.setLoading(false);
-                    this.dialog.open(StatusDialogComponent, {
-                        data: {
-                            isSuccess: false,
-                            message: err.error?.message ?? 'Something went wrong'
-                        }
-                    });
-                    this.cdr.detectChanges();
-                }
-            });
+                        
+                        // Now save the profile details in the Company microservice
+                        this.saveCompanyDetails(payload);
+                    },
+                    error: (err) => {
+                        this.handleError(err);
+                    }
+                });
+            } else {
+                this.saveCompanyDetails(payload);
+            }
         });
+    }
+
+    private saveCompanyDetails(payload: any) {
+        const request = this.companyId
+            ? this.companyService.updateCompany(this.companyId, payload)
+            : this.companyService.insertCompany(payload);
+
+        request.subscribe({
+            next: (res: any) => {
+                this.loading = false;
+                this.loadingService.setLoading(false);
+                const newId = (res && typeof res === 'object') ? res.id : res;
+
+                this.dialog.open(StatusDialogComponent, {
+                    data: {
+                        isSuccess: true,
+                        message: 'Workspace Setup Successfully! Please logout and login again to activate your session.'
+                    }
+                }).afterClosed().subscribe(() => {
+                    this.router.navigate(['/app/dashboard']);
+                });
+            },
+            error: (err) => this.handleError(err)
+        });
+    }
+
+    private handleError(err: any) {
+        this.loading = false;
+        this.loadingService.setLoading(false);
+        this.dialog.open(StatusDialogComponent, {
+            data: {
+                isSuccess: false,
+                message: err.error?.message ?? 'Something went wrong during setup'
+            }
+        });
+        this.cdr.detectChanges();
     }
 
     onCancel() {
@@ -338,7 +363,7 @@ export class CompanyForm implements OnInit {
         }
     }
 
-    uploadLogo(id: number): void {
+    uploadLogo(id: string): void {
         if (!this.selectedLogo) return;
 
         this.companyService.uploadLogo(id, this.selectedLogo).subscribe({

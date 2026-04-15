@@ -302,6 +302,7 @@ export class BalanceSheetComponent implements OnInit {
                         billingAddress: fullAddress.trim() || 'Internal Account',
                         shippingAddress: fullAddress.trim() || 'Internal Account',
                         customerStatus: 'Active',
+                        status: 'Active',
                         creditLimit: 0,
                         createdBy: localStorage.getItem('email') || 'Admin'
                     };
@@ -392,6 +393,7 @@ export class BalanceSheetComponent implements OnInit {
                         email: 'bank@system.com',
                         billingAddress: 'Internal Bank Ledger',
                         customerStatus: 'Active',
+                        status: 'Active',
                         createdBy: localStorage.getItem('email') || 'Admin'
                     };
                     this.customerService.addCustomer(newBank).subscribe((id: any) => {

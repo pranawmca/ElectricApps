@@ -7,7 +7,8 @@ import { ApiService } from '../../../shared/api.service';
 
 // Supplier Interface
 export interface Supplier {
-    id?: number;
+    id?: string;
+    companyId?: string;
     name?: string;
     phone?: string;
     gstIn?: string;
@@ -36,7 +37,7 @@ export class SupplierService {
     }
 
     // Get supplier by ID (mapped to api/suppliers/Supplier/{id} in gateway)
-    getSupplierById(id: number): Observable<any> {
+    getSupplierById(id: string): Observable<any> {
         return this.api.get<any>(`Supplier/${id}`, this.baseUrl);
     }
 
@@ -44,11 +45,11 @@ export class SupplierService {
         return this.api.post<any>(`Supplier/paged`, request, this.baseUrl);
     }
 
-    updateSupplier(id: number, supplier: Supplier): Observable<Supplier> {
+    updateSupplier(id: string, supplier: Supplier): Observable<Supplier> {
         return this.api.put<Supplier>(`Supplier/${id}`, supplier, this.baseUrl);
     }
 
-    deleteSupplier(id: number): Observable<any> {
+    deleteSupplier(id: string): Observable<any> {
         return this.api.delete(`Supplier/${id}`, this.baseUrl);
     }
 }

@@ -20,6 +20,7 @@ import { LocationTrackerDialogComponent } from '../purchase-return/location-trac
 import { BarcodeReaderHelper } from '../../../shared/barcode-reader-helper/barcode-reader-helper.service';
 import { LocationService } from '../../master/locations/services/locations.service';
 import { SharedPrintService } from '../../../core/services/shared-print.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ProductForm } from '../../master/product/product-form/product-form';
@@ -80,6 +81,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
   private scrollContainer: HTMLElement | null = null;
   private scrollListener: any;
   private sharedPrintService = inject(SharedPrintService);
+  private authService = inject(AuthService);
 
   onScroll() {
     if (this.scrollContainer) {
@@ -167,7 +169,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
     this.loadUnits();
     this.loadWarehouses();
 
-    if (id && id !== '0') {
+    if (id && id !== '00000000-0000-0000-0000-000000000000' && id !== '') {
       this.poId = id;
       this.isEditMode = true;
       this.loadPODetails(id);
@@ -473,7 +475,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
     return this.poForm.get('items') as FormArray;
   }
 
-  onSupplierChange(supplierId: number): void {
+  onSupplierChange(supplierId: string): void {
     if (!supplierId) return;
     this.supplierService.getSupplierById(supplierId).subscribe((res: any) => {
       console.log('ðŸ” Supplier Data Received:', res);
@@ -799,7 +801,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const supplier = this.suppliers.find(s => s.id === Number(formValue.supplierId));
+        const supplier = this.suppliers.find(s => s.id === formValue.supplierId);
         const userId = localStorage.getItem('email') || 'System User';
         this.isLoading = true;
         const payload: any = {
@@ -825,6 +827,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
           totalQuantity: this.totalQty,
           status: 'Draft',
           createdBy: userId,
+          companyId: this.authService.getCompanyId(),
           items: formValue.items.map((item: any) => ({
             productId: item.productId,
             qty: Number(item.qty),
@@ -837,7 +840,8 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
             mfgDate: item.mfgDate ? DateHelper.toLocalISOString(item.mfgDate) : null,
             expDate: item.expDate ? DateHelper.toLocalISOString(item.expDate) : null,
             manufacturingDate: item.mfgDate ? DateHelper.toLocalISOString(item.mfgDate) : null,
-            expiryDate: item.expDate ? DateHelper.toLocalISOString(item.expDate) : null
+            expiryDate: item.expDate ? DateHelper.toLocalISOString(item.expDate) : null,
+            companyId: this.authService.getCompanyId()
           }))
         };
 

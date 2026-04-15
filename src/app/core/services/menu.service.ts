@@ -49,10 +49,32 @@ export class MenuService {
     this.cacheTimestamp = 0;
   }
 
-  /** Internal: does the actual 3-API-call chain */
+  /** Internal: does the actual 3-API-call chain (Optimized to use login permissions) */
   private _fetchMenu(): Observable<MenuItem[]> {
-    const roleName = this.authService.getUserRole();
+    const rawPermissions = localStorage.getItem('permissions');
+    
+    if (rawPermissions) {
+        // --- 🚀 OPTIMIZED FLOW: Use Login Permissions ---
+        const loginPermissions = JSON.parse(rawPermissions);
+        
+        return this.getAllMenus().pipe(
+            map(flatMenus => {
+                if (!flatMenus || flatMenus.length === 0) return [];
 
+                // 1. Build & Sort Tree
+                const menuTree = this.sortMenus(this.buildMenuTree(flatMenus));
+
+                // 2. Filter by Login Permissions (Using URL as ActionCode/Key)
+                const filtered = this.filterMenusByLoginPermissions(menuTree, loginPermissions);
+                
+                // 3. Inject common links (Dashboards etc.)
+                return this.injectCommonMenus(filtered);
+            })
+        );
+    }
+
+    // --- 🐢 FALLBACK: Old 3-API Chain (if login perms missing) ---
+    const roleName = this.authService.getUserRole();
     return this.roleService.getAllRoles().pipe(
       switchMap(roles => {
         const userRole = (roles as any[]).find((r: any) => r.roleName === roleName);
@@ -63,182 +85,9 @@ export class MenuService {
             return this.getAllMenus().pipe(
               map(flatMenus => {
                 if (!flatMenus || flatMenus.length === 0) return [];
-
-                // 1. Build Tree
-                const menuTree = this.buildMenuTree(flatMenus);
-
-                // 2. Sort Tree (Recursive) - Dynamic based on Order column
-                const sortedTree = this.sortMenus(menuTree);
-
-                // 3. Filter by Permissions
-                const filtered = this.filterMenusByPermissions(sortedTree, permissions);
-
-                // 🎯 4. HACK: Inject "Quick Disposed" item for quick access
-                const quickInv = filtered.find(m => m.title.includes('Quick Inventory'));
-                if (quickInv && quickInv.children) {
-                    const alreadyHas = quickInv.children.some(c => c.title === 'Quick Disposed');
-                    if (!alreadyHas) {
-                         quickInv.children.push({
-                            id: 9991, // Dummy ID
-                            title: 'Quick Disposed',
-                            url: '/app/quick-inventory/disposed-stock',
-                            icon: 'delete_sweep',
-                            order: 100,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-                }
-
-                // Inject "Disposed Stock" into standard Inventory menu
-                const stdInv = filtered.find(m => m.title === 'Inventory' || m.title === 'Standard Inventory');
-                if (stdInv && stdInv.children) {
-                    const alreadyHas = stdInv.children.some(c => c.title === 'Disposed Stock');
-                    if (!alreadyHas) {
-                        stdInv.children.push({
-                            id: 9992, // Dummy ID
-                            title: 'Disposed Stock',
-                            url: '/app/inventory/disposed-stock',
-                            icon: 'delete_sweep',
-                            order: 100,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-                }
-
-                // 🎯 Inject "Tax Invoice" and "Balance Sheet" into Finance menu
-                const financeMenu = filtered.find(m => m.title === 'Finance');
-                if (financeMenu && financeMenu.children) {
-                    const alreadyHasDash = financeMenu.children.some(c => c.title === 'Finance Dashboard' || c.url === '/app/finance');
-                    if (!alreadyHasDash) {
-                        financeMenu.children.unshift({
-                            id: 9989, // Dummy ID
-                            title: 'Finance Dashboard',
-                            url: '/app/finance',
-                            icon: 'dashboard',
-                            order: 0,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-
-                    const alreadyHasTax = financeMenu.children.some(c => c.title === 'Tax Invoice');
-                    if (!alreadyHasTax) {
-                        financeMenu.children.push({
-                            id: 9993, // Dummy ID
-                            title: 'Tax Invoice',
-                            url: '/app/finance/sales-invoice',
-                            icon: 'description',
-                            order: 90,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-
-                    const alreadyHasBS = financeMenu.children.some(c => c.title === 'Balance Sheet');
-                    if (!alreadyHasBS) {
-                        financeMenu.children.push({
-                            id: 9994, // Dummy ID
-                            title: 'Balance Sheet',
-                            url: '/app/finance/balance-sheet',
-                            icon: 'account_balance',
-                            order: 85,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-
-                    const alreadyHasDB = financeMenu.children.some(c => c.title === 'Day Book');
-                    if (!alreadyHasDB) {
-                        financeMenu.children.push({
-                            id: 9995, // Dummy ID
-                            title: 'Day Book',
-                            url: '/app/finance/customers/day-book',
-                            icon: 'event_note',
-                            order: 80,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-
-                    const alreadyHasConsolidated = financeMenu.children.some(c => c.title === 'Group Summary');
-                    if (!alreadyHasConsolidated) {
-                        financeMenu.children.push({
-                            id: 9996, // Dummy ID
-                            title: 'Group Summary',
-                            url: '/app/finance/customers/consolidated-financials',
-                            icon: 'location_city',
-                            order: 90,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-
-                    const alreadyHasGst = financeMenu.children.some(c => c.title === 'GST Reconciliation');
-                    if (!alreadyHasGst) {
-                        financeMenu.children.push({
-                            id: 9997, // Dummy ID
-                            title: 'GST Reconciliation',
-                            url: '/app/finance/customers/gst-reconciliation',
-                            icon: 'assignment_turned_in',
-                            order: 100,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-
-                    const alreadyHasIC = financeMenu.children.some(c => c.title === 'Inter-Company Ledger');
-                    if (!alreadyHasIC) {
-                        financeMenu.children.push({
-                            id: 9998, // Dummy ID
-                            title: 'Inter-Company Ledger',
-                            url: '/app/finance/customers/inter-company-ledger',
-                            icon: 'swap_horiz',
-                            order: 110,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-
-                    const alreadyHasEA = financeMenu.children.some(c => c.title === 'Expense Analysis');
-                    if (!alreadyHasEA) {
-                        financeMenu.children.push({
-                            id: 9999, // Dummy ID
-                            title: 'Expense Analysis',
-                            url: '/app/finance/expenses/analysis',
-                            icon: 'analytics',
-                            order: 120,
-                            children: [],
-                            permissions: { canView: true, canAdd: false, canEdit: false, canDelete: false }
-                        });
-                    }
-                }
-
-                // 🎯 5. Inject "Admin Dashboard" if not exists in Admin menu
-                const adminMenu = filtered.find(m => m.title === 'Admin' || m.url?.includes('/admin'));
-                if (adminMenu) {
-                    // Force ensure children array
-                    if (!adminMenu.children) adminMenu.children = [];
-
-                    const alreadyHasAdminDash = adminMenu.children.some(c => 
-                        c.title === 'Admin Dashboard' || c.url === '/app/admin/dashboard'
-                    );
-
-                    if (!alreadyHasAdminDash) {
-                        adminMenu.children.unshift({
-                            id: 9990, // Dummy ID
-                            title: 'Admin Dashboard',
-                            url: '/app/admin/dashboard',
-                            icon: 'admin_panel_settings',
-                            order: -1, // First in list
-                            children: [],
-                            permissions: { canView: true, canAdd: true, canEdit: true, canDelete: true }
-                        });
-                    }
-                }
-
-                return filtered;
+                const menuTree = this.sortMenus(this.buildMenuTree(flatMenus));
+                const filtered = this.filterMenusByPermissions(menuTree, permissions);
+                return this.injectCommonMenus(filtered);
               })
             );
           })
@@ -249,6 +98,44 @@ export class MenuService {
         return of([]);
       })
     );
+  }
+
+  /**
+   * Specifically filters menus using the flat UserPermissionDto list from login
+   */
+  private filterMenusByLoginPermissions(menus: MenuItem[], loginPerms: any[]): MenuItem[] {
+    return menus.map(menu => {
+      // Find matching permission by URL
+      const perm = loginPerms.find((p: any) => p.actionCode === menu.url);
+      const canView = perm ? !!perm.canView : false;
+
+      let children: MenuItem[] = [];
+      if (menu.children && menu.children.length > 0) {
+        children = this.filterMenusByLoginPermissions(menu.children, loginPerms);
+      }
+
+      if (canView || (children && children.length > 0)) {
+        return {
+          ...menu,
+          children: children,
+          permissions: perm ? {
+            canView: !!perm.canView,
+            canAdd: !!perm.canAdd,
+            canEdit: !!perm.canEdit,
+            canDelete: !!perm.canDelete
+          } : undefined
+        };
+      }
+      return null;
+    }).filter(m => m !== null) as MenuItem[];
+  }
+
+  /**
+   * Returns menus exactly as they come from the API/Permissions,
+   * without any static code-level injections.
+   */
+  private injectCommonMenus(filtered: MenuItem[]): MenuItem[] {
+    return filtered;
   }
 
   buildMenuTree(flatMenus: MenuItem[]): MenuItem[] {

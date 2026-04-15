@@ -14,6 +14,7 @@ export interface SaleReturnItem {
     expDate?: Date;
     createdBy?: string;
     modifiedBy?: string;
+    companyId?: string | null;
 }
 
 export interface CreateSaleReturnDto {
@@ -25,4 +26,5 @@ export interface CreateSaleReturnDto {
     createdBy?: string;
     items?: SaleReturnItem[];
     isQuick?: boolean;
+    companyId?: string | null;
 }

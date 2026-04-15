@@ -44,7 +44,7 @@ export class InwardGatePassComponent implements OnInit, OnDestroy {
     referenceLabel = 'Link With PO No';
     isExternalRef = false;
     isEditMode = false;
-    gatePassId: number | null = null;
+    gatePassId: string | null = null;
     currentPassNo = 'Auto-Generated Pass No: GP-IN-2026-XXXX';
     bulkBreakdown: string = '';
     isReplacement: boolean = false;
@@ -91,8 +91,8 @@ export class InwardGatePassComponent implements OnInit, OnDestroy {
             // Mode & ID handling
             if (params['id'] && params['mode'] === 'edit') {
                 this.isEditMode = true;
-                this.gatePassId = Number(params['id']);
-                this.loadGatePassData(this.gatePassId);
+                this.gatePassId = params['id'];
+                if (this.gatePassId) this.loadGatePassData(this.gatePassId);
             }
             // Sale Return Redirection Flow
             else if (params['refNo'] && params['type'] === 'sale-return') {
@@ -105,7 +105,7 @@ export class InwardGatePassComponent implements OnInit, OnDestroy {
         });
     }
 
-    private loadGatePassData(id: number) {
+    private loadGatePassData(id: string) {
         this.loadingService.setLoading(true);
         this.gatePassService.getGatePass(id).subscribe({
             next: (data) => {
@@ -212,7 +212,7 @@ export class InwardGatePassComponent implements OnInit, OnDestroy {
 
         // --- SINGLE PO FLOW ---
         // Call the new backend endpoint for accurate replacement quantity
-        this.poService.getReplacementQty(Number(refId)).subscribe({
+        this.poService.getReplacementQty(refId).subscribe({
             next: (resp) => {
                 this.loadingService.setLoading(false);
                 const dbQty = resp?.replacementQty || params['qty'] || 0;
@@ -486,7 +486,7 @@ export class InwardGatePassComponent implements OnInit, OnDestroy {
             id: this.gatePassId || 0,
             passType: 'Inward',
             referenceType: formValue.referenceType,
-            referenceId: formValue.referenceId && formValue.referenceId !== '0' ? String(formValue.referenceId) : '', // Ensure valid string or empty
+            referenceId: formValue.referenceId ? String(formValue.referenceId) : '', // Ensure valid string or empty
             referenceNo: formValue.referenceNo,
             invoiceNo: formValue.invoiceNo,
             partyName: formValue.partyName,

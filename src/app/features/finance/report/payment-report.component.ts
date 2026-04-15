@@ -124,7 +124,7 @@ export class PaymentReportComponent implements OnInit, AfterViewInit {
       const supplierId = supplierIdFromRoute || this.data?.supplierId;
 
       if (supplierId) {
-        const supplier = this.suppliers.find(s => s.id === Number(supplierId));
+        const supplier = this.suppliers.find(s => s.id === supplierId);
         if (supplier) {
           this.searchControl.setValue(supplier);
           this.applyFilterValue(supplier.name || '');

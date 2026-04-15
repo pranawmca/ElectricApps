@@ -43,22 +43,22 @@ export class SaleReturnService {
         return this.api.post('SaleReturn/create', data);
     }
 
-    deleteSaleReturn(id: number): Observable<any> {
+    deleteSaleReturn(id: string): Observable<any> {
         return this.api.delete(`SaleReturn/delete/${id}`);
     }
 
     // Get Sale Return Details by ID
-    getSaleReturnById(id: number): Observable<any> {
+    getSaleReturnById(id: string): Observable<any> {
         return this.api.get<any>(`SaleReturn/details/${id}`);
     }
 
     // Get Sale Orders/Invoices for a specific customer
-    getSaleOrders(customerId: number): Observable<any[]> {
+    getSaleOrders(customerId: string): Observable<any[]> {
         return this.api.get<any[]>(`SaleReturn/sale-orders/${customerId}`);
     }
 
     // Get Items for a specific Sale Order
-    getSaleOrderItems(soId: number): Observable<any[]> {
+    getSaleOrderItems(soId: string): Observable<any[]> {
         return this.api.get<any[]>(`SaleReturn/sale-order-items/${soId}`);
     }
 
@@ -71,11 +71,11 @@ export class SaleReturnService {
         return this.api.getBlob(`SaleReturn/export-excel?${this.api.toQueryString(request)}`);
     }
 
-    getPrintData(id: number): Observable<any> {
+    getPrintData(id: string): Observable<any> {
         return this.api.get(`SaleReturn/print-data/${id}`);
     }
 
-    printCreditNote(id: number): Observable<Blob> {
+    printCreditNote(id: string): Observable<Blob> {
         return this.api.getBlob(`SaleReturn/print/${id}`);
     }
 
@@ -87,7 +87,7 @@ export class SaleReturnService {
         return this.api.get<any[]>('SaleReturn/pending-returns');
     }
 
-    bulkInward(ids: number[]): Observable<any> {
+    bulkInward(ids: string[]): Observable<any> {
         return this.api.post('SaleReturn/bulk-inward', ids);
     }
 }

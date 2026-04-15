@@ -3,7 +3,7 @@
  * Backend ke CompanyProfileDto se match karta hai
  */
 export interface CompanyProfileDto {
-    id: number;
+    id: string;
     name: string;
     tagline: string;
     registrationNumber: string;
@@ -43,7 +43,7 @@ export interface CompanyProfileDto {
  * Authorized Signatory Model
  */
 export interface AuthorizedSignatoryDto {
-    id: number;
+    id: string;
     personName: string;
     designation: string;
     signatureImageUrl: string | null;
@@ -54,7 +54,7 @@ export interface AuthorizedSignatoryDto {
  * Address Details Model
  */
 export interface AddressDto {
-    id: number;
+    id: string;
     addressLine1: string;
     addressLine2: string;
     city: string;
@@ -68,7 +68,7 @@ export interface AddressDto {
  * Bank Account Details Model
  */
 export interface BankDetailDto {
-    id: number;
+    id: string;
     bankName: string;
     branchName: string;
     accountNumber: string;
@@ -81,6 +81,7 @@ export interface BankDetailDto {
  * Backend ke UpsertCompanyRequest se match karta hai
  */
 export interface UpsertCompanyRequest {
+    companyId?: string;
     name: string;
     tagline: string;
     registrationNumber: string;

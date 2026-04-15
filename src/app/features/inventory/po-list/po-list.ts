@@ -119,7 +119,7 @@ export class PoList implements OnInit {
     // Check for highlighted PO from query params
     this.route.queryParams.subscribe(params => {
       if (params['poId']) {
-        this.highlightedPoId = Number(params['poId']) || params['poId'];
+        this.highlightedPoId = params['poId'];
         console.log('[PoList] Highlighting PO ID:', this.highlightedPoId);
       }
     });
@@ -739,7 +739,7 @@ export class PoList implements OnInit {
     this.router.navigate(['/app/inventory/purchase-return/add'], {
       queryParams: {
         poId: row.id,
-        supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || 0
+        supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || null
       }
     });
   }
@@ -755,7 +755,7 @@ export class PoList implements OnInit {
     this.router.navigate(['/app/inventory/purchase-return/add'], {
       queryParams: {
         poId: row.id,
-        supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || 0,
+        supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || null,
         returnType: 'Standard'
       }
     });
@@ -873,7 +873,7 @@ export class PoList implements OnInit {
   }
 
   // 4. Common Update Method with Status Dialog
-  private updateStatus(id: number, status: string, successMessage: string) {
+  private updateStatus(id: string, status: string, successMessage: string) {
     console.log(`🚀 Updating PO ID: ${id} to Status: ${status}`);
     this.poService.updatePOStatus(id, status).subscribe({
       next: (response) => {

@@ -13,6 +13,7 @@ import { FormFooter } from '../../../shared/form-footer/form-footer';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import * as XLSX from 'xlsx';
+import { AuthService } from '../../../../core/services/auth.service';
 
 
 @Component({
@@ -32,7 +33,8 @@ export class CategoryForm implements OnInit {
     private cdr: ChangeDetectorRef, private zone: NgZone,
     private route: ActivatedRoute, private router: Router) { }
 
-  readonly categorySvc = inject(CategoryService)
+  readonly categorySvc = inject(CategoryService);
+  private authService = inject(AuthService);
 
   ngOnInit(): void {
     this.createForm();
@@ -233,7 +235,8 @@ export class CategoryForm implements OnInit {
     this.loading = true;
     const payload: Category = {
       ...this.categoryForm.value,
-      id: this.categoryId
+      id: this.categoryId,
+      companyId: this.authService.getCompanyId()
     };
 
     const request = this.categoryId

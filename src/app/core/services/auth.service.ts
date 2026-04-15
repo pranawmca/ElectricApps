@@ -103,6 +103,28 @@ export class AuthService {
     const subStatus = res.subscriptionStatus || res.SubscriptionStatus;
     localStorage.setItem('isSubscriptionExpired', isExpired ? 'true' : 'false');
     localStorage.setItem('subscriptionStatus', subStatus || 'Active');
+
+    // Store Company Metadata
+    const companyId = res.companyId || res.CompanyId;
+    const companyName = res.companyName || res.CompanyName;
+    
+    if (companyId) {
+      localStorage.setItem('companyId', companyId);
+    } else {
+      localStorage.removeItem('companyId');
+    }
+
+    if (companyName) {
+      localStorage.setItem('companyName', companyName);
+    } else {
+      localStorage.removeItem('companyName');
+    }
+
+    // Store Permissions
+    const permissions = res.permissions || res.Permissions;
+    if (permissions) {
+      localStorage.setItem('permissions', JSON.stringify(permissions));
+    }
   }
 
   isSubscriptionExpired(): boolean {
@@ -159,6 +181,12 @@ export class AuthService {
 
   getUserEmail(): string {
     return localStorage.getItem('email') || 'system@decode.com';
+  }
+
+  getCompanyId(): string | null {
+    const cid = localStorage.getItem('companyId');
+    if (!cid || cid === 'null' || cid === 'undefined') return null;
+    return cid;
   }
 }
 

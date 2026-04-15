@@ -19,6 +19,7 @@ import { LocationTrackerDialogComponent } from '../location-tracker-dialog/locat
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { environment } from '../../../../enviornments/environment';
 import { SharedPrintService } from '../../../../core/services/shared-print.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-purchase-return-form',
@@ -42,6 +43,7 @@ export class PurchaseReturnForm implements OnInit {
   returnPolicyDisclaimer: string = 'Items from GRNs received more than 3 days ago are blocked for return as per company policy.';
 
   private sharedPrintService = inject(SharedPrintService);
+  private authService = inject(AuthService);
 
   viewLiveLocation(item: any) {
     if (!item) return;
@@ -507,6 +509,7 @@ export class PurchaseReturnForm implements OnInit {
           supplierId: rawData.supplierId,
           returnDate: rawData.returnDate,
           remarks: rawData.remarks,
+          companyId: this.authService.getCompanyId(),
           items: itemsToReturn.map((item: any) => ({
             productId: item.productId,
             productName: item.productName,
@@ -523,6 +526,7 @@ export class PurchaseReturnForm implements OnInit {
             rackId: item.rackId,
             mfgDate: item.mfgDate,
             expDate: item.expDate,
+            companyId: this.authService.getCompanyId(),
             createdBy: localStorage.getItem('email') || 'admin@admin.com',
             modifiedBy: localStorage.getItem('email') || 'admin@admin.com'
           }))

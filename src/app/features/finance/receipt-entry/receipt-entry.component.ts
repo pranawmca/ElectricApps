@@ -13,6 +13,7 @@ import { StatusDialogComponent } from '../../../shared/components/status-dialog-
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { LoadingService } from '../../../core/services/loading.service';
 import { PermissionService } from '../../../core/services/permission.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-receipt-entry',
@@ -33,6 +34,7 @@ export class ReceiptEntryComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private cdr = inject(ChangeDetectorRef);
   private permissionService = inject(PermissionService);
+  private authService = inject(AuthService);
   canAdd: boolean = true;
 
   today = new Date();
@@ -46,7 +48,8 @@ export class ReceiptEntryComponent implements OnInit {
     referenceNumber: '',
     paymentDate: this.today,
     remarks: '',
-    createdBy: 'Admin'
+    createdBy: 'Admin',
+    companyId: null
   };
 
   constructor(
@@ -76,7 +79,7 @@ export class ReceiptEntryComponent implements OnInit {
     // Check for query params (e.g. from Sales List / Outstanding Tracker)
     this.route.queryParams.subscribe(params => {
       if (params['customerId']) {
-        this.receipt.customerId = Number(params['customerId']);
+        this.receipt.customerId = params['customerId'];
         if (params['amount']) this.receipt.amount = Number(params['amount']);
         if (params['invoiceNo']) {
           this.receipt.referenceNumber = params['invoiceNo'];
@@ -140,7 +143,7 @@ export class ReceiptEntryComponent implements OnInit {
     this.loadCustomerBalance(customer.id);
   }
 
-  loadCustomerBalance(customerId: number) {
+  loadCustomerBalance(customerId: string) {
     const request = {
       customerId: customerId,
       pageNumber: 1,
@@ -174,7 +177,7 @@ export class ReceiptEntryComponent implements OnInit {
     return message;
   }
 
-  preselectCustomer(id: number) {
+  preselectCustomer(id: string) {
     const customer = this.customers.find(c => c.id === id);
     if (customer) {
       this.customerControl.setValue(customer);
@@ -219,7 +222,8 @@ export class ReceiptEntryComponent implements OnInit {
           discountAmount: 0,
           netAmount: Number(this.receipt.amount),
           referenceNumber: ref,
-          paymentDate: this.receipt.paymentDate instanceof Date ? this.receipt.paymentDate.toISOString() : this.receipt.paymentDate
+          paymentDate: this.receipt.paymentDate instanceof Date ? this.receipt.paymentDate.toISOString() : this.receipt.paymentDate,
+          companyId: this.authService.getCompanyId()
         };
 
         this.financeService.recordCustomerReceipt(payload).subscribe({

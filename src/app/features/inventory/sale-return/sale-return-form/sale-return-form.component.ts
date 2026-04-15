@@ -23,6 +23,7 @@ import { ResizableColumnDirective } from '../../../../shared/directives/resizabl
 
 import { environment } from '../../../../enviornments/environment';
 import { SharedPrintService } from '../../../../core/services/shared-print.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-sale-return-form',
@@ -53,12 +54,13 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
     private locationService = inject(LocationService);
     private el = inject(ElementRef);
     private sharedPrintService = inject(SharedPrintService);
+    private authService = inject(AuthService);
 
     customers: any[] = [];
     saleOrders: any[] = [];
     returnForm: FormGroup;
     isEditMode = false;
-    returnId: number | null = null;
+    returnId: string | null = null;
     isLoading = false;
     isLoadingCustomers = false;
     isLoadingSaleOrders = false;
@@ -102,8 +104,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         this.route.params.subscribe(params => {
             if (params['id']) {
                 this.isEditMode = true;
-                this.returnId = +params['id'];
-                this.loadReturnDetails(this.returnId);
+                this.returnId = params['id'];
+                if (this.returnId) this.loadReturnDetails(this.returnId);
             }
         });
 
@@ -116,8 +118,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
                 this.returnForm.get('returnDate')?.disable();
                 this.returnForm.get('customerId')?.disable();
                 this.returnForm.get('saleOrderId')?.disable();
-                this.returnForm.patchValue({ customerId: Number(customerId) });
-                this.onCustomerChange(Number(customerId), Number(saleOrderId));
+                this.returnForm.patchValue({ customerId: customerId });
+                this.onCustomerChange(customerId, saleOrderId);
             }
         });
     }
@@ -165,7 +167,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         });
     }
 
-    onCustomerChange(customerId: number, targetSoId?: number) {
+    onCustomerChange(customerId: string, targetSoId?: string) {
         this.saleOrders = [];
         if (!targetSoId) {
             this.returnForm.get('saleOrderId')?.setValue(null);
@@ -195,7 +197,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         }
     }
 
-    onSOChange(soId: number) {
+    onSOChange(soId: string) {
         this.clearItems();
         this.noItemsFound = false;
         this.isPolicyViolated = false;
@@ -265,7 +267,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         });
     }
 
-    onWarehouseChange(wId: number, element: AbstractControl) {
+    onWarehouseChange(wId: string, element: AbstractControl) {
         element.get('rackId')?.setValue(null);
         if (wId) {
             this.locationService.getRacksByWarehouse(wId).subscribe(racks => {
@@ -403,7 +405,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
             .reduce((sum, control) => sum + (Number(control.get('returnQty')?.value) || 0), 0);
     }
 
-    loadReturnDetails(id: number) {
+    loadReturnDetails(id: string) {
         this.isLoading = true;
         this.srService.getSaleReturnById(id).subscribe(res => {
             this.returnForm.patchValue({
@@ -473,6 +475,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
                     expiryDate: i.expiryDate,
                     mfgDate: i.manufacturingDate,
                     expDate: i.expiryDate,
+                    companyId: this.authService.getCompanyId(),
                     createdBy: userId,
                     modifiedBy: userId
                 };
@@ -497,11 +500,12 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
 
         const payload: CreateSaleReturnDto = {
             returnDate: rawValue.returnDate,
-            saleOrderId: Number(rawValue.saleOrderId),
-            customerId: Number(rawValue.customerId),
+            saleOrderId: rawValue.saleOrderId,
+            customerId: rawValue.customerId,
             remarks: rawValue.remarks,
             createdBy: userId,
             modifiedBy: userId, // Added for audit consistency
+            companyId: this.authService.getCompanyId(),
             items: mappedItems,
             isQuick: this.isQuick
         };
@@ -515,13 +519,14 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
                 const returnId = res?.saleReturnHeaderId || res?.id || 0;
 
                 this.financeService.recordCustomerReceipt({
-                    customerId: Number(rawValue.customerId),
+                    customerId: rawValue.customerId,
                     amount: this.totalReturnAmount,
                     paymentMode: 'Sales Return',
                     referenceNumber: returnNo,
                     paymentDate: new Date().toISOString(),
                     remarks: `Sales Return Adjustment: ${returnNo}`,
-                    createdBy: userId
+                    createdBy: userId,
+                    companyId: this.authService.getCompanyId()
                 }).subscribe({
                     next: () => {
                         this.inventoryService.notifyInventoryChange();
@@ -541,7 +546,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         });
     }
 
-    private handleSuccess(res: any, returnNo: string, returnId: number, isFail: boolean = false) {
+    private handleSuccess(res: any, returnNo: string, returnId: string, isFail: boolean = false) {
         this.isLoading = false;
         this.cdr.detectChanges();
 
@@ -578,9 +583,9 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         });
     }
 
-    private navigateToGatePass(returnNo: string, returnId: number, delay: number = 300) {
+    private navigateToGatePass(returnNo: string, returnId: string, delay: number = 300) {
         this.loadingService.setLoading(true);
-        const customerName = this.customers.find(c => c.id === Number(this.returnForm.get('customerId')?.value))?.name || '';
+        const customerName = this.customers.find(c => c.id === this.returnForm.get('customerId')?.value)?.name || '';
         setTimeout(() => {
             this.router.navigate(['/app/inventory/gate-pass/inward'], {
                 queryParams: { refNo: returnNo, refId: returnId, type: 'sale-return', partyName: customerName, qty: this.totalReturnQty }
@@ -588,7 +593,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         }, delay);
     }
 
-    private printAfterSave(returnId: number, existingWindow: Window, callback: () => void) {
+    private printAfterSave(returnId: string, existingWindow: Window, callback: () => void) {
         this.loadingService.setLoading(true);
         // Fetch full print data
         this.srService.getSaleReturnById(returnId).subscribe({

@@ -17,11 +17,11 @@ export class GatePassService {
         return this.api.post('GatePass/GetPaged', request);
     }
 
-    getGatePass(id: number): Observable<GatePass> {
+    getGatePass(id: string): Observable<GatePass> {
         return this.api.get<GatePass>(`GatePass/${id}`);
     }
 
-    deleteGatePass(id: number): Observable<any> {
+    deleteGatePass(id: string): Observable<any> {
         return this.api.delete(`GatePass/${id}`);
     }
 

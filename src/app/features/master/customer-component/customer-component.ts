@@ -5,6 +5,7 @@ import { MaterialModule } from '../../../shared/material/material/material-modul
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { customerService } from './customer.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class CustomerComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<CustomerComponent>, { optional: true });
   readonly data = inject(MAT_DIALOG_DATA, { optional: true });
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly authService = inject(AuthService);
 
   // ⚠ keeping same service name as you used
   private readonly customerService = inject(customerService);
@@ -57,7 +59,7 @@ export class CustomerComponent implements OnInit {
       next: (response) => {
         console.log('[CustomerComponent] Received data:', response);
         // Handle potential result wrapping
-        const res = response.data || response;
+        const res = (response as any).data || response;
 
         this.customerForm.patchValue({
           customerName: res.customerName,
@@ -101,7 +103,9 @@ export class CustomerComponent implements OnInit {
       billingAddress: this.customerForm.value.billingAddress,
       shippingAddress: this.customerForm.value.shippingAddress,
       customerStatus: this.customerForm.value.customerStatus,
-      createdBy: currentUserId
+      status: this.customerForm.value.customerStatus, // Map both for safety
+      createdBy: currentUserId,
+      companyId: this.authService.getCompanyId()
     };
 
     const request = this.isEdit

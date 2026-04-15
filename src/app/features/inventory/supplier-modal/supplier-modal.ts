@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { AuthService } from '../../../core/services/auth.service';
 import { MaterialModule } from '../../../shared/material/material/material-module';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -24,6 +25,7 @@ export class SupplierModalComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private loadingService = inject(LoadingService);
+  private authService = inject(AuthService);
 
   supplierForm!: FormGroup;
   loading = false;
@@ -33,7 +35,7 @@ export class SupplierModalComponent implements OnInit {
 
   createForm() {
     this.supplierForm = this.fb.group({
-      id: [0],
+      id: [null],
       name: ['', Validators.required],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       gstIn: [''],
@@ -92,7 +94,8 @@ export class SupplierModalComponent implements OnInit {
         const currentEmail = localStorage.getItem('email') || localStorage.getItem('userId') || '';
         const supplierData = {
           ...this.supplierForm.value,
-          createdBy: currentEmail
+          createdBy: currentEmail,
+          companyId: this.authService.getCompanyId()
         };
 
         if (this.isEdit) {

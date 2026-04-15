@@ -8,7 +8,7 @@ export class POService {
   private api = inject(ApiService);
 
   // Edit mode ke liye data fetch karna
-  getById(id: number): Observable<any> {
+  getById(id: string): Observable<any> {
     return this.api.get(`purchaseorders/${id}`);
   }
 
@@ -17,7 +17,7 @@ export class POService {
     return this.api.put(`purchaseorders/${id}`, payload);
   }
 
-  getPOHeaderDetails(lastPoId: number): Observable<POHeaderDetailsDto> {
+  getPOHeaderDetails(lastPoId: string): Observable<POHeaderDetailsDto> {
     return this.api.get<POHeaderDetailsDto>(`PurchaseOrders/header-details/${lastPoId}`);
   }
 
@@ -25,23 +25,23 @@ export class POService {
     return this.api.get(`PurchaseOrders/get-product-rate?productId=${productId}&priceListId=${priceListId}`);
   }
 
-  bulkSentForDraftApproval(ids: number[]): Observable<any> {
+  bulkSentForDraftApproval(ids: string[]): Observable<any> {
     return this.api.post('PurchaseOrders/bulk-sent-for-approval', ids);
   }
 
-  bulkDraftApprove(ids: number[]): Observable<any> {
+  bulkDraftApprove(ids: string[]): Observable<any> {
     return this.api.post('PurchaseOrders/bulk-approve', ids);
   }
 
-  bulkPOReject(ids: number[]): Observable<any> {
+  bulkPOReject(ids: string[]): Observable<any> {
     return this.api.post('PurchaseOrders/bulk-reject', ids);
   }
 
-  getPrintDetails(id: number): Observable<any> {
+  getPrintDetails(id: string): Observable<any> {
     return this.api.get<any>(`PurchaseOrders/${id}/print-details`);
   }
 
-  downloadPOReport(id: number): Observable<Blob> {
+  downloadPOReport(id: string): Observable<Blob> {
     return (this.api as any).http.get(`${(this.api as any).environment.ApiBaseUrl}/PurchaseOrders/${id}/download-pdf`, {
       responseType: 'blob'
     });
@@ -51,7 +51,7 @@ export class POService {
     return this.api.get<any[]>('PurchaseOrders/pending-pos');
   }
 
-  getReplacementQty(poId: number): Observable<any> {
+  getReplacementQty(poId: string): Observable<any> {
     return this.api.get(`PurchaseOrders/replacement-qty/${poId}`);
   }
 }

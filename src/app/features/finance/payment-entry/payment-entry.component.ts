@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { LoadingService } from '../../../core/services/loading.service';
 import { PermissionService } from '../../../core/services/permission.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-payment-entry',
@@ -28,7 +29,8 @@ export class PaymentEntryComponent implements OnInit, OnDestroy {
     referenceNumber: '',
     paymentDate: new Date(),
     remarks: '',
-    createdBy: 'Admin'
+    createdBy: 'Admin',
+    companyId: null
   };
 
   suppliers: Supplier[] = [];
@@ -58,6 +60,7 @@ export class PaymentEntryComponent implements OnInit, OnDestroy {
   ) { }
 
   private permissionService = inject(PermissionService);
+  private authService = inject(AuthService);
   canAdd: boolean = true;
 
   private updateLoading(delta: number) {
@@ -164,7 +167,7 @@ export class PaymentEntryComponent implements OnInit, OnDestroy {
   }
 
   private handleQueryParams(supplierId: any, amount: any, grnNumber: any) {
-    this.preselectSupplier(Number(supplierId));
+    this.preselectSupplier(supplierId);
 
     // Lock supplier field when pre-selected from URL
     this.isSupplierPreSelected = true;
@@ -226,7 +229,7 @@ export class PaymentEntryComponent implements OnInit, OnDestroy {
     return message;
   }
 
-  preselectSupplier(supplierId: number) {
+  preselectSupplier(supplierId: string) {
     const supplier = this.suppliers.find(s => s.id === supplierId);
     if (supplier) {
       this.supplierControl.setValue(supplier);
@@ -241,7 +244,7 @@ export class PaymentEntryComponent implements OnInit, OnDestroy {
 
 
 
-  fetchBalance(supplierId: number) {
+  fetchBalance(supplierId: string) {
     this.updateLoading(1);
 
     // The API expects a search request object, not just an ID
@@ -441,7 +444,8 @@ export class PaymentEntryComponent implements OnInit, OnDestroy {
     const payload = {
       ...this.payment,
       referenceNumber: ref,
-      paymentDate: this.payment.paymentDate instanceof Date ? this.payment.paymentDate.toISOString() : this.payment.paymentDate
+      paymentDate: this.payment.paymentDate instanceof Date ? this.payment.paymentDate.toISOString() : this.payment.paymentDate,
+      companyId: this.authService.getCompanyId()
     };
 
     this.financeService.recordSupplierPayment(payload).pipe(

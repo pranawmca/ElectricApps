@@ -40,7 +40,7 @@ export class OutwardGatePassComponent implements OnInit, OnDestroy {
     isSaving = false;
     isEditMode = false;
     isRedirected = false; // Flag to prevent auto-reset
-    gatePassId: number | null = null;
+    gatePassId: string | null = null;
     currentPassNo = 'Auto-Generated Pass No: GP-OUT-2026-XXXX';
     bulkBreakdown = '';
 
@@ -78,8 +78,8 @@ export class OutwardGatePassComponent implements OnInit, OnDestroy {
         this.route.queryParams.subscribe(params => {
             if (params['id'] && params['mode'] === 'edit') {
                 this.isEditMode = true;
-                this.gatePassId = +params['id'];
-                this.loadGatePassData(this.gatePassId);
+                this.gatePassId = params['id'];
+                if (this.gatePassId) this.loadGatePassData(this.gatePassId);
             } else if (params['type'] === 'purchase-return') {
                 this.isRedirected = true;
                 this.handlePurchaseReturnRedirection(params);
@@ -179,7 +179,7 @@ export class OutwardGatePassComponent implements OnInit, OnDestroy {
         });
     }
 
-    private loadGatePassData(id: number) {
+    private loadGatePassData(id: string) {
         this.gatePassService.getGatePass(id).subscribe({
             next: (data: any) => {
                 this.currentPassNo = `Pass No: ${data.passNo}`;
@@ -195,7 +195,7 @@ export class OutwardGatePassComponent implements OnInit, OnDestroy {
         });
     }
 
-    onSOSelected(soId: number) {
+    onSOSelected(soId: string) {
         const selectedSO = this.availableSOs.find(s => s.id === soId);
         if (selectedSO) {
             this.gatePassForm.patchValue({

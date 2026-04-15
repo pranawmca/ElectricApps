@@ -80,19 +80,19 @@ export class InventoryService {
         return this.api.get<any>(`saleorder?${this.api.toQueryString(request)}`);
     }
 
-    deletePurchaseOrder(poId: number): Observable<any> {
+    deletePurchaseOrder(poId: string): Observable<any> {
         return this.api.delete(`PurchaseOrders/${poId}`);
     }
 
-    deleteSaleOrder(soId: number): Observable<any> {
+    deleteSaleOrder(soId: string): Observable<any> {
         return this.api.delete(`saleorder/${soId}`);
     }
 
-    bulkDeletePurchaseOrders(ids: number[]): Observable<any> {
+    bulkDeletePurchaseOrders(ids: string[]): Observable<any> {
         return this.api.post('PurchaseOrders/bulk-delete-orders', { ids });
     }
 
-    bulkDeletePOItems(poId: number, itemIds: number[]): Observable<any> {
+    bulkDeletePOItems(poId: string, itemIds: string[]): Observable<any> {
         const payload = {
             purchaseOrderId: poId,
             itemIds: itemIds
@@ -100,7 +100,7 @@ export class InventoryService {
         return this.api.post('PurchaseOrders/bulk-delete-items', payload);
     }
 
-    updatePOStatus(id: number, status: string, reason?: string): Observable<any> {
+    updatePOStatus(id: string, status: string, reason?: string): Observable<any> {
         const payload = {
             Id: id,
             Status: status,
@@ -109,11 +109,11 @@ export class InventoryService {
         return this.api.put('PurchaseOrders/UpdateStatus', payload);
     }
 
-    toggleDispatchStatus(id: number): Observable<any> {
+    toggleDispatchStatus(id: string): Observable<any> {
         return this.api.put(`PurchaseOrders/${id}/toggle-dispatch`, {});
     }
 
-    getPODataForGRN(poIds: string, grnHeaderId: number | null = null, gatePassNo: string | null = null): Observable<any> {
+    getPODataForGRN(poIds: string, grnHeaderId: string | null = null, gatePassNo: string | null = null): Observable<any> {
         let url = `GRN/GetPOData?poIds=${poIds}&`;
         if (grnHeaderId) url += `grnHeaderId=${grnHeaderId}&`;
         if (gatePassNo) url += `gatePassNo=${gatePassNo}`;
@@ -193,7 +193,7 @@ export class InventoryService {
         return this.api.get<any[]>('PurchaseOrders/pending-pos');
     }
 
-    getPOItemsForGRN(poId: number): Observable<any[]> {
+    getPOItemsForGRN(poId: string): Observable<any[]> {
         return this.api.get<any[]>(`PurchaseOrders/po-items/${poId}`);
     }
 

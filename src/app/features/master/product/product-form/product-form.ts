@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MaterialModule } from '../../../../shared/material/material/material-module';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../service/product.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ProductLookUpService } from '../service/product.lookup.sercice';
 import { UnitService } from '../../units/services/units.service';
 import { FormFooter } from '../../../shared/form-footer/form-footer';
@@ -35,6 +36,7 @@ export class ProductForm implements OnInit, OnDestroy {
   private unitService = inject(UnitService);
   private locationService = inject(LocationService);
   private destroy$ = new Subject<void>();
+  private authService = inject(AuthService);
   public dialogRef = inject(MatDialogRef<ProductForm>, { optional: true });
   public data = inject(MAT_DIALOG_DATA, { optional: true });
 
@@ -658,7 +660,8 @@ export class ProductForm implements OnInit, OnDestroy {
       defaultWarehouseId: formValue.defaultWarehouseId,
       defaultRackId: formValue.defaultRackId,
       isExpiryRequired: Boolean(formValue.isExpiryRequired),
-      imageUrl: formValue.imageUrl
+      imageUrl: formValue.imageUrl,
+      companyId: this.authService.getCompanyId()
     };
   }
 }

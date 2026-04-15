@@ -67,7 +67,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
     public languageService = inject(LanguageService);
     private destroy$ = new Subject<void>();
 
-    saleOrderId: number | null = null;
+    saleOrderId: string | null = null;
     isEdit = false;
     private saleSavedKey: string = ''; // sessionStorage key for this transaction
     saleForm!: FormGroup;
@@ -153,7 +153,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         this.route.paramMap.subscribe(params => {
             const id = params.get('id');
             if (id) {
-                this.saleOrderId = +id;
+                this.saleOrderId = id;
                 this.isEdit = true;
                 this.minDate = null; // Important: Disable past date restriction for editing
                 this.isSaving = false; // Ensure not stuck
@@ -170,7 +170,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         });
     }
 
-    loadSaleOrder(id: number) {
+    loadSaleOrder(id: string) {
         this.soService.getSaleOrderById(id).subscribe({
             next: (res) => {
                 this.saleForm.patchValue({
@@ -265,7 +265,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
     private initForm() {
         this.saleForm = this.fb.group({
-            customerId: [0],
+            customerId: [null],
             customerName: ['Cash Customer', Validators.required],
             remarks: [''],
             date: [new Date()],
@@ -326,7 +326,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
     addProductToForm(product: any, bypassBatchDialog = false) {
         const isExistingItem = !!product.productId;
-        const lineItemId = isExistingItem ? (product.id || 0) : 0;
+        const lineItemId = isExistingItem ? (product.id || '') : '';
         const productId = isExistingItem ? product.productId : product.id;
 
         const formatDt = (dt: any) => {
@@ -515,7 +515,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
     addItem() {
         const itemForm = this.fb.group({
-            id: [0],
+            id: [''],
             productId: [null, Validators.required],
             productName: ['', Validators.required],
             sku: [''],
@@ -837,6 +837,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                     totalTax: this.totalTax,
                     grandTotal: this.finalGrandTotal,
                     createdBy: this.authService.getUserEmail(),
+                    companyId: this.authService.getCompanyId(),
                     isQuick: true,
                     items: this.items.getRawValue().map((i: any) => ({
                         id: i.id || 0,
@@ -1000,7 +1001,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             referenceNumber: `${data.soNumber}-${new Date().getTime().toString().slice(-4)}`,
             paymentDate: new Date().toISOString(),
             remarks: `Direct Receipt for Quick Sale: ${data.soNumber}`,
-            createdBy: (this.authService as any).getUserName?.() || localStorage.getItem('email') || 'Admin'
+            createdBy: (this.authService as any).getUserName?.() || localStorage.getItem('email') || 'Admin',
+            companyId: this.authService.getCompanyId()
         };
 
         // Delay to ensure SO transaction is fully committed

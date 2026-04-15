@@ -13,6 +13,7 @@ import { Warehouse, Rack } from '../../master/locations/models/locations.model';
 import { LoadingService } from '../../../core/services/loading.service';
 import { DateHelper } from '../../../shared/models/date-helper';
 import { GrnPrintDialogComponent } from '../grn-print-dialog/grn-print-dialog.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-grn-form-component',
@@ -25,7 +26,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   grnForm!: FormGroup;
   items: any[] = [];
   poId: string = '';
-  supplierId: number = 0;
+  supplierId: string | null = null;
   supplierName: string = '';
   isFromPopup: boolean = false;
   isViewMode: boolean = false;
@@ -33,6 +34,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   private financeService = inject(FinanceService);
   private locationService = inject(LocationService);
   private loadingService = inject(LoadingService);
+  private authService = inject(AuthService);
 
   warehouses: Warehouse[] = [];
   racks: Rack[] = [];
@@ -83,7 +85,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         this.resetFormBeforeLoad();
         this.poId = params['id'].toString();
         if (this.isViewMode) {
-          this.loadPOData("0", +this.poId); // View mode uses grnHeaderId
+          this.loadPOData('00000000-0000-0000-0000-000000000000', this.poId);
         } else {
           this.loadPOData(this.poId);
         }
@@ -163,14 +165,14 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadPOData(id: string, grnHeaderId: number | null = null, gatePassNo: string | null = null) {
+  loadPOData(id: string, grnHeaderId: string | null = null, gatePassNo: string | null = null) {
     this.inventoryService.getPODataForGRN(id, grnHeaderId, gatePassNo).subscribe({
       next: (res) => {
         if (!res) return;
         console.log('pendingqtycheck:', res);
 
         // Capture supplier details for payment navigation
-        this.supplierId = res.supplierId || res.SupplierId || 0;
+        this.supplierId = res.supplierId || res.SupplierId || null;
         this.supplierName = res.supplierName || res.SupplierName || '';
 
         console.log('✅ PO Data Loaded. Supplier Info:', {
@@ -250,7 +252,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         rejectedQty: rejected,
         acceptedQty: accepted,
         unitRate: rate,
-        supplierId: item.supplierId || item.SupplierId || this.supplierId || 0,
+        supplierId: item.supplierId || item.SupplierId || this.supplierId || null,
         supplierName: item.supplierName || item.SupplierName || this.supplierName || '',
         discountPercent: discPer,
         gstPercent: gstPer,
@@ -420,18 +422,18 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     const formValue = this.grnForm.getRawValue();
 
     // Determine if this is a bulk operation based on items' PO IDs or the poId parameter
-    const uniquePoIdsInGrid = [...new Set(this.items.map(i => Number(i.poId || i.POId || 0)).filter(id => id > 0))];
+    const uniquePoIdsInGrid = [...new Set(this.items.map(i => i.poId || i.POId).filter(id => id))];
     const isMultiPO = uniquePoIdsInGrid.length > 1 || (this.poId && this.poId.includes(','));
 
     if (isMultiPO) {
       console.log('📦 Processing Bulk GRN Save for POs:', uniquePoIdsInGrid);
-      const itemsByPo = new Map<number, any[]>();
+      const itemsByPo = new Map<string, any[]>();
       
-      const paramIds = this.poId ? this.poId.split(',').map(id => Number(id.trim())).filter(id => id > 0) : [];
-      const defaultPoId = paramIds.length > 0 ? paramIds[0] : (uniquePoIdsInGrid[0] || 0);
+      const paramIds = this.poId ? this.poId.split(',').map(id => id.trim()).filter(id => id) : [];
+      const defaultPoId = paramIds.length > 0 ? paramIds[0] : (uniquePoIdsInGrid[0] || null);
 
       this.items.forEach(item => {
-        const pId = Number(item.poId || item.POId || defaultPoId);
+        const pId = item.poId || item.POId || defaultPoId;
         if (!itemsByPo.has(pId)) itemsByPo.set(pId, []);
         itemsByPo.get(pId)?.push(item);
       });
@@ -442,7 +444,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
 
       const processedGrns: { number: string, amount: number }[] = [];
       let totalSuccessAmount = 0;
-      let uniqueSupplierId = 0;
+      let uniqueSupplierId: any = null;
       let uniqueSupplierName = '';
 
       const saveNext = () => {
@@ -457,14 +459,14 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         const firstItem = poItems[0];
         const poTotal = poItems.reduce((sum, i) => sum + Number(i.total || 0), 0);
         
-        const sId = Number(firstItem.supplierId || firstItem.SupplierId || this.supplierId || 0);
+        const sId = firstItem.supplierId || firstItem.SupplierId || this.supplierId || null;
         const sName = firstItem.supplierName || firstItem.SupplierName || this.supplierName || 'Multiple Suppliers';
 
-        if (uniqueSupplierId === 0) {
+        if (uniqueSupplierId === null) {
           uniqueSupplierId = sId;
           uniqueSupplierName = sName;
-        } else if (uniqueSupplierId !== sId && uniqueSupplierId !== -1) {
-          uniqueSupplierId = -1; 
+        } else if (uniqueSupplierId !== sId && uniqueSupplierId !== 'MULTI') {
+          uniqueSupplierId = 'MULTI'; 
         }
 
         const grnData = {
@@ -477,6 +479,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
           status: 'Received',
           isQuick: this.isQuick,
           createdBy: currentUserId,
+          companyId: this.authService.getCompanyId(),
           items: poItems.map(i => ({
             productId: i.productId,
             orderedQty: Number(i.orderedQty),
@@ -520,7 +523,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     }
 
     const grnData = {
-      poHeaderId: Number(this.poId),
+      poHeaderId: this.poId,
       supplierId: this.supplierId,
       gatePassNo: this.grnForm.getRawValue().gatePassNo,
       receivedDate: new Date(this.grnForm.getRawValue().receivedDate).toISOString(),
@@ -529,6 +532,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       status: 'Received',
       isQuick: this.isQuick,
       createdBy: currentUserId,
+      companyId: this.authService.getCompanyId(),
       items: this.items.map(item => ({
         productId: item.productId,
         orderedQty: Number(item.orderedQty),
@@ -634,7 +638,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
 
     const paymentPayload = {
       id: 0,
-      supplierId: Number(data.supplierId),
+      supplierId: data.supplierId,
       amount: Number(data.grandTotal),
       totalAmount: Number(data.grandTotal),
       discountAmount: 0,
@@ -643,7 +647,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       referenceNumber: `${data.grnNumber}-${new Date().getTime().toString().slice(-4)}`,
       paymentDate: new Date().toISOString(),
       remarks: `Direct Payment for GRN: ${data.grnNumber}`,
-      createdBy: localStorage.getItem('email') || 'Admin'
+      createdBy: localStorage.getItem('email') || 'Admin',
+      companyId: this.authService.getCompanyId()
     };
 
     console.log('💰 Sending Payment Payload:', paymentPayload);
@@ -713,7 +718,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   }
 
   showBulkCompletionDialog(uniqueSupplierId: number, uniqueSupplierName: string, processedGrns: any[], totalAmount: number) {
-    if (uniqueSupplierId > 0 && processedGrns.length > 0) {
+    if (uniqueSupplierId && processedGrns.length > 0) {
       const dialogRef = this.dialog.open(GrnSuccessDialogComponent, {
         width: '500px',
         disableClose: true,

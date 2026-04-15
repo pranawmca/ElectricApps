@@ -5,6 +5,7 @@ export interface Category {
   defaultGst?: number;
   description?: string;
   isActive?: boolean;
+  companyId?: string | null;
 }
 
 export interface CategoryDropdown {

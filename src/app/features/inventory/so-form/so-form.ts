@@ -27,6 +27,7 @@ import { SharedPrintService } from '../../../core/services/shared-print.service'
 import { LocationService } from '../../master/locations/services/locations.service';
 import { LocationTrackerDialogComponent } from '../purchase-return/location-tracker-dialog/location-tracker-dialog.component';
 import { LanguageService } from '../../../core/services/language.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-so-form',
@@ -94,6 +95,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
   private sharedPrintService = inject(SharedPrintService);
   private locationService = inject(LocationService);
   public languageService = inject(LanguageService);
+  private authService = inject(AuthService);
 
   soForm!: FormGroup;
   isLoading = false;
@@ -119,7 +121,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
   // Edit mode properties
   private activatedRoute = inject(ActivatedRoute);
   isEdit = false;
-  orderId: number | null = null;
+  orderId: string | null = null;
   isSaving = false;
   private soSavedKey: string = ''; // sessionStorage key for this transaction
 
@@ -148,7 +150,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     this.activatedRoute.params.subscribe(params => {
       if (params['id']) {
         this.isEdit = true;
-        this.orderId = +params['id'];
+        this.orderId = params['id'];
         this.soSavedKey = `so_saved_${this.orderId}`;
 
         // ⛔ If SO already saved/updated in this session, don't reload to avoid ghost actions
@@ -157,7 +159,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           return;
         }
 
-        this.loadOrderForEdit(this.orderId);
+        if (this.orderId) this.loadOrderForEdit(this.orderId);
       } else {
         this.addRow();
       }
@@ -166,7 +168,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     this.initBarcodeListener();
   }
 
-  private loadOrderForEdit(id: number) {
+  private loadOrderForEdit(id: string) {
     this.isLoading = true;
     this.soService.getSaleOrderById(id).subscribe({
       next: (order) => {
@@ -339,7 +341,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
 
   addProductToForm(product: any, targetIndex: number | null = null) {
     const isExistingItem = !!(product as any).productId;
-    const productId = isExistingItem ? (product as any).productId : product.id;
+    const productId = String(isExistingItem ? (product as any).productId : product.id);
 
     const formatDt = (dt: any) => {
       if (!dt) return null;
@@ -605,7 +607,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
   addRow(): void {
     const row = this.fb.group({
       productSearch: ['', Validators.required],
-      productId: [null, Validators.required],
+      productId: ['', Validators.required],
       qty: [1, [Validators.required, Validators.min(1)]],
       unit: [''], // Note: Isse disabled mat rakhein, getRawValue handle kar lega
       rate: [0, [Validators.required, Validators.min(0.01)]],
@@ -992,7 +994,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           : (this.isEdit ? 'Sale Order updated successfully.' : 'Sale Order saved as Draft. Inventory was not affected.');
 
         const payload = {
-          id: this.isEdit ? this.orderId : 0,
+          id: this.isEdit ? this.orderId! : '00000000-0000-0000-0000-000000000000',
           soNumber: this.isEdit ? this.generatedSoNumber : null,
           customerId: formValues.customerId,
           status: currentStatus,
@@ -1011,6 +1013,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           totalTax: Number(formValues.totalTax) || 0,
           grandTotal: this.finalGrandTotal,
           createdBy: userId,
+          companyId: this.authService.getCompanyId(),
           items: this.items.controls.map(item => {
             const val = (item as FormGroup).getRawValue();
             return {
@@ -1122,7 +1125,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       referenceNumber: `${data.soNumber}-${new Date().getTime().toString().slice(-4)}`,
       paymentDate: new Date().toISOString(),
       remarks: `Direct Receipt for SO: ${data.soNumber}`,
-      createdBy: localStorage.getItem('email') || 'Admin'
+      createdBy: localStorage.getItem('email') || 'Admin',
+      companyId: this.authService.getCompanyId()
     };
 
     // Calculate total quantity for Gate Pass

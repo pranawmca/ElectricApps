@@ -164,11 +164,11 @@ export class FinanceService {
         return this.http.post(`${this.inventoryApi}/expense-categories`, category);
     }
 
-    updateExpenseCategory(id: number, category: any): Observable<any> {
+    updateExpenseCategory(id: string, category: any): Observable<any> {
         return this.http.put(`${this.inventoryApi}/expense-categories/${id}`, category);
     }
 
-    deleteExpenseCategory(id: number): Observable<any> {
+    deleteExpenseCategory(id: string): Observable<any> {
         return this.http.delete(`${this.inventoryApi}/expense-categories/${id}`);
     }
 
@@ -181,11 +181,11 @@ export class FinanceService {
         return this.http.post(`${this.inventoryApi}/expense-entries`, entry);
     }
 
-    updateExpenseEntry(id: number, entry: any): Observable<any> {
+    updateExpenseEntry(id: string, entry: any): Observable<any> {
         return this.http.put(`${this.inventoryApi}/expense-entries/${id}`, entry);
     }
 
-    deleteExpenseEntry(id: number): Observable<any> {
+    deleteExpenseEntry(id: string): Observable<any> {
         return this.http.delete(`${this.inventoryApi}/expense-entries/${id}`);
     }
 

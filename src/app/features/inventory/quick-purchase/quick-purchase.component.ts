@@ -142,7 +142,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         this.initBarcodeListener();
 
         const id = this.route.snapshot.paramMap.get('id');
-        if (id && id !== '0') {
+        if (id && id !== '00000000-0000-0000-0000-000000000000' && id !== '') {
             this.poId = id;
             this.isEditMode = true;
             this.loadPODetails(id);
@@ -524,7 +524,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         });
     }
 
-    onSupplierChange(supplierId: number): void {
+    onSupplierChange(supplierId: string): void {
         if (!supplierId) return;
         this.supplierService.getSupplierById(supplierId).subscribe((res: any) => {
             const pListId = res.defaultpricelistId || res.defaultPriceListId || res.priceListId;
@@ -559,7 +559,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         });
     }
 
-    loadSuppliers(selectId?: number) {
+    loadSuppliers(selectId?: string) {
         this.supplierService.getSuppliers().subscribe({
             next: (res) => {
                 this.suppliers = res;
@@ -611,9 +611,9 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         this.isSaving = true;
         const formValue = this.purchaseForm.getRawValue();
         const payload = {
-            id: this.isEditMode ? Number(this.poId) : 0,
-            supplierId: Number(formValue.supplierId),
-            supplierName: this.suppliers.find(s => s.id === Number(formValue.supplierId))?.name || '',
+            id: this.isEditMode ? this.poId : '00000000-0000-0000-0000-000000000000',
+            supplierId: formValue.supplierId,
+            supplierName: this.suppliers.find(s => s.id === formValue.supplierId)?.name || '',
             priceListId: formValue.priceListId,
             poDate: DateHelper.toLocalISOString(formValue.date) || '',
             expectedDeliveryDate: DateHelper.toLocalISOString(formValue.expectedDeliveryDate) || '',
@@ -634,6 +634,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             status: 'Draft',
             isQuick: true,
             createdBy: this.authService.getUserEmail(),
+            companyId: this.authService.getCompanyId(),
             items: this.items.getRawValue().map((i: any) => ({
                 id: i.id || 0,
                 productId: i.productId,
