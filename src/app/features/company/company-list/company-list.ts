@@ -83,18 +83,14 @@ export class CompanyList implements OnInit {
         this.loading = true;
         this.loadingService.setLoading(true);
         this.companyService.getPaged(request).subscribe({
-            next: (res) => {
+            next: (res: any) => {
                 this.data = res.items;
                 this.totalCount = res.totalCount;
 
-                // Calculate Stats (Note: Active/Inactive currently based on page data, ideally should be from backend)
-                const activeCount = this.data.filter(c => c.isActive).length;
-                const inactiveCount = this.data.filter(c => !c.isActive).length;
-
                 this.summaryStats = [
                     { label: 'Total Companies', value: this.totalCount, icon: 'business', type: 'total' },
-                    { label: 'Active (Page)', value: activeCount, icon: 'check_circle', type: 'active' },
-                    { label: 'Inactive (Page)', value: inactiveCount, icon: 'cancel', type: 'warning' }
+                    { label: 'Active Companies', value: res.activeCount, icon: 'check_circle', type: 'active' },
+                    { label: 'Inactive Companies', value: res.inactiveCount, icon: 'cancel', type: 'warning' }
                 ];
 
                 this.loading = false;
