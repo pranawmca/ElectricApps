@@ -55,6 +55,12 @@ import { LoadingService } from '../../../core/services/loading.service';
               </td>
             </ng-container>
 
+            <!-- Company Column -->
+            <ng-container matColumnDef="companyName">
+              <th mat-header-cell *matHeaderCellDef> Company </th>
+              <td mat-cell *matCellDef="let element"> {{element.companyName || 'System'}} </td>
+            </ng-container>
+
             <!-- Status Column -->
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef> Status </th>
@@ -327,7 +333,7 @@ import { LoadingService } from '../../../core/services/loading.service';
   `]
 })
 export class UserListComponent implements OnInit {
-  displayedColumns: string[] = ['userName', 'email', 'roles', 'status', 'actions'];
+  displayedColumns: string[] = ['userName', 'email', 'companyName', 'roles', 'status', 'actions'];
   dataSource = new MatTableDataSource<User>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

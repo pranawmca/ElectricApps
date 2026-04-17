@@ -10,6 +10,7 @@ export interface User {
     isActive: boolean;
     roles: string[];
     createdAt: string;
+    companyName?: string;
 }
 
 export interface RegisterUserDto {
