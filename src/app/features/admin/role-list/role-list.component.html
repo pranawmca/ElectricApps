@@ -1,0 +1,81 @@
+<div class="container-fluid" [class.disabled-content]="loading">
+  <div class="header-actions">
+    <div>
+      <h1 class="page-title m-0">Role Management</h1>
+      <p class="subtitle m-0">Create and manage access roles for the system.</p>
+    </div>
+    
+    <div class="controls-group">
+      <button mat-raised-button class="main-add-btn" (click)="openRoleForm()">
+        <mat-icon>add</mat-icon> Create New Role
+      </button>
+    </div>
+  </div>
+
+  <app-summary-stats [stats]="summaryStats" [isLoading]="loading"></app-summary-stats>
+
+  <div class="list-container">
+    <div class="table-toolbar">
+      <mat-form-field appearance="outline" class="search-field compact-input">
+        <mat-label>Search Role</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Search by name..." #input>
+      </mat-form-field>
+    </div>
+
+    <div class="grid-wrapper">
+      <table mat-table [dataSource]="dataSource" matSort>
+        
+        <!-- Role Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Role Name </th>
+          <td mat-cell *matCellDef="let role"> 
+              <div class="role-cell">
+                  <mat-icon class="role-icon" [color]="role.companyId ? 'primary' : 'accent'">
+                      {{ role.companyId ? 'business' : 'settings_suggest' }}
+                  </mat-icon>
+                  <span class="role-name">{{role.roleName}}</span>
+              </div>
+          </td>
+        </ng-container>
+
+        <!-- Role Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+          <td mat-cell *matCellDef="let role"> 
+            <span class="status-badge" [class.active-badge]="role.companyId" [class.warning-badge]="!role.companyId">
+              {{ role.companyId ? 'Custom' : 'System' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
+          <td mat-cell *matCellDef="let role" class="text-end">
+            <div class="actions-group">
+                <button mat-icon-button color="primary" matTooltip="Manage Permissions" (click)="managePermissions(role)">
+                    <mat-icon>security</mat-icon>
+                  </button>
+              <button mat-icon-button class="edit-btn" matTooltip="Edit Role Name" (click)="openRoleForm(role)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" matTooltip="Delete Role" (click)="deleteRole(role)" [disabled]="!role.companyId">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="3">No roles matching the search "{{input.value}}"</td>
+        </tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[10, 25, 100]" aria-label="Select page of roles"></mat-paginator>
+    </div>
+  </div>
+</div>

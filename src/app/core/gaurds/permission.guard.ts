@@ -22,19 +22,22 @@ export class PermissionGuard implements CanActivate {
             map((menus: any[]) => {
                 const companyId = this.authService.getCompanyId();
                 const userRole = this.authService.getUserRole();
-                const isGlobalAdmin = userRole === 'Admin' || userRole === 'Default Admin' || userRole === 'Super Admin';
+                
+                // 🕵️ Robust Global Admin Check (Case-insensitive & handles array or string)
+                const globalAdminRoles = ['Admin', 'Default Admin', 'Super Admin', 'SuperAdmin', 'System Admin'];
+                const isGlobalAdmin = globalAdminRoles.some(r => r.toLowerCase() === userRole?.toLowerCase());
 
                 // 🏢 MULTI-TENANT ONBOARDING FLOW
                 // If user has no company setup yet, redirect to company creation (unless they are System Admins)
-                if (!companyId && !isGlobalAdmin && state.url !== '/app/company/add') {
+                if (!companyId && !isGlobalAdmin && state.url !== '/app/company/add' && !state.url.includes('/onboard')) {
                     console.warn('[PermissionGuard] No CompanyId found. Redirecting to Onboarding (Company Setup)...');
                     this.router.navigate(['/app/company/add']);
                     return false;
                 }
 
                 if (!menus || menus.length === 0) {
-                    // If they are on company/add, let them through even with no menus
-                    if (state.url === '/app/company/add') {
+                    // If they are on company/add or onboarding, let them through even with no menus
+                    if (state.url === '/app/company/add' || state.url.includes('/onboard')) {
                         return true;
                     }
                     console.error('[PermissionGuard] No menus loaded. Denying access to:', state.url);
@@ -42,10 +45,11 @@ export class PermissionGuard implements CanActivate {
 
                 const hasViewPermission = this.permissionService.checkPermissionWithData(menus as any, state.url, 'CanView');
 
-                console.log(`[PermissionGuard] Access result for ${state.url}:`, hasViewPermission);
+                console.log(`[PermissionGuard] Access result for ${state.url}: [isGlobalAdmin: ${isGlobalAdmin}, hasView: ${hasViewPermission}]`);
 
-                // Always allow access to onboarding/setup page if they have a company being created
-                if (hasViewPermission || state.url === '/app/company/add') {
+                // ✅ GLOBAL ADMIN BYPASS: Allow Super Admins/Admins to access all registered routes
+                // ✅ ONBOARDING BYPASS: Always allow access to setup/onboard pages
+                if (isGlobalAdmin || hasViewPermission || state.url === '/app/company/add' || state.url.includes('/onboard')) {
                     return true;
                 }
 
@@ -56,7 +60,7 @@ export class PermissionGuard implements CanActivate {
                     : 'Access Denied: Your account has no assigned roles or permissions. Please contact your administrator.';
 
                 // Show proper error message using StatusDialogComponent (except for onboarding setup page)
-                if (state.url !== '/app/company/add') {
+                if (state.url !== '/app/company/add' && !state.url.includes('/onboard')) {
                     this.dialog.open(StatusDialogComponent, {
                         data: {
                             isSuccess: false,

@@ -14,6 +14,12 @@ export const ADMIN_ROUTES: Routes = [
         data: { breadcrumb: 'Dashboard' }
     },
     {
+        path: 'roles',
+        canActivate: [PermissionGuard],
+        loadComponent: () => import('../features/admin/role-list/role-list.component').then(m => m.RoleListComponent),
+        data: { breadcrumb: 'Roles' }
+    },
+    {
         path: 'role-permissions',
         canActivate: [PermissionGuard],
         loadComponent: () => import('../features/admin/role-permissions/role-permissions.component').then(m => m.RolePermissionsComponent),
@@ -42,6 +48,38 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [PermissionGuard],
         loadComponent: () => import('../features/admin/system-logs/system-logs.component').then(m => m.SystemLogsComponent),
         data: { breadcrumb: 'System Activity Logs' }
+    },
+    {
+        path: 'companies',
+        canActivate: [PermissionGuard],
+        data: { breadcrumb: 'Company Management' },
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('../features/company/company-list/company-list').then(m => m.CompanyList),
+                data: { breadcrumb: 'List' }
+            },
+            {
+                path: 'add',
+                loadComponent: () => import('../features/company/company-form/company-form').then(m => m.CompanyForm),
+                data: { breadcrumb: 'Add Profile' }
+            },
+            {
+                path: 'edit/:id',
+                loadComponent: () => import('../features/company/company-form/company-form').then(m => m.CompanyForm),
+                data: { breadcrumb: 'Update Profile' }
+            },
+            {
+                path: 'bulk-add',
+                loadComponent: () => import('../features/company/bulk-company-form/bulk-company-form').then(m => m.BulkCompanyForm),
+                data: { breadcrumb: 'Bulk Onboard' }
+            },
+            {
+                path: 'onboard',
+                loadComponent: () => import('../features/admin/onboard-customer/onboard-customer.component').then(m => m.OnboardCustomerComponent),
+                data: { breadcrumb: 'Onboard New Customer' }
+            }
+        ]
     },
     {
         path: 'subscriptions',

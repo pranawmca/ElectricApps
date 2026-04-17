@@ -1,0 +1,107 @@
+.onboard-container {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.onboard-header {
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1e293b;
+  }
+
+  p {
+    color: #64748b;
+    font-size: 1.125rem;
+  }
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3b82f6;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  width: fit-content;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.glass-stepper {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.step-form {
+  padding: 40px 24px;
+}
+
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: calc(50% - 8px);
+}
+
+.duration-row {
+  display: flex;
+  gap: 8px;
+
+  .duration-input {
+    width: 30%;
+  }
+
+  .duration-unit {
+    flex: 1;
+  }
+}
+
+.stepper-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+
+  button {
+    padding: 12px 32px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border-radius: 12px;
+  }
+}
+
+.finish-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.loading-state {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@media (max-width: 959px) {
+  .half-width {
+    width: 100%;
+  }
+}

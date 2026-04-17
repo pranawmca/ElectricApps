@@ -1,22 +1,23 @@
 export interface Role {
-    id: number;
+    id: any;
     roleName: string;
+    companyId?: string | null;
 }
 
 export interface RolePermission {
-    id?: number;
-    roleId: number;
-    menuId: number;
+    id?: any;
+    roleId: any;
+    menuId: any;
     canView: boolean;
     canAdd: boolean;
     canEdit: boolean;
     canDelete: boolean;
-    additionalActions?: string; // New: comma separated keys
+    additionalActions?: string;
 }
 
 export interface RolePrintSetting {
-    id?: number;
-    roleId: number;
+    id?: any;
+    roleId: any;
     pageName: string;
     printFormat: string; // 'A4' | 'THERMAL'
 }

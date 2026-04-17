@@ -1,62 +1,122 @@
-<div class="dialog-container">
-    <div class="dialog-header">
-        <h2 mat-dialog-title>Onboard New Customer</h2>
-        <button mat-icon-button (click)="close()" class="close-btn">
-            <mat-icon>close</mat-icon>
-        </button>
+<div class="wizard-container">
+  <div class="wizard-header">
+    <div class="title-area">
+      <h2>Onboard New Customer</h2>
+      <p class="text-sm opacity-80">Complete the 3-step process to initialize subscription</p>
     </div>
+    <button mat-icon-button (click)="onCancel()" [disabled]="loading">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-dialog-content>
-            <div class="form-grid">
-                <!-- Customer Email -->
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Customer Email</mat-label>
-                    <input matInput formControlName="email" placeholder="example@customer.com">
-                    <mat-icon matSuffix>email</mat-icon>
-                    <mat-hint>Enter the email address of the registered user</mat-hint>
-                </mat-form-field>
+  <mat-stepper #stepper linear class="step-content">
+    <!-- Step 1: Company Profile -->
+    <mat-step [stepControl]="brandForm">
+      <ng-template matStepLabel>Brand Profile</ng-template>
+      <form [formGroup]="brandForm" class="grid grid-cols-2 gap-4 mt-4">
+        <mat-form-field appearance="outline" class="col-span-2">
+          <mat-label>Company Name</mat-label>
+          <input matInput formControlName="name" placeholder="e.g. Acme Corp">
+          <mat-icon matPrefix class="mr-2 opacity-50">business</mat-icon>
+        </mat-form-field>
 
-                <div class="row">
-                    <!-- Plan Type -->
-                    <mat-form-field appearance="outline">
-                        <mat-label>Initial Plan</mat-label>
-                        <mat-select formControlName="planType">
-                            <mat-option value="Trial">Trial Access</mat-option>
-                            <mat-option value="Premium">Direct Premium</mat-option>
-                        </mat-select>
-                        <mat-icon matSuffix>card_membership</mat-icon>
-                    </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Admin Email</mat-label>
+          <input matInput formControlName="email" placeholder="admin@company.com">
+          <mat-icon matPrefix class="mr-2 opacity-50">email</mat-icon>
+        </mat-form-field>
 
-                    <!-- Duration Value -->
-                    <mat-form-field appearance="outline">
-                        <mat-label>Duration Value</mat-label>
-                        <input matInput type="number" formControlName="durationValue">
-                        <mat-icon matSuffix>timer</mat-icon>
-                    </mat-form-field>
-                </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Phone Number</mat-label>
+          <input matInput formControlName="phone" placeholder="+1 234 567 890">
+          <mat-icon matPrefix class="mr-2 opacity-50">phone</mat-icon>
+        </mat-form-field>
 
-                <div class="row">
-                    <!-- Duration Unit -->
-                    <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Unit</mat-label>
-                        <mat-select formControlName="durationUnit">
-                            <mat-option value="Days">Days</mat-option>
-                            <mat-option value="Months">Months</mat-option>
-                            <mat-option value="Years">Years</mat-option>
-                        </mat-select>
-                        <mat-icon matSuffix>event</mat-icon>
-                    </mat-form-field>
-                </div>
-            </div>
-        </mat-dialog-content>
+        <mat-form-field appearance="outline" class="col-span-2">
+          <mat-label>Office Address</mat-label>
+          <textarea matInput formControlName="address" rows="2"></textarea>
+          <mat-icon matPrefix class="mr-2 opacity-50">location_on</mat-icon>
+        </mat-form-field>
+      </form>
 
-        <mat-dialog-actions align="end">
-            <button mat-button type="button" (click)="close()">Cancel</button>
-            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading" class="pill-btn">
-                <mat-icon *ngIf="!loading">person_add</mat-icon>
-                {{ loading ? 'Processing...' : 'Start Subscription' }}
-            </button>
-        </mat-dialog-actions>
-    </form>
+      <div class="actions-footer mt-6">
+        <button mat-stroked-button (click)="onCancel()">Cancel</button>
+        <button mat-flat-button color="primary" matStepperNext [disabled]="brandForm.invalid">
+          Select Plan <mat-icon class="ml-2">arrow_forward</mat-icon>
+        </button>
+      </div>
+    </mat-step>
+
+    <!-- Step 2: License Selection -->
+    <mat-step [stepControl]="planForm">
+      <ng-template matStepLabel>License Plan</ng-template>
+      <div class="plan-grid mt-4">
+        <div class="plan-card" [class.active]="selectedPlan === 'TRIAL'" (click)="setPlan('TRIAL')">
+          <mat-icon class="plan-icon">timer</mat-icon>
+          <div class="plan-name">Trial</div>
+          <div class="plan-price">$0 <span>/30 Days</span></div>
+          <p class="text-xs text-slate-500">Perfect for exploring core features and workflows.</p>
+          <mat-icon class="check-icon">check_circle</mat-icon>
+        </div>
+
+        <div class="plan-card" [class.active]="selectedPlan === 'PROFESSIONAL'" (click)="setPlan('PROFESSIONAL')">
+          <mat-icon class="plan-icon">verified_user</mat-icon>
+          <div class="plan-name">Professional</div>
+          <div class="plan-price">$49 <span>/mo</span></div>
+          <p class="text-xs text-slate-500">Full access for growing teams and 24/7 support.</p>
+          <mat-icon class="check-icon">check_circle</mat-icon>
+        </div>
+
+        <div class="plan-card" [class.active]="selectedPlan === 'ENTERPRISE'" (click)="setPlan('ENTERPRISE')">
+          <mat-icon class="plan-icon">auto_awesome</mat-icon>
+          <div class="plan-name">Enterprise</div>
+          <div class="plan-price">$199 <span>/mo</span></div>
+          <p class="text-xs text-slate-500">Advanced security, analytics, and custom SLOs.</p>
+          <mat-icon class="check-icon">check_circle</mat-icon>
+        </div>
+      </div>
+
+      <div class="actions-footer mt-6">
+        <button mat-stroked-button matStepperPrevious>Back</button>
+        <button mat-flat-button color="primary" matStepperNext [disabled]="!selectedPlan">
+          Review Details <mat-icon class="ml-2">arrow_forward</mat-icon>
+        </button>
+      </div>
+    </mat-step>
+
+    <!-- Step 3: Final Review -->
+    <mat-step>
+      <ng-template matStepLabel>Review & Confirm</ng-template>
+      <div class="review-area mt-4 bg-slate-50 p-6 rounded-xl border border-slate-200">
+        <h3 class="font-bold text-slate-700 mb-4 flex items-center">
+          <mat-icon class="mr-2 text-blue-600">visibility</mat-icon> Summary
+        </h3>
+        
+        <div class="summary-item">
+          <span class="label">Company</span>
+          <span class="value">{{brandForm.value.name}}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Admin Email</span>
+          <span class="value">{{brandForm.value.email}}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Selected Plan</span>
+          <span class="value">{{selectedPlan}}</span>
+        </div>
+        <div class="summary-item border-none">
+          <span class="label">Status</span>
+          <span class="value text-green-600">Ready to Sync</span>
+        </div>
+      </div>
+
+      <div class="actions-footer mt-6">
+        <button mat-stroked-button matStepperPrevious [disabled]="loading">Back</button>
+        <button mat-flat-button color="primary" (click)="onSave()" [disabled]="loading">
+          <span *ngIf="!loading">Initialize Onboarding</span>
+          <mat-spinner diameter="20" *ngIf="loading" class="mr-2"></mat-spinner>
+        </button>
+      </div>
+    </mat-step>
+  </mat-stepper>
 </div>

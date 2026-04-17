@@ -1,74 +1,90 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { MaterialModule } from '../../../../shared/material/material/material-module';
-import { LicenseService } from '../../services/license.service';
-import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { CompanyService } from '../../../../features/company/services/company.service';
+import { NotifyService } from '../../../../core/services/notify.service';
 
 @Component({
   selector: 'app-add-subscription-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatStepperModule,
+    MatSelectModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './add-subscription-dialog.component.html',
   styleUrls: ['./add-subscription-dialog.component.scss']
 })
 export class AddSubscriptionDialogComponent implements OnInit {
-  form: FormGroup;
-  users: any[] = [];
+  brandForm: FormGroup;
+  planForm: FormGroup;
+  selectedPlan: string = 'TRIAL';
   loading = false;
 
-  private fb = inject(FormBuilder);
-  private dialogRef = inject(MatDialogRef<AddSubscriptionDialogComponent>);
-  private licenseService = inject(LicenseService);
-  private dialog = inject(MatDialog);
+  constructor(
+    private fb: FormBuilder,
+    private companyService: CompanyService,
+    private notify: NotifyService,
+    private dialogRef: MatDialogRef<AddSubscriptionDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.brandForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required],
+      address: ['']
+    });
 
-  constructor() {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]], // We can also use a dropdown of existing users
-      planType: ['Trial', Validators.required],
-      durationValue: [15, [Validators.required, Validators.min(1)]],
-      durationUnit: ['Days', Validators.required]
+    this.planForm = this.fb.group({
+      plan: ['TRIAL', Validators.required]
     });
   }
 
-  ngOnInit(): void {
-    // Optionally load existing users who don't have subscriptions
+  ngOnInit(): void {}
+
+  setPlan(plan: string) {
+    this.selectedPlan = plan;
+    this.planForm.patchValue({ plan: plan });
   }
 
-  onSubmit() {
-    if (this.form.invalid) return;
+  onCancel() {
+    this.dialogRef.close();
+  }
+
+  onSave() {
+    if (this.brandForm.invalid) return;
 
     this.loading = true;
-    const val = this.form.value;
-    
-    // Calculate total days
-    let totalDays = val.durationValue;
-    if (val.durationUnit === 'Months') totalDays *= 30;
-    if (val.durationUnit === 'Years') totalDays *= 365;
-
-    const payload = {
-      email: val.email,
-      planType: val.planType,
-      durationDays: totalDays
+    const onboardData = {
+      ...this.brandForm.value,
+      planType: this.selectedPlan
     };
 
-    this.licenseService.onboardCustomer(payload).subscribe({
-      next: () => {
-        this.loading = false;
+    this.companyService.insertCompany(onboardData).subscribe({
+      next: (res) => {
+        this.notify.success('Customer onboarded and synchronization started successfully!');
         this.dialogRef.close(true);
       },
       error: (err) => {
+        this.notify.error(err.message || 'Onboarding failed. Please check backend logs.');
         this.loading = false;
-        const msg = err?.error?.message || 'Failed to onboard customer. Please try again.';
-        this.dialog.open(StatusDialogComponent, {
-          data: { isSuccess: false, message: msg }
-        });
       }
     });
-  }
-
-  close() {
-    this.dialogRef.close();
   }
 }

@@ -1,0 +1,139 @@
+<div class="onboard-container" [class.loading-state]="loading">
+  <div class="onboard-header glass-header">
+    <div class="header-content">
+      <div class="back-link" routerLink="/app/admin/subscriptions">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back to Subscriptions</span>
+      </div>
+      <h1>Tenant Onboarding Wizard</h1>
+      <p>Initialize a new multi-tenant instance for your customer.</p>
+    </div>
+  </div>
+
+  <mat-stepper linear #stepper class="glass-stepper">
+    <mat-step [stepControl]="brandForm" label="Brand Identity" icon="business">
+      <form [formGroup]="brandForm" class="step-form">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Business Name</mat-label>
+            <input matInput formControlName="name" placeholder="ABC Corp" />
+            <mat-icon matPrefix>storefront</mat-icon>
+            <mat-error *ngIf="brandForm.get('name')?.hasError('required')">Required field</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tagline (Optional)</mat-label>
+            <input matInput formControlName="tagline" placeholder="Innovation Delivered" />
+            <mat-icon matPrefix>edit_note</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Primary Email</mat-label>
+            <input matInput formControlName="primaryEmail" placeholder="admin@example.com" />
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-error *ngIf="brandForm.get('primaryEmail')?.hasError('required')">Required</mat-error>
+            <mat-error *ngIf="brandForm.get('primaryEmail')?.hasError('email')">Invalid email</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Primary Phone</mat-label>
+            <input matInput formControlName="primaryPhone" placeholder="+91 XXXX" />
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error *ngIf="brandForm.get('primaryPhone')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="stepper-actions">
+          <button mat-flat-button color="primary" matStepperNext (click)="onBrandSubmit()" [disabled]="brandForm.invalid || loading">
+            <mat-icon>navigate_next</mat-icon>
+            Initialize Profile
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="subscriptionForm" label="Subscription Details" icon="subscriptions">
+      <form [formGroup]="subscriptionForm" class="step-form">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Plan Type</mat-label>
+            <mat-select formControlName="planType">
+              <mat-option value="Trial">Free Trial</mat-option>
+              <mat-option value="Premium">Premium</mat-option>
+              <mat-option value="Enterprise">Enterprise</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>stars</mat-icon>
+          </mat-form-field>
+
+          <div class="duration-row half-width">
+            <mat-form-field appearance="outline" class="duration-input">
+              <mat-label>Value</mat-label>
+              <input matInput type="number" formControlName="durationValue" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="duration-unit">
+              <mat-label>Unit</mat-label>
+              <mat-select formControlName="durationUnit">
+                <mat-option value="Days">Days</mat-option>
+                <mat-option value="Months">Months</mat-option>
+                <mat-option value="Years">Years</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperPrevious [disabled]="loading">Back</button>
+          <button mat-flat-button color="primary" matStepperNext (click)="onOnboardSubmit()" [disabled]="subscriptionForm.invalid || loading">
+            <mat-icon>vpn_key</mat-icon>
+            Activate Subscription
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="legalForm" label="Legal & Compliance" icon="balance">
+      <form [formGroup]="legalForm" class="step-form">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>GSTIN</mat-label>
+            <input matInput formControlName="gstin" placeholder="22AAAAA0000A1Z5" />
+            <mat-icon matPrefix>receipt_long</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>PAN Number</mat-label>
+            <input matInput formControlName="pan" placeholder="ABCDE1234F" />
+            <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Registered Address</mat-label>
+            <textarea matInput formControlName="address" rows="3"></textarea>
+            <mat-icon matPrefix>location_on</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Bank Name</mat-label>
+            <input matInput formControlName="bankName" />
+            <mat-icon matPrefix>account_balance</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Account Number</mat-label>
+            <input matInput formControlName="accountNumber" />
+            <mat-icon matPrefix>password</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperPrevious [disabled]="loading">Back</button>
+          <button mat-flat-button class="finish-btn" (click)="onFinalSubmit()" [disabled]="loading">
+            <mat-icon>celebration</mat-icon>
+            Complete Onboarding
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

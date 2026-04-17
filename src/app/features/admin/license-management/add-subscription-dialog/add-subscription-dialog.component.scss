@@ -1,48 +1,120 @@
-.dialog-container {
-    padding: 10px;
-    background: #ffffff;
+.onboarding-wizard-panel {
+  mat-dialog-container {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+  }
+}
+
+.wizard-container {
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.wizard-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.plan-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: white;
+  position: relative;
+
+  &:hover {
+    border-color: #3b82f6;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  &.active {
+    border-color: #2563eb;
+    background: #eff6ff;
     
-    .dialog-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        
-        h2 { margin: 0; font-weight: 700; color: #1e293b; }
+    .check-icon {
+      display: block;
     }
+  }
+
+  .plan-icon {
+    font-size: 40px;
+    height: 40px;
+    width: 40px;
+    margin-bottom: 16px;
+    color: #3b82f6;
+  }
+
+  .plan-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .plan-price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 16px;
+  }
+
+  .check-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #2563eb;
+    display: none;
+  }
 }
 
-.form-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  .label {
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .value {
+    color: #1e293b;
+    font-weight: 600;
+  }
 }
 
-.row {
-    display: flex;
-    gap: 15px;
-    & > * { flex: 1; }
+.step-content {
+  padding: 30px;
+  flex: 1;
 }
 
-.full-width { width: 100%; }
-
-.pill-btn {
-    border-radius: 999px !important;
-    height: 42px !important;
-    padding: 0 24px !important;
-    font-weight: 600 !important;
-    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
-    color: white !important;
-}
-
-mat-dialog-actions {
-    padding: 20px 0 10px;
-}
-
-:host-context(html.dark-mode) {
-    .dialog-container {
-        background: #0f172a;
-        color: #f8fafc;
-        h2 { color: #f8fafc; }
-    }
+.actions-footer {
+  padding: 20px 30px;
+  background: #f8fafc;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #e2e8f0;
 }

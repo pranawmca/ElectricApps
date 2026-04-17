@@ -124,8 +124,11 @@ export class LicenseManagementComponent implements OnInit {
 
   openAddDialog(): void {
     const dialogRef = this.dialog.open(AddSubscriptionDialogComponent, {
-      width: '500px',
-      disableClose: true
+      width: '900px',
+      maxWidth: '95vw',
+      disableClose: true,
+      panelClass: 'onboarding-wizard-panel',
+      data: {}
     });
 
     dialogRef.afterClosed().subscribe(result => {

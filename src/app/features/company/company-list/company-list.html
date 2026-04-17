@@ -9,11 +9,14 @@
         <mat-icon>delete_sweep</mat-icon>
         Delete Selected ({{selectedRows.length}})
       </button>
-      <button *appPermission="'BULK_ADD'" mat-raised-button routerLink="/app/company/bulk-add" class="bulk-add-btn">
+      <button *appPermission="'BULK_ADD'" mat-raised-button 
+        [routerLink]="router.url.includes('/admin/') ? '/app/admin/companies/bulk-add' : '/app/company/bulk-add'" 
+        class="bulk-add-btn">
         <mat-icon>library_add</mat-icon>
         Bulk Add
       </button>
-      <button *ngIf="canAdd && selectedRows.length === 0" mat-raised-button class="main-add-btn" routerLink="/app/company/add">
+      <button *ngIf="canAdd && selectedRows.length === 0" mat-raised-button class="main-add-btn" 
+        [routerLink]="router.url.includes('/admin/') ? '/app/admin/companies/add' : '/app/company/add'">
         <mat-icon>add</mat-icon>
         Add Company
       </button>

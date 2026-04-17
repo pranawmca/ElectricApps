@@ -697,6 +697,26 @@ html.dark-mode {
   }
 }
 
+.warning-snackbar {
+  --mdc-snackbar-container-color: #ff8f00; /* Amber 800 */
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-mdc-snack-bar-button-color: #ffffff;
+  
+  .mdc-snackbar__surface {
+     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: #1565c0; /* Blue 800 */
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-mdc-snack-bar-button-color: #ffffff;
+  
+  .mdc-snackbar__surface {
+     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+}
+
 /* =====================================================
    15. GLOBAL DATATABLE STANDARDIZATION
 ===================================================== */

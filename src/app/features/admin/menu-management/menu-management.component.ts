@@ -31,7 +31,7 @@ export class MenuManagementComponent implements OnInit, AfterViewInit {
     loading = false;
 
     columnWidths: { [key: string]: number } = {
-        'id': 80,
+        'id': 250,
         'title': 250,
         'url': 250,
         'parentId': 150,

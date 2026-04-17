@@ -1,0 +1,113 @@
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 0 4px;
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+        color: #64748b;
+        font-size: 14px;
+    }
+}
+
+.main-add-btn {
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    padding: 0 24px !important;
+    height: 48px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2) !important;
+}
+
+.list-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    margin-top: 16px;
+    border: 1px solid #f1f5f9;
+}
+
+.table-toolbar {
+    padding: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grid-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+}
+
+.role-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .role-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .role-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.active-badge { background: #f0fdf4; color: #166534; }
+.warning-badge { background: #fffbeb; color: #92400e; }
+
+.actions-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.edit-btn { color: #6366f1 !important; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .main-add-btn {
+        width: 100%;
+    }
+}
+
+:host-context(.dark-mode) {
+    .page-title { color: white !important; }
+    .subtitle { color: rgba(255,255,255,0.6) !important; }
+    .list-container { background: #1e293b; border-color: rgba(255,255,255,0.1); }
+    .table-toolbar { border-bottom-color: rgba(255,255,255,0.05); }
+    .role-name { color: white !important; }
+    .active-badge { background: rgba(22, 101, 52, 0.2); }
+    .warning-badge { background: rgba(146, 64, 14, 0.2); }
+    th { color: rgba(255,255,255,0.5) !important; }
+}

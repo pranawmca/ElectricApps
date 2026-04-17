@@ -33,7 +33,7 @@ import { PermissionDirective } from '../../../core/directives/permission.directi
 })
 export class CompanyList implements OnInit {
     private cdr = inject(ChangeDetectorRef);
-    private router = inject(Router);
+    public router = inject(Router);
     private dialog = inject(MatDialog);
     private companyService = inject(CompanyService);
     private loadingService = inject(LoadingService);
@@ -118,7 +118,8 @@ export class CompanyList implements OnInit {
 
         dialogRef.afterClosed().subscribe(confirm => {
             if (confirm) {
-                this.router.navigate(['/app/company/edit', row.id]);
+                const basePath = this.router.url.includes('/admin/') ? '/app/admin/companies' : '/app/company';
+                this.router.navigate([`${basePath}/edit`, row.id]);
             }
         });
     }
