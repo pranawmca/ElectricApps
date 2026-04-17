@@ -11,7 +11,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CompanyService } from '../../../../features/company/services/company.service';
-import { NotifyService } from '../../../../core/services/notify.service';
+import { UpsertCompanyRequest } from '../../../../features/company/model/company.model';
+import { LicenseService } from '../../services/license.service';
+import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-add-subscription-dialog',
@@ -40,7 +43,8 @@ export class AddSubscriptionDialogComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private companyService: CompanyService,
-    private notify: NotifyService,
+    private licenseService: LicenseService,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<AddSubscriptionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
@@ -71,20 +75,93 @@ export class AddSubscriptionDialogComponent implements OnInit {
     if (this.brandForm.invalid) return;
 
     this.loading = true;
-    const onboardData = {
-      ...this.brandForm.value,
-      planType: this.selectedPlan
+
+    // 1. Prepare DTO-compliant payload for Company API (Strictly following UpsertCompanyRequest)
+    const companyPayload: UpsertCompanyRequest = {
+      name: this.brandForm.value.name,
+      tagline: '',
+      registrationNumber: "TEMP-123", // Required by Backend
+      gstin: "07AAAAA0000A1Z5",       // Required by Backend
+      logoUrl: null,
+      primaryEmail: this.brandForm.value.email,
+      primaryPhone: this.brandForm.value.phone,
+      website: '',
+      message: null,
+      driverWhatsAppMessage: null,
+      purchaseOrderCreationMessage: null,
+      purchaseOrderStatusUpdateMessage: null,
+      saleOrderCreationMessage: null,
+      saleOrderConfirmationMessage: null,
+      smtpEmail: null,
+      smtpPassword: null,
+      smtpHost: null,
+      smtpPort: null,
+      smtpUseSsl: false,
+      saleReturnWindowValue: 0,
+      saleReturnWindowUnit: 'Days',
+      purchaseReturnWindowValue: 0,
+      purchaseReturnWindowUnit: 'Days',
+      invoiceFooterMessage: null,
+      estimateFooterMessage: null,
+      purchaseOrderFooterMessage: null,
+      saleOrderFooterMessage: null,
+      address: {
+        id: '',
+        addressLine1: this.brandForm.value.address || "Main Office",
+        addressLine2: '',
+        city: "City",
+        state: "State",
+        stateCode: "00",
+        pinCode: "000000",
+        country: "India"
+      },
+      bankInfo: {
+        id: '',
+        bankName: "System Bank",
+        branchName: '',
+        accountNumber: "0000000000",
+        ifscCode: "TEMP0001",
+        accountType: "Current"
+      },
+      authorizedSignatories: []
     };
 
-    this.companyService.insertCompany(onboardData).subscribe({
-      next: (res) => {
-        this.notify.success('Customer onboarded and synchronization started successfully!');
-        this.dialogRef.close(true);
+    // 🚀 STEP 1: Create Company Profile
+    this.companyService.insertCompany(companyPayload).subscribe({
+      next: (companyId: any) => {
+        
+        // 🚀 STEP 2: Activate Subscription in Identity Service
+        const subscriptionPayload = {
+          companyId: companyId,
+          companyName: companyPayload.name,
+          planType: this.selectedPlan,
+          durationDays: 30, // Default for onboarding
+          email: companyPayload.primaryEmail
+        };
+
+        this.licenseService.onboardCustomer(subscriptionPayload).subscribe({
+          next: () => {
+             this.loading = false;
+             this.showStatus(true, 'Customer onboarded and synchronization started successfully!');
+             this.dialogRef.close(true);
+          },
+          error: (err) => {
+             this.loading = false;
+             this.showStatus(false, 'Company created, but subscription sync failed. Please check Identity Logs.');
+          }
+        });
       },
       error: (err) => {
-        this.notify.error(err.message || 'Onboarding failed. Please check backend logs.');
         this.loading = false;
+        const msg = err.error?.message || 'Onboarding failed due to API validation error (400).';
+        this.showStatus(false, msg);
       }
+    });
+  }
+
+  private showStatus(success: boolean, message: string): void {
+    this.dialog.open(StatusDialogComponent, {
+      data: { isSuccess: success, message: message }
     });
   }
 }

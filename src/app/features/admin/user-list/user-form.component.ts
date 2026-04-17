@@ -7,9 +7,12 @@ import { RegisterUserDto } from '../../../core/models/user.model';
 import { RoleService } from '../../../core/services/role.service';
 import { UserService } from '../../../core/services/user.service';
 import { Role } from '../../../core/models/role.model';
+import { CompanyService } from '../../company/services/company.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../shared/notification.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { MatDialog } from '@angular/material/dialog';
+import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-user-form',
@@ -42,13 +45,24 @@ import { MatDialog } from '@angular/material/dialog';
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="Password" placeholder="••••••••">
-          <mat-icon matPrefix>lock_outline</mat-icon>
-          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+          <mat-label>Password{{ isEdit ? ' (Read Only)' : '*' }}</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="Password" [readonly]="isEdit">
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" type="button">
             <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
           </button>
           <mat-error *ngIf="userForm.get('Password')?.hasError('required')">Password is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" *ngIf="isSuperAdmin">
+          <mat-label>Assign Company</mat-label>
+          <mat-select formControlName="CompanyId">
+            <mat-option [value]="null">Master (System Admin)</mat-option>
+            <mat-option *ngFor="let company of companies" [value]="company.id">
+              {{company.name}}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>business</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -231,41 +245,84 @@ import { MatDialog } from '@angular/material/dialog';
 export class UserFormComponent implements OnInit {
   userForm: FormGroup;
   roles: Role[] = [];
+  companies: any[] = [];
   hidePassword = true;
   isEdit = false;
+  isSuperAdmin = false;
 
   constructor(
     private fb: FormBuilder,
     private roleService: RoleService,
     private userService: UserService,
+    private companyService: CompanyService,
+    private authService: AuthService,
     private dialog: MatDialog,
     public dialogRef: MatDialogRef<UserFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private notificationService: NotificationService
   ) {
     this.isEdit = !!data;
+    
+    // Check if current user is Super Admin
+    const role = this.authService.getUserRole();
+    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !this.authService.getCompanyId();
+
     this.userForm = this.fb.group({
       UserName: [{ value: '', disabled: false }, Validators.required],
       Email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
       Password: ['', this.isEdit ? [] : [Validators.required]],
-      RoleIds: [[]]
+      RoleIds: [[]],
+      CompanyId: [null]
+    });
+
+    // 🔄 REFRESH ROLES WHEN COMPANY CHANGES
+    this.userForm.get('CompanyId')?.valueChanges.subscribe(cid => {
+      this.loadRoles(cid);
     });
   }
 
+  loadRoles(companyId: string | null) {
+     this.roleService.getByCompany(companyId).subscribe(roles => {
+        this.roles = roles;
+        this.userForm.patchValue({ RoleIds: [] }); // Reset selection
+     });
+  }
+
   ngOnInit() {
-    this.roleService.getAllRoles().subscribe(roles => {
+    const defaultCompanyId = this.isEdit ? this.data.companyId || this.data.CompanyId : this.userForm.get('CompanyId')?.value;
+
+    const companies$ = this.isSuperAdmin 
+      ? this.companyService.getPaged({ pageNumber: 1, pageSize: 100 }) 
+      : of({ items: [] });
+    
+    const roles$ = this.roleService.getByCompany(defaultCompanyId || null);
+
+    // 🏗️ Wait for BOTH Companies and Roles to be ready
+    forkJoin({
+      companiesRes: companies$,
+      roles: roles$
+    }).subscribe(({ companiesRes, roles }) => {
+      this.companies = (companiesRes as any).items || [];
       this.roles = roles;
+
       if (this.isEdit && this.data) {
-        // Map role names from data.roles to role IDs from this.roles
+        // Handle Casing Safety
+        const userRoleNames = this.data.roles || this.data.Roles || [];
+        const userName = this.data.userName || this.data.UserName;
+        const email = this.data.email || this.data.Email;
+        const companyId = this.data.companyId || this.data.CompanyId || null;
+
+        // Map names to IDs
         const selectedRoleIds = this.roles
-          .filter(r => this.data.roles.includes(r.roleName))
+          .filter(r => userRoleNames.some((name: string) => name.toLowerCase() === r.roleName.toLowerCase()))
           .map(r => r.id);
 
         this.userForm.patchValue({
-          UserName: this.data.userName,
-          Email: this.data.email,
-          RoleIds: selectedRoleIds
-        });
+          UserName: userName,
+          Email: email,
+          RoleIds: selectedRoleIds,
+          CompanyId: companyId
+        }, { emitEvent: false });
       }
     });
   }
@@ -287,7 +344,8 @@ export class UserFormComponent implements OnInit {
           const dto: any = {
             UserName: formValue.UserName,
             Email: formValue.Email,
-            RoleIds: formValue.RoleIds
+            RoleIds: formValue.RoleIds,
+            CompanyId: formValue.CompanyId
           };
           if (formValue.Password) {
             dto.Password = formValue.Password;

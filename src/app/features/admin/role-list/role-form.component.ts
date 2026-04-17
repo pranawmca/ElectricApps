@@ -6,6 +6,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { RoleService } from '../../../core/services/role.service';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { MatDialog } from '@angular/material/dialog';
+import { CompanyService } from '../../company/services/company.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-role-form',
@@ -21,6 +23,15 @@ import { MatDialog } from '@angular/material/dialog';
     
     <mat-dialog-content>
       <form [formGroup]="roleForm" class="role-form">
+        <mat-form-field appearance="outline" *ngIf="isSuperAdmin && !isEdit">
+          <mat-label>Assign Company</mat-label>
+          <mat-select formControlName="CompanyId">
+            <mat-option [value]="null">Master (System Role)</mat-option>
+            <mat-option *ngFor="let company of companies" [value]="company.id">{{company.name}}</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>business</mat-icon>
+        </mat-form-field>
+
         <mat-form-field appearance="outline">
           <mat-label>Role Name</mat-label>
           <input matInput formControlName="RoleName" placeholder="e.g. Sales Manager">
@@ -69,33 +80,50 @@ import { MatDialog } from '@angular/material/dialog';
 export class RoleFormComponent implements OnInit {
   roleForm: FormGroup;
   isEdit = false;
+  isSuperAdmin = false;
+  companies: any[] = [];
 
   constructor(
     private fb: FormBuilder,
     private roleService: RoleService,
+    private companyService: CompanyService,
+    private authService: AuthService,
     public dialogRef: MatDialogRef<RoleFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialog: MatDialog
   ) {
     this.isEdit = !!data;
+    
+    // Auth Check
+    const role = this.authService.getUserRole();
+    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !this.authService.getCompanyId();
+
     this.roleForm = this.fb.group({
-      RoleName: ['', Validators.required]
+      RoleName: ['', Validators.required],
+      CompanyId: [null]
     });
   }
 
   ngOnInit() {
+    if (this.isSuperAdmin && !this.isEdit) {
+      this.companyService.getPaged({ pageNumber: 1, pageSize: 100 }).subscribe((res: any) => {
+        this.companies = res.items || [];
+      });
+    }
+
     if (this.isEdit && this.data) {
       this.roleForm.patchValue({
-        RoleName: this.data.roleName
+        RoleName: this.data.roleName,
+        CompanyId: this.data.companyId || null
       });
     }
   }
 
   save() {
     if (this.roleForm.valid) {
-      const roleName = this.roleForm.value.RoleName;
+      const { RoleName, CompanyId } = this.roleForm.value;
       if (this.isEdit) {
-        this.roleService.updateRole(this.data.id, roleName).subscribe({
+        this.roleService.updateRole(this.data.id, RoleName).subscribe({
           next: () => {
             this.showStatus(true, 'Role updated successfully!');
             this.dialogRef.close(true);
@@ -103,7 +131,7 @@ export class RoleFormComponent implements OnInit {
           error: (err) => this.showStatus(false, err.error?.message || 'Failed to update role')
         });
       } else {
-        this.roleService.createRole(roleName).subscribe({
+        this.roleService.createRole(RoleName, CompanyId).subscribe({
           next: () => {
             this.showStatus(true, 'Role created successfully!');
             this.dialogRef.close(true);

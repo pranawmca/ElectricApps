@@ -22,7 +22,7 @@ import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/s
 })
 export class RoleListComponent implements OnInit {
   dataSource = new MatTableDataSource<Role>([]);
-  displayedColumns: string[] = ['name', 'type', 'actions'];
+  displayedColumns: string[] = ['name', 'company', 'type', 'actions'];
   loading = false;
   summaryStats: SummaryStat[] = [];
 

@@ -16,5 +16,6 @@ export interface RegisterUserDto {
     UserName: string;
     Email: string;
     Password: string;
-    RoleIds: number[];
+    RoleIds: string[];
+    CompanyId?: string;
 }

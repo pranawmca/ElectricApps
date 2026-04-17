@@ -13,12 +13,17 @@ export class RoleService {
         return this.api.get<Role[]>('roles', this.baseUrl);
     }
 
+    getByCompany(companyId: string | null): Observable<Role[]> {
+        const id = companyId || 'null';
+        return this.api.get<Role[]>(`roles/company/${id}`, this.baseUrl);
+    }
+
     getRoleById(id: string): Observable<Role> {
         return this.api.get<Role>(`roles/${id}`, this.baseUrl);
     }
 
-    createRole(roleName: string): Observable<Role> {
-        return this.api.post<Role>('roles', { roleName }, this.baseUrl);
+    createRole(roleName: string, companyId?: string | null): Observable<Role> {
+        return this.api.post<Role>('roles', { roleName, companyId }, this.baseUrl);
     }
 
     updateRole(id: string, newName: string): Observable<Role> {

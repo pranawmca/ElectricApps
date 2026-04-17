@@ -2,6 +2,7 @@ export interface Role {
     id: any;
     roleName: string;
     companyId?: string | null;
+    companyName?: string;
 }
 
 export interface RolePermission {
