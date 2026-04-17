@@ -352,9 +352,9 @@ export class UserFormComponent implements OnInit {
           }
 
           if (this.isEdit) {
-            dto.Id = this.data.id;
-            dto.IsActive = this.data.isActive;
-            this.userService.updateUser(this.data.id, dto).subscribe({
+            dto.Id = this.data.id || this.data.Id;
+            dto.IsActive = this.data.isActive !== undefined ? this.data.isActive : this.data.IsActive;
+            this.userService.updateUser(dto.Id, dto).subscribe({
               next: () => {
                 this.notificationService.showStatus(true, 'User Updated Successfully');
                 this.dialogRef.close(true);
