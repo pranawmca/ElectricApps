@@ -302,7 +302,9 @@ export class CompanyForm implements OnInit {
             return;
         }
 
-        const action = this.companyId ? 'Update' : 'Create';
+        const isAddMode = !this.companyId;
+        const action = isAddMode ? 'Create' : 'Update';
+        
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             data: {
                 title: `Confirm ${action}`,
@@ -315,91 +317,99 @@ export class CompanyForm implements OnInit {
 
             this.loading = true;
             this.loadingService.setLoading(true);
-            const payload: UpsertCompanyRequest = this.companyForm.value;
+            const formData = this.companyForm.value;
 
-            if (!this.companyId && !this.authService.getCompanyId()) {
-                this.companyService.setupTenant(payload.name).subscribe({
-                    next: (setupRes) => {
-                        if (setupRes.companyId) {
-                            payload.companyId = setupRes.companyId;
-                        }
-                        this.saveCompanyDetails(payload);
-                    },
-                    error: (err) => {
-                        this.handleError(err);
-                    }
-                });
+            if (isAddMode) {
+                // In Add Mode, we always want a clean insert.
+                // If it's a "Self-Service" setup (no companyId in token), we trigger setupTenant.
+                // Otherwise (Admin adding a company), we just call saveCompanyDetails with no companyId.
+
+                if (!this.authService.getCompanyId()) {
+                    this.companyService.setupTenant(formData.name).subscribe({
+                        next: (setupRes) => {
+                            formData.companyId = setupRes.companyId;
+                            this.saveCompanyDetails(formData);
+                        },
+                        error: (err) => this.handleError(err)
+                    });
+                } else {
+                    // Admin is adding a NEW company. Ensure companyId is null to trigger a fresh insert.
+                    formData.companyId = null;
+                    this.saveCompanyDetails(formData);
+                }
             } else {
-                this.saveCompanyDetails(payload);
+                // Edit Mode: Update existing companyId
+                formData.companyId = this.companyId;
+                this.saveCompanyDetails(formData);
             }
         });
     }
 
     private saveCompanyDetails(formData: any) {
-        // Explicit Payload construction to avoid "extra" properties that trigger 400 Bad Request
+        // Explicit Payload construction with safe defaults to avoid 400 Bad Request
         const payload: UpsertCompanyRequest = {
-            companyId: formData.companyId,
-            name: formData.name,
-            tagline: formData.tagline,
-            registrationNumber: formData.registrationNumber,
-            gstin: formData.gstin,
-            logoUrl: formData.logoUrl,
-            primaryEmail: formData.primaryEmail,
-            email: formData.email,
-            smtpEmail: formData.smtpEmail,
-            smtpPassword: formData.smtpPassword,
-            smtpHost: formData.smtpHost,
-            smtpPort: formData.smtpPort,
-            smtpUseSsl: formData.smtpUseSsl,
-            primaryPhone: formData.primaryPhone,
-            website: formData.website,
-            message: formData.message,
-            driverWhatsAppMessage: formData.driverWhatsAppMessage,
-            purchaseOrderCreationMessage: formData.purchaseOrderCreationMessage,
-            purchaseOrderStatusUpdateMessage: formData.purchaseOrderStatusUpdateMessage,
-            saleOrderCreationMessage: formData.saleOrderCreationMessage,
-            saleOrderConfirmationMessage: formData.saleOrderConfirmationMessage,
-            saleReturnWindowValue: formData.saleReturnWindowValue,
-            saleReturnWindowUnit: formData.saleReturnWindowUnit,
-            saleReturnPolicyDisclaimer: formData.saleReturnPolicyDisclaimer,
-            purchaseReturnWindowValue: formData.purchaseReturnWindowValue,
-            purchaseReturnWindowUnit: formData.purchaseReturnWindowUnit,
-            purchaseReturnPolicyDisclaimer: formData.purchaseReturnPolicyDisclaimer,
-            invoiceFooterMessage: formData.invoiceFooterMessage,
-            estimateFooterMessage: formData.estimateFooterMessage,
-            purchaseOrderFooterMessage: formData.purchaseOrderFooterMessage,
-            saleOrderFooterMessage: formData.saleOrderFooterMessage,
-            addresses: formData.addresses.map((a: any) => ({
-                id: a.id || 0,
-                branchName: a.branchName,
-                addressLine1: a.addressLine1,
-                addressLine2: a.addressLine2,
-                city: a.city,
-                state: a.state,
-                stateCode: a.stateCode,
-                pinCode: a.pinCode,
-                country: a.country,
-                email: a.email,
-                phone: a.phone,
-                contactPerson: a.contactPerson,
-                gstin: a.gstin,
-                isHeadOffice: a.isHeadOffice
+            companyId: formData.companyId || null,
+            name: formData.name || '',
+            tagline: formData.tagline || '',
+            registrationNumber: formData.registrationNumber || '',
+            gstin: formData.gstin || '',
+            logoUrl: formData.logoUrl || null,
+            primaryEmail: formData.primaryEmail || '',
+            email: formData.email || '',
+            smtpEmail: formData.smtpEmail || '',
+            smtpPassword: formData.smtpPassword || '',
+            smtpHost: formData.smtpHost || '',
+            smtpPort: formData.smtpPort || 587,
+            smtpUseSsl: !!formData.smtpUseSsl,
+            primaryPhone: formData.primaryPhone || '',
+            website: formData.website || '',
+            message: formData.message || '',
+            driverWhatsAppMessage: formData.driverWhatsAppMessage || '',
+            purchaseOrderCreationMessage: formData.purchaseOrderCreationMessage || '',
+            purchaseOrderStatusUpdateMessage: formData.purchaseOrderStatusUpdateMessage || '',
+            saleOrderCreationMessage: formData.saleOrderCreationMessage || '',
+            saleOrderConfirmationMessage: formData.saleOrderConfirmationMessage || '',
+            saleReturnWindowValue: formData.saleReturnWindowValue || 72,
+            saleReturnWindowUnit: formData.saleReturnWindowUnit || 'Hours',
+            saleReturnPolicyDisclaimer: formData.saleReturnPolicyDisclaimer || '',
+            purchaseReturnWindowValue: formData.purchaseReturnWindowValue || 72,
+            purchaseReturnWindowUnit: formData.purchaseReturnWindowUnit || 'Hours',
+            purchaseReturnPolicyDisclaimer: formData.purchaseReturnPolicyDisclaimer || '',
+            invoiceFooterMessage: formData.invoiceFooterMessage || '',
+            estimateFooterMessage: formData.estimateFooterMessage || '',
+            purchaseOrderFooterMessage: formData.purchaseOrderFooterMessage || '',
+            saleOrderFooterMessage: formData.saleOrderFooterMessage || '',
+            addresses: (formData.addresses || []).map((a: any) => ({
+                id: a.id || null,
+                branchName: a.branchName || 'Head Office',
+                addressLine1: a.addressLine1 || '',
+                addressLine2: a.addressLine2 || '',
+                city: a.city || '',
+                state: a.state || '',
+                stateCode: a.stateCode || '',
+                pinCode: a.pinCode || '',
+                country: a.country || 'India',
+                email: a.email || '',
+                phone: a.phone || '',
+                contactPerson: a.contactPerson || '',
+                gstin: a.gstin || '',
+                isHeadOffice: !!a.isHeadOffice
             })),
             bankInfo: {
-                id: formData.bankInfo.id || 0,
-                bankName: formData.bankInfo.bankName,
-                branchName: formData.bankInfo.branchName,
-                accountNumber: formData.bankInfo.accountNumber,
-                ifscCode: formData.bankInfo.ifscCode,
-                accountType: formData.bankInfo.accountType
+                id: (formData.bankInfo && formData.bankInfo.id) || null,
+                bankName: (formData.bankInfo && formData.bankInfo.bankName) || '',
+                branchName: (formData.bankInfo && formData.bankInfo.branchName) || '',
+                accountNumber: (formData.bankInfo && formData.bankInfo.accountNumber) || '',
+                ifscCode: (formData.bankInfo && formData.bankInfo.ifscCode) || '',
+                accountType: (formData.bankInfo && formData.bankInfo.accountType) || 'Current'
             },
-            authorizedSignatories: formData.authorizedSignatories.map((s: any) => ({
-                id: s.id || 0,
-                personName: s.personName,
-                designation: s.designation,
-                signatureImageUrl: s.signatureImageUrl,
-                email: s.email,
-                isDefault: s.isDefault
+            authorizedSignatories: (formData.authorizedSignatories || []).map((s: any) => ({
+                id: s.id || null,
+                personName: s.personName || '',
+                designation: s.designation || '',
+                signatureImageUrl: s.signatureImageUrl || null,
+                email: s.email || '',
+                isDefault: !!s.isDefault
             }))
         };
 

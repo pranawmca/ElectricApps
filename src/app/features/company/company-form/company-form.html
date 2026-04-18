@@ -6,12 +6,20 @@
       </button>
       <h2 class="text-xl font-bold text-gray-800 m-0">{{ companyId ? 'Edit' : 'Add' }} Company</h2>
     </div>
+    <div class="action-buttons flex-row gap-2">
+      <button mat-stroked-button color="primary" (click)="accordion.openAll()" class="btn-sm">
+        <mat-icon>unfold_more</mat-icon> Expand All
+      </button>
+      <button mat-stroked-button color="warn" (click)="accordion.closeAll()" class="btn-sm">
+        <mat-icon>unfold_less</mat-icon> Collapse All
+      </button>
+    </div>
   </div>
 
   <div class="form-container flex-1">
     <form [formGroup]="companyForm" class="flex-column gap-4">
       
-      <mat-accordion [multi]="true" class="company-accordion">
+      <mat-accordion #accordion="matAccordion" [multi]="true" class="company-accordion">
         
         <!-- Panel 1: General & Server Settings -->
         <mat-expansion-panel [expanded]="true" class="section-panel">
@@ -377,7 +385,7 @@
             </div>
 
             <div class="flex-row flex-wrap gap-4">
-              <!-- PO Template -->
+              <!-- PO Creation Template -->
               <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
                 <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
                   <mat-icon color="primary" class="icon-sm">shopping_cart</mat-icon>
@@ -389,7 +397,33 @@
                 </mat-form-field>
               </div>
 
-              <!-- SO Template -->
+              <!-- PO Status Update Template -->
+              <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
+                <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
+                  <mat-icon color="primary" class="icon-sm">fact_check</mat-icon>
+                  PO Status Update
+                </h4>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Message Template</mat-label>
+                  <textarea matInput formControlName="purchaseOrderStatusUpdateMessage" rows="3"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="flex-row flex-wrap gap-4">
+              <!-- SO Creation Template -->
+              <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
+                <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
+                  <mat-icon color="primary" class="icon-sm">add_task</mat-icon>
+                  Sale Order Creation
+                </h4>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Message Template</mat-label>
+                  <textarea matInput formControlName="saleOrderCreationMessage" rows="3"></textarea>
+                </mat-form-field>
+              </div>
+
+              <!-- SO Confirmation Template -->
               <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
                 <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
                   <mat-icon color="primary" class="icon-sm">receipt_long</mat-icon>
