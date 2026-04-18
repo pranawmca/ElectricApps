@@ -15,10 +15,10 @@
             <mat-icon *ngIf="!companyInfo?.logoUrl" class="logo-icon">inventory_2</mat-icon>
             <div class="company-name">
               <h1>{{companyInfo?.name || 'ELECTRIC INVENTORY'}}</h1>
-              <div *ngIf="companyInfo?.address" class="company-address">
-                {{companyInfo?.address?.addressLine1}}, 
-                {{companyInfo?.address?.addressLine2 ? companyInfo?.address?.addressLine2 + ', ' : ''}}
-                {{companyInfo?.address?.city}}, {{companyInfo?.address?.state}} - {{companyInfo?.address?.pinCode}}
+              <div *ngIf="companyInfo?.addresses?.length" class="company-address">
+                {{companyInfo?.addresses?.[0]?.addressLine1}}, 
+                {{companyInfo?.addresses?.[0]?.addressLine2 ? companyInfo?.addresses?.[0]?.addressLine2 + ', ' : ''}}
+                {{companyInfo?.addresses?.[0]?.city}}, {{companyInfo?.addresses?.[0]?.state}} - {{companyInfo?.addresses?.[0]?.pinCode}}
               </div>
               <div class="company-contact">
                 Contact: {{companyInfo?.primaryPhone}} | Email: {{companyInfo?.primaryEmail}}

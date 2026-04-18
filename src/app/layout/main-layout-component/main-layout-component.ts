@@ -29,7 +29,7 @@ import { UserProfileComponent } from '../../shared/components/user-profile/user-
 @Component({
   selector: 'app-main-layout-component',
   imports: [CommonModule, RouterOutlet, RouterModule, BreadcrumbComponent,
-    MaterialModule, StockDrawerComponent, UserProfileComponent],
+    MaterialModule, StockDrawerComponent],
   templateUrl: './main-layout-component.html',
   styleUrl: './main-layout-component.scss',
 })

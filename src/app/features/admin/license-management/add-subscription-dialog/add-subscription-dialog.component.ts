@@ -105,16 +105,20 @@ export class AddSubscriptionDialogComponent implements OnInit {
       estimateFooterMessage: null,
       purchaseOrderFooterMessage: null,
       saleOrderFooterMessage: null,
-      address: {
-        id: '',
-        addressLine1: this.brandForm.value.address || "Main Office",
-        addressLine2: '',
-        city: "City",
-        state: "State",
-        stateCode: "00",
-        pinCode: "000000",
-        country: "India"
-      },
+      addresses: [
+        {
+          id: '',
+          branchName: 'Main Office',
+          addressLine1: this.brandForm.value.address || "Main Office",
+          addressLine2: '',
+          city: "City",
+          state: "State",
+          stateCode: "00",
+          pinCode: "000000",
+          country: "India",
+          isHeadOffice: true
+        }
+      ],
       bankInfo: {
         id: '',
         bankName: "System Bank",

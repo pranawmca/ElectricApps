@@ -22,10 +22,10 @@
           <img *ngIf="companyInfo?.logoUrl" [src]="getImgUrl(companyInfo?.logoUrl)" class="company-logo" alt="Logo">
           <div class="company-info">
             <h1>{{companyInfo?.name || 'Electric Inventory System'}}</h1>
-            <p *ngIf="companyInfo?.address">
-              {{companyInfo?.address?.addressLine1}}, 
-              {{companyInfo?.address?.addressLine2 ? companyInfo?.address?.addressLine2 + ', ' : ''}}
-              {{companyInfo?.address?.city}}, {{companyInfo?.address?.state}} - {{companyInfo?.address?.pinCode}}
+            <p *ngIf="companyInfo?.addresses?.length">
+              {{companyInfo?.addresses?.[0]?.addressLine1}}, 
+              {{companyInfo?.addresses?.[0]?.addressLine2 ? companyInfo?.addresses?.[0]?.addressLine2 + ', ' : ''}}
+              {{companyInfo?.addresses?.[0]?.city}}, {{companyInfo?.addresses?.[0]?.state}} - {{companyInfo?.addresses?.[0]?.pinCode}}
             </p>
             <p>
               Contact: {{companyInfo?.primaryPhone}} | Email: {{companyInfo?.primaryEmail}}

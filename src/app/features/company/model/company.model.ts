@@ -10,6 +10,7 @@ export interface CompanyProfileDto {
     gstin: string; //
     logoUrl: string | null;
     primaryEmail: string;
+    email: string | null;
     primaryPhone: string;
     website: string;
     message: string | null; // WhatsApp/SMS reminder message
@@ -34,8 +35,8 @@ export interface CompanyProfileDto {
     estimateFooterMessage: string | null;
     purchaseOrderFooterMessage: string | null;
     saleOrderFooterMessage: string | null;
-    address: AddressDto; // Nested Object
-    bankInfo: BankDetailDto; // Nested Object
+    addresses: AddressDto[]; // Changed from address to addresses array
+    bankInfo: BankDetailDto;
     authorizedSignatories: AuthorizedSignatoryDto[];
 }
 
@@ -47,6 +48,7 @@ export interface AuthorizedSignatoryDto {
     personName: string;
     designation: string;
     signatureImageUrl: string | null;
+    email: string;
     isDefault: boolean;
 }
 
@@ -55,13 +57,19 @@ export interface AuthorizedSignatoryDto {
  */
 export interface AddressDto {
     id: string;
+    branchName?: string;
     addressLine1: string;
     addressLine2: string;
     city: string;
     state: string;
-    stateCode: string; // e.g., "07"
+    stateCode: string;
     pinCode: string;
     country: string;
+    email?: string;
+    phone?: string;
+    contactPerson?: string;
+    gstin?: string;
+    isHeadOffice: boolean;
 }
 
 /**
@@ -88,6 +96,7 @@ export interface UpsertCompanyRequest {
     gstin: string;
     logoUrl: string | null;
     primaryEmail: string;
+    email?: string;
     primaryPhone: string;
     website: string;
     message: string | null; // WhatsApp/SMS reminder message
@@ -111,7 +120,7 @@ export interface UpsertCompanyRequest {
     estimateFooterMessage: string | null;
     purchaseOrderFooterMessage: string | null;
     saleOrderFooterMessage: string | null;
-    address: AddressDto;
+    addresses: AddressDto[]; // Changed to branches array
     bankInfo: BankDetailDto;
     authorizedSignatories: AuthorizedSignatoryDto[];
 }

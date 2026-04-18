@@ -290,9 +290,14 @@ export class BalanceSheetComponent implements OnInit {
                 if (specificOwner) {
                     this.executeCapitalReceipt(specificOwner.id, amount);
                 } else {
-                    // Fix: Match the backend CreateCustomerDto fields!
-                    const addr = this.companyProfile?.address;
-                    const fullAddress = `${addr?.addressLine1 || ''} ${addr?.addressLine2 || ''}, ${addr?.city || ''}, ${addr?.state || ''} - ${addr?.pinCode || ''}`;
+                    // Fix: Match the backend CreateCustomerDto fields with multi-branch logic!
+                    const addr = this.companyProfile?.addresses && this.companyProfile.addresses.length > 0
+                        ? (this.companyProfile.addresses.find((a: any) => a.isHeadOffice) || this.companyProfile.addresses[0])
+                        : null;
+                        
+                    const fullAddress = addr 
+                        ? `${addr.addressLine1 || ''} ${addr.addressLine2 || ''}, ${addr.city || ''}, ${addr.state} - ${addr.pinCode}`.trim()
+                        : 'Internal Account';
                     
                     const newOwner = {
                         customerName: this.OWNER_CUSTOMER_NAME,

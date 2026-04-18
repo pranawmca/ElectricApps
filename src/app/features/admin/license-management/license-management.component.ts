@@ -15,7 +15,7 @@ import { AddSubscriptionDialogComponent } from './add-subscription-dialog/add-su
 @Component({
   selector: 'app-license-management',
   standalone: true,
-  imports: [CommonModule, MaterialModule, FormsModule, SummaryStatsComponent, AddSubscriptionDialogComponent],
+  imports: [CommonModule, MaterialModule, FormsModule, SummaryStatsComponent],
   templateUrl: './license-management.component.html',
   styleUrls: ['./license-management.component.scss']
 })

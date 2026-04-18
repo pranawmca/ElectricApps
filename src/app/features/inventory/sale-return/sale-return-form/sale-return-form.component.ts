@@ -616,8 +616,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
         const companyName = company?.name || 'Electric Inventory System';
         const logoUrl = company?.logoUrl ? this.getImgUrl(company.logoUrl) : '';
         let addressStr = '';
-        if (company?.address) {
-            const addr = company.address;
+        if (company?.addresses && company.addresses.length > 0) {
+            const addr = company.addresses.find((a: any) => a.isHeadOffice) || company.addresses[0];
             addressStr = `${addr.addressLine1}, ${addr.addressLine2 ? addr.addressLine2 + ', ' : ''}${addr.city}, ${addr.state} - ${addr.pinCode}`;
         }
         const contactInfo = `Contact: ${company?.primaryPhone || ''} | Email: ${company?.primaryEmail || ''}`;

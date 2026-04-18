@@ -23,7 +23,7 @@ import { SubCategory } from '../../subcategory/modesls/subcategory.model';
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MaterialModule, ServerDatagridComponent, SummaryStatsComponent, PermissionDirective, LocationTrackerDialogComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MaterialModule, ServerDatagridComponent, SummaryStatsComponent, PermissionDirective],
 
   providers: [DatePipe],
   templateUrl: './product-list.html',

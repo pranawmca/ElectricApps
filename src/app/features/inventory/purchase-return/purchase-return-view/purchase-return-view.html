@@ -6,8 +6,8 @@
       <img *ngIf="companyInfo?.logoUrl" [src]="getImgUrl(companyInfo?.logoUrl)" class="dialog-logo" alt="Logo">
       <div class="company-text">
         <h1>{{companyInfo?.name || 'ELECTRIC INVENTORY'}}</h1>
-        <div class="meta-row" *ngIf="companyInfo?.address">
-          <span>{{companyInfo?.address?.addressLine1}}, {{companyInfo?.address?.city}}</span>
+        <div class="meta-row" *ngIf="companyInfo?.addresses?.length">
+          <span>{{companyInfo?.addresses?.[0]?.addressLine1}}, {{companyInfo?.addresses?.[0]?.city}}</span>
           <span class="divider">|</span>
           <span>Ph: {{companyInfo?.primaryPhone}}</span>
         </div>

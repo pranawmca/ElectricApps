@@ -117,8 +117,8 @@ export class GatePassPrintDialogComponent implements OnInit {
     const logoUrl = this.companyInfo?.logoUrl ? this.getImgUrl(this.companyInfo.logoUrl) : '';
 
     let addressStr = '';
-    if (this.companyInfo?.address) {
-      const addr = this.companyInfo.address;
+    if (this.companyInfo?.addresses && this.companyInfo.addresses.length > 0) {
+      const addr = this.companyInfo.addresses.find(a => a.isHeadOffice) || this.companyInfo.addresses[0];
       addressStr = `${addr.addressLine1}, ${addr.addressLine2 ? addr.addressLine2 + ', ' : ''}${addr.city}, ${addr.state} - ${addr.pinCode}`;
     }
 

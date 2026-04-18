@@ -79,9 +79,9 @@ export class SaleReturnDetailsModal implements OnInit {
 
     // Construct Address String safely
     let addressStr = '';
-    if (this.companyInfo?.address) {
-      const addr = this.companyInfo.address;
-      addressStr = `${addr.addressLine1}, ${addr.addressLine2 ? addr.addressLine2 + ', ' : ''}${addr.city}, ${addr.state} - ${addr.pinCode}`;
+    const primaryAddr = this.companyInfo?.addresses?.find(a => a.isHeadOffice) || this.companyInfo?.addresses?.[0];
+    if (primaryAddr) {
+      addressStr = `${primaryAddr.addressLine1}, ${primaryAddr.addressLine2 ? primaryAddr.addressLine2 + ', ' : ''}${primaryAddr.city}, ${primaryAddr.state} - ${primaryAddr.pinCode}`;
     }
 
     const contactInfo = `Contact: ${this.companyInfo?.primaryPhone || ''} | Email: ${this.companyInfo?.primaryEmail || ''}`;

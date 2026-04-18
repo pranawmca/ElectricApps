@@ -15,7 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
     selector: 'app-bulk-receipt-entry',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, MaterialModule, RouterModule, StatusDialogComponent, ConfirmDialogComponent],
+    imports: [CommonModule, ReactiveFormsModule, MaterialModule, RouterModule],
     templateUrl: './bulk-receipt-entry.component.html',
     styleUrls: ['./bulk-receipt-entry.component.scss']
 })

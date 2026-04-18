@@ -35,6 +35,8 @@ export class CompanyForm implements OnInit {
     companyForm!: FormGroup;
     loading = false;
     companyId: string | null = null;
+    selectedLogo: File | null = null;
+    logoPreview: string | null = null;
 
     ngOnInit(): void {
         this.createForm();
@@ -57,7 +59,6 @@ export class CompanyForm implements OnInit {
                     estimateFooterMessage: '',
                     purchaseOrderFooterMessage: '',
                     saleOrderFooterMessage: '',
-                    address: { id: '', country: 'India' },
                     bankInfo: { id: '', accountType: 'Current' }
                 });
                 this.signatories.clear();
@@ -111,6 +112,7 @@ export class CompanyForm implements OnInit {
             gstin: ['', [Validators.required, Validators.pattern('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$')]],
             logoUrl: [''],
             primaryEmail: ['', [Validators.required, Validators.email]],
+            email: ['', [Validators.email]],
             primaryPhone: ['', [Validators.required]],
             website: [''],
             message: [''],
@@ -136,17 +138,8 @@ export class CompanyForm implements OnInit {
             purchaseOrderFooterMessage: [''],
             saleOrderFooterMessage: [''],
 
-            // Address Nested Group
-            address: this.fb.group({
-                id: [''],
-                addressLine1: ['', Validators.required],
-                addressLine2: [''],
-                city: ['', Validators.required],
-                state: ['', Validators.required],
-                stateCode: ['', [Validators.required, Validators.maxLength(2)]],
-                pinCode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
-                country: ['India', Validators.required]
-            }),
+            // Branches (Addresses) FormArray
+            addresses: this.fb.array([]),
 
             // Bank Info Nested Group
             bankInfo: this.fb.group({
@@ -161,7 +154,43 @@ export class CompanyForm implements OnInit {
             // Authorized Signatories FormArray
             authorizedSignatories: this.fb.array([])
         });
+        
+        // Initial Branch if empty
+        if (!this.companyId) {
+            this.addBranch();
+        }
         this.cdr.detectChanges();
+    }
+
+    get branches(): FormArray {
+        return this.companyForm.get('addresses') as FormArray;
+    }
+
+    addBranch(data: any = null) {
+        const branchForm = this.fb.group({
+            id: [data?.id || ''],
+            branchName: [data?.branchName || 'Head Office', Validators.required],
+            addressLine1: [data?.addressLine1 || '', Validators.required],
+            addressLine2: [data?.addressLine2 || ''],
+            city: [data?.city || '', Validators.required],
+            state: [data?.state || '', Validators.required],
+            stateCode: [data?.stateCode || '', [Validators.required, Validators.maxLength(2)]],
+            pinCode: [data?.pinCode || '', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
+            country: [data?.country || 'India', Validators.required],
+            email: [data?.email || '', [Validators.email]],
+            phone: [data?.phone || ''],
+            contactPerson: [data?.contactPerson || ''],
+            gstin: [data?.gstin || ''],
+            isHeadOffice: [data?.isHeadOffice || false]
+        });
+        this.branches.push(branchForm);
+        this.cdr.detectChanges();
+    }
+
+    removeBranch(index: number) {
+        if (this.branches.length > 1) {
+            this.branches.removeAt(index);
+        }
     }
 
     get signatories(): FormArray {
@@ -173,6 +202,7 @@ export class CompanyForm implements OnInit {
             id: [''],
             personName: ['', Validators.required],
             designation: ['', Validators.required],
+            email: ['', [Validators.email]],
             signatureImageUrl: [''],
             isDefault: [false]
         });
@@ -203,9 +233,31 @@ export class CompanyForm implements OnInit {
                     estimateFooterMessage: '',
                     purchaseOrderFooterMessage: '',
                     saleOrderFooterMessage: '',
-                    address: { id: 0, country: 'India' },
                     bankInfo: { id: 0, accountType: 'Current' }
                 });
+
+                // Clear and Re-populate Branches
+                this.branches.clear();
+                let branches = res.addresses || [];
+                
+                // Legacy Fallback: If no branches but a single address exists
+                if (branches.length === 0 && (res as any).address) {
+                    const legacyAddr = (res as any).address;
+                    branches = [{
+                        id: legacyAddr.id || '',
+                        branchName: 'Head Office',
+                        addressLine1: legacyAddr.addressLine1 || '',
+                        addressLine2: legacyAddr.addressLine2 || '',
+                        city: legacyAddr.city || '',
+                        state: legacyAddr.state || '',
+                        stateCode: legacyAddr.stateCode || '',
+                        pinCode: legacyAddr.pinCode || '',
+                        country: legacyAddr.country || 'India',
+                        isHeadOffice: true
+                    }];
+                }
+                
+                branches.forEach(b => this.addBranch(b));
 
                 // Clear and Re-populate Signatories
                 this.signatories.clear();
@@ -215,15 +267,19 @@ export class CompanyForm implements OnInit {
                         id: [sig.id],
                         personName: [sig.personName, Validators.required],
                         designation: [sig.designation, Validators.required],
+                        email: [sig.email, [Validators.email]],
                         signatureImageUrl: [sig.signatureImageUrl],
                         isDefault: [sig.isDefault]
                     }));
                 });
 
-                // Patch the entire form
-                this.companyForm.patchValue(res);
+                // Patch the rest of the form
+                this.companyForm.patchValue({
+                    ...res,
+                    email: res.email
+                });
 
-                // Ensure logo state is synced (especially if we want to show existing logo)
+                // Ensure logo state is synced
                 this.logoPreview = null;
 
                 this.loading = false;
@@ -261,19 +317,12 @@ export class CompanyForm implements OnInit {
             this.loadingService.setLoading(true);
             const payload: UpsertCompanyRequest = this.companyForm.value;
 
-            // 🏢 MULTI-TENANT ONBOARDING LOGIC
-            // If No CompanyId yet, we trigger the Identity Portal Setup first
-            if (!this.authService.getCompanyId()) {
+            if (!this.companyId && !this.authService.getCompanyId()) {
                 this.companyService.setupTenant(payload.name).subscribe({
                     next: (setupRes) => {
-                        console.log('[CompanyForm] Tenant Setup Successful', setupRes);
-                        
-                        // 🚀 IMPORTANT: Link the Identity GUID to the Company Profile
                         if (setupRes.companyId) {
                             payload.companyId = setupRes.companyId;
                         }
-                        
-                        // Now save the profile details in the Company microservice
                         this.saveCompanyDetails(payload);
                     },
                     error: (err) => {
@@ -286,7 +335,76 @@ export class CompanyForm implements OnInit {
         });
     }
 
-    private saveCompanyDetails(payload: any) {
+    private saveCompanyDetails(formData: any) {
+        // Explicit Payload construction to avoid "extra" properties that trigger 400 Bad Request
+        const payload: UpsertCompanyRequest = {
+            companyId: formData.companyId,
+            name: formData.name,
+            tagline: formData.tagline,
+            registrationNumber: formData.registrationNumber,
+            gstin: formData.gstin,
+            logoUrl: formData.logoUrl,
+            primaryEmail: formData.primaryEmail,
+            email: formData.email,
+            smtpEmail: formData.smtpEmail,
+            smtpPassword: formData.smtpPassword,
+            smtpHost: formData.smtpHost,
+            smtpPort: formData.smtpPort,
+            smtpUseSsl: formData.smtpUseSsl,
+            primaryPhone: formData.primaryPhone,
+            website: formData.website,
+            message: formData.message,
+            driverWhatsAppMessage: formData.driverWhatsAppMessage,
+            purchaseOrderCreationMessage: formData.purchaseOrderCreationMessage,
+            purchaseOrderStatusUpdateMessage: formData.purchaseOrderStatusUpdateMessage,
+            saleOrderCreationMessage: formData.saleOrderCreationMessage,
+            saleOrderConfirmationMessage: formData.saleOrderConfirmationMessage,
+            saleReturnWindowValue: formData.saleReturnWindowValue,
+            saleReturnWindowUnit: formData.saleReturnWindowUnit,
+            saleReturnPolicyDisclaimer: formData.saleReturnPolicyDisclaimer,
+            purchaseReturnWindowValue: formData.purchaseReturnWindowValue,
+            purchaseReturnWindowUnit: formData.purchaseReturnWindowUnit,
+            purchaseReturnPolicyDisclaimer: formData.purchaseReturnPolicyDisclaimer,
+            invoiceFooterMessage: formData.invoiceFooterMessage,
+            estimateFooterMessage: formData.estimateFooterMessage,
+            purchaseOrderFooterMessage: formData.purchaseOrderFooterMessage,
+            saleOrderFooterMessage: formData.saleOrderFooterMessage,
+            addresses: formData.addresses.map((a: any) => ({
+                id: a.id || 0,
+                branchName: a.branchName,
+                addressLine1: a.addressLine1,
+                addressLine2: a.addressLine2,
+                city: a.city,
+                state: a.state,
+                stateCode: a.stateCode,
+                pinCode: a.pinCode,
+                country: a.country,
+                email: a.email,
+                phone: a.phone,
+                contactPerson: a.contactPerson,
+                gstin: a.gstin,
+                isHeadOffice: a.isHeadOffice
+            })),
+            bankInfo: {
+                id: formData.bankInfo.id || 0,
+                bankName: formData.bankInfo.bankName,
+                branchName: formData.bankInfo.branchName,
+                accountNumber: formData.bankInfo.accountNumber,
+                ifscCode: formData.bankInfo.ifscCode,
+                accountType: formData.bankInfo.accountType
+            },
+            authorizedSignatories: formData.authorizedSignatories.map((s: any) => ({
+                id: s.id || 0,
+                personName: s.personName,
+                designation: s.designation,
+                signatureImageUrl: s.signatureImageUrl,
+                email: s.email,
+                isDefault: s.isDefault
+            }))
+        };
+
+        console.log('Sending Company Update Payload:', payload);
+
         const request = this.companyId
             ? this.companyService.updateCompany(this.companyId, payload)
             : this.companyService.insertCompany(payload);
@@ -295,8 +413,6 @@ export class CompanyForm implements OnInit {
             next: (res: any) => {
                 this.loading = false;
                 this.loadingService.setLoading(false);
-                const newId = (res && typeof res === 'object') ? res.id : res;
-
                 this.dialog.open(StatusDialogComponent, {
                     data: {
                         isSuccess: true,
@@ -322,26 +438,20 @@ export class CompanyForm implements OnInit {
         this.cdr.detectChanges();
     }
 
-    onCancel() {
+    public onCancel() {
         this.router.navigate(['/app/company']);
     }
 
-    // --- Image Helpers ---
-    getImgUrl(url: string | null | undefined): string {
+    public getImgUrl(url: string | null | undefined): string {
         if (!url) return '';
         if (url.startsWith('data:image') || url.startsWith('http')) {
             return url;
         }
-        // Normalize URL - ensure no double slashes when joining with base URL
         const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
         return `${environment.CompanyRootUrl}/${cleanUrl}`;
     }
 
-    // --- Logo Upload Logic ---
-    selectedLogo: File | null = null;
-    logoPreview: string | null = null;
-
-    onLogoSelected(event: any): void {
+    public onLogoSelected(event: any): void {
         const file = event.target.files[0];
         if (file) {
             this.selectedLogo = file;
@@ -356,7 +466,7 @@ export class CompanyForm implements OnInit {
         }
     }
 
-    onSignatureSelected(event: any, index: number): void {
+    public onSignatureSelected(event: any, index: number): void {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -368,7 +478,7 @@ export class CompanyForm implements OnInit {
         }
     }
 
-    uploadLogo(id: string): void {
+    public uploadLogo(id: string): void {
         if (!this.selectedLogo) return;
 
         this.companyService.uploadLogo(id, this.selectedLogo).subscribe({

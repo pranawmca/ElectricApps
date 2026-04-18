@@ -161,7 +161,8 @@ export class SalesInvoice implements OnInit {
     this.companyService.getCompanyProfile().subscribe({
       next: (profile) => {
         if (profile) {
-          const fullAddress = `${profile.address.addressLine1}, ${profile.address.addressLine2 ? profile.address.addressLine2 + ', ' : ''}${profile.address.city}, ${profile.address.state} - ${profile.address.pinCode}`;
+          const primaryAddr = profile.addresses?.find(a => a.isHeadOffice) || profile.addresses?.[0];
+          const fullAddress = primaryAddr ? `${primaryAddr.addressLine1}, ${primaryAddr.addressLine2 ? primaryAddr.addressLine2 + ', ' : ''}${primaryAddr.city}, ${primaryAddr.state} - ${primaryAddr.pinCode}` : '';
           
           // Extract PAN from GSTIN (Indian standard: chars 3 to 12)
           let pan = '';

@@ -45,7 +45,7 @@ export class BulkCompanyForm implements OnInit {
         this.companyService.getCompanyProfile().subscribe({
             next: (profile) => {
                 if (profile) {
-                    this.defaultAddress = profile.address;
+                    this.defaultAddress = profile.addresses?.find(a => a.isHeadOffice) || profile.addresses?.[0];
                     this.defaultBank = profile.bankInfo;
                 }
                 this.loading = false;
@@ -80,15 +80,19 @@ export class BulkCompanyForm implements OnInit {
             primaryPhone: [''], // Optional
             tagline: [''],
             website: [''],
-            // Dynamic Address from Primary Company - Removed strict requirements for Bulk skip
-            address: this.fb.group({
-                addressLine1: [this.defaultAddress?.addressLine1 || 'Main Office'],
-                city: [this.defaultAddress?.city || 'Mumbai'],
-                state: [this.defaultAddress?.state || 'Maharashtra'],
-                stateCode: [this.defaultAddress?.stateCode || '27'],
-                pinCode: [this.defaultAddress?.pinCode || '400001', [Validators.pattern('^[0-9]{6}$')]],
-                country: [this.defaultAddress?.country || 'India']
-            }),
+            // Dynamic Address from Primary Company - Wrap in array for Multi-Branch support
+            addresses: this.fb.array([
+                this.fb.group({
+                    branchName: ['Main Branch'],
+                    addressLine1: [this.defaultAddress?.addressLine1 || 'Main Office'],
+                    city: [this.defaultAddress?.city || 'Mumbai'],
+                    state: [this.defaultAddress?.state || 'Maharashtra'],
+                    stateCode: [this.defaultAddress?.stateCode || '27'],
+                    pinCode: [this.defaultAddress?.pinCode || '400001', [Validators.pattern('^[0-9]{6}$')]],
+                    country: [this.defaultAddress?.country || 'India'],
+                    isHeadOffice: [true]
+                })
+            ]),
             // Dynamic Bank Info from Primary Company - Removed strict requirements for Bulk skip
             bankInfo: this.fb.group({
                 bankName: [this.defaultBank?.bankName || 'N/A'],
@@ -143,11 +147,22 @@ export class BulkCompanyForm implements OnInit {
             this.loadingService.setLoading(true);
 
             const payloads = this.companies.value;
-            const requests = payloads.map((p: any) => 
-                this.companyService.insertCompany(p).pipe(
+            const requests = payloads.map((p: any) => {
+                const cleanPayload: any = {
+                    ...p,
+                    addresses: p.addresses.map((a: any) => ({
+                        ...a,
+                        country: a.country || 'India'
+                    })),
+                    bankInfo: {
+                        ...p.bankInfo,
+                        accountType: p.bankInfo.accountType || 'Current'
+                    }
+                };
+                return this.companyService.insertCompany(cleanPayload).pipe(
                     catchError(err => of({ error: true, name: p.name, message: err?.error?.message }))
-                )
-            );
+                );
+            });
 
             forkJoin(requests).subscribe({
                 next: (results: unknown) => {
