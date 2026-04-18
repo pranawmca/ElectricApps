@@ -11,664 +11,490 @@
   <div class="form-container flex-1">
     <form [formGroup]="companyForm" class="flex-column gap-4">
       
-      <!-- Section: General Info -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">business</mat-icon>
-          <mat-card-title>General Information</mat-card-title>
-          <mat-card-subtitle>Basic details of the company</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <div class="flex-row flex-wrap gap-4">
-            <!-- Logo Section -->
-            <div class="logo-upload-container flex-column flex-center gap-2 pr-4 border-r">
-              <div class="logo-preview-box" (click)="logoInput.click()">
-                <img *ngIf="logoPreview || companyForm.get('logoUrl')?.value" 
-                     [src]="getImgUrl(logoPreview || companyForm.get('logoUrl')?.value)" 
-                     alt="Company Logo">
-                <mat-icon *ngIf="!logoPreview && !companyForm.get('logoUrl')?.value">add_a_photo</mat-icon>
-              </div>
-              <button type="button" mat-stroked-button color="primary" (click)="logoInput.click()" class="btn-sm">
-                {{ (logoPreview || companyForm.get('logoUrl')?.value) ? 'Change Logo' : 'Upload Logo' }}
-              </button>
-              <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/*" style="display: none;">
-            </div>
+      <mat-accordion [multi]="true" class="company-accordion">
+        
+        <!-- Panel 1: General & Server Settings -->
+        <mat-expansion-panel [expanded]="true" class="section-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex-row flex-center gap-2">
+              <mat-icon color="primary">business</mat-icon>
+              <strong>General Information & Server Settings</strong>
+            </mat-panel-title>
+            <mat-panel-description>
+              Logo, contact details and SMTP configuration
+            </mat-panel-description>
+          </mat-expansion-panel-header>
 
-            <div class="flex-1 flex-column gap-2">
-              <div class="flex-row flex-wrap gap-4">
-                <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
-                  <mat-label>Company Name</mat-label>
-                  <input matInput formControlName="name">
-                  <mat-icon matSuffix>corporate_fare</mat-icon>
-                  <mat-error *ngIf="companyForm.get('name')?.hasError('required')">Required</mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
-                  <mat-label>Tagline</mat-label>
-                  <input matInput formControlName="tagline">
-                  <mat-icon matSuffix>auto_fix_high</mat-icon>
-                </mat-form-field>
-              </div>
-              
-              <div class="flex-row flex-wrap gap-4">
-                <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
-                  <mat-label>GSTIN</mat-label>
-                  <input matInput formControlName="gstin">
-                  <mat-icon matSuffix>receipt</mat-icon>
-                  <mat-error *ngIf="companyForm.get('gstin')?.hasError('pattern')">Invalid Format</mat-error>
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-
-
-          <div class="flex-row flex-wrap gap-4 mt-2">
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-              <mat-label>Primary Email</mat-label>
-              <input matInput formControlName="primaryEmail">
-              <mat-icon matSuffix>email</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-              <mat-label>Secondary Email (Optional)</mat-label>
-              <input matInput formControlName="email">
-              <mat-icon matSuffix>alternate_email</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-              <mat-label>Phone</mat-label>
-              <input matInput formControlName="primaryPhone">
-              <mat-icon matSuffix>phone</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-              <mat-label>Registration No.</mat-label>
-              <input matInput formControlName="registrationNumber">
-              <mat-icon matSuffix>app_registration</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-              <mat-label>Website</mat-label>
-              <input matInput formControlName="website">
-              <mat-icon matSuffix>language</mat-icon>
-            </mat-form-field>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Email & SMTP Settings -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">alternate_email</mat-icon>
-          <mat-card-title>Email & SMTP Settings</mat-card-title>
-          <mat-card-subtitle>Configure your email server for automatic notifications</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <div class="flex-row flex-wrap gap-4">
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
-              <mat-label>SMTP Host</mat-label>
-              <input matInput formControlName="smtpHost" placeholder="smtp.gmail.com">
-              <mat-icon matSuffix>dns</mat-icon>
-              <mat-hint>Server address (e.g., smtp.gmail.com)</mat-hint>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-100">
-              <mat-label>SMTP Port</mat-label>
-              <input matInput type="number" formControlName="smtpPort" placeholder="587">
-              <mat-icon matSuffix>numbers</mat-icon>
-              <mat-hint>Usually 587 (TLS) or 465 (SSL)</mat-hint>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
-              <mat-label>SMTP Email / User</mat-label>
-              <input matInput formControlName="smtpEmail" placeholder="your-email@gmail.com">
-              <mat-icon matSuffix>account_circle</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
-              <mat-label>SMTP Password / App Password</mat-label>
-              <input matInput type="password" formControlName="smtpPassword">
-              <mat-icon matSuffix>lock</mat-icon>
-              <mat-hint>Use App Password if using Gmail/Outlook</mat-hint>
-            </mat-form-field>
-
-            <div class="flex-row flex-center px-4">
-              <mat-slide-toggle formControlName="smtpUseSsl" color="primary">
-                Use SSL/TLS
-              </mat-slide-toggle>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Message Template -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">chat</mat-icon>
-          <mat-card-title>Reminder Message Template</mat-card-title>
-          <mat-card-subtitle>WhatsApp / SMS reminder ke liye default message</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Customer Reminder Message</mat-label>
-            <textarea
-              matInput
-              formControlName="message"
-              rows="4"
-              placeholder="Ye [Company Name] ki taraf se ek friendly reminder hai..."
-            ></textarea>
-            <mat-icon matSuffix>message</mat-icon>
-            <mat-hint>Ye message customer dues reminder mein use hoga.</mat-hint>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Driver Tracking Message -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">local_shipping</mat-icon>
-          <mat-card-title>Driver Tracking Message Template</mat-card-title>
-          <mat-card-subtitle>Driver se live location mangne ke liye default message</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Driver Message</mat-label>
-            <textarea
-              matInput
-              formControlName="driverWhatsAppMessage"
-              rows="3"
-              placeholder="Hello [Driver], this is [Company Name]. Please share your LIVE LOCATION for Truck [Vehicle No]..."
-            ></textarea>
-            <mat-icon matSuffix>add_location_alt</mat-icon>
-            <mat-hint>Ye message Gate Pass list se location mangte waqt use hoga.</mat-hint>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Purchase Order Creation Message -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">shopping_cart</mat-icon>
-          <mat-card-title>PO Creation Message Template</mat-card-title>
-          <mat-card-subtitle>Naya Purchase Order banne par bheja jane wala message</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>PO Creation Message</mat-label>
-            <textarea
-              matInput
-              formControlName="purchaseOrderCreationMessage"
-              rows="3"
-              placeholder="Namaste [SupplierName], [Company Name] ne aapke liye naya Purchase Order [PO-Number] create kiya hai..."
-            ></textarea>
-            <mat-icon matSuffix>add_shopping_cart</mat-icon>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Purchase Order Status Update Message -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">fact_check</mat-icon>
-          <mat-card-title>PO Status Update Message Template</mat-card-title>
-          <mat-card-subtitle>PO Approve ya Receive hone par bheja jane wala message</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>PO Status Update Message</mat-label>
-            <textarea
-              matInput
-              formControlName="purchaseOrderStatusUpdateMessage"
-              rows="3"
-              placeholder="Namaste [SupplierName], aapka Purchase Order [PO-Number] ab approve/receive ho chuka hai..."
-            ></textarea>
-            <mat-icon matSuffix>rule</mat-icon>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Sale Order Creation Message -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">add_task</mat-icon>
-          <mat-card-title>SO Creation Message Template</mat-card-title>
-          <mat-card-subtitle>Naya Sale Order banne par bheja jane wala message</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>SO Creation Message</mat-label>
-            <textarea
-              matInput
-              formControlName="saleOrderCreationMessage"
-              rows="3"
-              placeholder="Namaste [CustomerName], aapka Sale Order [SO-Number] (Rs. [Amount]) create ho gaya hai..."
-            ></textarea>
-            <mat-icon matSuffix>receipt</mat-icon>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Sale Order Confirmation Message -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">verified</mat-icon>
-          <mat-card-title>SO Confirmation Message Template</mat-card-title>
-          <mat-card-subtitle>Sale Order Confirm hone par bheja jane wala message</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>SO Confirmation Message</mat-label>
-            <textarea
-              matInput
-              formControlName="saleOrderConfirmationMessage"
-              rows="3"
-              placeholder="Mubarik ho [CustomerName]! Aapka Order [SO-Number] (Rs. [Amount]) confirm ho gaya hai..."
-            ></textarea>
-            <mat-icon matSuffix>check_circle</mat-icon>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Branches / Storage Locations -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">hub</mat-icon>
-          <div class="flex-column">
-            <mat-card-title>Branches & Storage Locations</mat-card-title>
-            <mat-card-subtitle>Manage multiple offices, warehouses, or delivery centers</mat-card-subtitle>
-          </div>
-          <span class="flex-1"></span>
-          <button type="button" mat-stroked-button color="primary" (click)="addBranch()" class="btn-sm">
-            <mat-icon>add_location</mat-icon> Add Branch
-          </button>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <div formArrayName="addresses" class="flex-column gap-6">
-            <div *ngFor="let branch of branches.controls; let i=index" [formGroupName]="i" 
-                 class="branch-card p-4 border rounded-xl bg-slate-50/50 relative">
-              
-              <div class="flex-row flex-between flex-center mb-3 pb-2 border-b">
-                <div class="flex-row flex-center gap-2">
-                  <mat-icon color="primary">location_on</mat-icon>
-                  <span class="font-bold text-slate-700">Branch #{{ i + 1 }}</span>
-                  <div class="ml-4 flex-row flex-center gap-2">
-                    <mat-slide-toggle formControlName="isHeadOffice" color="warn">
-                      Head Office
-                    </mat-slide-toggle>
-                  </div>
+          <div class="panel-content pt-4 flex-column gap-6">
+            <!-- Branding & Basics -->
+            <div class="flex-row flex-wrap gap-4">
+              <div class="logo-upload-container flex-column flex-center gap-2 pr-4 border-r">
+                <div class="logo-preview-box" (click)="logoInput.click()">
+                  <img *ngIf="logoPreview || companyForm.get('logoUrl')?.value" 
+                       [src]="getImgUrl(logoPreview || companyForm.get('logoUrl')?.value)" 
+                       alt="Company Logo">
+                  <mat-icon *ngIf="!logoPreview && !companyForm.get('logoUrl')?.value">add_a_photo</mat-icon>
                 </div>
-                <button type="button" mat-icon-button color="warn" (click)="removeBranch(i)" 
-                        *ngIf="branches.length > 1" [matTooltip]="'Remove Branch'">
-                  <mat-icon>delete</mat-icon>
+                <button type="button" mat-stroked-button color="primary" (click)="logoInput.click()" class="btn-sm">
+                  {{ (logoPreview || companyForm.get('logoUrl')?.value) ? 'Change Logo' : 'Upload Logo' }}
                 </button>
+                <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/*" style="display: none;">
               </div>
 
-              <div class="flex-column gap-3">
+              <div class="flex-1 flex-column gap-2">
                 <div class="flex-row flex-wrap gap-4">
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
-                    <mat-label>Branch / Location Name</mat-label>
-                    <input matInput formControlName="branchName" placeholder="e.g. Main HQ, Delhi Warehouse">
+                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
+                    <mat-label>Company Name</mat-label>
+                    <input matInput formControlName="name">
+                    <mat-icon matSuffix>corporate_fare</mat-icon>
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
-                    <mat-label>Branch GSTIN (Optional)</mat-label>
+                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
+                    <mat-label>Tagline</mat-label>
+                    <input matInput formControlName="tagline">
+                    <mat-icon matSuffix>auto_fix_high</mat-icon>
+                  </mat-form-field>
+                </div>
+                
+                <div class="flex-row flex-wrap gap-4">
+                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
+                    <mat-label>GSTIN</mat-label>
                     <input matInput formControlName="gstin">
-                    <mat-hint>If different from company GSTIN</mat-hint>
+                    <mat-icon matSuffix>receipt</mat-icon>
                   </mat-form-field>
-                </div>
-
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Address Line 1</mat-label>
-                  <input matInput formControlName="addressLine1">
-                </mat-form-field>
-
-                <div class="flex-row flex-wrap gap-4">
-                  <mat-form-field appearance="outline" class="flex-grow-2 min-w-200">
-                    <mat-label>Address Line 2 (Optional)</mat-label>
-                    <input matInput formControlName="addressLine2">
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-                    <mat-label>City</mat-label>
-                    <input matInput formControlName="city">
-                  </mat-form-field>
-                </div>
-
-                <div class="flex-row flex-wrap gap-4">
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-150">
-                    <mat-label>State</mat-label>
-                    <input matInput formControlName="state">
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-100">
-                    <mat-label>State Code</mat-label>
-                    <input matInput formControlName="stateCode">
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-150">
-                    <mat-label>Pin Code</mat-label>
-                    <input matInput formControlName="pinCode">
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-150">
-                    <mat-label>Country</mat-label>
-                    <mat-select formControlName="country">
-                      <mat-option value="India">India</mat-option>
-                      <mat-option value="Other">Other</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-
-                <div class="flex-row flex-wrap gap-4 pt-2 border-t mt-2">
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-                    <mat-label>Contact Person</mat-label>
-                    <input matInput formControlName="contactPerson">
-                    <mat-icon matSuffix>person_pin</mat-icon>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-                    <mat-label>Branch Phone</mat-label>
-                    <input matInput formControlName="phone">
-                    <mat-icon matSuffix>phone_in_talk</mat-icon>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-                    <mat-label>Branch Email</mat-label>
-                    <input matInput formControlName="email">
-                    <mat-icon matSuffix>alternate_email</mat-icon>
+                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
+                    <mat-label>Registration No.</mat-label>
+                    <input matInput formControlName="registrationNumber">
+                    <mat-icon matSuffix>app_registration</mat-icon>
                   </mat-form-field>
                 </div>
               </div>
-
             </div>
-          </div>
 
-          <div *ngIf="branches.length === 0" class="empty-state p-8 text-center border-2 border-dashed rounded-xl mt-4">
-            <mat-icon class="text-5xl text-gray-300">add_location_alt</mat-icon>
-            <p class="text-gray-500 mt-2">No branches added. Click "Add Branch" to start.</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Bank Info -->
-      <mat-card class="section-card" formGroupName="bankInfo">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">account_balance</mat-icon>
-          <mat-card-title>Bank Account Details</mat-card-title>
-          <mat-card-subtitle>For billing and payments</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <div class="flex-row flex-wrap gap-4">
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
-              <mat-label>Bank Name</mat-label>
-              <input matInput formControlName="bankName">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
-              <mat-label>Branch Name</mat-label>
-              <input matInput formControlName="branchName">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
-              <mat-label>Account Number</mat-label>
-              <input matInput formControlName="accountNumber">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-              <mat-label>IFSC Code</mat-label>
-              <input matInput formControlName="ifscCode">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
-              <mat-label>Account Type</mat-label>
-              <mat-select formControlName="accountType">
-                <mat-option value="Current">Current</mat-option>
-                <mat-option value="Savings">Savings</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Authorized Signatories -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">assignment_ind</mat-icon>
-          <div class="flex-column">
-            <mat-card-title>Authorized Signatories</mat-card-title>
-            <mat-card-subtitle>People authorized to sign documents</mat-card-subtitle>
-          </div>
-          <span class="flex-1"></span>
-          <button type="button" mat-stroked-button color="primary" (click)="addSignatory()" class="btn-sm">
-            <mat-icon>add</mat-icon> Add Signatory
-          </button>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <div formArrayName="authorizedSignatories" class="flex-column gap-3">
-            <div *ngFor="let sig of signatories.controls; let i=index" [formGroupName]="i" 
-                 class="signatory-row p-3 border rounded flex-row flex-center gap-3">
-              
-              <!-- Signature Preview/Upload -->
-              <div class="sig-upload-box flex-column flex-center gap-1" (click)="sigInput.click()">
-                <div class="sig-preview">
-                  <img *ngIf="sig.get('signatureImageUrl')?.value" 
-                       [src]="getImgUrl(sig.get('signatureImageUrl')?.value)" alt="Signature">
-                  <mat-icon *ngIf="!sig.get('signatureImageUrl')?.value">draw</mat-icon>
-                </div>
-                <input #sigInput type="file" (change)="onSignatureSelected($event, i)" accept="image/*" style="display: none;">
-                <span class="text-xs text-blue-600">Signature</span>
-              </div>
-
-              <mat-form-field appearance="outline" class="flex-1">
-                <mat-label>Person Name</mat-label>
-                <input matInput formControlName="personName">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="flex-1">
-                <mat-label>Designation</mat-label>
-                <input matInput formControlName="designation">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="flex-1">
-                <mat-label>Email (Optional)</mat-label>
-                <input matInput formControlName="email">
+            <div class="flex-row flex-wrap gap-4">
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                <mat-label>Primary Email</mat-label>
+                <input matInput formControlName="primaryEmail">
                 <mat-icon matSuffix>email</mat-icon>
               </mat-form-field>
 
-              <div class="flex-column flex-center px-2">
-                <mat-slide-toggle formControlName="isDefault" color="primary">
-                  {{ sig.get('isDefault')?.value ? 'Default' : 'Regular' }}
-                </mat-slide-toggle>
-              </div>
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                <mat-label>Secondary Email (Optional)</mat-label>
+                <input matInput formControlName="email">
+                <mat-icon matSuffix>alternate_email</mat-icon>
+              </mat-form-field>
 
-              <button type="button" mat-icon-button color="warn" (click)="removeSignatory(i)">
-                <mat-icon>delete_outline</mat-icon>
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="primaryPhone">
+                <mat-icon matSuffix>phone</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                <mat-label>Website</mat-label>
+                <input matInput formControlName="website">
+                <mat-icon matSuffix>language</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <!-- SMTP Subsection -->
+            <div class="smtp-section mt-4 p-4 rounded bg-slate-50 border border-slate-100">
+              <h3 class="text-md font-bold mb-4 flex-row flex-center gap-2 text-slate-700 border-b pb-2">
+                <mat-icon color="primary">alternate_email</mat-icon>
+                SMTP Settings
+              </h3>
+              <div class="flex-row flex-wrap gap-4">
+                <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
+                  <mat-label>SMTP Host</mat-label>
+                  <input matInput formControlName="smtpHost" placeholder="smtp.gmail.com">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="flex-grow-1 min-w-100">
+                  <mat-label>SMTP Port</mat-label>
+                  <input matInput type="number" formControlName="smtpPort" placeholder="587">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
+                  <mat-label>SMTP Email</mat-label>
+                  <input matInput formControlName="smtpEmail">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
+                  <mat-label>SMTP Password</mat-label>
+                  <input matInput type="password" formControlName="smtpPassword">
+                </mat-form-field>
+                <div class="flex-row flex-center px-4">
+                  <mat-slide-toggle formControlName="smtpUseSsl" color="primary">Use SSL/TLS</mat-slide-toggle>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Panel 2: Branches -->
+        <mat-expansion-panel class="section-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex-row flex-center gap-2">
+              <mat-icon color="primary">hub</mat-icon>
+              <strong>Branches & Storage Locations</strong>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ branches.length }} active locations
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="panel-content pt-4">
+            <div class="flex-row flex-end mb-4">
+              <button type="button" mat-flat-button color="primary" (click)="addBranch()">
+                <mat-icon>add_location</mat-icon> Add Branch
               </button>
             </div>
 
-
-            <div *ngIf="signatories.length === 0" class="empty-state p-4 text-center text-gray-400">
-              No signatories added. Click the button above to add.
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Return Policy Settings -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="warn">update</mat-icon>
-          <mat-card-title>Return Policy Settings</mat-card-title>
-          <mat-card-subtitle>Configure the time window and disclaimers for Purchase and Sale returns</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          
-          <!-- Sale Return Policy Subcommittee -->
-          <div class="policy-subsection mb-6 p-4 rounded bg-slate-50 border border-slate-100">
-            <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-indigo-700">
-              <mat-icon class="icon-sm">shopping_bag</mat-icon>
-              Sale Return Policy (Customers)
-            </h3>
-            
-            <div class="flex-row flex-wrap gap-4 flex-center">
-              <div class="flex-column gap-1">
-                <span class="text-sm font-semibold text-gray-600">Sale Return Window</span>
-                <div class="flex-row gap-2 flex-center">
-                  <mat-form-field appearance="outline" class="min-w-100">
-                    <mat-label>Value</mat-label>
-                    <input matInput type="number" formControlName="saleReturnWindowValue" min="0">
-                    <mat-icon matSuffix>timer</mat-icon>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="min-w-150">
-                    <mat-label>Unit</mat-label>
-                    <mat-select formControlName="saleReturnWindowUnit">
-                      <mat-option value="Hours">Hours</mat-option>
-                      <mat-option value="Days">Days</mat-option>
-                      <mat-option value="Months">Months</mat-option>
-                    </mat-select>
-                    <mat-icon matSuffix>calendar_month</mat-icon>
-                  </mat-form-field>
-                </div>
-              </div>
-
-              <div class="flex-grow-1 min-w-300">
-                 <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Sale Return Disclaimer (displayed on Sale Return UI)</mat-label>
-                    <textarea matInput formControlName="saleReturnPolicyDisclaimer" rows="2" 
-                              placeholder="Ex: Sale items cannot be returned after [XX Hours] as per company terms."></textarea>
-                    <mat-icon matSuffix>policy</mat-icon>
-                 </mat-form-field>
-              </div>
-            </div>
-          </div>
-
-          <!-- Purchase Return Policy Subcommittee -->
-          <div class="policy-subsection p-4 rounded bg-slate-50 border border-slate-100">
-            <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-emerald-700">
-              <mat-icon class="icon-sm">local_shipping</mat-icon>
-              Purchase Return Policy (Suppliers)
-            </h3>
-            
-            <div class="flex-row flex-wrap gap-4 flex-center">
-              <div class="flex-column gap-1">
-                <span class="text-sm font-semibold text-gray-600">Purchase Return Window</span>
-                <div class="flex-row gap-2 flex-center">
-                  <mat-form-field appearance="outline" class="min-w-100">
-                    <mat-label>Value</mat-label>
-                    <input matInput type="number" formControlName="purchaseReturnWindowValue" min="0">
-                    <mat-icon matSuffix>timer</mat-icon>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="min-w-150">
-                    <mat-label>Unit</mat-label>
-                    <mat-select formControlName="purchaseReturnWindowUnit">
-                      <mat-option value="Hours">Hours</mat-option>
-                      <mat-option value="Days">Days</mat-option>
-                      <mat-option value="Months">Months</mat-option>
-                    </mat-select>
-                    <mat-icon matSuffix>calendar_month</mat-icon>
-                  </mat-form-field>
-                </div>
-              </div>
-
-              <div class="flex-grow-1 min-w-300">
-                 <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Purchase Return Disclaimer (displayed on Purchase Return UI)</mat-label>
-                    <textarea matInput formControlName="purchaseReturnPolicyDisclaimer" rows="2" 
-                              placeholder="Ex: Supplier return window expired: Items must be returned within [XX Hours]."></textarea>
-                    <mat-icon matSuffix>policy</mat-icon>
-                 </mat-form-field>
-              </div>
-            </div>
-          </div>
-
-          <div class="alert-info p-3 mt-4 rounded bg-blue-50 border border-blue-100 flex-row gap-2">
-            <mat-icon color="primary">info</mat-icon>
-            <span class="text-xs text-blue-800">
-              <strong>Note:</strong> Windows higher than 72 hours might require manager approval for tax compliance in some regions.
-            </span>
-          </div>
-
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section: Print & Document Settings [cite: 2026-04-08] -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">print</mat-icon>
-          <mat-card-title>Print & Document Settings</mat-card-title>
-          <mat-card-subtitle>Configure footer messages for your printed invoices and documents</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="pt-4">
-          <div class="flex-column gap-4">
-            
-            <div class="flex-row flex-wrap gap-4">
-                <!-- Sale Invoice Footer -->
-                <div class="flex-1 min-w-300 p-4 rounded bg-indigo-50/50 border border-indigo-100/50">
-                  <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-indigo-700">
-                    <mat-icon class="icon-sm">description</mat-icon>
-                    Sale Invoice Footer (A4 & Thermal)
-                  </h3>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>General Terms / Footer Message</mat-label>
-                    <textarea matInput formControlName="invoiceFooterMessage" rows="3" 
-                              placeholder="Example: Thank you for your business! Goods once sold cannot be returned. Subject to local jurisdiction."></textarea>
-                    <mat-icon matSuffix>edit_note</mat-icon>
-                    <mat-hint class="text-indigo-600 font-medium">
-                      <strong>Note:</strong> Your Sale Return Policy Disclaimer (configured above) will be automatically appended after this message.
-                    </mat-hint>
-                  </mat-form-field>
+            <div formArrayName="addresses" class="flex-column gap-6">
+              <div *ngFor="let branch of branches.controls; let i=index" [formGroupName]="i" 
+                   class="branch-card p-4 border rounded-xl bg-slate-50/30 relative">
+                
+                <div class="flex-row flex-between flex-center mb-3 pb-2 border-b">
+                  <div class="flex-row flex-center gap-2">
+                    <mat-icon color="primary">location_on</mat-icon>
+                    <span class="font-bold text-slate-700">Branch #{{ i + 1 }}</span>
+                    <div class="ml-4 flex-row flex-center gap-2">
+                      <mat-slide-toggle formControlName="isHeadOffice" color="warn">
+                        Head Office
+                      </mat-slide-toggle>
+                    </div>
+                  </div>
+                  <button type="button" mat-icon-button color="warn" (click)="removeBranch(i)" 
+                          *ngIf="branches.length > 1">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
 
-                <!-- Sale Order Footer -->
-                <div class="flex-1 min-w-300 p-4 rounded bg-blue-50 border border-blue-100">
-                    <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-blue-700">
-                      <mat-icon class="icon-sm">assignment</mat-icon>
-                      Sale Order Footer
-                    </h3>
-                    <mat-form-field appearance="outline" class="w-full">
-                      <mat-label>Order Terms</mat-label>
-                      <textarea matInput formControlName="saleOrderFooterMessage" rows="3" 
-                                placeholder="Example: This is a Sale Order, not an Invoice. Delivery is subject to availability."></textarea>
-                      <mat-icon matSuffix>sticky_note_2</mat-icon>
+                <div class="flex-column gap-3">
+                  <div class="flex-row flex-wrap gap-4">
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
+                      <mat-label>Branch / Location Name</mat-label>
+                      <input matInput formControlName="branchName">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
+                      <mat-label>Branch GSTIN (Optional)</mat-label>
+                      <input matInput formControlName="gstin">
                     </mat-form-field>
                   </div>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Address Line 1</mat-label>
+                    <input matInput formControlName="addressLine1">
+                  </mat-form-field>
+
+                  <div class="flex-row flex-wrap gap-4">
+                    <mat-form-field appearance="outline" class="flex-grow-3 min-w-300">
+                      <mat-label>Address Line 2 (Optional)</mat-label>
+                      <input matInput formControlName="addressLine2">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-150">
+                      <mat-label>City</mat-label>
+                      <input matInput formControlName="city">
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex-row flex-wrap gap-4">
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-150">
+                      <mat-label>State</mat-label>
+                      <input matInput formControlName="state">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-100">
+                      <mat-label>State Code</mat-label>
+                      <input matInput formControlName="stateCode">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-150">
+                      <mat-label>Pin Code</mat-label>
+                      <input matInput formControlName="pinCode">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-150">
+                      <mat-label>Country</mat-label>
+                      <mat-select formControlName="country">
+                        <mat-option value="India">India</mat-option>
+                        <mat-option value="Other">Other</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex-row flex-wrap gap-4 pt-2 border-t mt-2">
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                      <mat-label>Contact Person</mat-label>
+                      <input matInput formControlName="contactPerson">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                      <mat-label>Branch Phone</mat-label>
+                      <input matInput formControlName="phone">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                      <mat-label>Branch Email</mat-label>
+                      <input matInput formControlName="email">
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Panel 3: Bank Details -->
+        <mat-expansion-panel class="section-panel" formGroupName="bankInfo">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex-row flex-center gap-2">
+              <mat-icon color="primary">account_balance</mat-icon>
+              <strong>Bank Account Details</strong>
+            </mat-panel-title>
+            <mat-panel-description>
+              Manage your billing and payment information
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="panel-content pt-4">
+            <div class="flex-row flex-wrap gap-4">
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
+                <mat-label>Bank Name</mat-label>
+                <input matInput formControlName="bankName">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-250">
+                <mat-label>Branch Name</mat-label>
+                <input matInput formControlName="branchName">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-grow-3 min-w-300">
+                <mat-label>Account Number</mat-label>
+                <input matInput formControlName="accountNumber">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                <mat-label>IFSC Code</mat-label>
+                <input matInput formControlName="ifscCode">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-grow-1 min-w-200">
+                <mat-label>Account Type</mat-label>
+                <mat-select formControlName="accountType">
+                  <mat-option value="Current">Current</mat-option>
+                  <mat-option value="Savings">Savings</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Panel 4: Authorized Signatories -->
+        <mat-expansion-panel class="section-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex-row flex-center gap-2">
+              <mat-icon color="primary">assignment_ind</mat-icon>
+              <strong>Authorized Signatories</strong>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ signatories.length }} authorized people added
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="panel-content pt-4">
+            <div class="flex-row flex-end mb-4">
+              <button type="button" mat-flat-button color="primary" (click)="addSignatory()">
+                <mat-icon>add</mat-icon> Add Signatory
+              </button>
+            </div>
+
+            <div formArrayName="authorizedSignatories" class="flex-column gap-3">
+              <div *ngFor="let sig of signatories.controls; let i=index" [formGroupName]="i" 
+                   class="signatory-row p-4 border rounded-xl flex-row flex-center gap-4 bg-slate-50/30">
+                
+                <div class="sig-upload-box flex-column flex-center gap-1" (click)="sigInput.click()">
+                  <div class="sig-preview">
+                    <img *ngIf="sig.get('signatureImageUrl')?.value" 
+                         [src]="getImgUrl(sig.get('signatureImageUrl')?.value)" alt="Signature">
+                    <mat-icon *ngIf="!sig.get('signatureImageUrl')?.value">draw</mat-icon>
+                  </div>
+                  <input #sigInput type="file" (change)="onSignatureSelected($event, i)" accept="image/*" style="display: none;">
+                  <span class="text-xs font-bold text-gray-500">Sign Here</span>
+                </div>
+
+                <mat-form-field appearance="outline" class="flex-grow-2">
+                  <mat-label>Person Name</mat-label>
+                  <input matInput formControlName="personName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="flex-grow-1">
+                  <mat-label>Designation</mat-label>
+                  <input matInput formControlName="designation">
+                </mat-form-field>
+
+                <div class="flex-column flex-center px-2">
+                  <mat-slide-toggle formControlName="isDefault" color="primary">
+                    Default
+                  </mat-slide-toggle>
+                </div>
+
+                <button type="button" mat-icon-button color="warn" (click)="removeSignatory(i)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Panel 5: Messaging & Automation -->
+        <mat-expansion-panel class="section-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex-row flex-center gap-2">
+              <mat-icon color="primary">chat</mat-icon>
+              <strong>Messaging & Notifications</strong>
+            </mat-panel-title>
+            <mat-panel-description>
+              WhatsApp and SMS message templates
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="panel-content pt-4 flex-column gap-6">
+            <div class="flex-row flex-wrap gap-4">
+              <!-- Customer Reminder -->
+              <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
+                <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
+                  <mat-icon color="primary" class="icon-sm">notifications_active</mat-icon>
+                  Customer Dues Reminder
+                </h4>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Message Template</mat-label>
+                  <textarea matInput formControlName="message" rows="3"></textarea>
+                  <mat-hint>Used for payment follow-ups</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <!-- Driver Template -->
+              <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
+                <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
+                  <mat-icon color="primary" class="icon-sm">local_shipping</mat-icon>
+                  Driver Tracking Request
+                </h4>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Message Template</mat-label>
+                  <textarea matInput formControlName="driverWhatsAppMessage" rows="3"></textarea>
+                  <mat-hint>Used to request live location</mat-hint>
+                </mat-form-field>
+              </div>
             </div>
 
             <div class="flex-row flex-wrap gap-4">
-              <!-- Estimate Footer -->
+              <!-- PO Template -->
               <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
-                <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-slate-700">
-                  <mat-icon class="icon-sm">history_edu</mat-icon>
-                  Estimate / Quotation Footer
-                </h3>
+                <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
+                  <mat-icon color="primary" class="icon-sm">shopping_cart</mat-icon>
+                  Purchase Order Creation
+                </h4>
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Quotation Terms</mat-label>
-                  <textarea matInput formControlName="estimateFooterMessage" rows="2" 
-                            placeholder="Example: This estimate is valid for 7 days. Prices may vary."></textarea>
+                  <mat-label>Message Template</mat-label>
+                  <textarea matInput formControlName="purchaseOrderCreationMessage" rows="3"></textarea>
                 </mat-form-field>
               </div>
 
-              <!-- Purchase Order Footer -->
-              <div class="flex-1 min-w-300 p-4 rounded bg-emerald-50/50 border border-emerald-100/50">
-                <h3 class="text-md font-bold mb-3 flex-row flex-center gap-2 text-emerald-700">
-                  <mat-icon class="icon-sm">list_alt</mat-icon>
-                  Purchase Order Footer
-                </h3>
+              <!-- SO Template -->
+              <div class="flex-1 min-w-300 p-4 rounded bg-slate-50 border border-slate-100">
+                <h4 class="text-sm font-bold mb-2 flex-row flex-center gap-2 text-slate-700">
+                  <mat-icon color="primary" class="icon-sm">receipt_long</mat-icon>
+                  Sale Order Confirmation
+                </h4>
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Supplier Instructions</mat-label>
-                  <textarea matInput formControlName="purchaseOrderFooterMessage" rows="2" 
-                            placeholder="Example: Delivery expected within 48 hours. Quality check mandatory."></textarea>
+                  <mat-label>Message Template</mat-label>
+                  <textarea matInput formControlName="saleOrderConfirmationMessage" rows="3"></textarea>
                 </mat-form-field>
               </div>
             </div>
-
           </div>
-        </mat-card-content>
-      </mat-card>
+        </mat-expansion-panel>
 
-      <!-- Footer -->
+        <!-- Panel 6: Printing & Policies -->
+        <mat-expansion-panel class="section-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="flex-row flex-center gap-2">
+              <mat-icon color="primary">print</mat-icon>
+              <strong>Printing & Document Policies</strong>
+            </mat-panel-title>
+            <mat-panel-description>
+              Return policies and document footers
+            </mat-panel-description>
+          </mat-expansion-panel-header>
 
+          <div class="panel-content pt-4 flex-column gap-6">
+            <!-- Return Policies -->
+            <div class="policy-grid flex-row flex-wrap gap-4">
+               <div class="flex-1 min-w-300 p-4 rounded bg-indigo-50/30 border border-indigo-100">
+                  <h4 class="font-bold mb-3 flex-row flex-center gap-2 text-indigo-700">Sale Return Policy</h4>
+                  <div class="flex-row gap-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Window</mat-label>
+                      <input matInput type="number" formControlName="saleReturnWindowValue">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Unit</mat-label>
+                      <mat-select formControlName="saleReturnWindowUnit">
+                        <mat-option value="Hours">Hours</mat-option>
+                        <mat-option value="Days">Days</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Sale Disclaimer</mat-label>
+                    <textarea matInput formControlName="saleReturnPolicyDisclaimer" rows="2"></textarea>
+                  </mat-form-field>
+               </div>
+
+               <div class="flex-1 min-w-300 p-4 rounded bg-emerald-50/30 border border-emerald-100">
+                  <h4 class="font-bold mb-3 flex-row flex-center gap-2 text-emerald-700">Purchase Return Policy</h4>
+                  <div class="flex-row gap-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Window</mat-label>
+                      <input matInput type="number" formControlName="purchaseReturnWindowValue">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Unit</mat-label>
+                      <mat-select formControlName="purchaseReturnWindowUnit">
+                        <mat-option value="Hours">Hours</mat-option>
+                        <mat-option value="Days">Days</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Purchase Disclaimer</mat-label>
+                    <textarea matInput formControlName="purchaseReturnPolicyDisclaimer" rows="2"></textarea>
+                  </mat-form-field>
+               </div>
+            </div>
+
+            <!-- Printing Footers -->
+            <div class="printing-grid flex-row flex-wrap gap-4">
+               <div class="flex-1 min-w-300">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Invoice Footer (Sale)</mat-label>
+                    <textarea matInput formControlName="invoiceFooterMessage" rows="2"></textarea>
+                  </mat-form-field>
+               </div>
+               <div class="flex-1 min-w-300">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Order Footer (Sale)</mat-label>
+                    <textarea matInput formControlName="saleOrderFooterMessage" rows="2"></textarea>
+                  </mat-form-field>
+               </div>
+               <div class="flex-1 min-w-300">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Quote Footer</mat-label>
+                    <textarea matInput formControlName="estimateFooterMessage" rows="2"></textarea>
+                  </mat-form-field>
+               </div>
+               <div class="flex-1 min-w-300">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>PO Footer</mat-label>
+                    <textarea matInput formControlName="purchaseOrderFooterMessage" rows="2"></textarea>
+                  </mat-form-field>
+               </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+      </mat-accordion>
+
+      <!-- Footer Buttons -->
       <form-footer 
         [loading]="loading" 
         [saveLabel]="companyId ? 'Update Company' : 'Create Company'" 

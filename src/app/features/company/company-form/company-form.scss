@@ -9,10 +9,50 @@
   margin: 0 auto;
 }
 
-.section-card {
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+/* Expansion Panel Premium Styles */
+.company-accordion {
+  box-shadow: none !important;
+  background: transparent !important;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-panel {
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05) !important;
+  transition: all 0.3s ease !important;
+
+  &.mat-expanded {
+    margin: 0 !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  }
+
+  mat-expansion-panel-header {
+    height: 72px !important;
+    padding: 0 1.5rem !important;
+    
+    .mat-content {
+      align-items: center;
+    }
+
+    .mat-expansion-panel-header-title {
+      font-size: 1.1rem;
+      color: #1e293b;
+    }
+
+    .mat-expansion-panel-header-description {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+  }
+
+  .panel-content {
+    padding: 1rem 0.5rem;
+  }
 }
 
 .logo-upload-container {
@@ -62,131 +102,49 @@
 .flex-wrap { flex-wrap: wrap; }
 .flex-center { align-items: center; }
 .flex-between { justify-content: space-between; }
+.flex-end { justify-content: flex-end; }
 .flex-grow-1 { flex-grow: 1; }
+.flex-grow-2 { flex-grow: 2; }
+.flex-grow-3 { flex-grow: 3; }
 .flex-1 { flex: 1; }
 .gap-2 { gap: 0.5rem; }
-.gap-4 { gap: 1rem; }
-.w-full { width: 100%; }
-.min-w-200 { min-width: 200px; }
-.min-w-250 { min-width: 250px; }
-.min-w-300 { min-width: 300px; }
-.mt-2 { margin-top: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.pt-4 { padding-top: 1rem; }
-.m-0 { margin: 0; }
-
-.header-row {
-  background: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-}
-
-mat-card-header {
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 0.75rem;
-}
-
-@media (max-width: 600px) {
-  .min-w-200, .min-w-250, .min-w-300 {
-    min-width: 100%;
-  }
-}
-
-.logo-upload-container {
-  padding-right: 1.5rem;
-  min-width: 150px;
-}
-
-.logo-preview-box {
-  width: 120px;
-  height: 120px;
-  border: 2px dashed #cbd5e1;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  overflow: hidden;
-  background: #f8fafc;
-  transition: all 0.3s ease;
-
-  &:hover {
-    border-color: #007fff;
-    background: #f0f7ff;
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  mat-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
-    color: #94a3b8;
-  }
-}
-
-.border-r { border-right: 1px solid #e2e8f0; }
-.pr-4 { padding-right: 1rem; }
-.btn-sm { font-size: 12px; height: 32px; line-height: 32px; }
-
-/* Flexbox Helpers */
-
-.flex-column { display: flex; flex-direction: column; }
-.flex-row { display: flex; flex-direction: row; }
-.flex-wrap { flex-wrap: wrap; }
-.flex-center { align-items: center; }
-.flex-between { justify-content: space-between; }
-.flex-grow-1 { flex-grow: 1; }
-.flex-1 { flex: 1; }
-.gap-2 { gap: 0.5rem; }
-.gap-4 { gap: 1rem; }
-.w-full { width: 100%; }
-.min-w-200 { min-width: 200px; }
-.min-w-250 { min-width: 250px; }
-.min-w-300 { min-width: 300px; }
-.mt-2 { margin-top: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.pt-4 { padding-top: 1rem; }
-.m-0 { margin: 0; }
-
-.header-row {
-  background: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-}
-
-mat-card-header {
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 0.75rem;
-}
-
-@media (max-width: 600px) {
-  .min-w-200, .min-w-250, .min-w-300 {
-    min-width: 100%;
-  }
-}
-
-.signatory-row {
-  background: white;
-  transition: all 0.2s;
-  
-  &:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
-}
-
 .gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.w-full { width: 100%; }
+.min-w-100 { min-width: 100px; }
+.min-w-150 { min-width: 150px; }
+.min-w-200 { min-width: 200px; }
+.min-w-250 { min-width: 250px; }
+.min-w-300 { min-width: 300px; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.pt-2 { padding-top: 0.5rem; }
+.pt-4 { padding-top: 1rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.pr-4 { padding-right: 1rem; }
+.border-b { border-bottom: 1px solid #f1f5f9; }
+.border-t { border-top: 1px solid #f1f5f9; }
+.m-0 { margin: 0; }
 
-.empty-state {
-  font-style: italic;
-  font-size: 0.9rem;
+.header-row {
+  background: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.branch-card, .signatory-row {
+  transition: all 0.2s;
+  &:hover {
+    border-color: #3b82f6 !important;
+    background: #f8fafc;
+  }
 }
 
 .sig-upload-box {
@@ -214,9 +172,6 @@ mat-card-header {
   }
 }
 
-.text-xs { font-size: 0.75rem; }
-.text-blue-600 { color: #2563eb; }
-
 .disabled-content {
   pointer-events: none;
   user-select: none;
@@ -225,7 +180,7 @@ mat-card-header {
 }
 
 // ==========================================================================
-// COMPANY FORM DARK MODE POLISH
+// DARK MODE SUPPORT
 // ==========================================================================
 :host-context(.dark-mode) {
   .page-container {
@@ -233,166 +188,48 @@ mat-card-header {
   }
 
   .header-row, 
-  .section-card,
-  .signatory-row {
+  .section-panel,
+  .branch-card,
+  .signatory-row,
+  .smtp-section,
+  .policy-subsection {
     background-color: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
     color: #ffffff !important;
   }
 
-  .header-row {
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+  .section-panel {
+    &.mat-expanded {
+       border-color: #3b82f6 !important;
+    }
+    
+    mat-expansion-panel-header {
+      .mat-expansion-panel-header-title { color: #f8fafc !important; }
+      .mat-expansion-panel-header-description { color: rgba(255, 255, 255, 0.5) !important; }
+    }
   }
 
   .logo-preview-box, 
   .sig-preview {
     background: #0f172a !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
-    
     mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
-    
-    &:hover {
-      border-color: #3b82f6 !important;
-      background: rgba(59, 130, 246, 0.05) !important;
-    }
+    &:hover { border-color: #3b82f6 !important; }
   }
 
-  h2, h3, .mat-mdc-card-title, .section-header-title {
-    color: #f8fafc !important;
-  }
-
-  .mat-card-header {
-    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .border-r {
-    border-right-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  /* Material Form Field Polishing */
-  ::ng-deep {
-    .mat-mdc-form-field {
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
-        border-color: rgba(255, 255, 255, 0.2) !important;
-      }
-
-      .mat-mdc-form-field-input-control { color: #ffffff !important; }
-      .mat-mdc-floating-label { color: rgba(255, 255, 255, 0.7) !important; }
-      input::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
-      
-      .mat-mdc-select-value-text { color: #ffffff !important; }
-      .mat-mdc-select-arrow svg { fill: #ffffff !important; }
-      mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
-    }
-  }
-
-  .text-blue-600 {
-    color: #60a5fa !important;
-  }
-
-  .empty-state {
-    color: rgba(255, 255, 255, 0.4) !important;
-  }
-
-  button[mat-stroked-button] {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #94a3b8 !important;
-    &:hover { background: rgba(255,255,255,0.05) !important; color: #fff !important; }
-  }
-}
-
-// ==========================================================================
-// COMPANY FORM DARK MODE POLISH
-// ==========================================================================
-:host-context(.dark-mode) {
-  .page-container {
-    background-color: #0f172a !important;
-  }
-
-  .header-row, 
-  .section-card,
-  .signatory-row {
-    background-color: #1e293b !important;
+  .border-b, .border-t, .border-r {
     border-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
   }
 
-  .header-row {
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-  }
-
-  .logo-preview-box, 
-  .sig-preview {
-    background: #0f172a !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    
+  ::ng-deep .mat-mdc-form-field {
+    .mat-mdc-form-field-input-control { color: #ffffff !important; }
+    .mat-mdc-floating-label { color: rgba(255, 255, 255, 0.7) !important; }
     mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
-    
-    &:hover {
-      border-color: #3b82f6 !important;
-      background: rgba(59, 130, 246, 0.05) !important;
-    }
+    .mat-mdc-select-value-text { color: #ffffff !important; }
   }
 
-  h2, h3, .mat-mdc-card-title, .section-header-title {
-    color: #f8fafc !important;
-  }
-
-  .mat-card-header {
-    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .border-r {
-    border-right-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  /* Material Form Field Polishing */
-  ::ng-deep {
-    .mat-mdc-form-field {
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
-        border-color: rgba(255, 255, 255, 0.2) !important;
-      }
-
-      .mat-mdc-form-field-input-control { color: #ffffff !important; }
-      .mat-mdc-floating-label { color: rgba(255, 255, 255, 0.7) !important; }
-      input::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
-      
-      .mat-mdc-select-value-text { color: #ffffff !important; }
-      .mat-mdc-select-arrow svg { fill: #ffffff !important; }
-      mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
-    }
-  }
-
-  .text-blue-600 {
-    color: #60a5fa !important;
-  }
-
-  .empty-state {
-    color: rgba(255, 255, 255, 0.4) !important;
-  }
-
-  button[mat-stroked-button] {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #94a3b8 !important;
-    &:hover { background: rgba(255,255,255,0.05) !important; color: #fff !important; }
-  }
-
-  /* ⚡ Force Visibility for remaining black texts */
-  ::ng-deep .mat-mdc-slide-toggle label,
-  .mat-mdc-slide-toggle .mdc-label,
-  mat-card-subtitle, 
-  .mat-mdc-card-subtitle,
-  .section-description,
-  p, 
-  .text-muted,
-  .mat-mdc-form-field-hint,
-  span:not(.mat-mdc-button-touch-target):not(.mdc-button__label) {
-    color: rgba(255, 255, 255, 0.7) !important;
+  .text-slate-700, .text-gray-600 { color: rgba(255, 255, 255, 0.7) !important; }
+  .bg-slate-50, .bg-indigo-50, .bg-emerald-50, .bg-blue-50 {
+    background-color: rgba(255, 255, 255, 0.02) !important;
   }
 }
-
-
