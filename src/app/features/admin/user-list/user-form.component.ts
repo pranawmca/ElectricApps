@@ -265,20 +265,26 @@ export class UserFormComponent implements OnInit {
     
     // Check if current user is Super Admin
     const role = this.authService.getUserRole();
-    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !this.authService.getCompanyId();
+    const loggedInCompanyId = this.authService.getCompanyId();
+    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !loggedInCompanyId;
 
     this.userForm = this.fb.group({
       UserName: [{ value: '', disabled: false }, Validators.required],
       Email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
       Password: ['', this.isEdit ? [] : [Validators.required]],
       RoleIds: [[]],
-      CompanyId: [null]
+      CompanyId: [this.isSuperAdmin ? null : loggedInCompanyId] // ✅ Auto-assign company if not super admin
     });
 
     // 🔄 REFRESH ROLES WHEN COMPANY CHANGES
     this.userForm.get('CompanyId')?.valueChanges.subscribe(cid => {
       this.loadRoles(cid);
     });
+
+    // Initial Load for Non-SuperAdmin
+    if (!this.isSuperAdmin && loggedInCompanyId) {
+       this.loadRoles(loggedInCompanyId);
+    }
   }
 
   loadRoles(companyId: string | null) {

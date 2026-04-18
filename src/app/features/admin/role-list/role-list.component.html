@@ -67,7 +67,7 @@
                 <button mat-icon-button color="primary" matTooltip="Manage Permissions" (click)="managePermissions(role)">
                     <mat-icon>security</mat-icon>
                   </button>
-              <button mat-icon-button class="edit-btn" matTooltip="Edit Role Name" (click)="openRoleForm(role)">
+              <button mat-icon-button class="edit-btn" matTooltip="Edit Role Name" (click)="openRoleForm(role)" [disabled]="!role.companyId">
                 <mat-icon>edit</mat-icon>
               </button>
               <button mat-icon-button color="warn" matTooltip="Delete Role" (click)="deleteRole(role)" [disabled]="!role.companyId">
