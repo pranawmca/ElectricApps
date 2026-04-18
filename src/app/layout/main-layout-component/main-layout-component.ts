@@ -131,14 +131,32 @@ export class MainLayoutComponent implements OnInit {
       this.dataSource.data = menus;
     });
 
-    // Fetch Company Profile for Dynamic Branding
+    // 1. Prioritize data from Login Response (AuthService)
+    const authCompanyName = this.authService.getCompanyName();
+    const authTagline = this.authService.getCompanyTagline();
+    
+    if (authCompanyName) {
+      this.companyName = authCompanyName;
+      this.titleService.setTitle(this.companyName);
+      this.updateManifest(this.companyName);
+    }
+    
+    if (authTagline) {
+      this.companyTagline = authTagline;
+    }
+
+    // 2. Fetch Company Profile for additional branding
     this.companyService.getCompanyProfile().subscribe({
       next: (profile) => {
         if (profile) {
-          this.companyName = profile.name || 'Electric Inventory';
-          this.companyTagline = profile.tagline || 'Inventory Management System';
-          this.titleService.setTitle(this.companyName);
-          this.updateManifest(this.companyName);
+          if (profile.name) {
+            this.companyName = profile.name;
+            this.titleService.setTitle(this.companyName);
+            this.updateManifest(this.companyName);
+          }
+          if (profile.tagline) {
+            this.companyTagline = profile.tagline;
+          }
 
           if (profile.logoUrl && !profile.logoUrl.startsWith('http')) {
             // Remove leading slash from logoUrl if present to avoid double slashes

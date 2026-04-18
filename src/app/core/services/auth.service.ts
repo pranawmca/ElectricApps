@@ -107,6 +107,7 @@ export class AuthService {
     // Store Company Metadata
     const companyId = res.companyId || res.CompanyId;
     const companyName = res.companyName || res.CompanyName;
+    const companyTagline = res.companyTagline || res.CompanyTagline;
     
     if (companyId) {
       localStorage.setItem('companyId', companyId);
@@ -118,6 +119,12 @@ export class AuthService {
       localStorage.setItem('companyName', companyName);
     } else {
       localStorage.removeItem('companyName');
+    }
+
+    if (companyTagline) {
+      localStorage.setItem('companyTagline', companyTagline);
+    } else {
+      localStorage.removeItem('companyTagline');
     }
 
     // Store Permissions
@@ -187,6 +194,18 @@ export class AuthService {
     const cid = localStorage.getItem('companyId');
     if (!cid || cid === 'null' || cid === 'undefined') return null;
     return cid;
+  }
+
+  getCompanyName(): string | null {
+    const name = localStorage.getItem('companyName');
+    if (!name || name === 'null' || name === 'undefined') return null;
+    return name;
+  }
+
+  getCompanyTagline(): string | null {
+    const tagline = localStorage.getItem('companyTagline');
+    if (!tagline || tagline === 'null' || tagline === 'undefined') return null;
+    return tagline;
   }
 }
 

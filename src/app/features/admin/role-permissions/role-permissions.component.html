@@ -6,11 +6,24 @@
     </div>
     
     <div class="controls-group">
+      <!-- Company Dropdown (Super Admin Only) -->
+      <mat-form-field appearance="outline" class="role-select compact-select" *ngIf="isSuperAdmin">
+        <mat-label>Select Company</mat-label>
+        <mat-select [(ngModel)]="selectedCompanyId" (selectionChange)="onCompanyChange()">
+          <mat-option [value]="null">System (Global)</mat-option>
+          <mat-option *ngFor="let company of companies" [value]="company.id">
+            {{company.name}}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
+      </mat-form-field>
+
       <mat-form-field appearance="outline" class="role-select compact-select">
         <mat-label>Select Role</mat-label>
         <mat-select [(ngModel)]="selectedRoleId" (selectionChange)="onRoleChange()">
           <mat-option *ngFor="let role of roles" [value]="role.id">{{role.roleName}}</mat-option>
         </mat-select>
+        <mat-icon matPrefix>admin_panel_settings</mat-icon>
       </mat-form-field>
     </div>
   </div>

@@ -8,11 +8,14 @@ import { MatSort } from '@angular/material/sort';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { forkJoin } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
 
 import { MaterialModule } from '../../../shared/material/material/material-module';
 import { RoleService } from '../../../core/services/role.service';
 import { MenuService } from '../../../core/services/menu.service';
+import { CompanyService } from '../../company/services/company.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Role, RolePermission } from '../../../core/models/role.model';
 import { MenuItem } from '../../../core/models/menu-item.model';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
@@ -90,7 +93,10 @@ const SUGGESTED_ACTIONS: { [key: string]: string[] } = {
 })
 export class RolePermissionsComponent implements OnInit {
   roles: Role[] = [];
+  companies: any[] = [];
   selectedRoleId: number | null = null;
+  selectedCompanyId: string | null = null;
+  isSuperAdmin = false;
   permissions: RolePermission[] = [];
   loading = false;
   summaryStats: SummaryStat[] = [];
@@ -128,6 +134,9 @@ export class RolePermissionsComponent implements OnInit {
 
   private roleService = inject(RoleService);
   private menuService = inject(MenuService);
+  private companyService = inject(CompanyService);
+  private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private loadingService = inject(LoadingService);
@@ -135,37 +144,89 @@ export class RolePermissionsComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    this.checkSuperAdmin();
     this.initialLoad();
+  }
+
+  checkSuperAdmin() {
+    const role = this.authService.getUserRole();
+    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || (role === 'Admin' && !this.authService.getCompanyId());
+    this.selectedCompanyId = this.authService.getCompanyId();
   }
 
   initialLoad() {
     this.loading = true;
     this.loadingService.setLoading(true);
 
+    const companies$ = this.isSuperAdmin 
+      ? this.companyService.getPaged({ pageNumber: 1, pageSize: 100 }) 
+      : of({ items: [] });
+
     forkJoin({
-      roles: this.roleService.getAllRoles(),
+      companiesRes: companies$,
       menus: this.menuService.getAllMenus()
     }).subscribe({
       next: (data) => {
-        this.roles = data.roles;
-
+        this.companies = (data.companiesRes as any).items || [];
+        
         const menuTree = this.menuService.buildMenuTree(data.menus);
         this.dataSource.data = this.menuService.sortMenus(menuTree);
 
-        if (this.roles.length > 0) {
-          this.selectedRoleId = this.roles[0].id;
-          this.onRoleChange();
+        // Check URL for roleId
+        const roleIdParam = this.route.snapshot.queryParamMap.get('roleId');
+        if (roleIdParam) {
+           this.loadRolesAndSelect(roleIdParam);
         } else {
-          this.loading = false;
-          this.loadingService.setLoading(false);
-          this.cdr.detectChanges();
+           this.onCompanyChange();
         }
       },
       error: (err) => {
         console.error('Error loading initial data', err);
         this.loading = false;
         this.loadingService.setLoading(false);
+      }
+    });
+  }
+
+  loadRolesAndSelect(roleId: string) {
+    // We need to find which company this role belongs to
+    this.roleService.getAllRoles().subscribe(allRoles => {
+      const targetRole = allRoles.find(r => r.id.toString() === roleId);
+      if (targetRole) {
+         this.selectedCompanyId = targetRole.companyId || null;
+         this.selectedRoleId = targetRole.id;
+         this.onCompanyChange(true); // Load roles for this company and then load permissions
+      } else {
+         this.onCompanyChange();
+      }
+    });
+  }
+
+  onCompanyChange(skipPermissionLoad = false) {
+    this.loading = true;
+    this.roleService.getByCompany(this.selectedCompanyId).subscribe({
+      next: (roles) => {
+        this.roles = roles;
+        this.loading = false;
+        this.loadingService.setLoading(false);
+        
+        if (!skipPermissionLoad) {
+          if (this.roles.length > 0) {
+            this.selectedRoleId = this.roles[0].id;
+            this.onRoleChange();
+          } else {
+            this.selectedRoleId = null;
+            this.permissions = [];
+            this.summaryStats = [];
+          }
+        } else if (this.selectedRoleId) {
+          this.onRoleChange();
+        }
         this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.loadingService.setLoading(false);
       }
     });
   }
