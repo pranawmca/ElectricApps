@@ -10,28 +10,68 @@
   min-height: 500px;
   display: flex;
   flex-direction: column;
+  background: white;
+  transition: background 0.3s ease;
+}
+
+:host-context(.dark-mode) .wizard-container {
+  background: #0f172a; /* Midnight Slate */
+  color: #f8fafc;
 }
 
 .wizard-header {
   background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-  color: white;
-  padding: 24px;
+  color: #ffffff;
+  padding: 24px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 
   h2 {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #ffffff !important;
+  }
+
+  p {
+    margin: 4px 0 0 0;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  button mat-icon {
+     color: white;
+  }
+}
+
+:host-context(.dark-mode) .wizard-header {
+  background: #0f172a; /* Midnight Slate */
+  border-bottom: 1px solid #1e293b;
+}
+
+.onboarding-form {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+  margin-top: 24px;
+
+  /* Force spacing between mat-form-fields */
+  mat-form-field {
+    width: 100%;
+  }
+
+  .full-width {
+    grid-column: span 3 / span 3 !important;
   }
 }
 
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 10px 0;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  padding: 16px 0;
 }
 
 .plan-card {
@@ -43,6 +83,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: white;
   position: relative;
+  color: #1e293b;
 
   &:hover {
     border-color: #3b82f6;
@@ -60,24 +101,25 @@
   }
 
   .plan-icon {
-    font-size: 40px;
-    height: 40px;
-    width: 40px;
+    font-size: 44px;
+    height: 44px;
+    width: 44px;
     margin-bottom: 16px;
     color: #3b82f6;
   }
 
   .plan-name {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 700;
     margin-bottom: 8px;
   }
 
   .plan-price {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 800;
-    color: #1e293b;
+    color: inherit;
     margin-bottom: 16px;
+    span { font-size: 0.9rem; opacity: 0.7; }
   }
 
   .check-icon {
@@ -89,10 +131,29 @@
   }
 }
 
+:host-context(.dark-mode) .plan-card {
+  background: #1e293b !important; /* Slate 800 */
+  border-color: #334155;
+  color: #f8fafc !important;
+
+  &:hover {
+    border-color: #3b82f6;
+    background: #232f3e !important;
+  }
+
+  &.active {
+    background: #2563eb1a !important;
+    border-color: #3b82f6;
+    color: white !important;
+  }
+
+  .plan-price { color: white !important; }
+}
+
 .summary-item {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
+  padding: 16px 20px; /* Added horizontal padding */
   border-bottom: 1px solid #f1f5f9;
 
   .label {
@@ -111,10 +172,131 @@
   flex: 1;
 }
 
+:host-context(.dark-mode) {
+  /* Stepper Labels Force White */
+  ::ng-deep .mat-step-label, 
+  ::ng-deep .mat-step-text-label,
+  ::ng-deep .mat-step-header .mat-step-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-weight: 500 !important;
+  }
+
+  ::ng-deep .mat-step-header.cdk-program-focused, 
+  ::ng-deep .mat-step-header.cdk-keyboard-focused, 
+  ::ng-deep .mat-step-header[aria-selected="true"] {
+    .mat-step-label, .mat-step-text-label {
+      color: #ffffff !important;
+      font-weight: 700 !important;
+    }
+  }
+
+  ::ng-deep .mat-step-header .mat-step-icon {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    
+    &.mat-step-icon-selected {
+      background-color: #3b82f6 !important;
+    }
+  }
+
+  mat-form-field {
+    .mat-mdc-form-field-wrapper {
+       color: white !important;
+    }
+    input, textarea {
+      color: white !important;
+    }
+    .mat-mdc-floating-label {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+
+  .step-content {
+     background: #0f172a !important;
+  }
+
+  .summary-item {
+    border-color: #1e293b;
+    .label { color: #94a3b8; }
+    .value { color: white; }
+  }
+
+  .review-area {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    h3 { color: white !important; }
+  }
+}
+
 .actions-footer {
-  padding: 20px 30px;
+  padding: 24px 32px;
   background: #f8fafc;
   display: flex;
   justify-content: space-between;
   border-top: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+
+  button {
+    padding: 0 32px;
+    height: 46px;
+    border-radius: 50px !important;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Ensure white text for all button variants */
+    &.mat-flat-button, &.mat-raised-button, &.mat-stroked-button {
+      ::ng-deep .mdc-button__label {
+        color: white !important;
+      }
+    }
+
+    &.mat-flat-button, &.mat-raised-button {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39) !important;
+      
+      &:hover:not([disabled]) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5) !important;
+      }
+    }
+
+    &.mat-stroked-button {
+       border: 2px solid #3b82f6 !important;
+       background: transparent;
+       
+       &:hover:not([disabled]) {
+         background: rgba(59, 130, 246, 0.1);
+         ::ng-deep .mdc-button__label {
+            color: white !important;
+         }
+       }
+    }
+  }
+}
+
+:host-context(.dark-mode) .actions-footer {
+  background: #1e293b;
+  border-top: 1px solid #334155;
+
+  button {
+    /* Hard force white for dark mode */
+    ::ng-deep .mdc-button__label {
+      color: white !important;
+    }
+
+    &.mat-flat-button, &.mat-raised-button {
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4) !important;
+    }
+
+    &.mat-stroked-button {
+      border-color: #4f46e5 !important;
+      
+      &:hover:not([disabled]) {
+        background: rgba(129, 140, 248, 0.1);
+      }
+    }
+  }
 }

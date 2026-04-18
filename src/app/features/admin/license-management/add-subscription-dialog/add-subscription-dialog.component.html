@@ -2,7 +2,7 @@
   <div class="wizard-header">
     <div class="title-area">
       <h2>Onboard New Customer</h2>
-      <p class="text-sm opacity-80">Complete the 3-step process to initialize subscription</p>
+      <p>Complete the 3-step process to initialize subscription</p>
     </div>
     <button mat-icon-button (click)="onCancel()" [disabled]="loading">
       <mat-icon>close</mat-icon>
@@ -13,33 +13,33 @@
     <!-- Step 1: Company Profile -->
     <mat-step [stepControl]="brandForm">
       <ng-template matStepLabel>Brand Profile</ng-template>
-      <form [formGroup]="brandForm" class="grid grid-cols-2 gap-4 mt-4">
-        <mat-form-field appearance="outline" class="col-span-2">
+      <form [formGroup]="brandForm" class="onboarding-form">
+        <mat-form-field appearance="outline">
           <mat-label>Company Name</mat-label>
           <input matInput formControlName="name" placeholder="e.g. Acme Corp">
-          <mat-icon matPrefix class="mr-2 opacity-50">business</mat-icon>
+          <mat-icon matPrefix class="mr-3 opacity-60">business</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Admin Email</mat-label>
           <input matInput formControlName="email" placeholder="admin@company.com">
-          <mat-icon matPrefix class="mr-2 opacity-50">email</mat-icon>
+          <mat-icon matPrefix class="mr-3 opacity-60">email</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Phone Number</mat-label>
           <input matInput formControlName="phone" placeholder="+1 234 567 890">
-          <mat-icon matPrefix class="mr-2 opacity-50">phone</mat-icon>
+          <mat-icon matPrefix class="mr-3 opacity-60">phone</mat-icon>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-span-2">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Office Address</mat-label>
-          <textarea matInput formControlName="address" rows="2"></textarea>
-          <mat-icon matPrefix class="mr-2 opacity-50">location_on</mat-icon>
+          <textarea matInput formControlName="address" rows="3"></textarea>
+          <mat-icon matPrefix class="mr-3 opacity-60">location_on</mat-icon>
         </mat-form-field>
       </form>
 
-      <div class="actions-footer mt-6">
+      <div class="actions-footer">
         <button mat-stroked-button (click)="onCancel()">Cancel</button>
         <button mat-flat-button color="primary" matStepperNext [disabled]="brandForm.invalid">
           Select Plan <mat-icon class="ml-2">arrow_forward</mat-icon>
@@ -76,7 +76,7 @@
         </div>
       </div>
 
-      <div class="actions-footer mt-6">
+      <div class="actions-footer">
         <button mat-stroked-button matStepperPrevious>Back</button>
         <button mat-flat-button color="primary" matStepperNext [disabled]="!selectedPlan">
           Review Details <mat-icon class="ml-2">arrow_forward</mat-icon>
@@ -111,8 +111,8 @@
       </div>
 
       <div class="actions-footer mt-6">
-        <button mat-stroked-button matStepperPrevious [disabled]="loading">Back</button>
-        <button mat-flat-button color="primary" (click)="onSave()" [disabled]="loading">
+        <button mat-raised-button matStepperPrevious [disabled]="loading">Back</button>
+        <button mat-raised-button color="primary" (click)="onSave()" [disabled]="loading">
           <span *ngIf="!loading">Initialize Onboarding</span>
           <mat-spinner diameter="20" *ngIf="loading" class="mr-2"></mat-spinner>
         </button>

@@ -146,7 +146,7 @@ export class AddSubscriptionDialogComponent implements OnInit {
         this.licenseService.onboardCustomer(subscriptionPayload).subscribe({
           next: () => {
              this.loading = false;
-             this.showStatus(true, 'Customer onboarded and synchronization started successfully!');
+             // removed redundant showStatus - parent LicenseManagementComponent handles this
              this.dialogRef.close(true);
           },
           error: (err) => {
