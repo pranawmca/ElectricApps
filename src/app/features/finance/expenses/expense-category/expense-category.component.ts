@@ -17,6 +17,7 @@ import { FinanceService } from '../../service/finance.service';
 import { LoadingService } from '../../../../core/services/loading.service';
 import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
 import { PermissionService } from '../../../../core/services/permission.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-expense-category',
@@ -54,7 +55,8 @@ export class ExpenseCategoryComponent implements OnInit {
         private dialog: MatDialog,
         private loadingService: LoadingService,
         private cdr: ChangeDetectorRef,
-        private permissionService: PermissionService
+        private permissionService: PermissionService,
+        private authService: AuthService
     ) {
         this.categoryForm = this.fb.group({
             name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -127,8 +129,9 @@ export class ExpenseCategoryComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(confirm => {
             if (confirm) {
+                const companyId = this.authService.getCompanyId();
                 if (this.isEditing && this.editingId) {
-                    this.financeService.updateExpenseCategory(this.editingId, { ...category, id: this.editingId }).subscribe({
+                    this.financeService.updateExpenseCategory(this.editingId, { ...category, id: this.editingId, companyId }).subscribe({
                         next: () => {
                             this.showSuccess('Category updated successfully');
                             this.resetForm();
@@ -137,7 +140,7 @@ export class ExpenseCategoryComponent implements OnInit {
                         error: () => this.showError('Failed to update category')
                     });
                 } else {
-                    this.financeService.createExpenseCategory(category).subscribe({
+                    this.financeService.createExpenseCategory({ ...category, companyId }).subscribe({
                         next: () => {
                             this.showSuccess('Category created successfully');
                             this.resetForm();

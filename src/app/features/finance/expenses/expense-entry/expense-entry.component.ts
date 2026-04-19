@@ -19,6 +19,7 @@ import { FinanceService } from '../../service/finance.service';
 import { LoadingService } from '../../../../core/services/loading.service';
 import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
 import { PermissionService } from '../../../../core/services/permission.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-expense-entry',
@@ -65,7 +66,8 @@ export class ExpenseEntryComponent implements OnInit {
         private dialog: MatDialog,
         private loadingService: LoadingService,
         private cdr: ChangeDetectorRef,
-        private permissionService: PermissionService
+        private permissionService: PermissionService,
+        private authService: AuthService
     ) {
         this.expenseForm = this.fb.group({
             categoryId: [null, Validators.required],
@@ -163,8 +165,9 @@ export class ExpenseEntryComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(confirm => {
             if (confirm) {
+                const companyId = this.authService.getCompanyId();
                 if (this.isEditing && this.editingId) {
-                    this.financeService.updateExpenseEntry(this.editingId, { ...entry, id: this.editingId }).subscribe({
+                    this.financeService.updateExpenseEntry(this.editingId, { ...entry, id: this.editingId, companyId }).subscribe({
                         next: () => {
                             this.showSuccess('Expense updated successfully');
                             this.resetForm();
@@ -173,7 +176,7 @@ export class ExpenseEntryComponent implements OnInit {
                         error: () => this.showError('Failed to update expense')
                     });
                 } else {
-                    this.financeService.createExpenseEntry(entry).subscribe({
+                    this.financeService.createExpenseEntry({ ...entry, companyId }).subscribe({
                         next: () => {
                             this.showSuccess('Expense recorded successfully');
                             this.resetForm();
