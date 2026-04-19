@@ -346,7 +346,7 @@
                             <mat-icon style="font-size: 18px;">history</mat-icon>
                           </button>
 
-                          <button mat-icon-button *ngIf="isExpired($any(h).expiryDate) && ($any(h).availableQty > 0 || $any(h).expiredQty > 0) && !$any(h).rackName.includes('Expired') && !$any(h).rackName.includes('E1')" 
+                          <button mat-icon-button *ngIf="isExpired($any(h).expiryDate) && ($any(h).availableQty > 0 || $any(h).expiredQty > 0) && !$any(h).rackName.toLowerCase().includes('expired') && !$any(h).rackName.includes('E1') && !$any(h).rackName.startsWith('E -') && !$any(h).rackName.startsWith('E-')" 
                                   (click)="onMoveToExpired(h, $event)" color="primary" matTooltip="Move to Expired Rack">
                             <mat-icon style="font-size: 18px;">move_to_inbox</mat-icon>
                           </button>
@@ -373,7 +373,7 @@
                             VOIDED / EMPTY
                           </div>
 
-                          <button mat-icon-button *ngIf="!$any(h).isAlreadyPurged && isExpired($any(h).expiryDate) && ($any(h).availableQty > 0 || $any(h).expiredQty > 0) && ($any(h).rackName.includes('Expired') || $any(h).rackName.includes('E1'))" 
+                          <button mat-icon-button *ngIf="!$any(h).isAlreadyPurged && isExpired($any(h).expiryDate) && ($any(h).availableQty > 0 || $any(h).expiredQty > 0) && ($any(h).rackName.toLowerCase().includes('expired') || $any(h).rackName.includes('E1') || $any(h).rackName.startsWith('E -') || $any(h).rackName.startsWith('E-'))" 
                                   (click)="onRemoveStock(h, $event)" color="warn" matTooltip="Permanent Purge">
                             <mat-icon style="font-size: 18px;">delete_forever</mat-icon>
                           </button>

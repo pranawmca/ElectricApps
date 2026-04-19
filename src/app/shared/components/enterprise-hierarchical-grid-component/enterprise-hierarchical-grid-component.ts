@@ -711,9 +711,11 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   scrollTable(direction: 'left' | 'right') {
     if (!this.mainTableWrapper) return;
     const wrapper = this.mainTableWrapper.nativeElement;
-    const scrollAmount = 400;
+    
+    // Use 75% of client width for a "proper" slide feel
+    const step = wrapper.clientWidth * 0.75;
     const currentScroll = wrapper.scrollLeft;
-    const targetScroll = direction === 'left' ? currentScroll - scrollAmount : currentScroll + scrollAmount;
+    const targetScroll = direction === 'left' ? currentScroll - step : currentScroll + step;
     
     wrapper.scrollTo({
       left: targetScroll,

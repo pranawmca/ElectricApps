@@ -150,12 +150,17 @@ export class PoList implements OnInit {
         width: 145,
         cell: (row: any) => {
           try {
-            // Priority: Audit fields with time
-            const rawDate = row.CreatedAt || row.createdAt || row.CreatedDate || row.createdDate || row.poDate;
+            // Priority: Audit fields with time (CreatedOn/CreatedAt)
+            const rawDate = row.createdOn || row.CreatedOn || row.createdAt || row.CreatedAt || row.poDate || row.PoDate;
             if (!rawDate) return '';
 
-            // Clear AM/PM format to avoid 24-hour confusion
-            return this.datePipe.transform(rawDate, 'dd/MM/yyyy hh:mm a', '+0530');
+            // If it's a string from API without timezone, append Z to force UTC treatment
+            let dateVal = rawDate;
+            if (typeof dateVal === 'string' && !dateVal.includes('Z') && !dateVal.includes('+')) {
+              dateVal = dateVal + 'Z';
+            }
+
+            return this.datePipe.transform(dateVal, 'dd/MM/yyyy hh:mm a');
           } catch {
             return row.poDate || '';
           }
@@ -169,7 +174,7 @@ export class PoList implements OnInit {
         width: 120,
         cell: (row: any) => {
           try {
-            return row.expectedDeliveryDate ? this.datePipe.transform(row.expectedDeliveryDate, 'dd/MM/yyyy', '+0530') : '';
+            return row.expectedDeliveryDate ? this.datePipe.transform(row.expectedDeliveryDate, 'dd/MM/yyyy') : '';
           } catch { return row.expectedDeliveryDate || ''; }
         }
       },
@@ -345,7 +350,7 @@ export class PoList implements OnInit {
         const dataRows = res.data || [];
         const items = dataRows.map((item: any) => {
           // Force UTC-to-Local conversion (Normalized to IST)
-          ['poDate', 'expectedDeliveryDate', 'CreatedAt', 'createdAt', 'CreatedDate', 'createdDate'].forEach(key => {
+          ['poDate', 'expectedDeliveryDate', 'CreatedAt', 'createdAt', 'CreatedDate', 'createdDate', 'CreatedOn', 'createdOn', 'UpdatedDate', 'updatedDate'].forEach(key => {
             if (item[key] && typeof item[key] === 'string' && !item[key].includes('Z') && !item[key].includes('+')) {
               item[key] = item[key] + 'Z';
             }

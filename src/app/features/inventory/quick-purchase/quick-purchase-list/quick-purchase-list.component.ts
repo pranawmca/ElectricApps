@@ -130,9 +130,17 @@ export class QuickPurchaseListComponent implements OnInit {
         width: 140,
         cell: (row: any) => {
           try {
-            const rawDate = row.CreatedAt || row.createdAt || row.CreatedDate || row.createdDate || row.poDate;
+            // Find the best date field
+            const rawDate = row.createdOn || row.CreatedOn || row.createdAt || row.CreatedAt || row.poDate || row.PoDate;
             if (!rawDate) return '';
-            return this.datePipe.transform(rawDate, 'dd/MM/yyyy hh:mm a', '+0530');
+            
+            // If it's a string from API without timezone, append Z to force UTC treatment
+            let dateVal = rawDate;
+            if (typeof dateVal === 'string' && !dateVal.includes('Z') && !dateVal.includes('+')) {
+              dateVal = dateVal + 'Z';
+            }
+
+            return this.datePipe.transform(dateVal, 'dd/MM/yyyy hh:mm a');
           } catch {
             return row.poDate || '';
           }
@@ -244,7 +252,7 @@ export class QuickPurchaseListComponent implements OnInit {
       next: (res) => {
         const dataRows = res.data || [];
         const items = dataRows.map((item: any) => {
-          ['poDate', 'expectedDeliveryDate', 'CreatedAt', 'createdAt', 'CreatedDate', 'createdDate'].forEach(key => {
+          ['poDate', 'expectedDeliveryDate', 'CreatedAt', 'createdAt', 'CreatedDate', 'createdDate', 'CreatedOn', 'createdOn', 'UpdatedDate', 'updatedDate'].forEach(key => {
             if (item[key] && typeof item[key] === 'string' && !item[key].includes('Z') && !item[key].includes('+')) {
               item[key] = item[key] + 'Z';
             }

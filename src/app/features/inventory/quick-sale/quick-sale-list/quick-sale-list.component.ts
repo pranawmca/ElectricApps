@@ -125,11 +125,9 @@ export class QuickSaleListComponent implements OnInit {
         isResizable: true,
         width: 165,
         cell: (row: any) => {
-          const d = row.soDate;
-          if (!d) return '—';
-          // Treat as UTC if no timezone suffix exists
-          const utcDate = (typeof d === 'string' && !d.includes('Z') && !d.includes('+')) ? d + 'Z' : d;
-          return this.datePipe.transform(utcDate, 'dd/MM/yyyy hh:mm a', '+0530');
+          const rawDate = row.createdOn || row.CreatedOn || row.createdAt || row.CreatedAt || row.soDate;
+          if (!rawDate) return '—';
+          return this.datePipe.transform(rawDate, 'dd/MM/yyyy hh:mm a');
         }
       },
       { field: 'customerName', header: 'Customer', sortable: true, isResizable: true, width: 220, isFilterable: true },
