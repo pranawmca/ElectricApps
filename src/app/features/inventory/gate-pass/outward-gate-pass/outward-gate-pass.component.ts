@@ -247,7 +247,8 @@ export class OutwardGatePassComponent implements OnInit, OnDestroy {
             id: this.gatePassId || 0,
             passType: 'Outward',
             status: GatePassStatus.Completed,
-            createdBy: this.authService.getUserName()
+            createdBy: this.authService.getUserName(),
+            companyId: this.authService.getCompanyId()
         };
 
         // Append breakdown to remarks if bulk

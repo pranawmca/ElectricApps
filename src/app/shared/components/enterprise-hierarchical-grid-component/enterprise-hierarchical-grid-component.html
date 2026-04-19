@@ -238,19 +238,21 @@
                     <mat-icon color="primary">print</mat-icon>
                   </button>
                   
-                  <!-- Toggle Dispatch Status (Manual) -->
-                  <button mat-icon-button color="accent" *ngIf="(row.status === 'Approved' || row.status === 'Partially Received') && !row.isDispatched" 
+                  <!-- Toggle Dispatch Status (Manual) - Enabled only when PR (Purchase Return) is active -->
+                  <button mat-icon-button color="accent" 
+                          *ngIf="(row.status === 'Approved' || row.status === 'Partially Received' || row.status === 'Received') && !row.isDispatched" 
+                          [disabled]="row.status === 'Received' || ((row.totalRejected || 0) <= 0 && (row.totalReturned || 0) <= 0)"
                           (click)="$event.stopPropagation(); handleAction('TOGGLE_DISPATCH', row)" 
-                          matTooltip="Confirm shipment dispatch from supplier">
-                    <mat-icon style="opacity: 0.5;">history_toggle_off</mat-icon>
+                          [matTooltip]="row.status === 'Received' ? 'Order Already Received' : (((row.totalRejected || 0) > 0 || (row.totalReturned || 0) > 0) ? 'Confirm shipment dispatch from supplier' : 'Dispatch disabled (No Purchase Return raised)')">
+                    <mat-icon [style.opacity]="(row.status !== 'Received' && ((row.totalRejected || 0) > 0 || (row.totalReturned || 0) > 0)) ? 1 : 0.4">watch_later</mat-icon>
                   </button>
 
                   <button mat-icon-button color="warn" *ngIf="(row.totalRejected || 0) > 0 && !((row.totalAccepted || 0) < (row.totalOrdered || 0))" (click)="$event.stopPropagation(); handleAction('PROCESS_RETURN', row)" matTooltip="Process Purchase Return (Outward)">
                     <mat-icon>local_shipping</mat-icon>
                   </button>
 
-                  <!-- Truck Icon: Only visible/active if Dispatched -->
-                  <button mat-icon-button color="primary" *ngIf="row.isDispatched && ((row.totalReceived || 0) < (row.totalOrdered || 0)) && (( (row.totalAccepted || 0) + (row.totalRejected || 0) ) < (row.totalOrdered || 0))" (click)="$event.stopPropagation(); handleAction('CREATE_GRN', row)" matTooltip="Goods In-Transit: Click to Inward (GRN)">
+                  <!-- Truck Icon: Only visible/active if Dispatched (Blue color) -->
+                  <button mat-icon-button color="primary" *ngIf="row.isDispatched && row.status !== 'Received'" (click)="$event.stopPropagation(); handleAction('CREATE_GRN', row)" matTooltip="Goods In-Transit: Click to Inward (GRN)">
                     <mat-icon>local_shipping</mat-icon>
                   </button>
 

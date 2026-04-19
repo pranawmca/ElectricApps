@@ -15,11 +15,11 @@ export class PurchaseReturnService {
     }
 
     // 2. Supplier select hone ke baad items ke liye
-    getRejectedItems(supplierId: number): Observable<any[]> {
+    getRejectedItems(supplierId: any): Observable<any[]> {
         return this.api.get<any[]>(`PurchaseReturn/rejected-items/${supplierId}`);
     }
 
-    getReceivedStock(supplierId: number): Observable<any[]> {
+    getReceivedStock(supplierId: any): Observable<any[]> {
         return this.api.get<any[]>(`PurchaseReturn/get-received-stock/${supplierId}`);
     }
 

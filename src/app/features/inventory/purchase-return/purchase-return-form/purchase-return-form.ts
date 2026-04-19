@@ -142,8 +142,8 @@ export class PurchaseReturnForm implements OnInit {
                 }
               }
             });
-          } else if (sId && sId !== '0') {
-            this.autoSelectSupplier(Number(sId), grnNo);
+          } else if (sId && sId !== '0' && sId !== '00000000-0000-0000-0000-000000000000') {
+            this.autoSelectSupplier(sId, grnNo);
           }
         });
       },
@@ -151,7 +151,7 @@ export class PurchaseReturnForm implements OnInit {
     });
   }
 
-  private autoSelectSupplier(sId: number, grnNo?: string) {
+  private autoSelectSupplier(sId: any, grnNo?: string) {
     console.log('[PurchaseReturn] Auto-selecting supplierId:', sId);
     this.returnForm.get('supplierId')?.setValue(sId);
     this.returnForm.get('supplierId')?.disable(); // Lock the supplier to prevent mismatch
@@ -180,11 +180,11 @@ export class PurchaseReturnForm implements OnInit {
   isLoadingStock: boolean = false;
   selectedSupplierName: string = ''; // Store selected name directly
 
-  onSupplierChange(supplierId: number, grnNo?: string) {
-    if (!supplierId) return;
+  onSupplierChange(supplierId: any, grnNo?: string) {
+    if (!supplierId || supplierId === '00000000-0000-0000-0000-000000000000') return;
 
     // Capture Name Immediately on Selection
-    const selected = this.suppliers.find(s => s.id == supplierId);
+    const selected = this.suppliers.find(s => s.id == supplierId || s.Id == supplierId);
     // FIX: HTML uses 'name', not 'supplierName'
     this.selectedSupplierName = selected ? (selected.name || selected.supplierName) : '';
     console.log('[PurchaseReturn] Selected Supplier:', this.selectedSupplierName);

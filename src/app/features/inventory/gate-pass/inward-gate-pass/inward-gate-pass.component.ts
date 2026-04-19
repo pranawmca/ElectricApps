@@ -501,7 +501,8 @@ export class InwardGatePassComponent implements OnInit, OnDestroy {
             securityGuard: formValue.securityGuard,
             status: Number(formValue.referenceType) === GatePassReferenceType.SaleReturn ? GatePassStatus.Completed : GatePassStatus.Entered,
             remarks: finalRemarks,
-            createdBy: this.authService.getUserName()
+            createdBy: this.authService.getUserName(),
+            companyId: this.authService.getCompanyId()
         };
 
         this.isSaving = true;

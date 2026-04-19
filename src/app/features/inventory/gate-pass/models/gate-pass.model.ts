@@ -20,6 +20,7 @@ export interface GatePass {
     remarks?: string;
     createdBy?: string;
     createdAt?: Date;
+    companyId?: string;
 }
 
 export enum GatePassReferenceType {

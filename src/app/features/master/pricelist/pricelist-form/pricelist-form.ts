@@ -11,6 +11,7 @@ import { PriceListService } from '../service/pricelist.service';
 import { ProductService } from '../../product/service/product.service';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { ProductSelectionDialogComponent } from '../../../../shared/components/product-selection-dialog/product-selection-dialog';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-pricelist-form',
@@ -89,6 +90,7 @@ export class PricelistForm implements OnInit, OnChanges, AfterViewInit, OnDestro
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
   loading: boolean = false;
 
   @Input() editId: string | null = null;
@@ -394,8 +396,10 @@ export class PricelistForm implements OnInit, OnChanges, AfterViewInit, OnDestro
           createdBy: currentUserId,
           priceListItems: rawValues.priceListItems.map((item: any) => ({
             ...item,
-            productSearch: undefined
-          }))
+            productSearch: undefined,
+            companyId: this.authService.getCompanyId()
+          })),
+          companyId: this.authService.getCompanyId()
         };
 
         const request$ = currentId

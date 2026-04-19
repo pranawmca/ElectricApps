@@ -18,6 +18,7 @@ import { LocationService } from '../../master/locations/services/locations.servi
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { NotificationService } from '../../shared/notification.service';
 import { BatchHistoryDialogComponent } from '../batch-history-dialog/batch-history-dialog.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 import { ResizableColumnDirective } from '../../../shared/directives/resizable-column.directive';
 
@@ -40,6 +41,7 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
   private dialog = inject(MatDialog);
   private notification = inject(NotificationService);
   private locationService = inject(LocationService);
+  private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
 
   displayedColumns: string[] = ['select', 'productName', 'warehouseName', 'rackName', 'manufacturingDate', 'expiryDate', 'totalReceived', 'totalRejected', 'totalExpired', 'totalSold', 'availableStock', 'unitRate', 'actions'];
@@ -315,7 +317,14 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
           this.notification.showStatus(false, 'No stock available to remove.');
           return;
         }
-        const payload = { productId: historyItem.productId, warehouseId: historyItem.warehouseId, rackId: historyItem.rackId, quantity: targetQty, expiryDate: historyItem.expiryDate };
+        const payload = { 
+          productId: historyItem.productId, 
+          warehouseId: historyItem.warehouseId, 
+          rackId: historyItem.rackId, 
+          quantity: targetQty, 
+          expiryDate: historyItem.expiryDate,
+          companyId: this.authService.getCompanyId()
+        };
         this.inventoryService.adjustStock(payload).subscribe({
           next: () => {
             this.inventoryService.notifyInventoryChange();
@@ -348,7 +357,15 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
           this.notification.showStatus(false, 'No stock available to move.');
           return;
         }
-        const payload = { productId: historyItem.productId, sourceWarehouseId: historyItem.warehouseId, sourceRackId: historyItem.rackId, sourceRackName: historyItem.rackName, quantity: targetQty, expiryDate: historyItem.expiryDate };
+        const payload = { 
+          productId: historyItem.productId, 
+          sourceWarehouseId: historyItem.warehouseId, 
+          sourceRackId: historyItem.rackId, 
+          sourceRackName: historyItem.rackName, 
+          quantity: targetQty, 
+          expiryDate: historyItem.expiryDate,
+          companyId: this.authService.getCompanyId()
+        };
         this.inventoryService.moveStockToExpiredRack(payload).subscribe({
           next: () => {
             this.inventoryService.notifyInventoryChange();
