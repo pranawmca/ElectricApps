@@ -220,46 +220,16 @@ export class GrnListComponent implements OnInit, AfterViewInit {
           // We apply the supplier's total debt to bills starting from the NEWEST towards the OLDEST.
           // Any bill not covered by the current "Total Due" is considered PAID.
 
+          // Trust the backend for payment status.
           const items = rawItems.map((item: any) => {
             if (item.receivedDate && typeof item.receivedDate === 'string' && !item.receivedDate.includes('Z') && !item.receivedDate.includes('+')) {
-              // Ensure we only append Z to ISO-like strings YYYY-MM-DD...
               if (/^\d{4}-\d{2}-\d{2}/.test(item.receivedDate)) {
                 item.receivedDate += 'Z';
               }
             }
+            // Add fallback for adjustedDue if missing
+            item.adjustedDue = item.adjustedDue ?? (item.paymentStatus === 'Paid' ? 0 : item.totalAmount);
             return item;
-          });
-
-          const supplierIds = [...new Set(items.map((i: any) => i.supplierId))];
-
-          supplierIds.forEach(sid => {
-            const supplierDue = pendingDues.find((d: any) => d.supplierId === sid);
-            let runningDue = supplierDue ? supplierDue.pendingAmount : 0;
-
-            // Sort supplier's items in THIS page by date ASC (Oldest first)
-            // This is the correct way: Apply debt to oldest bills first. 
-            // Any newer bills not covered by debt will stay 'Unpaid' (Pending).
-            const supItemsInPage = items.filter((i: any) => i.supplierId === sid)
-              .sort((a: any, b: any) => new Date(a.receivedDate).getTime() - new Date(b.receivedDate).getTime());
-
-            supItemsInPage.forEach((item: any) => {
-              if (runningDue >= item.totalAmount - 0.01) {
-                // Whole bill is covered by remaining debt
-                item.paymentStatus = 'Unpaid'; 
-                item.adjustedDue = item.totalAmount;
-                runningDue -= item.totalAmount;
-              } else if (runningDue > 0.01) {
-                // Partially covered
-                item.paymentStatus = 'Partial';
-                item.adjustedDue = runningDue;
-                runningDue = 0;
-              } else {
-                // No debt left to cover this bill -> It must be PAID (or not yet recorded)
-                // Wait, if no debt is assigned to it, and it's a bill, it means it's PAID.
-                item.paymentStatus = 'Paid';
-                item.adjustedDue = 0;
-              }
-            });
           });
 
           // Aggregating Stats
