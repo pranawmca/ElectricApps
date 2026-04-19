@@ -236,22 +236,28 @@ export class GrnListComponent implements OnInit, AfterViewInit {
             const supplierDue = pendingDues.find((d: any) => d.supplierId === sid);
             let runningDue = supplierDue ? supplierDue.pendingAmount : 0;
 
-            // Sort supplier's items in THIS page by date DESC (Newest first)
+            // Sort supplier's items in THIS page by date ASC (Oldest first)
+            // This is the correct way: Apply debt to oldest bills first. 
+            // Any newer bills not covered by debt will stay 'Unpaid' (Pending).
             const supItemsInPage = items.filter((i: any) => i.supplierId === sid)
-              .sort((a: any, b: any) => new Date(b.receivedDate).getTime() - new Date(a.receivedDate).getTime());
+              .sort((a: any, b: any) => new Date(a.receivedDate).getTime() - new Date(b.receivedDate).getTime());
 
             supItemsInPage.forEach((item: any) => {
-              if (runningDue <= 0.01) {
-                item.paymentStatus = 'Paid';
-                item.adjustedDue = 0;
-              } else if (runningDue >= item.totalAmount - 0.01) {
-                item.paymentStatus = item.paymentStatus === 'Paid' ? 'Paid' : 'Unpaid';
+              if (runningDue >= item.totalAmount - 0.01) {
+                // Whole bill is covered by remaining debt
+                item.paymentStatus = 'Unpaid'; 
                 item.adjustedDue = item.totalAmount;
                 runningDue -= item.totalAmount;
-              } else {
+              } else if (runningDue > 0.01) {
+                // Partially covered
                 item.paymentStatus = 'Partial';
                 item.adjustedDue = runningDue;
                 runningDue = 0;
+              } else {
+                // No debt left to cover this bill -> It must be PAID (or not yet recorded)
+                // Wait, if no debt is assigned to it, and it's a bill, it means it's PAID.
+                item.paymentStatus = 'Paid';
+                item.adjustedDue = 0;
               }
             });
           });
