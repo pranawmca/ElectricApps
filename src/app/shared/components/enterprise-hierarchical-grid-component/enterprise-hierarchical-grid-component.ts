@@ -14,6 +14,7 @@ import { NotificationService } from '../../../features/shared/notification.servi
 import { ConfirmDialogComponent } from '../confirm-dialog-component/confirm-dialog-component';
 import { MatDialog } from '@angular/material/dialog';
 import { CompanyService } from '../../../features/company/services/company.service';
+import { LoadingService } from '../../../core/services/loading.service';
 
 import { ResizableColumnDirective } from '../../../shared/directives/resizable-column.directive';
 
@@ -87,6 +88,7 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
   private companyService = inject(CompanyService);
+  private loadingService = inject(LoadingService);
   
   returnWindowHours: number = 72;
 
@@ -454,7 +456,20 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
     });
   }
 
-  onAddNewClick() { if (this.addNewRoute) this.router.navigate([this.addNewRoute]); }
+  onAddNewClick() { 
+    if (this.addNewRoute) {
+      this.loadingService.setLoading(true, `Opening ${this.addNewLabel || 'Form'}...`);
+      // Small timeout to ensure loader is visible before routing starts
+      setTimeout(() => {
+        this.router.navigate([this.addNewRoute]).then(() => {
+          // The target component should ideally hide it, but we can hide it here too after navigation completes
+          this.loadingService.setLoading(false);
+        }).catch(() => {
+          this.loadingService.setLoading(false);
+        });
+      }, 500);
+    } 
+  }
 
   // --- Action Methods ---
 
