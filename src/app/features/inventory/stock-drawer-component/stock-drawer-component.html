@@ -43,6 +43,12 @@
             <div class="item-name-section">
               <span class="product-name">{{item.productName}}</span>
               <span class="product-sku" *ngIf="item.sku">SKU: {{item.sku}}</span>
+              <span class="product-date" *ngIf="!item.isAlreadyPurged && item.receivedDate">
+                <mat-icon>login</mat-icon> Inward: {{item.receivedDate | date:'dd MMM yyyy HH:mm'}}
+              </span>
+              <span class="product-date purged" *ngIf="item.isAlreadyPurged && item.purgedDate">
+                <mat-icon>auto_delete</mat-icon> Purged: {{item.purgedDate | date:'dd MMM yyyy HH:mm'}}
+              </span>
             </div>
             <div class="item-stock-section">
               <span class="stock-badge" [class.low-stock]="isLowStock(item) && item.availableStock > 0" 

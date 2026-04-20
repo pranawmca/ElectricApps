@@ -16,16 +16,156 @@
   right: 0;
   width: 420px;
   height: 100vh;
-  background: rgba(255, 255, 255, 0.95);
+  background: white;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
   z-index: 1001;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-left: 1px solid rgba(226, 232, 240, 0.8);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1), background-color 200ms ease;
 
   @media (max-width: 480px) {
     width: 100%;
+  }
+}
+
+/* ⚡ NUCLEAR DARK MODE OVERRIDE ⚡ */
+::ng-deep html.dark-mode {
+  .stock-drawer, 
+  .drawer-search, 
+  .drawer-content, 
+  .drawer-footer,
+  .batch-row {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border-color: #1e293b !important; /* Force Slate 800 for borders too */
+  }
+
+  .stock-drawer {
+    border-left: 1px solid #1e293b !important;
+  }
+
+  .stock-item-card {
+    background-color: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    
+    &:hover {
+      border-color: var(--dg-primary-theme, #3b82f6) !important;
+      background-color: rgba(255, 255, 255, 0.03) !important;
+    }
+
+    &.expanded {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-color: var(--dg-primary-theme, #3b82f6) !important;
+    }
+  }
+
+  .product-name, 
+  .batch-qty, 
+  .header-text h2, 
+  .header-icon, 
+  .close-btn, 
+  .expand-icon,
+  .batch-loc mat-icon,
+  .batch-qty {
+    color: #ffffff !important;
+  }
+
+  .product-sku, 
+  .product-date, 
+  .subtitle, 
+  .batch-loc, 
+  .batch-date, 
+  .batch-header span {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+  }
+
+  input.mat-mdc-input-element,
+  .mat-mdc-form-field-placeholder,
+  .mat-mdc-floating-label {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .mat-mdc-form-field-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .mat-mdc-form-field-label {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  /* 💎 ENHANCED BADGES & INDICATORS IN DARK MODE 💎 */
+  .stock-badge {
+    background: rgba(74, 222, 128, 0.15) !important; /* Vibrant Green */
+    color: #4ade80 !important;
+    border-color: rgba(74, 222, 128, 0.3) !important;
+
+    &.low-stock, &.expired-only, &.sold-out {
+      background: rgba(248, 113, 113, 0.15) !important; /* Vibrant Red */
+      color: #fca5a5 !important;
+      border-color: rgba(248, 113, 113, 0.3) !important;
+    }
+
+    &.purged-badge {
+      background: rgba(167, 139, 250, 0.15) !important; /* Vibrant Purple */
+      color: #c4b5fd !important;
+      border-color: rgba(167, 139, 250, 0.3) !important;
+    }
+  }
+
+  .indicator {
+    &.expiry, &.near-expiry, &.low, &.sold-out, &.purged {
+      background: rgba(255, 255, 255, 0.08) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    &.expiry { color: #fca5a5 !important; border-color: rgba(248, 113, 113, 0.3) !important; }
+    &.near-expiry { color: #fbbf24 !important; border-color: rgba(251, 191, 36, 0.3) !important; }
+    &.low { color: #f472b6 !important; border-color: rgba(244, 114, 182, 0.3) !important; }
+  }
+
+  /* Status Sub-labels (previously inline) */
+  .batch-details .batch-info-bottom span[style*="color: #8c8c8c"] {
+      color: rgba(255, 255, 255, 0.4) !important;
+  }
+
+  .batch-details .batch-info-bottom span[style*="color: #722ed1"] {
+      color: #c4b5fd !important; /* Vibrant purple for purged */
+  }
+
+  .batch-po {
+    background-color: #3730a3 !important; /* Smooth Deep Indigo */
+    color: #ffffff !important;           /* White text */
+    opacity: 1 !important;
+    font-weight: 600 !important;
+    padding: 2px 8px !important;
+    border-radius: 4px !important;
+  }
+
+  /* 🚫 REMOVE SEARCH BORDERS 🚫 */
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing,
+  .mat-mdc-form-field-focus-indicator {
+    border: none !important;
+    display: none !important;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important; /* Remove extra padding/space for hints */
+  }
+
+  .drawer-header {
+      /* Keep the thematic gradient but make it slightly darker for slate context */
+      background: linear-gradient(135deg, var(--dg-primary-theme, #1e293b) 0%, rgba(30, 41, 59, 0.9) 100%) !important;
   }
 }
 
@@ -81,6 +221,15 @@
   background: white;
   border-bottom: 1px solid #f1f5f9;
 
+  html.dark-mode & {
+    background: #1e293b !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  :host-context(html.dark-mode) & {
+    background: #1e293b !important;
+  }
+
   mat-form-field {
     width: 100%;
   }
@@ -88,6 +237,34 @@
   ::ng-deep .mat-mdc-text-field-wrapper {
     background-color: #f8fafc !important;
     border-radius: 12px !important;
+
+    html.dark-mode & {
+      background-color: #1e293b !important;
+    }
+  }
+
+  ::ng-deep .mat-mdc-form-field-focus-indicator {
+    html.dark-mode & {
+      color: white !important;
+    }
+  }
+
+  ::ng-deep input {
+    html.dark-mode & {
+      color: white !important;
+    }
+  }
+
+  ::ng-deep .mat-mdc-form-field-label {
+    html.dark-mode & {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  mat-icon {
+     html.dark-mode & {
+       color: white !important;
+     }
   }
 }
 
@@ -96,6 +273,14 @@
   overflow-y: auto;
   padding: 16px 24px;
   background: #fdfdfd;
+
+  html.dark-mode & {
+    background: #1e293b !important;
+  }
+
+  :host-context(html.dark-mode) & {
+    background: #1e293b !important;
+  }
 
   .loading-state, .empty-state {
     display: flex;
@@ -131,6 +316,11 @@
   position: relative;
   overflow: hidden;
 
+  html.dark-mode & {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
   &:hover {
     border-color: var(--dg-primary-theme, #3b82f6);
     box-shadow: 0 4px 12px rgba(var(--dg-primary-theme-rgb, 59, 130, 246), 0.1);
@@ -139,6 +329,10 @@
   &.expanded {
     border-color: var(--dg-primary-theme, #3b82f6);
     background: rgba(var(--dg-primary-theme-rgb, 59, 130, 246), 0.03);
+
+    html.dark-mode & {
+      background: rgba(255, 255, 255, 0.05);
+    }
   }
 
   .item-main-info {
@@ -157,12 +351,45 @@
       font-weight: 700;
       color: #1e293b;
       font-size: 0.95rem;
+
+      html.dark-mode & {
+        color: white;
+      }
     }
 
     .product-sku {
       font-size: 0.7rem;
       color: #94a3b8;
       font-family: monospace;
+    }
+
+    .product-date {
+      font-size: 0.65rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+      font-weight: 500;
+
+      html.dark-mode & {
+        color: #94a3b8;
+      }
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: #94a3b8;
+      }
+
+      &.purged {
+        color: #7c3aed;
+        font-weight: 600;
+        mat-icon {
+          color: #7c3aed;
+        }
+      }
     }
   }
 
@@ -282,6 +509,10 @@
       color: #64748b;
       text-transform: uppercase;
       white-space: nowrap;
+
+      html.dark-mode & {
+        color: #94a3b8;
+      }
     }
 
     mat-divider {
@@ -301,6 +532,10 @@
   background: #f1f5f9;
   border-radius: 8px;
   padding: 10px 12px;
+
+  html.dark-mode & {
+    background: #1e293b;
+  }
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -319,6 +554,10 @@
     font-weight: 600;
     color: #475569;
 
+    html.dark-mode & {
+      color: #cbd5e1;
+    }
+
     mat-icon {
       font-size: 14px;
       width: 14px;
@@ -332,6 +571,10 @@
     color: #1e293b;
     font-size: 0.8rem;
 
+    html.dark-mode & {
+      color: white;
+    }
+
     &.expired-qty-text {
       color: #ef4444;
       font-weight: 800;
@@ -341,6 +584,10 @@
   .batch-date {
     font-size: 0.7rem;
     color: #64748b;
+
+    html.dark-mode & {
+      color: #94a3b8;
+    }
 
     .expired-text {
       color: #ef4444;
@@ -354,6 +601,10 @@
     background: rgba(255, 255, 255, 0.5);
     padding: 1px 4px;
     border-radius: 4px;
+
+    html.dark-mode & {
+      /* Handled in nuclear dark mode block for specificity */
+    }
   }
 }
 
@@ -377,6 +628,15 @@
   padding: 16px 24px;
   background: white;
   border-top: 1px solid #f1f5f9;
+
+  html.dark-mode & {
+    background: #1e293b !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  :host-context(html.dark-mode) & {
+    background: #1e293b !important;
+  }
 
   .full-view-btn {
     width: 100%;
