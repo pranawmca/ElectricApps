@@ -184,7 +184,7 @@
 // ==========================================================================
 :host-context(.dark-mode) {
   .page-container {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
   }
 
   .header-row, 
@@ -211,7 +211,7 @@
 
   .logo-preview-box, 
   .sig-preview {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     mat-icon { color: rgba(255, 255, 255, 0.5) !important; }
     &:hover { border-color: #3b82f6 !important; }

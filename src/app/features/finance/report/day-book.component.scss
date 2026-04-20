@@ -183,7 +183,7 @@
 /* ⚡ DAY BOOK DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
     .day-book-container {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         
         .header-section {
             .title-group {
@@ -244,7 +244,7 @@
             border: 1px solid rgba(255, 255, 255, 0.05) !important;
             
             .day-book-table {
-                th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+                th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
                 td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
                 
                 .particulars-cell .mode-label { color: rgba(255, 255, 255, 0.4) !important; mat-icon { color: rgba(255, 255, 255, 0.3) !important; } }

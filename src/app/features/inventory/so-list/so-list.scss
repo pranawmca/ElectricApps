@@ -183,24 +183,21 @@
             }
         }
 
-        &.total {
-            background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
-            border-left: 6px solid #fbbf24;
-            .stat-icon { background: #fef3c7; color: #d97706; }
-        }
-
-        &.overdue {
-            background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
-            border-left: 6px solid #ef4444;
-            .stat-icon { background: #fee2e2; color: #dc2626; }
-            .stat-badge { background: #fee2e2; color: #dc2626; }
-            .value { color: #dc2626; }
-        }
-
-        &.active {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
-            border-left: 6px solid #3b82f6;
-            .stat-icon { background: #dbeafe; color: #2563eb; }
+        /* Gradient Classes */
+        &.blue-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important; .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
+        &.orange-gradient { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
+        &.green-gradient { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
+        &.purple-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important; .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: -15px;
+          right: -15px;
+          width: 70px;
+          height: 70px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
         }
     }
   }
@@ -734,7 +731,7 @@ button[color="warning"] {
 // STANDARD SALE ORDER DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .container-fluid {
     .header-actions h1.page-title {
@@ -744,14 +741,11 @@ button[color="warning"] {
   }
 
   .stats-grid .stat-card {
-    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
-    .stat-info .label { color: rgba(255, 255, 255, 0.5) !important; }
-    .stat-info .value { color: #ffffff !important; }
     
-    &.total, &.overdue, &.active {
-        background: #1e293b !important;
-        * { color: #ffffff !important; }
+    /* Maintain gradients in dark mode for vibrant look */
+    &.blue-gradient, &.orange-gradient, &.green-gradient, &.purple-gradient {
+        /* No change to background-color, keep gradients */
     }
   }
 
@@ -766,9 +760,9 @@ button[color="warning"] {
     }
 
     .mat-mdc-header-row, .mat-header-row {
-      background: #0f172a !important;
+      background: #1e293b !important;
       th { 
-        background: #0f172a !important; 
+        background: #1e293b !important; 
         color: rgba(255, 255, 255, 0.6) !important;
         border-bottom-color: rgba(255, 255, 255, 0.1) !important;
       }
@@ -792,19 +786,19 @@ button[color="warning"] {
 
     /* Child Table Dark Polish for Standard Sale Order */
     .mat-row.detail-row, .detail-row {
-      background: #0f172a !important;
-      td { background: #0f172a !important; }
+      background: #1e293b !important;
+      td { background: #1e293b !important; }
       
       .detail-panel {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         .child-table-scroll {
-          background-color: #0f172a !important;
+          background-color: #1e293b !important;
           border-color: rgba(255, 255, 255, 0.1) !important;
           
-          &::-webkit-scrollbar-track { background: #0f172a !important; }
+          &::-webkit-scrollbar-track { background: #1e293b !important; }
           &::-webkit-scrollbar-thumb { 
             background: #3b82f6 !important; 
-            border-color: #0f172a !important; 
+            border-color: #1e293b !important; 
           }
         }
       }
@@ -812,7 +806,7 @@ button[color="warning"] {
   }
 
   .loading-overlay, .empty-state-container {
-    background: rgba(15, 23, 42, 0.8) !important;
+    background: rgba(30, 41, 59, 0.8) !important;
     color: #ffffff !important;
     .empty-title { color: #ffffff !important; }
     .empty-subtitle { color: rgba(255, 255, 255, 0.5) !important; }

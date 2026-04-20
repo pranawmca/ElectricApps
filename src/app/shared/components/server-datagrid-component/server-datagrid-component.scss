@@ -697,12 +697,12 @@ th.mat-mdc-header-cell.select-col {
    ========================================================================== */
 :host-context(.dark-mode) {
   .datagrid-container {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
   }
 
   .grid-header-actions {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 
     .search-container {
@@ -724,7 +724,7 @@ th.mat-mdc-header-cell.select-col {
   }
 
   .table-wrapper {
-    background: #020617 !important;
+    background: #1e293b !important;
     
     &::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.1) !important;
@@ -733,7 +733,7 @@ th.mat-mdc-header-cell.select-col {
 
   ::ng-deep {
     .mat-mdc-paginator {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: #ffffff !important;
       border-top-color: rgba(255, 255, 255, 0.1) !important;
 
@@ -756,7 +756,7 @@ th.mat-mdc-header-cell.select-col {
     mat-checkbox {
       --mdc-checkbox-unselected-icon-color: rgba(255, 255, 255, 0.7) !important;
       --mdc-checkbox-selected-icon-color: #ffffff !important;
-      --mdc-checkbox-selected-checkmark-color: #0f172a !important;
+      --mdc-checkbox-selected-checkmark-color: #1e293b !important;
       
       .mdc-checkbox__native-control:enabled:not(:checked) ~ .mdc-checkbox__background {
         border-color: rgba(255, 255, 255, 0.5) !important;
@@ -774,14 +774,14 @@ th.mat-mdc-header-cell.select-col {
     }
 
     .server-datagrid {
-      background: #020617 !important;
+      background: #1e293b !important;
 
       tr.mat-mdc-header-row {
-        background-color: #020617 !important;
+        background-color: #1e293b !important;
       }
 
       .mat-mdc-header-cell {
-        background: #020617 !important;
+        background: #1e293b !important;
         color: #f8fafc !important;
         border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
         
@@ -845,7 +845,7 @@ th.mat-mdc-header-cell.select-col {
 
       /* Sticky Columns Correction */
       .sticky-left, .sticky-right {
-        background-color: #020617 !important;
+        background-color: #1e293b !important;
       }
 
       tr.mat-mdc-row:hover .sticky-left,
@@ -873,11 +873,11 @@ th.mat-mdc-header-cell.select-col {
     }
     /* Expandable Row Dark Mode */
     .detail-row {
-      background: #020617 !important;
+      background: #1e293b !important;
     }
     
     .row-detail-content {
-      background: #0f172a !important;
+      background: #1e293b !important;
       border-left-color: #60a5fa !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }

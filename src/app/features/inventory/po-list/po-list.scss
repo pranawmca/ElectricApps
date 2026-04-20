@@ -488,7 +488,7 @@ app-enterprise-hierarchical-grid {
 // STANDARD PURCHASE ORDER DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .list-container {
     background: #1e293b !important;
@@ -547,9 +547,9 @@ app-enterprise-hierarchical-grid {
     }
 
     .mat-mdc-header-row, .mat-header-row {
-      background: #0f172a !important;
+      background: #1e293b !important;
       th { 
-        background: #0f172a !important; 
+        background: #1e293b !important; 
         color: rgba(255, 255, 255, 0.6) !important;
         border-bottom-color: rgba(255, 255, 255, 0.1) !important;
       }
@@ -571,19 +571,19 @@ app-enterprise-hierarchical-grid {
 
     /* Child Table Dark Polish for Standard PO */
     .mat-row.detail-row, .detail-row {
-      background: #0f172a !important;
-      td { background: #0f172a !important; }
+      background: #1e293b !important;
+      td { background: #1e293b !important; }
       
       .detail-panel {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         .child-table-scroll {
-          background-color: #0f172a !important;
+          background-color: #1e293b !important;
           border-color: rgba(255, 255, 255, 0.1) !important;
           
-          &::-webkit-scrollbar-track { background: #0f172a !important; }
+          &::-webkit-scrollbar-track { background: #1e293b !important; }
           &::-webkit-scrollbar-thumb { 
             background: #3b82f6 !important; 
-            border-color: #0f172a !important; 
+            border-color: #1e293b !important; 
           }
         }
       }
@@ -591,6 +591,6 @@ app-enterprise-hierarchical-grid {
   }
 
   .loading-shade {
-      background: rgba(15, 23, 42, 0.7) !important;
+      background: rgba(30, 41, 59, 0.7) !important;
   }
 }

@@ -589,7 +589,7 @@ input[type=number] {
 // QUICK PURCHASE FORM DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .header-section {
     .title-group {
@@ -598,7 +598,7 @@ input[type=number] {
     }
     
     .barcode-status {
-      background: #0f172a !important; 
+      background: #1e293b !important; 
       border-color: rgba(59, 130, 246, 0.3) !important;
       .status-label { color: rgba(255, 255, 255, 0.5) !important; }
       .last-scanned { color: #ffffff !important; }
@@ -688,7 +688,7 @@ input[type=number] {
       span { color: #ffffff !important; font-weight: 700 !important; }
       
       button {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%) !important;
         color: #ffffff !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
@@ -704,7 +704,7 @@ input[type=number] {
   }
 
   .items-grid {
-    background-color: #0f172a !important; /* Midnight Deep */
+    background-color: #1e293b !important; /* Midnight Deep */
     border-color: rgba(255, 255, 255, 0.1) !important;
     min-height: 100px;
 
@@ -750,7 +750,7 @@ input[type=number] {
 
     &:focus {
       border-color: #3b82f6 !important;
-      background-color: #0f172a !important; /* Slate 900 for focus */
+      background-color: #1e293b !important; /* Slate 900 for focus */
     }
   }
 

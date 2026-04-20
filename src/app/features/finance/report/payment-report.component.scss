@@ -260,7 +260,7 @@ table {
 /* ⚡ PAYMENT HISTORY DIALOG DARK MODE POLISH ⚡ */
 :host-context(.dark-mode) {
     .page-container.is-dialog {
-        background: #0f172a !important;
+        background: #1e293b !important;
         color: #ffffff !important;
     }
 
@@ -300,11 +300,11 @@ table {
         background: #1e293b !important;
         margin: 16px;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        .loading-shade { background: rgba(15, 23, 42, 0.6) !important; }
+        .loading-shade { background: rgba(30, 41, 59, 0.6) !important; }
         
         ::ng-deep {
             .mat-mdc-table, .mat-table { background: #1e293b !important; }
-            .mat-mdc-header-row th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; }
+            .mat-mdc-header-row th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; }
             .mat-mdc-row td { 
                 color: #ffffff !important; 
                 border-bottom-color: rgba(255, 255, 255, 0.05) !important;

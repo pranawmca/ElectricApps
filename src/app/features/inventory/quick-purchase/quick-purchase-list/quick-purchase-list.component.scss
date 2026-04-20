@@ -260,7 +260,7 @@ app-enterprise-hierarchical-grid {
 // QUICK PURCHASE LIST DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important; /* Unified Slate 800 */
 
   .header-actions .page-title {
     color: #ffffff !important;
@@ -281,7 +281,7 @@ app-enterprise-hierarchical-grid {
 
   ::ng-deep .main-grid-content {
     .mat-mdc-header-row, .mat-header-row {
-      background: #0f172a !important;
+      background: #1e293b !important;
       th.mat-header-cell {
         color: rgba(255, 255, 255, 0.5) !important;
         border-bottom-color: rgba(255, 255, 255, 0.1) !important;
@@ -337,7 +337,7 @@ app-enterprise-hierarchical-grid {
       .mat-table {
         background-color: #1e293b !important;
         
-        .mat-mdc-header-row, .mat-header-row { background-color: #0f172a !important; }
+        .mat-mdc-header-row, .mat-header-row { background-color: #1e293b !important; }
         .mat-mdc-row, .mat-row { background-color: #1e293b !important; }
         .mat-mdc-cell, td, th { color: #ffffff !important; border-bottom-color: rgba(255,255,255,0.05) !important; }
         .mat-mdc-header-cell { color: rgba(255,255,255,0.5) !important; }
@@ -370,7 +370,7 @@ app-enterprise-hierarchical-grid {
   }
 
   .loading-shade {
-      background: rgba(15, 23, 42, 0.7) !important;
+      background: rgba(30, 41, 59, 0.7) !important; /* Slate 800 Tint */
   }
 }
 

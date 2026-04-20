@@ -117,7 +117,7 @@
 
 /* ⚡ DARK MODE POLISH ⚡ */
 :host-context(.dark-mode) {
-    .modal-container { background-color: #0f172a !important; }
+    .modal-container { background-color: #1e293b !important; }
     
     .modal-header {
         background-color: #1e293b !important;
@@ -126,7 +126,7 @@
     }
 
     .modal-body {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         .mat-icon { color: rgba(255, 255, 255, 0.6) !important; }
         ::ng-deep .mat-mdc-text-field-wrapper {
             background-color: rgba(255, 255, 255, 0.03) !important;
@@ -180,4 +180,4 @@
       }
     }
   }
-}
+}

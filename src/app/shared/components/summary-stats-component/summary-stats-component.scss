@@ -84,13 +84,13 @@
     /* Type Variants */
     &.total {
       background: var(--card-bg, linear-gradient(135deg, #ffffff 0%, #fffbf0 100%));
-      border-left: 6px solid #fbbf24;
+      border: none !important;
       .stat-icon { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
     }
 
     &.active, &.success {
       background: var(--card-bg, linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%));
-      border-left: 6px solid #22c55e;
+      border: none !important;
       .stat-icon { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
       .value { color: #22c55e !important; }
       .stat-badge { background: #dcfce7; color: #16a34a; }
@@ -98,13 +98,13 @@
 
     &.info {
       background: var(--card-bg, linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%));
-      border-left: 6px solid #3b82f6;
+      border: none !important;
       .stat-icon { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
     }
 
     &.overdue, &.warning {
       background: var(--card-bg, linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%));
-      border-left: 6px solid #ef4444;
+      border: none !important;
       .stat-icon { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
       .stat-badge { background: #fee2e2; color: #dc2626; }
       .value { color: #ef4444 !important; }
@@ -118,10 +118,12 @@
       .label { color: rgba(255, 255, 255, 0.5) !important; opacity: 1; }
       .value { color: #f8fafc !important; }
       
-      &.total { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #fbbf24 !important; } }
-      &.active, &.success { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #4ade80 !important; } .stat-badge { background: rgba(74, 222, 128, 0.1); color: #4ade80; } }
-      &.warning, &.overdue { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #f87171 !important; } .stat-badge { background: rgba(248, 113, 113, 0.1); color: #f87171; } }
-      &.info { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; .value { color: #60a5fa !important; } }
+      .stat-icon { background: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; mat-icon { color: #ffffff !important; } }
+
+      &.total { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; .value, .label, mat-icon { color: #ffffff !important; } }
+      &.active, &.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; .value, .label, mat-icon { color: #ffffff !important; } .stat-badge { background: rgba(255, 255, 255, 0.2); color: #ffffff; } }
+      &.warning, &.overdue { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; .value, .label, mat-icon { color: #ffffff !important; } .stat-badge { background: rgba(255, 255, 255, 0.2); color: #ffffff; } }
+      &.info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important; .value, .label, mat-icon { color: #ffffff !important; } }
     }
   }
 }

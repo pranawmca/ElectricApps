@@ -379,10 +379,10 @@
 // MAIN INVENTORY DASHBOARD DARK MODE POLISH (THE END)
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .inventory-dashboard-container {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
   }
 
@@ -410,7 +410,7 @@
 
   .dashboard-mat-table {
     th.mat-mdc-header-cell {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: rgba(255, 255, 255, 0.6) !important;
       border-bottom-color: rgba(255, 255, 255, 0.1) !important;
     }
@@ -426,7 +426,7 @@
   }
 
   .action-buttons .action-btn {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-left-color: rgba(255, 255, 255, 0.1) !important;
     span { color: #ffffff !important; }
     
@@ -448,6 +448,6 @@
   .number-badge.grn { background-color: rgba(16, 185, 129, 0.1) !important; color: #34d399 !important; border-color: #059669 !important; }
 
   .loading-overlay {
-    background: rgba(15, 23, 42, 0.8) !important;
+    background: rgba(30, 41, 59, 0.8) !important;
   }
 }

@@ -5,7 +5,7 @@
         display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px;
         @media screen and (max-width: 768px) { flex-direction: column; gap: 20px; text-align: center; align-items: center; }
         
-        .page-title { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.025em; }
+        .page-title { font-size: 2.2rem; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.025em; }
         .page-subtitle { font-size: 1.1rem; color: #64748b; margin: 4px 0 0 0; font-weight: 600; }
         .header-actions button { height: 48px; padding: 0 24px; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     }
@@ -47,7 +47,7 @@
             .page-subtitle { color: rgba(255, 255, 255, 0.7) !important; } 
         }
         .table-container { 
-            background: #0f172a; 
+            background: #1e293b; 
             border-color: rgba(255, 255, 255, 0.08); 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); 
             .mat-cell { color: #ffffff !important; } 

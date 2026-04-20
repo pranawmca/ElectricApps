@@ -259,7 +259,7 @@ table {
 /* ⚡ RECEIPT HISTORY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
     .page-container.is-dialog {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         color: #ffffff !important;
     }
 
@@ -293,7 +293,7 @@ table {
     }
 
     table {
-        th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
         td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
         .customer-info .name { color: #ffffff !important; }
         .customer-info .id { color: rgba(255, 255, 255, 0.4) !important; }

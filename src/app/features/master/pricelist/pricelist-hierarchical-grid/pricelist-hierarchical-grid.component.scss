@@ -221,19 +221,19 @@
 // ==========================================================================
 :host-context(.dark-mode) {
   .datagrid-container {
-    background: #0f172a !important;
+    background: #1e293b !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
 
     .grid-loader {
-      background: rgba(15, 23, 42, 0.8) !important;
+      background: rgba(30, 41, 59, 0.8) !important;
     }
 
     .table-wrapper {
       table.server-datagrid {
-        background: #020617 !important;
+        background: #1e293b !important;
 
         th {
-          background-color: #020617 !important; /* Midnight for headers */
+          background-color: #1e293b !important; /* Midnight for headers */
           color: #f8fafc !important;
           border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
         }
@@ -247,7 +247,7 @@
         /* Sticky Columns Correction */
         th.select-col, td.select-col,
         th.actions-col, td.actions-col {
-          background-color: #020617 !important;
+          background-color: #1e293b !important;
         }
 
         .element-row {
@@ -259,23 +259,23 @@
           }
           
           &.expanded-row {
-            background: #0f172a !important; /* Signature Midnight Selection */
-            td { background: #0f172a !important; }
+            background: #1e293b !important; /* Signature Midnight Selection */
+            td { background: #1e293b !important; }
           }
         }
 
         tr.detail-row td {
-          background: #020617 !important; /* Midnight for detail rows */
+          background: #1e293b !important; /* Midnight for detail rows */
         }
 
         .detail-inner {
-          background: #020617 !important;
+          background: #1e293b !important;
           border-bottom-color: rgba(255, 255, 255, 0.05) !important;
 
           &::before { background: #2d3748 !important; } /* Dark Connector */
 
           .child-table {
-            background: #0f172a !important;
+            background: #1e293b !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
             
             th {
@@ -285,7 +285,7 @@
             }
             
             td {
-              background: #0f172a !important;
+              background: #1e293b !important;
               color: #f8fafc !important;
               border-bottom-color: rgba(255, 255, 255, 0.03) !important;
             }
@@ -294,7 +294,7 @@
           }
           
           .no-child-data {
-            background: #0f172a !important;
+            background: #1e293b !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
             color: #94a3b8;
           }
@@ -307,7 +307,7 @@
       mat-checkbox {
         --mdc-checkbox-unselected-icon-color: rgba(255, 255, 255, 0.7) !important;
         --mdc-checkbox-selected-icon-color: #ffffff !important;
-        --mdc-checkbox-selected-checkmark-color: #0f172a !important;
+        --mdc-checkbox-selected-checkmark-color: #1e293b !important;
         
         .mdc-checkbox__native-control:enabled:not(:checked) ~ .mdc-checkbox__background {
           border-color: rgba(255, 255, 255, 0.5) !important;
@@ -319,9 +319,9 @@
           border-color: #ffffff !important;
         }
 
-        .mdc-checkbox__checkmark { color: #020617 !important; }
-        .mdc-checkbox__checkmark-path { stroke: #020617 !important; stroke-width: 4px !important; }
-        .mdc-checkbox__mixedmark { border-color: #020617 !important; border-width: 2px !important; }
+        .mdc-checkbox__checkmark { color: #1e293b !important; }
+        .mdc-checkbox__checkmark-path { stroke: #1e293b !important; stroke-width: 4px !important; }
+        .mdc-checkbox__mixedmark { border-color: #1e293b !important; border-width: 2px !important; }
       }
     }
   }

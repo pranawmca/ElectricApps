@@ -30,7 +30,7 @@
                 mat-icon { font-size: 28px; width: 28px; height: 28px; }
             }
 
-            mat-card-title { font-size: 2rem !important; font-weight: 800; letter-spacing: -1px; color: #0f172a; margin-top: 15px !important; }
+            mat-card-title { font-size: 2rem !important; font-weight: 800; letter-spacing: -1px; color: #1e293b; margin-top: 15px !important; }
             mat-card-subtitle { font-size: 1rem; font-weight: 600; color: #64748b; margin-top: 5px !important; }
         }
     }
@@ -42,7 +42,7 @@
         @media screen and (max-width: 1024px) { grid-template-columns: 1fr; }
     }
 
-    .section-title { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; &::before { content: ''; width: 4px; height: 1.5em; background: #3b82f6; border-radius: 4px; } }
+    .section-title { font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; &::before { content: ''; width: 4px; height: 1.5em; background: #3b82f6; border-radius: 4px; } }
 
     .grid-container {
         display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;
@@ -69,7 +69,7 @@
                 position: absolute; left: -7px; top: 0; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.1);
                 &.attendance { background: #10b981; } &.leave { background: #f59e0b; } &.payroll { background: #6366f1; }
             }
-            .feed-header { display: flex; justify-content: space-between; margin-bottom: 8px; h4 { margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a; } .feed-time { font-size: 0.8rem; color: #94a3b8; font-weight: 600; } }
+            .feed-header { display: flex; justify-content: space-between; margin-bottom: 8px; h4 { margin: 0; font-size: 1rem; font-weight: 700; color: #1e293b; } .feed-time { font-size: 0.8rem; color: #94a3b8; font-weight: 600; } }
             p { margin: 0; font-size: 0.9rem; color: #64748b; line-height: 1.6; }
         }
     }
@@ -78,11 +78,11 @@
 /* 🌙 DARK MODE OVERRIDES (SAPPHIRE POLISH) */
 :host-context(.dark-mode) {
     .dashboard-wrapper {
-        .stat-card, .action-card, .timeline-card { background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+        .stat-card, .action-card, .timeline-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
         .section-title, .section-title span, .feed-header h4, .timeline-card mat-card-title { color: #ffffff !important; }
         .stat-card mat-card-title, .action-card span { color: #ffffff !important; }
         .stat-card mat-card-subtitle, .feed-desc, .feed-time, .feed-item p { color: rgba(255, 255, 255, 0.8) !important; }
         .action-card:hover { background: rgba(255, 255, 255, 0.04); }
-        .feed-item { border-left-color: rgba(255, 255, 255, 0.1); .feed-marker { border-color: #0f172a; box-shadow: 0 0 15px rgba(0,0,0,0.5); } }
+        .feed-item { border-left-color: rgba(255, 255, 255, 0.1); .feed-marker { border-color: #1e293b; box-shadow: 0 0 15px rgba(0,0,0,0.5); } }
     }
 }

@@ -211,7 +211,7 @@ table {
 // QUICK DISPOSED STOCK DASHBOARD DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
   
   .summary-cards .summary-card {
     background: #1e293b !important;
@@ -221,7 +221,7 @@ table {
     
     &.total { 
       background: #1e293b !important; 
-      .card-icon { background: #0f172a !important; color: #ffffff !important; }
+      .card-icon { background: #1e293b !important; color: #ffffff !important; }
     }
     &.danger, &.purge { 
       background: #1e293b !important; 
@@ -247,7 +247,7 @@ table {
 
   .table-container {
     background: #1e293b !important;
-    &::-webkit-scrollbar-track { background: #0f172a !important; }
+    &::-webkit-scrollbar-track { background: #1e293b !important; }
   }
 
   ::ng-deep {
@@ -256,9 +256,9 @@ table {
     }
 
     .mat-mdc-header-row {
-      background-color: #0f172a !important;
+      background-color: #1e293b !important;
       th { 
-        background-color: #0f172a !important; 
+        background-color: #1e293b !important; 
         color: rgba(255, 255, 255, 0.6) !important;
         border-bottom-color: rgba(255, 255, 255, 0.1) !important;
       }
@@ -285,20 +285,20 @@ table {
       }
     }
 
-    .element-detail { background: #0f172a !important; }
+    .element-detail { background: #1e293b !important; }
     .history-table-wrapper { 
       background: #1e293b !important; 
       border-color: rgba(255, 255, 255, 0.1) !important; 
     }
     
     .history-table {
-       th { background: #0f172a !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
+       th { background: #1e293b !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
        td { background: #1e293b !important; color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
        tr:hover td { background: rgba(255, 255, 255, 0.04) !important; }
     }
 
     .mat-mdc-paginator {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: #ffffff !important;
       opacity: 1 !important;
       

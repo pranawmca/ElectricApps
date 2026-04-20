@@ -72,7 +72,7 @@
     }
 
     .submit-btn {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%) !important;
         color: #ffffff !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
@@ -103,7 +103,7 @@
     
     ::ng-deep {
         .mat-mdc-dialog-surface {
-            background: #0f172a !important;
+            background: #1e293b !important;
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
         }

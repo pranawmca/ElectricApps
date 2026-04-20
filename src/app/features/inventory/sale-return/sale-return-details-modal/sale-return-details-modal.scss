@@ -14,7 +14,7 @@
 
   // Dark Mode Override (Premium Polished)
   :host-context(.dark-mode) & {
-    background: linear-gradient(145deg, #0f172a, #1e293b);
+    background: linear-gradient(145deg, #1e293b, #1e293b);
     color: #f8fafc;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -181,7 +181,7 @@
 
   thead {
     background: #f8fafc;
-    :host-context(.dark-mode) & { background: rgba(15, 23, 42, 0.8); }
+    :host-context(.dark-mode) & { background: rgba(30, 41, 59, 0.8); }
 
     th {
       padding: 14px 15px;
@@ -245,7 +245,7 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 
     :host-context(.dark-mode) & {
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(30, 41, 59, 0.6);
       backdrop-filter: blur(10px);
       border-radius: 20px;
       border: 1px solid rgba(59, 130, 246, 0.2);

@@ -890,7 +890,7 @@ mat-card.so-card {
 // STANDARD SALE ORDER FORM DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   mat-card.so-card {
     background: #1e293b !important;
@@ -935,13 +935,13 @@ mat-card.so-card {
 
   /* ⚡ ITEM ROWS DEEP SLATE ⚡ */
   .item-header {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-bottom-color: rgba(255, 255, 255, 0.1) !important;
     color: rgba(255, 255, 255, 0.7) !important;
   }
 
   .item-row {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
     &:hover { background: #1e293b !important; }
 
@@ -988,7 +988,7 @@ mat-card.so-card {
   }
 
   .na-field {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     .na-label { color: rgba(255, 255, 255, 0.5) !important; }
     .na-badge { background-color: #1e293b !important; color: #ffffff !important; }
@@ -999,7 +999,7 @@ mat-card.so-card {
     background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
     .summary-header {
-      background: #0f172a !important;
+      background: #1e293b !important;
       border-bottom-color: rgba(255, 255, 255, 0.05) !important;
       span { color: #ffffff !important; }
     }

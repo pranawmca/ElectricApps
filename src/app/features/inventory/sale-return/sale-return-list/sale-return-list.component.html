@@ -7,44 +7,45 @@
     </div>
 
     <div class="stats-grid-container">
-        <div class="stat-item border-primary" 
-             [ngClass]="{'active-widget': activeStatus === 'TODAY'}"
-             (click)="filterByStatus('TODAY')"
-             style="cursor: pointer;">
-            <div class="stat-label">TOTAL RETURNS (TODAY)</div>
-            <div class="stat-data">
-                <span class="stat-value">{{summaryData.totalReturnsToday}}</span>
-                <mat-icon class="stat-icon" [style.color]="activeStatus === 'TODAY' ? '#3f51b5' : '#ccc'">assignment_return</mat-icon>
-            </div>
-        </div>
+        <mat-card class="stat-card blue-gradient" (click)="filterByStatus('TODAY')">
+            <mat-card-content>
+                <div class="stat-icon"><mat-icon>assignment_return</mat-icon></div>
+                <div class="stat-info">
+                    <span class="label">Total Returns (Today)</span>
+                    <span class="value">{{summaryData.totalReturnsToday}}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
 
-        <div class="stat-item border-danger">
-            <div class="stat-label">TOTAL REFUND VALUE</div>
-            <div class="stat-data">
-                <span class="stat-value text-danger">{{summaryData.totalRefundValue | currency:'INR'}}</span>
-                <mat-icon class="stat-icon color-danger">payments</mat-icon>
-            </div>
-        </div>
+        <mat-card class="stat-card rose-gradient">
+            <mat-card-content>
+                <div class="stat-icon"><mat-icon>payments</mat-icon></div>
+                <div class="stat-info">
+                    <span class="label">Total Refund Value</span>
+                    <span class="value">{{summaryData.totalRefundValue | currency:'INR'}}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
 
-        <div class="stat-item border-success">
-            <div class="stat-label">{{selection.selected.length > 0 ? 'SELECTED QTY' : 'STOCK RE-FILLED'}}</div>
-            <div class="stat-data">
-                <span class="stat-value text-success">{{selection.selected.length > 0 ? selectedTotalQty : summaryData.stockRefilledPcs}} PCS</span>
-                <mat-icon class="stat-icon color-success">inventory_2</mat-icon>
-            </div>
-        </div>
+        <mat-card class="stat-card green-gradient">
+            <mat-card-content>
+                <div class="stat-icon"><mat-icon>inventory_2</mat-icon></div>
+                <div class="stat-info">
+                    <span class="label">{{selection.selected.length > 0 ? 'Selected Qty' : 'Stock Re-filled'}}</span>
+                    <span class="value">{{selection.selected.length > 0 ? selectedTotalQty : summaryData.stockRefilledPcs}} PCS</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
 
-        <div class="stat-item border-info" 
-             [ngClass]="{'active-widget': activeStatus === 'Confirmed'}"
-             (click)="filterByStatus('Confirmed')"
-             style="cursor: pointer;"
-             *ngIf="!isQuick">
-            <div class="stat-label">PENDING INWARDS</div>
-            <div class="stat-data">
-                <span class="stat-value" [style.color]="summaryData.pendingInwardCount > 0 ? '#f44336' : '#212121'">{{summaryData.pendingInwardCount}}</span>
-                <mat-icon class="stat-icon" [style.color]="activeStatus === 'Confirmed' ? '#24d2fd' : '#ccc'">local_shipping</mat-icon>
-            </div>
-        </div>
+        <mat-card class="stat-card orange-gradient" (click)="filterByStatus('Confirmed')">
+            <mat-card-content>
+                <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+                <div class="stat-info">
+                    <span class="label">Confirmed Returns</span>
+                    <span class="value">{{summaryData.confirmedReturns}}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
     </div>
 
     <div class="active-filter-banner" *ngIf="activeStatus" (click)="filterByStatus(activeStatus)" style="cursor: pointer; margin: 15px 0; display: flex; align-items: center; gap: 8px; color: #666; font-size: 14px; background: #f8f9fa; padding: 10px; border-radius: 4px; border-left: 4px solid #666;">

@@ -266,13 +266,13 @@
 /* 🌙 PREMIUM DARK MODE (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
     .dialog-container {
-        background: #020617 !important;
+        background: #1e293b !important;
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
     }
 
     .dialog-header {
-        background: #0f172a !important;
+        background: #1e293b !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         
         .title-area {
@@ -288,7 +288,7 @@
     }
 
     .dialog-content {
-        background: #020617 !important;
+        background: #1e293b !important;
         padding: 0px !important; 
         overflow-x: hidden !important; /* Prevent horizontal spill */
         display: flex;
@@ -301,7 +301,7 @@
 
         /* 📄 FIXED: NO MORE RIGHT-SIDE CLIPPING ⚡ */
         .print-preview {
-            background: #0f172a !important; 
+            background: #1e293b !important; 
             color: #ffffff !important;
             border-radius: 0px; 
             padding: 24px 32px; /* Sufficient side-padding for visibility */
@@ -361,7 +361,7 @@
     }
 
     .dialog-actions {
-        background: #0f172a !important;
+        background: #1e293b !important;
         border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
 
         button {

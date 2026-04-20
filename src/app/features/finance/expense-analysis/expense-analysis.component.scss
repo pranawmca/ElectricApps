@@ -194,7 +194,7 @@
     .item-amount {
       font-size: 15px;
       font-weight: 700;
-      color: #0f172a;
+      color: #1e293b;
       min-width: 90px;
       text-align: right;
     }
@@ -251,7 +251,7 @@
 /* ⚡ EXPENSE ANALYSIS DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
     .analysis-container {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
     }
 
     .page-header {

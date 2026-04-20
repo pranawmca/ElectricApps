@@ -78,7 +78,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     }
 
     .header {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%);
       color: #ffffff !important;
       padding: 20px 24px;
       display: flex;
@@ -177,7 +177,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         right: 12px;
 
         .status-badge {
-          background: rgba(15, 23, 42, 0.85);
+          background: rgba(30, 41, 59, 0.85);
           color: white;
           padding: 4px 10px;
           border-radius: 20px;

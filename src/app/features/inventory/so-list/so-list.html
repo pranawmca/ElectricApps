@@ -1,6 +1,6 @@
 <div class="container-fluid" [class.disabled-content]="isDashboardLoading">
   <div class="stats-grid" *ngIf="!isDashboardLoading">
-    <mat-card class="stat-card total">
+    <mat-card class="stat-card green-gradient">
         <mat-card-content>
             <div class="stat-icon"><mat-icon>payments</mat-icon></div>
             <div class="stat-info">
@@ -10,7 +10,7 @@
         </mat-card-content>
     </mat-card>
 
-    <mat-card class="stat-card overdue">
+    <mat-card class="stat-card orange-gradient">
         <mat-card-content>
             <div class="stat-icon"><mat-icon>local_shipping</mat-icon></div>
             <div class="stat-info">
@@ -21,7 +21,7 @@
         </mat-card-content>
     </mat-card>
 
-    <mat-card class="stat-card active">
+    <mat-card class="stat-card blue-gradient">
         <mat-card-content>
             <div class="stat-icon"><mat-icon>pending_actions</mat-icon></div>
             <div class="stat-info">

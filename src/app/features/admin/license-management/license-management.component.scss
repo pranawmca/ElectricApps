@@ -150,10 +150,10 @@ td.mat-cell { padding: 16px; font-size: 13px; color: #1e293b; }
 
 /* Dark Mode support */
 :host-context(.dark-mode) {
-  background-color: #0f172a;
+  background-color: #1e293b;
   .header-actions h1 { color: #f8fafc; }
   .table-container-wrapper { background: #1e293b; border-color: rgba(255, 255, 255, 0.05); }
-  th.mat-header-cell { background-color: #0f172a; color: #94a3b8; }
+  th.mat-header-cell { background-color: #1e293b; color: #94a3b8; }
   td.mat-cell { color: #f1f5f9; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
   .plan-badge:not(.premium) { background: #334155; color: #cbd5e1; }
   .paginator { background: #1e293b; color: #f1f5f9; }

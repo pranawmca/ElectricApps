@@ -9,7 +9,7 @@
         display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;
         @media screen and (max-width: 768px) { flex-direction: column; gap: 20px; text-align: center; align-items: center; }
         
-        .page-title { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.025em; }
+        .page-title { font-size: 2.2rem; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.025em; }
         .page-subtitle { font-size: 1.1rem; color: #64748b; margin: 4px 0 0 0; font-weight: 500; }
         .header-actions { 
             .add-btn { 
@@ -37,7 +37,7 @@
         
         .emp-profile { display: flex; align-items: center; gap: 16px;
             .mini-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #f1f5f9; object-fit: cover; }
-            .name-info { .full-name { display: block; font-weight: 700; color: #0f172a; font-size: 1rem; } }
+            .name-info { .full-name { display: block; font-weight: 700; color: #1e293b; font-size: 1rem; } }
         }
 
         .dept-chip { padding: 4px 12px; background: #eff6ff; color: #1d4ed8; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
@@ -61,7 +61,7 @@
             .page-title { color: #ffffff !important; } 
             .page-subtitle { color: rgba(255,255,255,0.7) !important; } 
             .add-btn { 
-                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+                background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%) !important;
                 border: 1px solid rgba(255, 255, 255, 0.1) !important;
                 box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.3);
                 &:hover { filter: brightness(1.2); }
@@ -69,7 +69,7 @@
         }
         .filter-container { .mat-label { color: rgba(255,255,255,0.8) !important; } input { color: #ffffff !important; } }
         .table-container { 
-            background: #0f172a; 
+            background: #1e293b; 
             border-color: rgba(255,255,255,0.08); 
             table { background: transparent; } 
             .mat-header-row { background: #1e293b; .mat-header-cell { border-bottom-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9) !important; } } 

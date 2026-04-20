@@ -251,9 +251,9 @@
   }
 
   .bulk-action-btn {
-    background: linear-gradient(135deg, #0f172a 0%, #334155 100%) !important;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
     color: white !important;
-    box-shadow: 0 4px 14px 0 rgba(15, 23, 42, 0.3) !important;
+    box-shadow: 0 4px 14px 0 rgba(30, 41, 59, 0.3) !important;
     border-radius: 12px !important;
     font-weight: 600 !important;
     letter-spacing: 0.5px !important;
@@ -275,7 +275,7 @@
 
     &:hover {
         transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.4) !important;
+        box-shadow: 0 6px 20px rgba(30, 41, 59, 0.4) !important;
     }
   }
 
@@ -647,7 +647,7 @@
 // PURCHASE RETURN DASHBOARD DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .container-fluid {
     .header-actions h1.page-title {
@@ -732,7 +732,7 @@
 
   .table-responsive {
     background: #1e293b !important;
-    &::-webkit-scrollbar-track { background: #0f172a !important; }
+    &::-webkit-scrollbar-track { background: #1e293b !important; }
   }
 
   ::ng-deep {
@@ -741,9 +741,9 @@
     }
 
     .mat-mdc-header-row, .mat-header-row {
-      background-color: #0f172a !important;
+      background-color: #1e293b !important;
       th { 
-        background-color: #0f172a !important; 
+        background-color: #1e293b !important; 
         color: rgba(255, 255, 255, 0.6) !important;
         border-bottom-color: rgba(255, 255, 255, 0.1) !important;
       }
@@ -773,7 +773,7 @@
     }
 
     .mat-mdc-paginator {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: #ffffff !important;
       border-top-color: rgba(255, 255, 255, 0.1) !important;
       
@@ -816,7 +816,7 @@
   }
 
   .loader-overlay, .empty-state-container {
-    background: rgba(15, 23, 42, 0.8) !important;
+    background: rgba(30, 41, 59, 0.8) !important;
     color: #ffffff !important;
     .empty-title { color: #ffffff !important; }
   }

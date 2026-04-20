@@ -192,11 +192,11 @@ export interface SoSuccessData {
 
     /* 🌙 PREMIUM DARK MODE (MIDNIGHT SLATE) */
     :host-context(.dark-mode) {
-       .so-success-dialog { background: #020617; }
+       .so-success-dialog { background: #1e293b; }
        h2[mat-dialog-title] { color: #ffffff; }
 
        .so-details {
-          background: #0f172a;
+          background: #1e293b;
           border-color: rgba(255, 255, 255, 0.05);
           .label { color: rgba(255, 255, 255, 0.5); }
           .value { color: #ffffff; }

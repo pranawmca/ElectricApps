@@ -10,7 +10,7 @@ $border: #e5e7eb;
 $d-primary: #3b82f6; 
 $d-text-dark: #f8fafc;
 $d-text-medium: #94a3b8;
-$d-bg-dark: #0f172a;
+$d-bg-dark: #1e293b;
 $d-bg-card: #1e293b;
 $d-border: rgba(255, 255, 255, 0.1);
 
@@ -278,7 +278,7 @@ $d-border: rgba(255, 255, 255, 0.1);
     }
 
     .print-btn {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%) !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
         color: white !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -298,7 +298,7 @@ $d-border: rgba(255, 255, 255, 0.1);
         &:hover {
             filter: brightness(1.3);
             transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.6) !important;
+            box-shadow: 0 8px 25px rgba(30, 41, 59, 0.6) !important;
         }
     }
     

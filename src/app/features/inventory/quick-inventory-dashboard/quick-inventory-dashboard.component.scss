@@ -374,10 +374,10 @@
 // QUICK INVENTORY DASHBOARD DARK MODE POLISH (THE END)
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .quick-dashboard-container {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
   }
 
@@ -405,7 +405,7 @@
 
   .dashboard-mat-table {
     th.mat-mdc-header-cell {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: rgba(255, 255, 255, 0.6) !important;
       border-bottom-color: rgba(255, 255, 255, 0.1) !important;
     }
@@ -421,7 +421,7 @@
   }
 
   .action-buttons .action-btn {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-left-color: rgba(255, 255, 255, 0.1) !important;
     span { color: #ffffff !important; }
     

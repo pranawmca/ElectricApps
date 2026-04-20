@@ -34,7 +34,7 @@
             h1 {
                 margin: 0;
                 font-weight: 800;
-                color: #0f172a;
+                color: #1e293b;
                 letter-spacing: -1px;
             }
             .text-muted { color: #64748b; font-weight: 500; }
@@ -307,7 +307,7 @@
 /* ⚡ GROUP SUMMARY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
     .consolidated-container {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         
         .header-section {
             .title-group {
@@ -337,7 +337,7 @@
     }
 
     .table-container table {
-        th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
         td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; 
              &.clickable:hover { background-color: rgba(255, 255, 255, 0.02) !important; .name-link { color: #60a5fa !important; } }
         }
@@ -350,7 +350,7 @@
 
     .secondary-grids {
         .ic-balance-item, .audit-item, .empty-notif { 
-            background: #0f172a !important; border-color: rgba(255, 255, 255, 0.05) !important; 
+            background: #1e293b !important; border-color: rgba(255, 255, 255, 0.05) !important; 
             color: #ffffff !important;
         }
         .ic-path .comp, .ic-amount-group .amount { color: #ffffff !important; }

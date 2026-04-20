@@ -39,77 +39,79 @@
     flex-shrink: 0;
 }
 
-.stat-item {
-    background: white;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-    border-left: 4px solid #ccc;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); // Animation added [cite: 2026-02-06]
-    cursor: pointer; // Taaki click karne jaisa feel aaye
+.stat-card {
+    border-radius: 16px;
+    border: none;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
 
     &:hover {
-        background: #f8f9fa;
-        transform: translateY(-3px); // Halka sa hover effect
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
     }
 
-    &.border-primary { border-left-color: #3f51b5; }
-    &.border-danger { border-left-color: #f44336; }
-    &.border-success { border-left-color: #4caf50; }
-    &.border-info { border-left-color: #00bcd4; }
-
-    // Active State Logic (When clicked)
-    &.active-widget {
-        transform: scale(1.02);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-
-        &.border-primary { 
-            background: rgba(63, 81, 181, 0.05); 
-            border-bottom: 4px solid #3f51b5; 
-        }
-        &.border-info { 
-            background: rgba(36, 210, 253, 0.05); 
-            border-bottom: 4px solid #24d2fd; 
-        }
-
-        .stat-icon {
-            opacity: 1 !important;
-            filter: drop-shadow(0px 0px 8px currentColor); // Glow effect
-            animation: pulse-icon 2s infinite; // Breating animation [cite: 2026-02-06]
-        }
-    }
-
-    .stat-label {
-        font-size: 11px;
-        font-weight: 700;
-        color: #757575;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 8px;
-    }
-
-    .stat-data {
+    mat-card-content {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        padding: 24px !important;
+        position: relative;
+        z-index: 1;
+    }
 
-        .stat-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: #212121;
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+
+        mat-icon {
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+            color: white;
         }
+    }
 
-        .stat-icon {
+    .stat-info {
+        color: white;
+        .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 2px;
+        }
+        .value {
             font-size: 24px;
-            height: 24px;
-            width: 24px;
-            opacity: 0.2;
-            transition: all 0.3s ease;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.2;
         }
+    }
+
+    /* Premium Gradients */
+    &.blue-gradient { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); }
+    &.rose-gradient { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
+    &.green-gradient { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    &.orange-gradient { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
     }
 }
 // END: NEW WIDGET STYLES
@@ -523,42 +525,20 @@
 // SALE RETURN DASHBOARD DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .list-container {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
     .header-actions h1 { color: #ffffff !important; }
   }
 
-  .stat-item {
-    background: #1e293b !important;
+  .stats-grid-container .stat-card {
     border-color: rgba(255, 255, 255, 0.05) !important;
-    .stat-label { color: rgba(255, 255, 255, 0.5) !important; }
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
     
-    &.border-primary { 
-        border-left-color: #fbbf24 !important; 
-        .stat-icon { color: #fbbf24 !important; opacity: 1 !important; filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.3)); }
-        .stat-value { color: #fbbf24 !important; }
-    }
-    &.border-danger { 
-        border-left-color: #10b981 !important; 
-        .stat-icon { color: #10b981 !important; opacity: 1 !important; filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.3)); }
-        .stat-value { color: #10b981 !important; }
-    }
-    &.border-success { 
-        border-left-color: #f59e0b !important; 
-        .stat-icon { color: #f59e0b !important; opacity: 1 !important; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3)); }
-        .stat-value { color: #f59e0b !important; }
-    }
-    &.border-info { 
-        border-left-color: #3b82f6 !important; 
-        .stat-icon { color: #3b82f6 !important; opacity: 1 !important; filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.3)); }
-        .stat-value { color: #3b82f6 !important; }
-    }
-    
-    &.active-widget {
-        background: #1e293b !important;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+    /* Preserve gradients in dark mode for premium feel */
+    &.blue-gradient, &.rose-gradient, &.green-gradient, &.orange-gradient {
+        mat-icon { color: #ffffff !important; opacity: 1 !important; }
     }
   }
 
@@ -589,9 +569,9 @@
       }
 
       .mat-mdc-header-row, .mat-header-row {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         th { 
-          background-color: #0f172a !important; 
+          background-color: #1e293b !important; 
           color: rgba(255, 255, 255, 0.6) !important;
           border-bottom-color: rgba(255, 255, 255, 0.1) !important;
         }
@@ -621,7 +601,7 @@
       }
 
       .mat-mdc-paginator {
-        background: #0f172a !important;
+        background: #1e293b !important;
         color: #ffffff !important;
         border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
         * { color: rgba(255, 255, 255, 0.7) !important; }
@@ -654,7 +634,7 @@
   }
 
   .loading-shade, .empty-state-container {
-    background: rgba(15, 23, 42, 0.8) !important;
+    background: rgba(30, 41, 59, 0.8) !important;
     color: #ffffff !important;
     .empty-title { color: #ffffff !important; }
   }

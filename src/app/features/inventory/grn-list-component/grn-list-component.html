@@ -1,6 +1,6 @@
 <div class="grn-main-wrapper" [class.disabled-content]="isDashboardLoading">
     <div class="stats-grid" *ngIf="!isDashboardLoading">
-        <mat-card class="stat-card total">
+        <mat-card class="stat-card green-gradient">
             <mat-card-content>
                 <div class="stat-icon"><mat-icon>inventory</mat-icon></div>
                 <div class="stat-info">
@@ -10,7 +10,7 @@
             </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card overdue">
+        <mat-card class="stat-card orange-gradient">
             <mat-card-content>
                 <div class="stat-icon"><mat-icon>payments</mat-icon></div>
                 <div class="stat-info">
@@ -21,25 +21,25 @@
             </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card active">
+        <mat-card class="stat-card purple-gradient">
             <mat-card-content>
                 <div class="stat-icon"><mat-icon>report_problem</mat-icon></div>
                 <div class="stat-info">
                     <span class="label">Quality Issues</span>
                     <span class="value">{{qualityIssueCount}}</span>
                 </div>
-                <div class="stat-badge bg-info-subtle" *ngIf="qualityIssueCount > 0">GRNs affected</div>
+                <div class="stat-badge" *ngIf="qualityIssueCount > 0">GRNs affected</div>
             </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card rejected">
+        <mat-card class="stat-card rose-gradient">
             <mat-card-content>
                 <div class="stat-icon"><mat-icon>block</mat-icon></div>
                 <div class="stat-info">
                     <span class="label">Rejected Items</span>
                     <span class="value">{{totalRejectedItemsQty}}</span>
                 </div>
-                <div class="stat-badge bg-danger-subtle" *ngIf="totalRejectedItemsQty > 0">Stock Loss</div>
+                <div class="stat-badge" *ngIf="totalRejectedItemsQty > 0">Stock Loss</div>
             </mat-card-content>
         </mat-card>
     </div>
@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <div class="table-card mat-elevation-z3">
+    <mat-card class="table-card mat-elevation-z3">
 
         <div class="loading-shade" *ngIf="isLoadingResults && !isDashboardLoading">
             <mat-spinner diameter="50"></mat-spinner>
@@ -258,5 +258,5 @@
                 aria-label="Select page">
             </mat-paginator>
         </div>
-    </div>
+    </mat-card>
 </div>

@@ -15,7 +15,7 @@
 }
 
 :host-context(.dark-mode) .wizard-container {
-  background: #0f172a; /* Midnight Slate */
+  background: #1e293b; /* Midnight Slate */
   color: #f8fafc;
 }
 
@@ -47,7 +47,7 @@
 }
 
 :host-context(.dark-mode) .wizard-header {
-  background: #0f172a; /* Midnight Slate */
+  background: #1e293b; /* Midnight Slate */
   border-bottom: 1px solid #1e293b;
 }
 
@@ -212,7 +212,7 @@
   }
 
   .step-content {
-     background: #0f172a !important;
+     background: #1e293b !important;
   }
 
   .summary-item {

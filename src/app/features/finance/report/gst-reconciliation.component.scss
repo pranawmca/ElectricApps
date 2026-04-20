@@ -289,7 +289,7 @@
 /* ⚡ GST RECONCILIATION DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
     .gst-container {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         
         .header-section {
             .title-group {
@@ -333,7 +333,7 @@
             }
 
             .gst-table {
-                th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+                th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
                 td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
             }
         }
@@ -343,7 +343,7 @@
         .log-card { border-left-color: #34d399 !important; }
 
         .invoice-badge { background: rgba(255, 255, 255, 0.05) !important; color: rgba(255, 255, 255, 0.7) !important; }
-        .rate-badge { background: #0f172a !important; color: #ffffff !important; }
+        .rate-badge { background: #1e293b !important; color: #ffffff !important; }
         .gstin-code { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.1) !important; }
         
         .status-chip {

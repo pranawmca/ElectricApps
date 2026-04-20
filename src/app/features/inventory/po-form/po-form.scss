@@ -904,7 +904,7 @@ input[type="number"] {
 // STANDARD PURCHASE ORDER FORM DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   mat-card {
     background: #1e293b !important;
@@ -960,12 +960,12 @@ input[type="number"] {
 
   /* ⚡ ITEM ROWS DEEP SLATE ⚡ */
   .item-row {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
     &:hover { background: #1e293b !important; }
 
     ::ng-deep .mat-mdc-text-field-wrapper {
-      background-color: #0f172a !important;
+      background-color: #1e293b !important;
       border: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
     
@@ -976,7 +976,7 @@ input[type="number"] {
     /* Matched to main form sapphire color */
     .fw-bold.text-primary {
        ::ng-deep .mat-mdc-text-field-wrapper {
-         background-color: #0f172a !important;
+         background-color: #1e293b !important;
        }
        color: #ffffff !important;
     }
@@ -997,7 +997,7 @@ input[type="number"] {
   }
 
   .na-field {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     .na-label { color: rgba(255, 255, 255, 0.5) !important; }
     .na-badge { background-color: #1e293b !important; color: #ffffff !important; }
@@ -1008,7 +1008,7 @@ input[type="number"] {
     background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
     .summary-header {
-      background: #0f172a !important;
+      background: #1e293b !important;
       border-bottom-color: rgba(255, 255, 255, 0.05) !important;
       span { color: #ffffff !important; }
     }

@@ -1,6 +1,6 @@
 // Variables
 $bg-color: #f8fafc;
-$text-primary: #0f172a;
+$text-primary: #1e293b;
 $text-secondary: #64748b;
 $primary-color: #3f51b5;
 $border-color: #e2e8f0;
@@ -795,10 +795,10 @@ table.clean-table {
 // PURCHASE RETURN FORM DARK MODE POLISH (THE END)
 // ==========================================================================
 :host-context([data-theme='dark-polished']), :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .page-container {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
   }
 
   // ⚡ DYNAMIC GRID INPUT POLISH ⚡ [cite: 2026-04-08]
@@ -835,7 +835,7 @@ table.clean-table {
     .card-header .header-text { color: rgba(255, 255, 255, 0.5) !important; }
     
     &.search-section-card {
-        background: rgba(15, 23, 42, 0.3) !important;
+        background: rgba(30, 41, 59, 0.3) !important;
         border-color: rgba(59, 130, 246, 0.3) !important;
     }
   }
@@ -862,7 +862,7 @@ table.clean-table {
     
     /* Search specific override */
     &.search-field .mat-mdc-text-field-wrapper {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         border-color: #3b82f6 !important;
     }
   }
@@ -883,11 +883,11 @@ table.clean-table {
             .grn-ref { color: #ffffff !important; }
             .grn-date { color: rgba(255, 255, 255, 0.4) !important; }
             .folder-icon { color: #ffffff !important; opacity: 0.8 !important; }
-            &.expanded { background: #0f172a !important; }
+            &.expanded { background: #1e293b !important; }
             &:hover { background: rgba(255, 255, 255, 0.02) !important; }
         }
         .grn-content { 
-            background: #0f172a !important; 
+            background: #1e293b !important; 
             .stock-item-row { 
                 border-bottom-color: rgba(255, 255, 255, 0.03) !important; 
                 .item-name { color: #ffffff !important; }
@@ -925,14 +925,14 @@ table.clean-table {
     .table-container { 
         background: #1e293b !important; 
         border-color: rgba(255, 255, 255, 0.05) !important;
-        &::-webkit-scrollbar-track { background: #0f172a !important; }
+        &::-webkit-scrollbar-track { background: #1e293b !important; }
     }
     
     ::ng-deep table.clean-table {
         background-color: #1e293b !important;
         
         th.mat-mdc-header-cell {
-            background-color: #0f172a !important;
+            background-color: #1e293b !important;
             color: #ffffff !important;
             opacity: 0.9 !important;
             border-bottom-color: rgba(255, 255, 255, 0.2) !important;
@@ -949,14 +949,14 @@ table.clean-table {
         .monospace { background: rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; }
         
         .type-badge, .stock-info-badge, .location-badge, .date-badge {
-            background: #0f172a !important;
+            background: #1e293b !important;
             color: #ffffff !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
             * { color: #ffffff !important; }
         }
 
         .stock-badge {
-            background: #0f172a !important;
+            background: #1e293b !important;
             border-color: rgba(255, 255, 255, 0.2) !important;
             .value, .label { color: #ffffff !important; }
         }
@@ -970,7 +970,7 @@ table.clean-table {
 
         /* ⚡ QTY INPUT LOCKDOWN ⚡ */
         .qty-input .mat-mdc-text-field-wrapper {
-            background-color: #0f172a !important;
+            background-color: #1e293b !important;
             border-radius: 4px !important;
             .mat-mdc-input-element { color: #ffffff !important; font-weight: 700 !important; }
         }
@@ -1002,4 +1002,4 @@ table.clean-table {
   }
 
   .no-results { color: rgba(255, 255, 255, 0.3) !important; }
-}
+}

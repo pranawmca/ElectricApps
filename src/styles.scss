@@ -129,9 +129,9 @@ body {
 
 /* Global Dark Mode Variables */
 html.dark-mode {
-  --app-bg: #020617 !important; /* Midnight Black */
+  --app-bg: #1e293b !important; /* Slate 800 Background */
   --app-text: #f8fafc;
-  --card-bg: #0f172a !important; /* Dark Polished Sapphire Surface */
+  --card-bg: #1e293b !important; /* Matching Slate 800 Surface */
   --border-color: rgba(255, 255, 255, 0.08); /* Sophisticated Border */
 }
 
@@ -258,7 +258,7 @@ html.dark-mode {
   .mat-datepicker-content,
   .mat-mdc-dialog-surface,
   .mat-mdc-option {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important; /* Unified Slate 800 */
     color: #f8fafc !important;
     
     .mdc-list-item__primary-text {
@@ -303,7 +303,7 @@ html.dark-mode {
 
   /* ⚡ GLOBAL DARK MODE LAYOUT PATTERNS ⚡ */
   body {
-    background-color: #020617 !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
   }
 
@@ -312,13 +312,13 @@ html.dark-mode {
   }
 
   .list-container, .page-container, .container-fluid, .content-wrapper {
-    background-color: #020617 !important;
+    background-color: #1e293b !important;
   }
 
   .grid-wrapper, .table-container, .card, .mat-card, .section-card, .charts-card, .search-card, .table-card {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
-    border-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtle glass border for definition */
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
   }
 
@@ -332,19 +332,19 @@ html.dark-mode {
 
   /* ⚡ UNIVERSAL DATA TABLE & PAGINATOR POLISH ⚡ */
   .mat-mdc-table, .mat-table {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
     
-    .mat-mdc-header-row { background-color: #020617 !important; }
+    .mat-mdc-header-row { background-color: #1e293b !important; }
     .mat-mdc-row, .mat-row {
-      background-color: #0f172a !important;
+      background-color: #1e293b !important;
       &:hover { background-color: rgba(255, 255, 255, 0.04) !important; }
       td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
     }
   }
 
   .mat-mdc-paginator, .mat-paginator {
-    background-color: #020617 !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
 
     .mat-mdc-paginator-container { color: #ffffff !important; }

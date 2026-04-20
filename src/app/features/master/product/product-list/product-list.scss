@@ -78,7 +78,7 @@
   mat-icon { margin-right: 6px; font-size: 18px; width: 18px; height: 18px; }
   
   &:hover {
-    background: #0f172a !important; /* Slightly darker on hover */
+    background: #1e293b !important; /* Slightly darker on hover */
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
   }
@@ -138,17 +138,17 @@
 
 /* 🌙 FULL MIDNIGHT SLATE DARK MODE ENHANCEMENT */
 :host-context(.dark-mode) {
-  background-color: #020617 !important;
-  .list-container { background: #0f172a !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+  background-color: #1e293b !important;
+  .list-container { background: #1e293b !important; border-color: rgba(255, 255, 255, 0.1) !important; }
   .header-actions h1 { color: #f8fafc !important; }
   .nested-content-container {
-    background: linear-gradient(to bottom, #0f172a, #020617) !important;
+    background: linear-gradient(to bottom, #1e293b, #1e293b) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     .title-text { color: #f8fafc !important; }
     .text-muted { color: #94a3b8 !important; }
     .category-badge { background: #1e293b !important; border-color: rgba(255, 255, 255, 0.1) !important; color: #60a5fa !important; }
   }
-  .table-card { background: #0f172a !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; }
+  .table-card { background: #1e293b !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; }
   .nested-table {
     th { background: #1e293b !important; color: #cbd5e1 !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
     td { border-bottom-color: rgba(255, 255, 255, 0.03) !important; color: #e2e8f0 !important; background: transparent !important; }

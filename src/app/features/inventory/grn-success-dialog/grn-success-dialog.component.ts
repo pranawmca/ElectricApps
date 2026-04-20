@@ -181,11 +181,11 @@ export interface GrnSuccessData {
 
     /* 🌙 PREMIUM DARK MODE (MIDNIGHT SLATE) */
     :host-context(.dark-mode) {
-       .grn-success-dialog { background: #020617; }
+       .grn-success-dialog { background: #1e293b; }
        h2[mat-dialog-title] { color: #ffffff !important; }
 
        .grn-details {
-          background: #0f172a;
+          background: #1e293b;
           border-color: rgba(255, 255, 255, 0.05);
           .label { color: rgba(255, 255, 255, 0.7); } /* 🎯 Brighter labels */
           .value { color: #ffffff; }

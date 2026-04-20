@@ -240,7 +240,7 @@
 
 /* ⚡ BULK RECEIPT ENTRY DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
-    .popup-container { background-color: #0f172a !important; color: #ffffff !important; }
+    .popup-container { background-color: #1e293b !important; color: #ffffff !important; }
     
     .header {
         background-color: #1e293b !important;
@@ -249,11 +249,11 @@
     }
 
     .content-area {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
     }
 
     .data-table {
-        thead th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; border-right-color: rgba(255, 255, 255, 0.05) !important; }
+        thead th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; border-right-color: rgba(255, 255, 255, 0.05) !important; }
         tbody td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; border-right-color: rgba(255, 255, 255, 0.03) !important; }
         tbody tr:hover { background-color: rgba(255, 255, 255, 0.02) !important; }
         tbody td.bg-readonly { background-color: rgba(255, 255, 255, 0.02) !important; }

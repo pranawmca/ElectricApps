@@ -108,7 +108,7 @@
 // FULL PAGE DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .page-title {
     color: #f8fafc !important; 
@@ -315,7 +315,7 @@
 /* 🌙 DARK MODE ENHANCEMENTS */
 :host-context(.dark-mode) {
   .nested-content-container {
-    background: linear-gradient(to bottom, #0f172a, #020617) !important;
+    background: linear-gradient(to bottom, #1e293b, #1e293b) !important;
     border-bottom-color: rgba(255, 255, 255, 0.05) !important;
     
     .title-text { color: #f8fafc !important; }
@@ -336,7 +336,7 @@
   }
 
   .table-card {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
   }
 

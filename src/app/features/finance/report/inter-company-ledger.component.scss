@@ -10,7 +10,7 @@
         margin-bottom: 32px;
 
         .title-group {
-            h1 { margin: 0; font-weight: 800; color: #0f172a; letter-spacing: -1px; }
+            h1 { margin: 0; font-weight: 800; color: #1e293b; letter-spacing: -1px; }
             .text-muted { color: #64748b; }
         }
 
@@ -109,7 +109,7 @@
 /* ⚡ INTER-COMPANY LEDGER DARK MODE POLISH (MIDNIGHT SLATE) ⚡ */
 :host-context(.dark-mode) {
     .ic-container {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         
         .header-section {
             .title-group {
@@ -156,7 +156,7 @@
         }
 
         .ic-table {
-            th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+            th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
             td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
             
             .type-badge {

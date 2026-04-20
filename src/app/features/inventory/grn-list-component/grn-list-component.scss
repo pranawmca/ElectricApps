@@ -130,33 +130,20 @@
           text-transform: uppercase;
       }
 
-      &.total {
-          background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
-          border-left: 6px solid #fbbf24;
-          .stat-icon { background: #fef3c7; color: #d97706; }
-      }
+      &.green-gradient { background: linear-gradient(135deg, #10b981 0%, #059669 100%); .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
+      &.orange-gradient { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
+      &.purple-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
+      &.rose-gradient { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); .stat-icon { background: rgba(255,255,255,0.2) !important; color: white !important; } .label, .value { color: white !important; } }
 
-      &.overdue {
-          background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
-          border-left: 6px solid #ef4444;
-          .stat-icon { background: #fee2e2; color: #dc2626; }
-          .stat-badge { background: #fee2e2; color: #dc2626; }
-          .value { color: #dc2626; }
-      }
-
-      &.active {
-          background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
-          border-left: 6px solid #0ea5e9;
-          .stat-icon { background: #e0f2fe; color: #0284c7; }
-          .stat-badge { background: #e0f2fe; color: #0369a1; }
-      }
-
-      &.rejected {
-          background: linear-gradient(135deg, #fff5f5 0%, #fff1f2 100%);
-          border-left: 6px solid #f43f5e;
-          .stat-icon { background: #ffe4e6; color: #e11d48; }
-          .stat-badge { background: #ffe4e6; color: #e11d48; }
-          .value { color: #be123c; }
+      &::after {
+        content: '';
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
       }
   }
 }
@@ -558,10 +545,10 @@
 // QUICK GRN DASHBOARD DARK MODE POLISH (THE END)
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .grn-main-wrapper {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
   }
 
   .title-section {
@@ -570,22 +557,13 @@
   }
 
   .stats-grid .stat-card {
-    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
-    .stat-info .label { color: rgba(255, 255, 255, 0.5) !important; }
-    .stat-info .value { color: #ffffff !important; }
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
     
-    .stat-badge { display: none !important; }
-    
-    .stat-icon { 
-        background: rgba(255, 255, 255, 0.05) !important; 
-        color: #ffffff !important; 
+    /* Preserve gradients in dark mode for premium feel */
+    &.green-gradient, &.orange-gradient, &.purple-gradient, &.rose-gradient {
+        /* Keep gradients but slightly darken if needed or keep vibrant */
         mat-icon { color: #ffffff !important; opacity: 1 !important; }
-    }
-    
-    &.total, &.overdue, &.active, &.rejected {
-        background: #1e293b !important;
-        * { color: #ffffff !important; }
     }
   }
 
@@ -606,16 +584,16 @@
 
   .table-card {
     background: #1e293b !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
   }
 
   .table-responsive { background: #1e293b !important; }
 
   ::ng-deep {
     .mat-mdc-header-row .mat-mdc-header-cell {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         color: rgba(255, 255, 255, 0.6) !important;
         border-bottom-color: rgba(255, 255, 255, 0.1) !important;
         border-radius: 0 !important;
@@ -632,7 +610,7 @@
       }
       
       &.expanded-row, &.expanded-row:hover { 
-        background-color: #0f172a !important; 
+        background-color: #1e293b !important; 
         td { background: transparent !important; }
       }
     }
@@ -669,7 +647,7 @@
     td { color: rgba(255, 255, 255, 0.8) !important; }
 
     .row-detail-container {
-      background: #0f172a !important;
+      background: #1e293b !important;
       border: none !important;
       margin: 0 !important;
       border-radius: 0 !important;
@@ -681,7 +659,7 @@
           border-bottom-color: rgba(255, 255, 255, 0.1) !important; 
         }
         td { 
-          background: #0f172a !important; 
+          background: #1e293b !important; 
           color: #ffffff !important; 
           border-bottom-color: rgba(255, 255, 255, 0.05) !important; 
         }
@@ -693,7 +671,7 @@
     }
 
     .mat-mdc-paginator {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: #ffffff !important;
       opacity: 1 !important;
       
@@ -719,8 +697,8 @@
   }
 
   .loading-shade, .empty-state-container {
-    background: rgba(15, 23, 42, 0.8) !important;
+    background: rgba(30, 41, 59, 0.8) !important;
     color: #ffffff !important;
     .empty-title { color: #ffffff !important; }
   }
-}
+}

@@ -125,7 +125,7 @@
 /* 🌑 DARK MODE POLISH (MIDNIGHT SLATE) 🌑 */
 :host-context(.dark-mode) {
     .batch-history-dialog {
-        background-color: #0f172a !important; /* Deep Midnight */
+        background-color: #1e293b !important; /* Deep Midnight */
         color: #f8fafc !important;
     }
 

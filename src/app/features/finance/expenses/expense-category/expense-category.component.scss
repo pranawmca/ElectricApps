@@ -128,7 +128,7 @@
 /* ⚡ EXPENSE CATEGORIES DARK MODE POLISH ⚡ */
 :host-context(.dark-mode) {
     .expense-container {
-        background-color: #0f172a !important;
+        background-color: #1e293b !important;
         h1 { color: #ffffff !important; }
     }
 
@@ -146,7 +146,7 @@
             }
             
             .mat-mdc-table, .mat-table { background: #1e293b !important; }
-            .mat-mdc-header-row th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; }
+            .mat-mdc-header-row th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; }
             .mat-mdc-row td { color: #ffffff !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
             
             .mat-mdc-paginator {

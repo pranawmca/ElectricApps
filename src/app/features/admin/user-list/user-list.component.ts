@@ -259,7 +259,7 @@ import { LoadingService } from '../../../core/services/loading.service';
        USER LIST DARK MODE POLISH
        ========================================================================== */
     :host-context(.dark-mode) {
-      background-color: #0f172a !important;
+      background-color: #1e293b !important;
 
       .header-actions h1 {
         color: #f8fafc !important;
@@ -287,7 +287,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 
       .grid-wrapper table {
         th.mat-header-cell {
-          background-color: #0f172a !important;
+          background-color: #1e293b !important;
           color: rgba(255, 255, 255, 0.5) !important;
           border-bottom-color: rgba(255, 255, 255, 0.1) !important;
         }

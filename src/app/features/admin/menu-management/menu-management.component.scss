@@ -390,7 +390,7 @@
 // MENU MANAGEMENT DARK MODE POLISH
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
 
   .header-actions {
     .page-title { color: #f8fafc !important; }
@@ -418,7 +418,7 @@
 
   .virtual-scroll-grid {
     .grid-header {
-      background: #0f172a !important;
+      background: #1e293b !important;
       border-bottom-color: rgba(255, 255, 255, 0.1) !important;
       color: rgba(255, 255, 255, 0.5) !important;
     }
@@ -437,7 +437,7 @@
     }
 
     .col-url {
-      .url-code { background: #0f172a !important; color: #94a3b8 !important; border: 1px solid rgba(255,255,255,0.05); }
+      .url-code { background: #1e293b !important; color: #94a3b8 !important; border: 1px solid rgba(255,255,255,0.05); }
       .no-url { color: rgba(255, 255, 255, 0.3) !important; }
     }
 
@@ -447,7 +447,7 @@
     }
 
     .col-order .order-badge {
-      background: #0f172a !important;
+      background: #1e293b !important;
       border-color: rgba(255, 255, 255, 0.1) !important;
       color: #94a3b8 !important;
     }

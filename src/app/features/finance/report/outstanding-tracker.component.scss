@@ -512,18 +512,18 @@
         .stat-info .value { color: #ffffff !important; }
         
         &.total {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%) !important;
             border-left-color: #f87171 !important;
             .stat-icon { background: rgba(248, 113, 113, 0.1) !important; mat-icon { color: #f87171 !important; } }
         }
         &.overdue {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%) !important;
             border-left-color: #ef4444 !important;
             .stat-icon { background: rgba(239, 68, 68, 0.1) !important; mat-icon { color: #ef4444 !important; } }
             .value { color: #ef4444 !important; }
         }
         &.active {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%) !important;
             border-left-color: #60a5fa !important;
             .stat-icon { background: rgba(96, 165, 250, 0.1) !important; mat-icon { color: #60a5fa !important; } }
         }
@@ -562,7 +562,7 @@
 
         ::ng-deep {
             .mat-mdc-table, .mat-table { background: #1e293b !important; }
-            .mat-mdc-header-row th { background-color: #0f172a !important; color: rgba(255, 255, 255, 0.6) !important; }
+            .mat-mdc-header-row th { background-color: #1e293b !important; color: rgba(255, 255, 255, 0.6) !important; }
             .mat-mdc-row td { color: #ffffff !important; border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
             
             .so-badge { background: rgba(96, 165, 250, 0.1) !important; color: #60a5fa !important; border-color: rgba(96, 165, 250, 0.2) !important; }

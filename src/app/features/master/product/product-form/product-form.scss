@@ -232,7 +232,7 @@ mat-card.product-card.is-modal {
   }
 
   .product-header {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-bottom-color: rgba(255, 255, 255, 0.1) !important;
     
     h2, mat-icon { color: #f8fafc !important; }
@@ -240,7 +240,7 @@ mat-card.product-card.is-modal {
 
   /* Image Upload Section Polish */
   .image-upload-wrapper {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     
     .image-preview {
@@ -256,7 +256,7 @@ mat-card.product-card.is-modal {
 
   /* Toggle Groups & Elements */
   .toggle-group {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     color: #f8fafc !important;
   }
@@ -385,11 +385,11 @@ mat-card.product-card.is-modal {
 /* 🌑 DARK MODE POLISHED OVERRIDES 🌑 */
 :host-context(.dark-mode) {
   .price-summary-card {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.05) !important;
 
     .summary-header {
-      background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%) !important; // Dark Polished Gradient
+      background: linear-gradient(90deg, #1e293b 0%, #1e293b 100%) !important; // Dark Polished Gradient
       color: #f8fafc !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
       

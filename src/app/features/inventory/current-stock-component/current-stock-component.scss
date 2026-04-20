@@ -1208,11 +1208,11 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
 // QUICK STOCK DASHBOARD DARK MODE POLISH (THE END)
 // ==========================================================================
 :host-context(.dark-mode) {
-  background-color: #0f172a !important;
+  background-color: #1e293b !important;
   
   /* Reset local variables for Dark Theme */
   --dg-border: rgba(255, 255, 255, 0.1);
-  --dg-header-bg: #0f172a;
+  --dg-header-bg: #1e293b;
   --dg-row-hover: rgba(59, 130, 246, 0.15); /* DARK POLISHED SAPPHIRE HOVER */
   --dg-card-bg: #1e293b;
   --dg-text-main: #ffffff;
@@ -1253,7 +1253,7 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
 
   .table-scroll-wrapper {
     background: #1e293b !important;
-    &::-webkit-scrollbar-track { background: #0f172a !important; }
+    &::-webkit-scrollbar-track { background: #1e293b !important; }
   }
 
   ::ng-deep {
@@ -1262,9 +1262,9 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
     }
 
     .mat-mdc-header-row {
-      background-color: #0f172a !important;
+      background-color: #1e293b !important;
       th { 
-        background-color: #0f172a !important; 
+        background-color: #1e293b !important; 
         color: rgba(255, 255, 255, 0.6) !important;
         border-bottom-color: rgba(255, 255, 255, 0.1) !important;
       }
@@ -1300,18 +1300,18 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
       &.expiring-soon-row { background-color: rgba(245, 158, 11, 0.1) !important; border-left-color: #f59e0b !important; }
     }
 
-    .expanded-row { background-color: #0f172a !important; }
-    .element-detail { background: #0f172a !important; }
+    .expanded-row { background-color: #1e293b !important; }
+    .element-detail { background: #1e293b !important; }
 
     .history-card { 
       background: #1e293b !important; 
       border-color: rgba(255, 255, 255, 0.1) !important; 
     }
     
-    .history-header { background: #0f172a !important; color: #ffffff !important; }
+    .history-header { background: #1e293b !important; color: #ffffff !important; }
     
     .child-table {
-       th { background: #0f172a !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
+       th { background: #1e293b !important; color: rgba(255, 255, 255, 0.5) !important; border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
        
        tbody tr {
          background-color: #1e293b !important;
@@ -1348,7 +1348,7 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
     }
 
     .mat-mdc-paginator {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: #ffffff !important;
       opacity: 1 !important;
       
@@ -1402,13 +1402,13 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
   }
 
   .selection-action-bar {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-bottom-color: rgba(255, 255, 255, 0.1) !important;
     .selection-info { color: #ffffff !important; }
   }
 
   .loading-shade, .empty-state-container {
-    background: rgba(15, 23, 42, 0.8) !important;
+    background: rgba(30, 41, 59, 0.8) !important;
     color: #ffffff !important;
     .empty-title { color: #ffffff !important; }
   }

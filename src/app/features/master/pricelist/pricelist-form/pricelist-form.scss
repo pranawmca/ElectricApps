@@ -592,7 +592,7 @@ textarea.table-control {
 // ==========================================================================
 :host-context(.dark-mode) {
   .master-container {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
   }
 
   .pricelist-header, 
@@ -629,7 +629,7 @@ textarea.table-control {
     }
 
     .toggle-box.compact {
-        background: #0f172a !important;
+        background: #1e293b !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         color: #f8fafc !important;
 
@@ -649,7 +649,7 @@ textarea.table-control {
     background: #1e293b !important;
 
     th {
-      background: #0f172a !important;
+      background: #1e293b !important;
       color: #94a3b8 !important;
       border-bottom: 2px solid rgba(255, 255, 255, 0.12) !important;
     }
@@ -661,7 +661,7 @@ textarea.table-control {
     }
 
     .table-control {
-      background-color: #0f172a !important;
+      background-color: #1e293b !important;
       border-color: rgba(255, 255, 255, 0.1) !important;
       color: #ffffff !important;
 
@@ -677,7 +677,7 @@ textarea.table-control {
   }
 
   .responsive-textarea {
-    background: #0f172a !important;
+    background: #1e293b !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
   }

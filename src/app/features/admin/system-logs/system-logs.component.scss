@@ -186,7 +186,7 @@
 // 🌑 Midnight Slate Dark Mode Implementation
 :host-context(html.dark-mode) {
     .filter-card, .table-card {
-        background: #0f172a !important; /* Midnight Slate Card */
+        background: #1e293b !important; /* Midnight Slate Card */
         color: #f8fafc !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
@@ -217,7 +217,7 @@
     }
 
     .filter-header-row {
-        background: #020617 !important; /* Deeper slate for filter row */
+        background: #1e293b !important; /* Deeper slate for filter row */
         th { border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
     }
 
