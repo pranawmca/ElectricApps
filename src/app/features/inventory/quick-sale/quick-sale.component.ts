@@ -818,7 +818,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.isSaving = true;
                 const formRaw = this.saleForm.getRawValue();
                 const payload = {
-                    id: this.isEdit ? this.saleOrderId : 0,
+                    id: this.isEdit ? this.saleOrderId : '00000000-0000-0000-0000-000000000000',
                     customerId: formRaw.customerId,
                     customerName: formRaw.customerName,
                     remarks: formRaw.remarks,
@@ -840,7 +840,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                     companyId: this.authService.getCompanyId(),
                     isQuick: true,
                     items: this.items.getRawValue().map((i: any) => ({
-                        id: i.id || 0,
+                        id: i.id || '00000000-0000-0000-0000-000000000000',
                         productId: i.productId,
                         productName: i.productName,
                         qty: i.qty,
@@ -991,14 +991,13 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         this.cdr.detectChanges();
 
         const receiptPayload = {
-            id: 0,
-            customerId: Number(data.customerId),
+            customerId: data.customerId,
             amount: Number(data.grandTotal),
             totalAmount: Number(data.grandTotal),
             discountAmount: 0,
             netAmount: Number(data.grandTotal),
             paymentMode: 'Cash',
-            referenceNumber: `${data.soNumber}-${new Date().getTime().toString().slice(-4)}`,
+            referenceNumber: `R-${data.soNumber}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
             paymentDate: new Date().toISOString(),
             remarks: `Direct Receipt for Quick Sale: ${data.soNumber}`,
             createdBy: (this.authService as any).getUserName?.() || localStorage.getItem('email') || 'Admin',
