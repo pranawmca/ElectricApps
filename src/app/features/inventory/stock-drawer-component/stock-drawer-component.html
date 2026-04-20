@@ -17,7 +17,6 @@
   <div class="drawer-search">
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-icon matPrefix>search</mat-icon>
-      <mat-label>Search Stock...</mat-label>
       <input matInput (input)="onSearch($event)" placeholder="Search product name..." [(ngModel)]="searchTerm">
       <button *ngIf="searchTerm" matSuffix mat-icon-button (click)="searchTerm=''; loadStock()">
         <mat-icon>clear</mat-icon>
