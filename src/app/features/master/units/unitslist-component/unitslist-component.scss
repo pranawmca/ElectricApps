@@ -7,7 +7,7 @@
   padding: 0 24px;
   background-color: var(--app-bg, #f8f9fa);
   color: var(--app-text);
-  height: calc(100vh - 260px);
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden !important;
@@ -54,8 +54,12 @@
 }
 
 // Global Dark Mode Override for this component
-:host-context(.dark-mode) {
-  .bulk-unit-container { background: transparent !important; }
+:host-context(.dark-mode), :host-context(html.dark-mode) {
+  background-color: #1e293b !important;
+  
+  .bulk-unit-container {
+    background-color: #1e293b !important;
+  }
   
   .unit-card,
   mat-card,

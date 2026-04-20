@@ -1,7 +1,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
+  height: 100%;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -56,6 +56,8 @@ mat-form-field {
 }
 
 .table-container {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   overflow-y: auto;
   position: relative;
@@ -88,12 +90,13 @@ mat-form-field {
   }
 
   mat-paginator {
+    margin-top: auto;
     position: sticky;
     bottom: 0;
     z-index: 100;
     background: var(--card-bg, white) !important;
     color: var(--app-text) !important;
-    border-top: 1px solid var(--border-color, #e2e8f0);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
 
     ::ng-deep {
       .mat-mdc-paginator-container { color: inherit; }
@@ -117,16 +120,11 @@ mat-form-field {
 }
 
 // Global Dark Mode Override for this component
-:host-context(.dark-mode) {
-  // Fix the blinding white mat-card
-  .list-card,
-  mat-card,
-  .table-container,
-  table,
-  .mat-mdc-table {
-    background: #1e293b !important;
+:host-context(.dark-mode), :host-context(html.dark-mode) {
+  background-color: #1e293b !important;
+  
+  .rack-list-container {
     background-color: #1e293b !important;
-    border-color: rgba(255, 255, 255, 0.05) !important;
   }
   
   // Fix sticky header background too
@@ -167,6 +165,7 @@ mat-form-field {
   }
 
   mat-paginator {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
     ::ng-deep {
       .mat-mdc-paginator-navigation-next,
       .mat-mdc-paginator-navigation-previous {

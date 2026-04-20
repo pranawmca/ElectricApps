@@ -108,9 +108,12 @@
 
 // ==========================================================================
 // FULL PAGE DARK MODE POLISH
-// ==========================================================================
-:host-context(.dark-mode) {
+:host-context(.dark-mode), :host-context(html.dark-mode) {
   background-color: #1e293b !important;
+
+  .container-fluid {
+    background-color: #1e293b !important;
+  }
 
   .page-title {
     color: #f8fafc !important; 

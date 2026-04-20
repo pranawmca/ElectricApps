@@ -78,7 +78,7 @@ mat-card.product-card {
     cursor: pointer;
     overflow: hidden;
     border-radius: 8px;
-    background: white;
+    background: #1e293b;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -87,6 +87,8 @@ mat-card.product-card {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
+      mix-blend-mode: multiply;
+      filter: brightness(1.1);
     }
 
     .upload-hint {
@@ -244,7 +246,7 @@ mat-card.product-card.is-modal {
     border-color: rgba(255, 255, 255, 0.1) !important;
     
     .image-preview {
-      background: rgba(255, 255, 255, 0.02) !important;
+      background: #1e293b !important;
       border: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 

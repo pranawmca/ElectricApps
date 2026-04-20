@@ -136,9 +136,12 @@
   .gst-badge { background: #f0fdfa; color: #0d9488; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; border: 1px solid #ccfbf1; }
 }
 
-/* 🌙 FULL MIDNIGHT SLATE DARK MODE ENHANCEMENT */
-:host-context(.dark-mode) {
+:host-context(.dark-mode), :host-context(html.dark-mode) {
   background-color: #1e293b !important;
+
+  .container-fluid {
+    background-color: #1e293b !important;
+  }
   .list-container { background: #1e293b !important; border-color: rgba(255, 255, 255, 0.1) !important; }
   .header-actions h1 { color: #f8fafc !important; }
   .nested-content-container {
