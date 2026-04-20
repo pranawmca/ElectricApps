@@ -287,7 +287,14 @@ export class PurchaseReturnList implements OnInit {
 
   navigateToCreate() {
     const target = this.isQuick ? '/app/quick-inventory/po-return/add' : '/app/inventory/purchase-return/add';
-    this.router.navigate([target]);
+    this.loadingService.setLoading(true, 'Opening New Purchase Return Form...');
+    setTimeout(() => {
+        this.router.navigate([target]).then(() => {
+            this.loadingService.setLoading(false);
+        }).catch(() => {
+            this.loadingService.setLoading(false);
+        });
+    }, 500);
   }
 
   createOutwardGatePass(row: any) {

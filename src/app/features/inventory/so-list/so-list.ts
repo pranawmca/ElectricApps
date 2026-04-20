@@ -713,12 +713,21 @@ export class SoList implements OnInit {
 
   returnOrder(row: any) {
     if (!row.customerId || !row.id) return;
-    this.router.navigate(['/app/inventory/sale-return/add'], {
-      queryParams: {
-        customerId: row.customerId,
-        soId: row.id
-      }
-    });
+    this.loadingService.setLoading(true, 'Initiating Sale Return...');
+    
+    // Smooth transition delay
+    setTimeout(() => {
+      this.router.navigate(['/app/inventory/sale-return/add'], {
+        queryParams: {
+          customerId: row.customerId,
+          soId: row.id
+        }
+      }).then(() => {
+        this.loadingService.setLoading(false);
+      }).catch(() => {
+        this.loadingService.setLoading(false);
+      });
+    }, 500);
   }
 
   createGatePass(row: any) {

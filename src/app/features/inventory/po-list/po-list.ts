@@ -741,12 +741,21 @@ export class PoList implements OnInit {
   }
 
   redirectToPurchaseReturn(row: any) {
-    this.router.navigate(['/app/inventory/purchase-return/add'], {
-      queryParams: {
-        poId: row.id,
-        supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || null
-      }
-    });
+    this.loadingService.setLoading(true, 'Initiating Purchase Return...');
+    
+    // Smooth transition delay
+    setTimeout(() => {
+      this.router.navigate(['/app/inventory/purchase-return/add'], {
+        queryParams: {
+          poId: row.id,
+          supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || null
+        }
+      }).then(() => {
+        this.loadingService.setLoading(false);
+      }).catch(() => {
+        this.loadingService.setLoading(false);
+      });
+    }, 500);
   }
 
   onPurchaseReturn(row: any) {
@@ -757,13 +766,22 @@ export class PoList implements OnInit {
       return;
     }
 
-    this.router.navigate(['/app/inventory/purchase-return/add'], {
-      queryParams: {
-        poId: row.id,
-        supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || null,
-        returnType: 'Standard'
-      }
-    });
+    this.loadingService.setLoading(true, 'Initiating Purchase Return...');
+    
+    // Smooth transition delay
+    setTimeout(() => {
+      this.router.navigate(['/app/inventory/purchase-return/add'], {
+        queryParams: {
+          poId: row.id,
+          supplierId: row.supplierId || row.partyId || row.vendorId || row.party_Id || row.id_Supplier || null,
+          returnType: 'Standard'
+        }
+      }).then(() => {
+        this.loadingService.setLoading(false);
+      }).catch(() => {
+        this.loadingService.setLoading(false);
+      });
+    }, 500);
   }
 
   // 2. Print logic

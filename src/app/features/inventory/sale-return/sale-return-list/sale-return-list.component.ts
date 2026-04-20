@@ -8,11 +8,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MaterialModule } from '../../../../shared/material/material/material-module';
 import { SaleReturnService } from '../services/sale-return.service';
+import { LoadingService } from '../../../../core/services/loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { SaleReturnDetailsModal } from '../sale-return-details-modal/sale-return-details-modal';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog-component/confirm-dialog-component';
-import { LoadingService } from '../../../../core/services/loading.service';
+
 import { GatePassService } from '../../gate-pass/services/gate-pass.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -288,7 +289,14 @@ export class SaleReturnListComponent implements OnInit {
 
     navigateToCreate() {
         const target = this.isQuick ? '/app/quick-inventory/so-return/add' : '/app/inventory/sale-return/add';
-        this.router.navigate([target]);
+        this.loadingService.setLoading(true, 'Opening New Sale Return Form...');
+        setTimeout(() => {
+            this.router.navigate([target]).then(() => {
+                this.loadingService.setLoading(false);
+            }).catch(() => {
+                this.loadingService.setLoading(false);
+            });
+        }, 500);
     }
 
     createInwardGatePass(row: any) {

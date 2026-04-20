@@ -768,12 +768,21 @@ export class QuickPurchaseListComponent implements OnInit {
       return;
     }
 
-    this.router.navigate(['/app/quick-inventory/po-return/add'], {
-      queryParams: {
-        poId: row.id,
-        supplierId: row.supplierId || 0,
-        returnType: 'Quick'
-      }
-    });
+    this.loadingService.setLoading(true, 'Initiating Purchase Return...');
+    
+    // Smooth transition delay
+    setTimeout(() => {
+      this.router.navigate(['/app/quick-inventory/po-return/add'], {
+        queryParams: {
+          poId: row.id,
+          supplierId: row.supplierId || 0,
+          returnType: 'Quick'
+        }
+      }).then(() => {
+        this.loadingService.setLoading(false);
+      }).catch(() => {
+        this.loadingService.setLoading(false);
+      });
+    }, 500);
   }
 }

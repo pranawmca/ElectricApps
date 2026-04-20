@@ -130,7 +130,15 @@ export class QuickSaleListComponent implements OnInit {
           return this.datePipe.transform(rawDate, 'dd/MM/yyyy hh:mm a');
         }
       },
-      { field: 'customerName', header: 'Customer', sortable: true, isResizable: true, width: 220, isFilterable: true },
+      { 
+        field: 'customerName', 
+        header: 'Customer', 
+        sortable: true, 
+        isResizable: true, 
+        width: 220, 
+        isFilterable: true,
+        cell: (row: any) => row.customerName || row.CustomerName || row.partyName || row.PartyName || 'Unknown Customer'
+      },
       {
         field: 'grandTotal',
         header: 'Grand Total',
@@ -230,6 +238,16 @@ export class QuickSaleListComponent implements OnInit {
         const pendingDues = res.pendingDues;
 
         const items = salesData.data || [];
+        
+        // 🔄 Date Normalization (Ensure IST display by treating as UTC)
+        items.forEach((item: any) => {
+          ['createdOn', 'CreatedOn', 'createdAt', 'CreatedAt', 'soDate', 'SoDate'].forEach(field => {
+            if (item[field] && typeof item[field] === 'string' && !item[field].includes('Z') && !item[field].includes('+')) {
+              item[field] = item[field] + 'Z';
+            }
+          });
+        });
+
         this.totalRecords = salesData.totalCount || 0;
         this.totalSalesAmount = salesData.totalSalesAmount || 0;
         this.todayCount = salesData.todayCount || 0; 
@@ -435,12 +453,21 @@ export class QuickSaleListComponent implements OnInit {
 
   returnOrder(row: any) {
     if (!row.customerId || !row.id) return;
-    this.router.navigate(['/app/quick-inventory/so-return/add'], {
-      queryParams: {
-        customerId: row.customerId,
-        soId: row.id
-      }
-    });
+    this.loadingService.setLoading(true, 'Initiating Sale Return...');
+    
+    // Smooth transition delay
+    setTimeout(() => {
+      this.router.navigate(['/app/quick-inventory/so-return/add'], {
+        queryParams: {
+          customerId: row.customerId,
+          soId: row.id
+        }
+      }).then(() => {
+        this.loadingService.setLoading(false);
+      }).catch(() => {
+        this.loadingService.setLoading(false);
+      });
+    }, 500);
   }
 
   printOrder(row: any) {
