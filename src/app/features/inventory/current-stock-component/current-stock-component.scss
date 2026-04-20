@@ -982,18 +982,32 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
   }
 
   .filter-header-row {
-    padding: 8px;
-    gap: 8px;
+    padding: 12px;
+    gap: 12px;
     flex-direction: column;
     flex-shrink: 0;
+    overflow-y: visible;
     
-    .search-container, .date-range-container {
+    .search-container, .date-filter, .location-filter {
+      width: 100% !important;
+      flex: none !important;
+      max-width: 100% !important;
+    }
+
+    .filter-actions {
       width: 100%;
-      flex: none;
+      justify-content: space-between;
+      margin-top: 4px;
     }
 
     ::ng-deep .mat-mdc-form-field-flex {
       height: 48px !important;
+    }
+    
+    ::ng-deep .mat-mdc-form-field-infix {
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+      min-height: 48px !important;
     }
   }
 
