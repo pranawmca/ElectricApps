@@ -1,18 +1,148 @@
+:host {
+  display: block;
+}
+
+// Global Dialog Surface Fixes
+::ng-deep {
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 16px !important;
+    overflow: hidden !important; 
+    
+    :host-context(html.dark-mode) & {
+      background-color: #1e293b !important;
+    }
+  }
+  
+  .mat-mdc-dialog-surface {
+    border-radius: 16px !important;
+
+    :host-context(html.dark-mode) & {
+      background-color: #1e293b !important;
+      color: white !important;
+    }
+  }
+
+  mat-dialog-content {
+    padding-top: 20px !important;
+    
+    :host-context(html.dark-mode) & {
+      background-color: #1e293b !important;
+      color: white !important;
+    }
+  }
+
+  mat-dialog-actions {
+    :host-context(html.dark-mode) & {
+      background-color: #1e293b !important;
+    }
+  }
+}
+
+// Dynamic Header Bar (Visible in both modes)
+.dialog-header {
+  background-color: var(--dg-primary-theme, #ef4444);
+  color: white;
+  padding: 8px 16px 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  h2[mat-dialog-title] {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: white !important;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .close-icon {
+    color: white !important;
+    opacity: 0.8;
+    &:hover {
+      opacity: 1;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// Pill-shaped Buttons
+button {
+  border-radius: 999px !important; 
+  padding: 0 24px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
+}
+
+// Dynamic themed confirm button
+.confirm-btn {
+  background-color: var(--dg-primary-theme, #ef4444) !important;
+  color: white !important;
+  
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: rgba(0, 0, 0, 0.3) !important;
+    
+    :host-context(html.dark-mode) & {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.3) !important;
+    }
+  }
+}
+
 .full-width {
-      width: 100%;
-      margin-top: 5px;
+  width: 100%;
+  margin-top: 5px;
+}
+
+// Text and Paragraph Colors
+p, strong {
+  color: #1e293b;
+  opacity: 0.9;
+
+  :host-context(html.dark-mode) & {
+    color: white !important;
+  }
+}
+
+textarea {
+  color: inherit;
+  &::placeholder {
+    color: #64748b;
+    opacity: 0.6;
+  }
+
+  :host-context(html.dark-mode) & {
+    color: white !important;
+    &::placeholder {
+      color: white !important;
+      opacity: 0.6 !important;
     }
-    .dialog-footer {
-      padding: 16px 0;
+  }
+}
+
+// Form Field Dark Mode Adjustments
+::ng-deep .mat-mdc-form-field {
+  :host-context(html.dark-mode) & {
+    .mat-mdc-floating-label {
+      color: white !important;
+      opacity: 0.7;
     }
-    @media (max-width: 600px) {
-      .dialog-footer {
-        flex-direction: column-reverse;
-        gap: 10px;
-        align-items: stretch;
-      }
-      button {
-        width: 100%;
-        margin-left: 0 !important;
-      }
+
+    .mat-mdc-text-field-wrapper {
+      background-color: rgba(255, 255, 255, 0.05) !important;
     }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  button {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+}

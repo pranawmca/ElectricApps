@@ -1,15 +1,19 @@
-<h2 mat-dialog-title style="color: #d32f2f;">Reject Purchase Order</h2>
+<div class="dialog-header">
+  <h2 mat-dialog-title>Reject Purchase Order</h2>
+  <button mat-icon-button (click)="onCancel()" class="close-icon">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
     <mat-dialog-content>
-      <p>Kripya PO No: <strong>{{data.poNo}}</strong> ko reject karne ka karan batayein:</p>
+      <p>Please provide a reason for rejecting PO No: <strong>{{data.poNo}}</strong>:</p>
       
       <mat-form-field appearance="outline" style="width: 100%; margin-top: 10px;">
-        <mat-label>Rejection Reason</mat-label>
         <textarea 
           matInput 
           [(ngModel)]="rejectReason" 
           name="reason" 
           rows="4" 
-          placeholder="Reason likhein..." 
+          placeholder="Please enter reason here..." 
           required>
         </textarea>
       </mat-form-field>
@@ -19,7 +23,7 @@
       <button mat-button (click)="onCancel()">Cancel</button>
       <button 
         mat-flat-button 
-        color="warn" 
+        class="confirm-btn"
         [disabled]="!rejectReason || rejectReason.trim().length < 3" 
         (click)="onConfirm()">
         Confirm Reject

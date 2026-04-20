@@ -191,7 +191,7 @@
                 <button mat-icon-button color="accent" *ngIf="row.status?.toLowerCase() === 'confirmed' && row.isDispatchPending && row.paymentStatus !== 'Unpaid'" (click)="$event.stopPropagation(); handleAction('CREATE_OUTWARD', row)" matTooltip="Create Outward Gate Pass">
                   <mat-icon>local_shipping</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" *ngIf="row.status === 'Confirmed' && (entityName === 'Sale Order' || entityName === 'Sale')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Sale Return' : 'Sale Return Closed (' + returnWindowHours + ' hrs crossed)'">
+                <button mat-icon-button color="warn" *ngIf="row.status?.toLowerCase() === 'confirmed' && (entityName === 'Sale Order' || entityName === 'Sale')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Sale Return' : 'Sale Return Closed (' + returnWindowHours + ' hrs crossed)'">
                   <mat-icon [style.opacity]="isWithinReturnWindow(row) ? 1 : 0.5">assignment_return</mat-icon>
                 </button>
                 <button mat-icon-button color="warn" *ngIf="canDelete && row.status?.toLowerCase() === 'draft'" (click)="$event.stopPropagation(); handleAction('DELETE', row)" matTooltip="Delete">
@@ -210,7 +210,7 @@
                     <mat-icon>send</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status === 'Submitted' && (userRole === 'Manager' || userRole === 'Super Admin')">
+                <ng-container *ngIf="row.status?.toLowerCase() === 'submitted' && (userRole === 'Manager' || userRole === 'Super Admin')">
                   <button mat-icon-button color="primary" (click)="$event.stopPropagation(); handleAction('APPROVE', row)" matTooltip="Approve {{entityName}}">
                     <mat-icon>check_circle</mat-icon>
                   </button>
@@ -218,12 +218,12 @@
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status === 'Approved' && (userRole === 'Warehouse' || userRole === 'Super Admin')">
+                <ng-container *ngIf="row.status?.toLowerCase() === 'approved' && (userRole === 'Warehouse' || userRole === 'Super Admin')">
                   <button mat-icon-button color="accent" (click)="$event.stopPropagation(); handleAction('CREATE_GRN', row)" matTooltip="Create GRN">
                     <mat-icon>local_shipping</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status === 'Approved' && userRole !== 'Warehouse'">
+                <ng-container *ngIf="row.status?.toLowerCase() === 'approved' && userRole !== 'Warehouse'">
                   <button mat-icon-button color="primary" (click)="$event.stopPropagation(); handleAction('VIEW', row)" matTooltip="View Details">
                     <mat-icon style="opacity: 0.7;">visibility</mat-icon>
                   </button>
@@ -231,13 +231,13 @@
                     <mat-icon style="color: #607d8b;">print</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status === 'Submitted' && userRole === 'User'">
+                <ng-container *ngIf="row.status?.toLowerCase() === 'submitted' && userRole === 'User'">
                   <div style="display: flex; align-items: center; gap: 4px;">
                     <mat-icon style="color: #ff9800;">hourglass_empty</mat-icon>
                     <span style="font-size: 11px; color: #888;">Pending Approval</span>
                   </div>
                 </ng-container>
-                <ng-container *ngIf="row.status === 'Received' || row.status === 'Partially Received' || row.status === 'Approved'">
+                <ng-container *ngIf="row.status?.toLowerCase() === 'received' || row.status?.toLowerCase() === 'partially received' || row.status?.toLowerCase() === 'approved'">
                   <button mat-icon-button (click)="$event.stopPropagation(); handleAction('PRINT', row)" matTooltip="Print {{entityName}}" *ngIf="row.status !== 'Approved'">
                     <mat-icon color="primary">print</mat-icon>
                   </button>

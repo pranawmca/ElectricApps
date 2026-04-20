@@ -10,6 +10,8 @@ import { InventoryService } from '../../service/inventory.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../../shared/notification.service';
+import { ReasonRejectDialog } from '../../../../shared/components/reason-reject-dialog/reason-reject-dialog';
+import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { SelectionModel } from '@angular/cdk/collections';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LoadingService } from '../../../../core/services/loading.service';
@@ -712,24 +714,30 @@ export class QuickPurchaseListComponent implements OnInit {
   }
 
   onReject(row: any) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Reject PO',
-        message: `Are you sure you want to reject PO: ${row.poNumber}?`,
-        confirmText: 'Reject',
-        confirmColor: 'warn'
-      }
+    const dialogRef = this.dialog.open(ReasonRejectDialog, {
+      width: '450px',
+      maxWidth: '90vw',
+      disableClose: true,
+      data: { poNo: row.poNumber || 'N/A' }
     });
 
-    dialogRef.afterClosed().subscribe(res => {
-      if (res) {
-        this.inventoryService.updatePOStatus(row.id, 'Rejected', 'Rejected by Manager').subscribe({
+    dialogRef.afterClosed().subscribe(reason => {
+      if (reason) {
+        this.inventoryService.updatePOStatus(row.id, 'Rejected', reason).subscribe({
           next: () => {
-            this.notification.showStatus(true, `PO ${row.poNumber} Rejected.`);
+            this.dialog.open(StatusDialogComponent, {
+              width: '400px',
+              data: {
+                title: 'Success',
+                message: `PO ${row.poNumber} Rejected.`,
+                isSuccess: true
+              }
+            });
             this.loadData(this.currentGridState);
           },
-          error: (err) => this.notification.showStatus(false, err.error?.message || 'Rejection failed.')
+          error: (err) => {
+            this.notification.showStatus(false, err.error?.message || 'Rejection failed.');
+          }
         });
       }
     });

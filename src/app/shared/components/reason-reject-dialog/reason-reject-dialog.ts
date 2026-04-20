@@ -6,6 +6,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-reason-reject-dialog',
+  standalone: true,
   imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule],
   templateUrl: './reason-reject-dialog.html',
   styleUrl: './reason-reject-dialog.scss',

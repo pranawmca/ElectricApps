@@ -5,6 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-action-confirm-dialog',
+  standalone: true,
   imports: [CommonModule, MaterialModule],
   templateUrl: './action-confirm-dialog.html',
   styleUrl: './action-confirm-dialog.scss',
