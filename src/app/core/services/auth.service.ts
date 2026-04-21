@@ -173,7 +173,12 @@ export class AuthService {
     try {
       const parsedRoles = JSON.parse(roles);
       if (Array.isArray(parsedRoles) && parsedRoles.length > 0) {
-        return parsedRoles[0];
+        // --- 🚀 FIX: Prioritize the most powerful role ---
+        const priorityOrder = ['Super Admin', 'Admin', 'Manager', 'Warehouse', 'User'];
+        for (const role of priorityOrder) {
+          if (parsedRoles.includes(role)) return role;
+        }
+        return parsedRoles[0]; // Fallback to first if not in list
       }
       return parsedRoles || 'User';
     } catch (e) {
