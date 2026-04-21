@@ -273,8 +273,15 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             status: ['Confirmed'],
             items: this.fb.array([]), // Removed Validators.required
             taxType: ['local'],
+            applyGST: [true],
             tdsPercent: [0],
             tcsPercent: [0]
+        });
+
+        // Add listener for applyGST to recalculate all totals
+        this.saleForm.get('applyGST')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            this.items.controls.forEach((_, i) => this.calculateItemTotal(i));
+            this.cdr.detectChanges();
         });
     }
 
@@ -654,28 +661,40 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         const qty = item.get('qty')?.value || 0;
         const rate = item.get('rate')?.value || 0; // Inclusive Sale Rate
         const gst = item.get('gstPercent')?.value || 0;
+        const applyGST = this.saleForm?.get('applyGST')?.value ?? true;
+        
         const total = qty * rate;
 
         // Calculate GST Amount (Inclusive)
-        const taxableAmount = total / (1 + gst / 100);
-        const taxAmount = total - taxableAmount;
+        let taxAmount = 0;
+        if (applyGST) {
+            const taxableAmount = total / (1 + gst / 100);
+            taxAmount = total - taxableAmount;
+        }
 
         item.get('taxAmount')?.patchValue(taxAmount.toFixed(2), { emitEvent: false });
         item.get('total')?.patchValue(total.toFixed(2), { emitEvent: false });
     }
 
     get subTotal(): number {
+        const applyGST = this.saleForm?.get('applyGST')?.value ?? true;
         return this.items.controls.reduce((sum, ctrl) => {
             const qty = parseFloat(ctrl.get('qty')?.value) || 0;
             const rate = parseFloat(ctrl.get('rate')?.value) || 0; // Inclusive
             const gst = parseFloat(ctrl.get('gstPercent')?.value) || 0;
             const itemTotal = qty * rate;
+            
+            if (!applyGST) return sum + itemTotal;
+            
             const itemSubtotal = itemTotal / (1 + gst / 100);
             return sum + itemSubtotal;
         }, 0);
     }
 
     get totalTax(): number {
+        const applyGST = this.saleForm?.get('applyGST')?.value ?? true;
+        if (!applyGST) return 0;
+
         return this.items.controls.reduce((sum, ctrl) => {
             const qty = parseFloat(ctrl.get('qty')?.value) || 0;
             const rate = parseFloat(ctrl.get('rate')?.value) || 0; // Inclusive

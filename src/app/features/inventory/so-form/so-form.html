@@ -67,11 +67,14 @@
             <mat-datepicker #delPicker></mat-datepicker>
           </mat-form-field>
 
-          <!-- Tax Type Toggle -->
-          <div class="field-item checkbox-field d-flex align-items-center" style="padding-top: 5px;">
-             <mat-button-toggle-group formControlName="taxType" class="tax-type-toggle-small">
-               <mat-button-toggle value="local">Local (CGST+SGST)</mat-button-toggle>
-               <mat-button-toggle value="interState">Inter-State (IGST)</mat-button-toggle>
+          <div class="field-item checkbox-field d-flex align-items-center gap-3" style="padding-top: 5px;">
+             <mat-checkbox formControlName="applyGST" color="primary" class="gst-apply-checkbox">
+               <span class="gst-label">Apply GST</span>
+             </mat-checkbox>
+
+             <mat-button-toggle-group formControlName="taxType" class="tax-type-toggle-small" [disabled]="!soForm.get('applyGST')?.value">
+               <mat-button-toggle value="local">Local</mat-button-toggle>
+               <mat-button-toggle value="interState">Inter-State</mat-button-toggle>
              </mat-button-toggle-group>
           </div>
         </div>
@@ -153,62 +156,62 @@
               </mat-form-field>
             </div>
 
-            <div class="col-qty">
+            <div class="col-qty" data-label="Qty">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <input matInput type="number" formControlName="qty" step="0.01" (input)="updateTotal(i)"
                        [matTooltip]="items.at(i).get('qty')?.errors?.['max'] ? 'Exceeds Stock!' : ''">
               </mat-form-field>
             </div>
 
-            <div class="col-unit">
+            <div class="col-unit" data-label="Unit">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <input type="text" matInput formControlName="unit" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
-            <div class="col-mrp">
+            <div class="col-mrp" data-label="MRP (₹)">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <input matInput type="number" formControlName="rate" step="0.01" (input)="updateTotal(i)" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
-            <div class="col-disc">
+            <div class="col-disc" data-label="Disc (₹)">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <input matInput type="number" formControlName="discountAmount" step="0.01" (input)="updateTotal(i)" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
-            <div class="col-rate">
+            <div class="col-rate" data-label="Rate (₹)">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <input matInput type="number" formControlName="netRate" step="0.01" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
-            <div class="col-gst">
+            <div class="col-gst" data-label="GST (%)">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <input matInput type="number" formControlName="gstPercent" readonly class="readonly-field">
               </mat-form-field>
             </div>
 
-            <div class="col-mfg">
+            <div class="col-mfg" data-label="MFG">
               <div class="date-badge" *ngIf="items.at(i).get('isExpiryRequired')?.value">
                 {{ (items.at(i).get('manufacturingDate')?.value | date:'dd/MM/yy') || '--' }}
               </div>
               <span class="na-txt" *ngIf="!items.at(i).get('isExpiryRequired')?.value">N/A</span>
             </div>
 
-            <div class="col-exp">
+            <div class="col-exp" data-label="EXP">
               <div class="date-badge" *ngIf="items.at(i).get('isExpiryRequired')?.value">
                 {{ (items.at(i).get('expiryDate')?.value | date:'dd/MM/yy') || '--' }}
               </div>
               <span class="na-txt" *ngIf="!items.at(i).get('isExpiryRequired')?.value">N/A</span>
             </div>
 
-            <div class="col-taxamt">
+            <div class="col-taxamt" data-label="Tax Amt">
               <span class="tax-txt">₹{{ items.at(i).get('taxAmount')?.value || '0' }}</span>
             </div>
 
-            <div class="col-total">
+            <div class="col-total" data-label="Total">
                <span class="total-txt">₹{{ items.at(i).get('total')?.value || '0' }}</span>
             </div>
 
@@ -246,7 +249,7 @@
                   </div>
 
                   <!-- Local Tax (CGST + SGST) -->
-                  <ng-container *ngIf="soForm.get('taxType')?.value === 'local'">
+                  <ng-container *ngIf="soForm.get('applyGST')?.value && soForm.get('taxType')?.value === 'local'">
                       <div class="summary-row tax-highlight">
                           <span class="label">CGST (GST)</span>
                           <span class="value tax-plus">+ ₹ {{ totalTax / 2 | number:'1.2-2' }}</span>
@@ -258,7 +261,7 @@
                   </ng-container>
 
                   <!-- Inter-State Tax (IGST) -->
-                  <div class="summary-row tax-highlight" *ngIf="soForm.get('taxType')?.value === 'interState'">
+                  <div class="summary-row tax-highlight" *ngIf="soForm.get('applyGST')?.value && soForm.get('taxType')?.value === 'interState'">
                       <span class="label">IGST (GST)</span>
                       <span class="value tax-plus">+ ₹ {{ totalTax | number:'1.2-2' }}</span>
                   </div>

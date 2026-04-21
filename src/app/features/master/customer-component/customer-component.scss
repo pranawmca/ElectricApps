@@ -1,217 +1,179 @@
-mat-card {
-  padding: 0;
-  box-shadow: none !important;
+.customer-dialog-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-mat-card-title {
-  padding: 20px 24px;
-  margin: 0;
-  border-bottom: 1px solid #e0e0e0;
-  font-size: 20px;
-  font-weight: 500;
+.dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
-  .close-btn {
-    color: #dc3545;
-    margin-right: -8px;
-    
-    &:hover {
-      background-color: rgba(220, 53, 69, 0.1);
+  padding: 18px 24px;
+  background: var(--dg-primary-theme, #4f46e5) !important; /* Sync with Toolbar */
+  color: white !important;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  .dialog-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white !important;
+    letter-spacing: 0.5px;
+  }
+
+  .actions-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .save-btn {
+        background: white !important;
+        color: var(--dg-primary-theme, #4f46e5) !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+        
+        mat-icon { color: var(--dg-primary-theme, #4f46e5) !important; }
+        
+        &:hover:not(:disabled) {
+            background: #f8fafc !important;
+            transform: translateY(-2px);
+        }
     }
-    
-    mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+
+    .cancel-btn {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        
+        mat-icon { color: white !important; }
+        
+        &:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: white !important;
+        }
     }
   }
 }
 
 form {
   padding: 24px;
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 20px;
 }
 
 .full {
   grid-column: span 3;
 }
 
-.actions {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 .save-btn {
   background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
   color: white !important;
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3) !important;
-  border-radius: 24px !important; /* Pill style */
-  font-weight: 700 !important;
-  letter-spacing: 0.5px !important;
-  height: 38px !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+  border-radius: 100px !important;
+  font-weight: 600 !important;
+  height: 42px !important;
   padding: 0 24px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border: none !important;
+  transition: all 0.3s ease !important;
 
-  mat-icon {
-    margin-right: 8px;
-  }
+  mat-icon { margin-right: 8px; font-size: 20px; }
+  mat-spinner { display: inline-block; margin-right: 8px; }
 
   &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
-  }
-
-  &:disabled {
-    background: #e2e8f0 !important;
-    color: #94a3b8 !important;
-    box-shadow: none !important;
-    cursor: not-allowed !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
   }
 }
 
 .cancel-btn {
-  border-radius: 24px !important; /* Pill style */
-  font-weight: 700 !important;
-  height: 38px !important;
+  border-radius: 100px !important;
+  font-weight: 600 !important;
+  height: 42px !important;
   padding: 0 24px !important;
-  border: 1px solid #e2e8f0 !important;
-  background: white !important;
   color: #64748b !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  border: 1px solid #e2e8f0 !important;
+  transition: all 0.3s ease !important;
 
-  mat-icon {
-    margin-right: 8px;
-  }
-
+  mat-icon { margin-right: 8px; font-size: 20px; }
+  
   &:hover {
-    background: #f8fafc !important;
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
   }
 }
 
-// Tablet and smaller screens
+/* Tablet (up to 1024px) */
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .full {
-    grid-column: span 2;
-  }
+  .full { grid-column: span 2; }
 }
 
-// Mobile screens
+/* Mobile (up to 600px) */
 @media (max-width: 600px) {
-  mat-card {
-    max-height: 85vh;
-    display: flex;
+  .dialog-header {
     flex-direction: column;
-    overflow: hidden;
-  }
-
-  mat-card-title {
+    align-items: flex-start;
+    gap: 16px;
     padding: 16px;
-    font-size: 18px;
-    flex-shrink: 0;
-    
-    .close-btn {
-      margin-right: -4px;
+
+    .actions-header {
+      width: 100%;
+      button {
+        flex: 1;
+        padding: 0 12px !important;
+        font-size: 13px !important;
+        span { display: none; } /* Hide text but keep icon if space is super tight? No, let's keep text for now but smaller */
+      }
     }
   }
 
-  form {
-    padding: 16px;
-    overflow-y: auto;
-    flex: 1;
-    min-height: 0;
-  }
+  form { padding: 16px; }
 
   .grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
   }
+  .full { grid-column: span 1; }
 
-  .full {
-    grid-column: span 1;
-  }
-
-  .actions {
-    margin-top: 16px;
-    padding-top: 16px;
-    flex-direction: column-reverse;
-    
-    button {
-      width: 100%;
-    }
+  /* Allow text to show but smaller on mobile */
+  .save-btn, .cancel-btn {
+      padding: 0 12px !important;
+      span { font-size: 11px; }
   }
 }
 
-// Very small screens
-@media (max-width: 400px) {
-  mat-card-title {
-    padding: 12px;
-    font-size: 16px;
-  }
-
-  form {
-    padding: 12px;
-  }
-
-  .grid {
-    gap: 10px;
-  }
-}
-
-/* ⚡ CUSTOMER MODAL DARK MODE POLISH ⚡ */
+/* Dark Mode */
 :host-context(.dark-mode) {
-    mat-card {
-        background-color: #1e293b !important;
-        color: #ffffff !important;
-    }
+  .customer-dialog-container {
+    background: #1e293b;
+    color: #f8fafc;
+  }
 
-    mat-card-title {
-        background-color: #1e293b !important;
-        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-        color: #ffffff !important;
-        
-        .close-btn { 
-            color: #f87171 !important; 
-            &:hover { background-color: rgba(248, 113, 113, 0.1) !important; }
-        }
+  .dialog-header {
+    background: #1e293b !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    .dialog-title { color: #f8fafc !important; }
+    
+    .save-btn {
+        background: var(--dg-primary-theme, #4f46e5) !important;
+        color: white !important;
+        mat-icon { color: white !important; }
     }
+  }
 
-    form {
-        background-color: #1e293b !important;
-        ::ng-deep .mat-mdc-text-field-wrapper {
-            background-color: rgba(255, 255, 255, 0.03) !important;
-            .mat-mdc-input-element { color: #ffffff !important; }
-        }
-        .mat-mdc-select-value { color: #ffffff !important; }
-        .mat-mdc-select-arrow svg { fill: #ffffff !important; }
-    }
-
-    .actions {
-        border-top-color: rgba(255, 255, 255, 0.1) !important;
-    }
-
-    .cancel-btn {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
-        color: #ffffff !important;
-        &:hover { background: rgba(255, 255, 255, 0.1) !important; }
-    }
+  .cancel-btn {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #94a3b8 !important;
+    &:hover { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; }
+  }
 }

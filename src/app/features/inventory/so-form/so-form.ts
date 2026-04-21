@@ -189,7 +189,9 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           status: order.status,
           subTotal: order.subTotal,
           totalTax: order.totalTax,
-          grandTotal: order.grandTotal
+          grandTotal: order.grandTotal,
+          applyGST: order.taxType !== 'none',
+          taxType: (order.taxType === 'none' || !order.taxType) ? 'local' : order.taxType
         });
 
         // Clear initial dummy row
@@ -537,8 +539,15 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       grandTotal: [0],
       items: this.fb.array([]),
       taxType: ['local'],
+      applyGST: [true],
       tdsPercent: [0],
       tcsPercent: [0]
+    });
+
+    // Recalculate totals when applyGST changes
+    this.soForm.get('applyGST')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.items.controls.forEach((_, i) => this.updateTotal(i));
+      this.calculateGrandTotal();
     });
   }
 
@@ -765,12 +774,17 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     const disc = +row.get('discountAmount')?.value || 0;
     const gst = +row.get('gstPercent')?.value || 0;
 
+    const applyGST = this.soForm?.get('applyGST')?.value ?? true;
+    
     const netRate = mrp - disc; // Selling Rate (Inclusive)
     const total = qty * netRate; // Total (Inclusive)
     
     // Calculate GST Amount (Inclusive)
-    const taxableAmount = total / (1 + gst / 100);
-    const taxAmount = total - taxableAmount;
+    let taxAmount = 0;
+    if (applyGST) {
+      const taxableAmount = total / (1 + gst / 100);
+      taxAmount = total - taxableAmount;
+    }
 
     row.patchValue({
       netRate: netRate.toFixed(2),
@@ -811,11 +825,14 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get tcsAmount(): number {
-    return (this.subTotal * (this.soForm.get('tcsPercent')?.value || 0)) / 100;
+    // 🏛️ ERP Rule: TCS is calculated on the Total Invoice Value (Inclusive of GST)
+    return (this.grandTotal * (this.soForm.get('tcsPercent')?.value || 0)) / 100;
   }
 
   get finalGrandTotal(): number {
-    return this.grandTotal - this.tdsAmount + this.tcsAmount;
+    // 🏛️ ERP Rule: Final Amount = (Total Inclusive) - TDS + TCS
+    const total = this.grandTotal - this.tdsAmount + this.tcsAmount;
+    return Math.round(total * 100) / 100; // Keep 2 decimal precision for SO
   }
 
   getMinExpDate(mfgDateValue: any): Date | null {
@@ -993,6 +1010,9 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           ? 'Sale Order saved and inventory adjusted successfully.'
           : (this.isEdit ? 'Sale Order updated successfully.' : 'Sale Order saved as Draft. Inventory was not affected.');
 
+        const applyGST = formValues.applyGST !== false;
+        const totalTaxValue = applyGST ? Number(formValues.totalTax) || 0 : 0;
+
         const payload = {
           id: this.isEdit ? this.orderId! : '00000000-0000-0000-0000-000000000000',
           soNumber: this.isEdit ? this.generatedSoNumber : null,
@@ -1001,33 +1021,40 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           soDate: formValues.soDate,
           expectedDeliveryDate: formValues.expectedDeliveryDate,
           remarks: formValues.remarks || '',
-          taxType: formValues.taxType || 'local',
+          taxType: applyGST ? (formValues.taxType || 'local') : 'none',
           tdsPercent: Number(formValues.tdsPercent || 0),
           tcsPercent: Number(formValues.tcsPercent || 0),
           tdsAmount: this.tdsAmount,
           tcsAmount: this.tcsAmount,
-          igstAmount: formValues.taxType === 'interState' ? this.totalTax : 0,
-          cgstAmount: formValues.taxType === 'local' ? this.totalTax / 2 : 0,
-          sgstAmount: formValues.taxType === 'local' ? this.totalTax / 2 : 0,
+          igstAmount: (applyGST && formValues.taxType === 'interState') ? totalTaxValue : 0,
+          cgstAmount: (applyGST && formValues.taxType === 'local') ? totalTaxValue / 2 : 0,
+          sgstAmount: (applyGST && formValues.taxType === 'local') ? totalTaxValue / 2 : 0,
           subTotal: Number(formValues.subTotal) || 0,
-          totalTax: Number(formValues.totalTax) || 0,
+          totalTax: totalTaxValue,
           grandTotal: this.finalGrandTotal,
           createdBy: userId,
           companyId: this.authService.getCompanyId(),
           items: this.items.controls.map(item => {
             const val = (item as FormGroup).getRawValue();
+            const itemTax = Number(val.taxAmount) || 0;
+            const itemTotal = Number(val.total) || 0;
+            const itemQty = Number(val.qty) || 1;
+            
+            // 🏛️ ERP Rule: 'rate' in backend usually refers to Taxable Base Rate (Exclusive)
+            const taxableRate = (itemTotal - itemTax) / itemQty;
+
             return {
               productId: val.productId,
               productName: val.productSearch?.productName || val.productSearch?.name || (typeof val.productSearch === 'string' ? val.productSearch : ''),
-              qty: Number(val.qty),
-              unit: val.unit || 'PCS', // Ensure unit is not null
-              rate: (Number(val.rate) - Number(val.discountAmount)), // Net Rate (MRP - Disc)
+              qty: itemQty,
+              unit: val.unit || 'PCS',
+              rate: Number(taxableRate.toFixed(4)), 
               mrp: Number(val.mrp) || 0,
               discountAmount: Number(val.discountAmount) || 0,
-              discountPercent: 0, // Using amount
+              discountPercent: 0, 
               gstPercent: Number(val.gstPercent) || 0,
-              taxAmount: Number(val.taxAmount) || 0,
-              total: Number(val.total) || 0,
+              taxAmount: Number(itemTax.toFixed(2)),
+              total: Number(itemTotal.toFixed(2)),
               warehouseId: val.warehouseId || null,
               rackId: val.rackId || null,
               manufacturingDate: val.manufacturingDate || null,
@@ -1115,7 +1142,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
 
     const receiptPayload = {
       id: 0,
-      customerId: Number(data.customerId),
+      customerId: data.customerId, // 🎯 FIX: GUIDs should not be wrapped in Number()
       amount: Number(data.grandTotal),
       totalAmount: Number(data.grandTotal),
       discountAmount: 0,
