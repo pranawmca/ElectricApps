@@ -19,7 +19,7 @@ import { forkJoin, of } from 'rxjs';
   standalone: true,
   imports: [CommonModule, MaterialModule, FormsModule, ReactiveFormsModule],
   template: `
-    <div class="dialog-header">
+    <div class="dialog-header custom-header">
       <h2 mat-dialog-title>{{ isEdit ? 'Edit User' : 'Create New User' }}</h2>
       <button mat-icon-button mat-dialog-close class="close-btn">
         <mat-icon>close</mat-icon>
@@ -57,7 +57,7 @@ import { forkJoin, of } from 'rxjs';
         <mat-form-field appearance="outline" *ngIf="isSuperAdmin">
           <mat-label>Assign Company</mat-label>
           <mat-select formControlName="CompanyId">
-            <mat-option [value]="null">Master (System Admin)</mat-option>
+            <mat-option [value]="null" *ngIf="!loggedInCompanyId">Master (System Admin)</mat-option>
             <mat-option *ngFor="let company of companies" [value]="company.id">
               {{company.name}}
             </mat-option>
@@ -67,7 +67,13 @@ import { forkJoin, of } from 'rxjs';
 
         <mat-form-field appearance="outline">
           <mat-label>Roles (Multi-Select)</mat-label>
-          <mat-select formControlName="RoleIds" multiple>
+          <mat-select formControlName="RoleIds" multiple [placeholder]="isLoadingRoles ? 'Loading roles...' : 'Select Roles'">
+            <mat-option *ngIf="isLoadingRoles" disabled>
+               <div class="loading-item">
+                 <mat-spinner diameter="20"></mat-spinner>
+                 <span>Fetching roles...</span>
+               </div>
+            </mat-option>
             <mat-option *ngFor="let role of roles" [value]="role.id">{{role.roleName}}</mat-option>
           </mat-select>
           <mat-icon matPrefix>admin_panel_settings</mat-icon>
@@ -86,13 +92,14 @@ import { forkJoin, of } from 'rxjs';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 20px;
-      border-bottom: 1px solid #f1f5f9;
-      h2 { margin: 0; font-weight: 700; color: #1e293b; font-size: 20px; }
+      padding: 14px 20px;
+      background: var(--dg-primary-theme, linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%));
+      
+      h2 { margin: 0; font-weight: 700; color: white !important; font-size: 18px; }
       
       .close-btn { 
-        color: #ef4444 !important; 
-        background: #fef2f2 !important;
+        color: white !important; 
+        background: rgba(255,255,255,0.1) !important;
         border-radius: 50% !important;
         width: 32px !important;
         height: 32px !important;
@@ -129,7 +136,16 @@ import { forkJoin, of } from 'rxjs';
     .user-form { 
       display: flex; 
       flex-direction: column; 
-      gap: 8px; 
+      gap: 4px; 
+      padding-top: 10px;
+    }
+
+    .loading-item {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       padding: 8px;
+       color: #64748b;
     }
 
     mat-form-field { width: 100%; }
@@ -249,6 +265,8 @@ export class UserFormComponent implements OnInit {
   hidePassword = true;
   isEdit = false;
   isSuperAdmin = false;
+  loggedInCompanyId: string | null = null;
+  isLoadingRoles = false;
 
   constructor(
     private fb: FormBuilder,
@@ -265,15 +283,15 @@ export class UserFormComponent implements OnInit {
     
     // Check if current user is Super Admin
     const role = this.authService.getUserRole();
-    const loggedInCompanyId = this.authService.getCompanyId();
-    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !loggedInCompanyId;
+    this.loggedInCompanyId = this.authService.getCompanyId();
+    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !this.loggedInCompanyId;
 
     this.userForm = this.fb.group({
       UserName: [{ value: '', disabled: false }, Validators.required],
       Email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
       Password: ['', this.isEdit ? [] : [Validators.required]],
       RoleIds: [[]],
-      CompanyId: [this.isSuperAdmin ? null : loggedInCompanyId] // ✅ Auto-assign company if not super admin
+      CompanyId: [this.loggedInCompanyId || null] // Default to active company context
     });
 
     // 🔄 REFRESH ROLES WHEN COMPANY CHANGES
@@ -281,16 +299,32 @@ export class UserFormComponent implements OnInit {
       this.loadRoles(cid);
     });
 
-    // Initial Load for Non-SuperAdmin
-    if (!this.isSuperAdmin && loggedInCompanyId) {
-       this.loadRoles(loggedInCompanyId);
-    }
+    // Initial Load
+    const initialCid = this.isSuperAdmin ? null : this.loggedInCompanyId;
+    this.loadRoles(initialCid);
   }
 
   loadRoles(companyId: string | null) {
-     this.roleService.getByCompany(companyId).subscribe(roles => {
-        this.roles = roles;
-        this.userForm.patchValue({ RoleIds: [] }); // Reset selection
+     this.isLoadingRoles = true;
+     this.roleService.getByCompany(companyId).subscribe({
+       next: (roles) => {
+          // 🔥 FRONTEND FILTER: Hide "Default Admin" ONLY for tenant admins.
+          // Root admins (Default Admin) should see it.
+          const currentRole = this.authService.getUserRole();
+          if (currentRole === 'Default Admin') {
+            this.roles = roles;
+          } else {
+            this.roles = roles.filter(r => r.roleName !== 'Default Admin');
+          }
+          
+          this.isLoadingRoles = false;
+          
+          // Reset role selection to avoid cross-tenant role leftovers
+          this.userForm.patchValue({ RoleIds: [] }, { emitEvent: false });
+       },
+       error: () => {
+         this.isLoadingRoles = false;
+       }
      });
   }
 
@@ -308,7 +342,21 @@ export class UserFormComponent implements OnInit {
       companiesRes: companies$,
       roles: roles$
     }).subscribe(({ companiesRes, roles }) => {
-      this.companies = (companiesRes as any).items || [];
+      let allCompanies = (companiesRes as any).items || [];
+      const loggedInCompanyId = this.authService.getCompanyId();
+
+      // 🛡️ RESTRAIN: If logged into a company context AND NOT a global root admin, ONLY show that company
+      if (loggedInCompanyId && !this.isSuperAdmin) {
+        this.companies = allCompanies.filter((c: any) => c.id === loggedInCompanyId);
+        
+        // Auto-select the only available company if it's not already set
+        if (!this.userForm.get('CompanyId')?.value) {
+            this.userForm.patchValue({ CompanyId: loggedInCompanyId }, { emitEvent: false });
+        }
+      } else {
+        this.companies = allCompanies;
+      }
+
       this.roles = roles;
 
       if (this.isEdit && this.data) {

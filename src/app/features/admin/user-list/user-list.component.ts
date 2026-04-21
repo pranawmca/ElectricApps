@@ -50,7 +50,11 @@ import { LoadingService } from '../../../core/services/loading.service';
               <th mat-header-cell *matHeaderCellDef> Roles </th>
               <td mat-cell *matCellDef="let element"> 
                 <div class="role-chips">
-                   <span *ngFor="let role of element.roles" class="role-badge">{{role}}</span>
+                   <span *ngFor="let role of element.roles" 
+                         class="role-badge" 
+                         [class.root-badge]="role === 'Default Admin'">
+                     {{role}}
+                   </span>
                 </div>
               </td>
             </ng-container>
@@ -66,7 +70,10 @@ import { LoadingService } from '../../../core/services/loading.service';
               <th mat-header-cell *matHeaderCellDef> Status </th>
               <td mat-cell *matCellDef="let element">
                 <div class="status-wrapper">
-                  <mat-slide-toggle [checked]="element.isActive" (change)="toggleStatus(element, $event.checked)" color="primary">
+                  <mat-slide-toggle [checked]="element.isActive" 
+                                    [disabled]="element.roles.includes('Default Admin')"
+                                    (change)="toggleStatus(element, $event.checked)" 
+                                    color="primary">
                     <span class="status-text" [class.active]="element.isActive">{{element.isActive ? 'Active' : 'Inactive'}}</span>
                   </mat-slide-toggle>
                 </div>
@@ -78,11 +85,17 @@ import { LoadingService } from '../../../core/services/loading.service';
               <th mat-header-cell *matHeaderCellDef> Actions </th>
               <td mat-cell *matCellDef="let element">
                 <div class="action-buttons">
-                  <button mat-icon-button (click)="editUser(element)" matTooltip="Edit User">
-                    <mat-icon color="accent">edit</mat-icon>
+                  <button mat-icon-button 
+                          (click)="editUser(element)" 
+                          [disabled]="element.roles.includes('Default Admin')"
+                          matTooltip="Edit User">
+                    <mat-icon [color]="element.roles.includes('Default Admin') ? '' : 'accent'">edit</mat-icon>
                   </button>
-                  <button mat-icon-button (click)="deleteUser(element)" matTooltip="Delete User">
-                    <mat-icon color="warn">delete</mat-icon>
+                  <button mat-icon-button 
+                          (click)="deleteUser(element)" 
+                          [disabled]="element.roles.includes('Default Admin')"
+                          matTooltip="Delete User">
+                    <mat-icon [color]="element.roles.includes('Default Admin') ? '' : 'warn'">delete</mat-icon>
                   </button>
                 </div>
               </td>
@@ -231,6 +244,12 @@ import { LoadingService } from '../../../core/services/loading.service';
       font-size: 11px;
       font-weight: 600;
       text-transform: capitalize;
+      
+      &.root-badge {
+        background: #fee2e2 !important;
+        color: #ef4444 !important;
+        border: 1px solid #fecaca !important;
+      }
     }
 
     .status-wrapper {
@@ -357,12 +376,21 @@ export class UserListComponent implements OnInit {
     this.loadingService.setLoading(true);
     this.userService.getAllUsers().subscribe({
       next: (users) => {
-        this.dataSource.data = users;
+        // 🔝 SORT: "Default Admin" always on top
+        const sortedUsers = [...users].sort((a, b) => {
+          const aIsDefault = a.roles.includes('Default Admin');
+          const bIsDefault = b.roles.includes('Default Admin');
+          if (aIsDefault && !bIsDefault) return -1;
+          if (!aIsDefault && bIsDefault) return 1;
+          return 0;
+        });
+
+        this.dataSource.data = sortedUsers;
 
         // Calculate Stats
         const totalUsers = users.length;
         const activeUsers = users.filter(u => u.isActive).length;
-        const adminUsers = users.filter(u => u.roles.includes('Admin')).length;
+        const adminUsers = users.filter(u => u.roles.includes('Admin') || u.roles.includes('Default Admin')).length;
 
         this.summaryStats = [
           { label: 'Total Users', value: totalUsers, icon: 'group', type: 'total' },
