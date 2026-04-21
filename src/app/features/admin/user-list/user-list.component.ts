@@ -449,6 +449,7 @@ export class UserListComponent implements OnInit {
   }
 
   onSearchChange(term: string) {
+    this.loadingService.setLoading(true); // 🔥 Trigger loader immediately
     this.searchSubject.next(term);
   }
 
