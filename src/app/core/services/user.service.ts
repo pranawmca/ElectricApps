@@ -17,6 +17,10 @@ export class UserService {
         return this.http.get<User[]>(this.baseUrl);
     }
 
+    getPaged(request: any): Observable<any> {
+        return this.http.post<any>(`${this.baseUrl}/paged`, request);
+    }
+
     // Create User uses Auth Register endpoint
     createUser(dto: RegisterUserDto): Observable<any> {
         return this.http.post(`${this.authUrl}/register`, dto);

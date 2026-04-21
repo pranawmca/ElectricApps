@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../shared/material/material/material-module';
@@ -8,12 +8,14 @@ import { User, RegisterUserDto } from '../../../core/models/user.model';
 import { UserFormComponent } from './user-form.component';
 import { RoleService } from '../../../core/services/role.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 
 import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
 import { LoadingService } from '../../../core/services/loading.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
@@ -22,26 +24,41 @@ import { LoadingService } from '../../../core/services/loading.service';
   template: `
     <div class="list-container" [class.disabled-content]="loading">
       <div class="header-actions">
-        <h1>User Management</h1>
+        <div class="title-section">
+          <h1>User Management</h1>
+          <p class="subtitle">Search, manage and monitor system users across all tenants</p>
+        </div>
         <button mat-raised-button class="main-add-btn" (click)="createUser()">
            <mat-icon>add</mat-icon> Create User
         </button>
+      </div>
+
+      <!-- 🔎 TOP SEARCH BAR -->
+      <div class="search-panel">
+         <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search Users</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange($event)" placeholder="Search by name or email...">
+            <mat-icon matPrefix>search</mat-icon>
+            <button *ngIf="searchTerm" matSuffix mat-icon-button (click)="searchTerm=''; loadUsers()">
+               <mat-icon>close</mat-icon>
+            </button>
+         </mat-form-field>
       </div>
 
       <app-summary-stats [stats]="summaryStats" [isLoading]="loading"></app-summary-stats>
       
       <div class="table-container-wrapper">
         <div class="grid-wrapper">
-          <table mat-table [dataSource]="dataSource">
+          <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
             <!-- Username Column -->
             <ng-container matColumnDef="userName">
-              <th mat-header-cell *matHeaderCellDef> Username </th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Username </th>
               <td mat-cell *matCellDef="let element" class="username-cell"> {{element.userName}} </td>
             </ng-container>
 
             <!-- Email Column -->
             <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef> Email </th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
               <td mat-cell *matCellDef="let element"> {{element.email}} </td>
             </ng-container>
 
@@ -103,11 +120,23 @@ import { LoadingService } from '../../../core/services/loading.service';
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns" sticky></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="user-row"></tr>
+
+            <!-- No Data Found Row -->
+            <tr class="mat-row empty-row" *matNoDataRow>
+              <td class="mat-cell" colspan="6">
+                No users matching the search "{{searchTerm}}"
+              </td>
+            </tr>
           </table>
         </div>
-        <mat-paginator [pageSizeOptions]="[10, 20, 50]" 
-                       showFirstLastButtons 
-                       class="user-paginator">
+        
+        <mat-paginator 
+            [length]="totalCount"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[10, 20, 50]" 
+            (page)="onPageChange($event)"
+            showFirstLastButtons 
+            class="user-paginator">
         </mat-paginator>
       </div>
     </div>
@@ -143,7 +172,7 @@ import { LoadingService } from '../../../core/services/loading.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
       flex-shrink: 0;
 
       h1 {
@@ -153,6 +182,11 @@ import { LoadingService } from '../../../core/services/loading.service';
         letter-spacing: -0.5px;
         margin: 0;
       }
+    }
+
+    .title-section {
+       h1 { margin-bottom: 4px !important; }
+       .subtitle { color: #64748b; font-size: 13px; margin: 0; }
     }
 
     .main-add-btn {
@@ -173,6 +207,12 @@ import { LoadingService } from '../../../core/services/loading.service';
       mat-icon {
         margin-right: 8px;
       }
+    }
+
+    .search-panel {
+       padding: 0 0 16px 0;
+       .search-field { width: 100%; max-width: 400px; }
+       ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     }
 
     .table-container-wrapper {
@@ -221,6 +261,13 @@ import { LoadingService } from '../../../core/services/loading.service';
           transition: background-color 0.2s;
           cursor: pointer;
           &:hover { background-color: #f8fafc; }
+        }
+
+        .empty-row {
+          text-align: center;
+          height: 100px;
+          color: #64748b;
+          font-style: italic;
         }
 
         .username-cell {
@@ -274,25 +321,19 @@ import { LoadingService } from '../../../core/services/loading.service';
       gap: 4px;
     }
 
-    /* ==========================================================================
-       USER LIST DARK MODE POLISH
-       ========================================================================== */
     :host-context(.dark-mode) {
       background-color: #1e293b !important;
 
-      .header-actions h1 {
-        color: #f8fafc !important;
-      }
+      .header-actions h1 { color: #f8fafc !important; }
+      .subtitle { color: rgba(255,255,255,0.6) !important; }
 
       .table-container-wrapper {
         background-color: #1e293b !important;
-        border-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
         box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
         
         ::ng-deep {
-          .mat-mdc-table {
-            background-color: #1e293b !important;
-          }
+          .mat-mdc-table { background-color: #1e293b !important; }
           .mat-mdc-row {
             background-color: #1e293b !important;
             &:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
@@ -301,52 +342,34 @@ import { LoadingService } from '../../../core/services/loading.service';
             color: #ffffff !important;
             border-bottom-color: rgba(255, 255, 255, 0.05) !important;
           }
+          .mat-mdc-header-cell {
+            background-color: #1e293b !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+          }
         }
       }
 
-      .grid-wrapper table {
-        th.mat-header-cell {
-          background-color: #1e293b !important;
-          color: rgba(255, 255, 255, 0.5) !important;
-          border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-        }
-
-        .username-cell {
-          color: #818cf8 !important;
-        }
+      .search-panel mat-form-field { 
+          ::ng-deep .mat-mdc-text-field-wrapper { background: rgba(255,255,255,0.05) !important; }
+          ::ng-deep .mat-mdc-form-field-label { color: rgba(255,255,255,0.6) !important; }
+          ::ng-deep .mat-mdc-input-element { color: white !important; }
       }
 
+      .username-cell { color: #818cf8 !important; }
       .role-badge {
         background: rgba(255, 255, 255, 0.05) !important;
         color: rgba(255, 255, 255, 0.7) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
       }
 
-      .status-text {
-        color: rgba(255, 255, 255, 0.5) !important;
-        &.active { color: #10b981 !important; }
-      }
-
       .user-paginator {
         background-color: #1e293b !important;
         color: #ffffff !important;
         border-top-color: rgba(255, 255, 255, 0.05) !important;
-        
-        ::ng-deep {
-          .mat-mdc-paginator-range-label,
-          .mat-mdc-paginator-navigation-next,
-          .mat-mdc-paginator-navigation-previous,
-          .mat-mdc-paginator-icon,
-          .mat-mdc-select-value-text,
-          .mat-mdc-select-arrow svg {
-            color: #ffffff !important;
-            fill: #ffffff !important;
-          }
-        }
-      }
-
-      ::ng-deep .mat-mdc-button-base .mat-mdc-button-touch-target {
-        color: #ffffff !important;
+        ::ng-deep .mat-mdc-paginator-range-label,
+        ::ng-deep .mat-mdc-select-value-text,
+        ::ng-deep .mat-mdc-select-arrow svg { color: #ffffff !important; }
       }
     }
   `]
@@ -356,13 +379,34 @@ export class UserListComponent implements OnInit {
   dataSource = new MatTableDataSource<User>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  // Server-side State
+  searchTerm = '';
+  pageNumber = 1;
+  pageSize = 10;
+  totalCount = 0;
+  sortColumn = 'userName';
+  sortOrder = 'asc';
+  
+  private searchSubject = new Subject<string>();
 
   constructor(
     private userService: UserService,
     private dialog: MatDialog,
     private roleService: RoleService,
     private loadingService: LoadingService
-  ) { }
+  ) { 
+    // Setup Debounce Search
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.searchTerm = term;
+      this.pageNumber = 1; // Reset to page 1
+      this.loadUsers();
+    });
+  }
 
   summaryStats: SummaryStat[] = [];
   loading = true;
@@ -374,35 +418,28 @@ export class UserListComponent implements OnInit {
   loadUsers() {
     this.loading = true;
     this.loadingService.setLoading(true);
-    this.userService.getAllUsers().subscribe({
-      next: (users) => {
-        // 🔝 SORT: "Default Admin" always on top
-        const sortedUsers = [...users].sort((a, b) => {
-          const aIsDefault = a.roles.includes('Default Admin');
-          const bIsDefault = b.roles.includes('Default Admin');
-          if (aIsDefault && !bIsDefault) return -1;
-          if (!aIsDefault && bIsDefault) return 1;
-          return 0;
-        });
 
-        this.dataSource.data = sortedUsers;
+    const gridRequest = {
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      searchTerm: this.searchTerm,
+      sortColumn: this.sortColumn,
+      sortOrder: this.sortOrder
+    };
 
-        // Calculate Stats
-        const totalUsers = users.length;
-        const activeUsers = users.filter(u => u.isActive).length;
-        const adminUsers = users.filter(u => u.roles.includes('Admin') || u.roles.includes('Default Admin')).length;
+    this.userService.getPaged(gridRequest).subscribe({
+      next: (res) => {
+        this.dataSource.data = res.items;
+        this.totalCount = res.totalCount;
 
         this.summaryStats = [
-          { label: 'Total Users', value: totalUsers, icon: 'group', type: 'total' },
-          { label: 'Active Users', value: activeUsers, icon: 'how_to_reg', type: 'active' },
-          { label: 'Admins', value: adminUsers, icon: 'admin_panel_settings', type: 'info' }
+          { label: 'Total Users', value: res.totalCount, icon: 'group', type: 'total' },
+          { label: 'Active Users', value: res.activeCount, icon: 'how_to_reg', type: 'active' },
+          { label: 'Inactive Users', value: res.inactiveCount, icon: 'info', type: 'warning' }
         ];
 
         this.loading = false;
         this.loadingService.setLoading(false);
-        setTimeout(() => {
-          this.dataSource.paginator = this.paginator;
-        });
       },
       error: () => {
         this.loading = false;
@@ -411,16 +448,33 @@ export class UserListComponent implements OnInit {
     });
   }
 
-  createUser() {
-    const dialogRef = this.dialog.open(UserFormComponent, {
-      width: '500px'
-    });
+  onSearchChange(term: string) {
+    this.searchSubject.next(term);
+  }
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadUsers();
-      }
-    });
+  onPageChange(event: PageEvent) {
+    this.pageNumber = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadUsers();
+  }
+
+  onSortChange(sort: Sort) {
+    this.sortColumn = sort.active;
+    this.sortOrder = sort.direction || 'asc';
+    this.pageNumber = 1; // Reset to page 1 when sorting changes
+    this.loadUsers();
+  }
+
+  // --- CRUD Operations (Restored and updated to reload paged data) ---
+  
+  createUser() {
+    const dialogRef = this.dialog.open(UserFormComponent, { width: '500px' });
+    dialogRef.afterClosed().subscribe(result => { if (result) this.loadUsers(); });
+  }
+
+  editUser(user: User) {
+    const dialogRef = this.dialog.open(UserFormComponent, { width: '500px', data: user });
+    dialogRef.afterClosed().subscribe(result => { if (result) this.loadUsers(); });
   }
 
   toggleStatus(user: User, isChecked: boolean) {
@@ -428,73 +482,28 @@ export class UserListComponent implements OnInit {
       width: '400px',
       data: {
         title: isChecked ? 'Activate User' : 'Deactivate User',
-        message: `Are you sure you want to ${isChecked ? 'activate' : 'deactivate'} user: ${user.userName}?`,
+        message: `Are you sure?`,
         confirmText: isChecked ? 'Activate' : 'Deactivate',
-        confirmColor: isChecked ? 'primary' : 'warn'
       }
     });
-
     dialogRef.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.userService.updateStatus(user.id, isChecked).subscribe({
-          next: () => {
-            user.isActive = isChecked;
-            this.dialog.open(StatusDialogComponent, {
-              data: { isSuccess: true, message: `User ${user.userName} ${isChecked ? 'activated' : 'deactivated'} successfully.` }
-            });
-          },
-          error: () => {
-            this.loadUsers(); // Reload to revert visually
-            this.dialog.open(StatusDialogComponent, {
-              data: { isSuccess: false, message: 'Failed to update user status.' }
-            });
-          }
+          next: () => { this.loadUsers(); }
         });
-      } else {
-        // Revert the toggle visually if cancelled
-        this.loadUsers();
-      }
-    });
-  }
-
-  editUser(user: User) {
-    const dialogRef = this.dialog.open(UserFormComponent, {
-      width: '500px',
-      data: user
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadUsers();
-      }
+      } else { this.loadUsers(); }
     });
   }
 
   deleteUser(user: User) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
-      data: {
-        title: 'Confirm Delete User',
-        message: `Are you sure you want to delete user: ${user.userName}? This action cannot be undone.`,
-        confirmText: 'Delete',
-        confirmColor: 'warn'
-      }
+      data: { title: 'Delete User', message: `Delete ${user.userName}?`, confirmText: 'Delete' }
     });
-
     dialogRef.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.userService.deleteUser(user.id).subscribe({
-          next: () => {
-            this.dialog.open(StatusDialogComponent, {
-              data: { isSuccess: true, message: `User ${user.userName} deleted successfully.` }
-            });
-            this.loadUsers();
-          },
-          error: (err) => {
-            this.dialog.open(StatusDialogComponent, {
-              data: { isSuccess: false, message: err.error?.message || 'Failed to delete user.' }
-            });
-          }
+          next: () => { this.loadUsers(); }
         });
       }
     });
