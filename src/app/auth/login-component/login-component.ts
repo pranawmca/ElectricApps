@@ -53,6 +53,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
+      CompanyCode: ['', [Validators.required]],
       Email: ['', [Validators.required, Validators.email]],
       Password: ['', [Validators.required]],
       rememberMe: [false]
@@ -86,10 +87,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     // Check for saved email from Remember Me
     const savedEmail = localStorage.getItem('rememberedEmail');
-    if (savedEmail) {
+    const savedCode = localStorage.getItem('lastCompanyCode');
+    
+    if (savedEmail || savedCode) {
       this.loginForm.patchValue({
-        Email: savedEmail,
-        rememberMe: true
+        Email: savedEmail || '',
+        CompanyCode: savedCode || '',
+        rememberMe: !!savedEmail
       });
     }
 
@@ -174,6 +178,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.errorMessage = '';
 
     const loginData: LoginDto = {
+      CompanyCode: this.loginForm.value.CompanyCode,
       Email: this.loginForm.value.Email,
       Password: this.loginForm.value.Password
     };
@@ -195,6 +200,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
         } else {
           localStorage.removeItem('rememberedEmail');
         }
+        
+        // Always remember the last successful company code
+        localStorage.setItem('lastCompanyCode', this.loginForm.value.CompanyCode);
 
         // Reset permission cache so resolver fetches fresh data for this user's role
         this.permissionService.resetForLogin();

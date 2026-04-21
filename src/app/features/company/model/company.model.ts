@@ -4,6 +4,7 @@
  */
 export interface CompanyProfileDto {
     id: string;
+    companyCode: string;
     name: string;
     tagline: string;
     registrationNumber: string;
@@ -90,6 +91,7 @@ export interface BankDetailDto {
  */
 export interface UpsertCompanyRequest {
     companyId?: string;
+    companyCode: string;
     name: string;
     tagline: string;
     registrationNumber: string;

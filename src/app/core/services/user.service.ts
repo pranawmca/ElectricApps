@@ -34,7 +34,11 @@ export class UserService {
         return this.http.delete<void>(`${this.baseUrl}/${id}`);
     }
 
-    checkDuplicate(userName: string, email: string): Observable<{ exists: boolean, message: string }> {
-        return this.http.get<{ exists: boolean, message: string }>(`${this.baseUrl}/check-duplicate?userName=${userName}&email=${email}`);
+    checkDuplicate(userName: string, email: string, companyId?: string | null): Observable<{ exists: boolean, message: string }> {
+        let url = `${this.baseUrl}/check-duplicate?userName=${userName}&email=${email}`;
+        if (companyId) {
+            url += `&companyId=${companyId}`;
+        }
+        return this.http.get<{ exists: boolean, message: string }>(url);
     }
 }

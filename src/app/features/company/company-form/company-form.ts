@@ -107,6 +107,7 @@ export class CompanyForm implements OnInit {
     createForm() {
         this.companyForm = this.fb.group({
             name: ['', Validators.required],
+            companyCode: ['', Validators.required],
             tagline: [''],
             registrationNumber: ['', Validators.required],
             gstin: ['', [Validators.required, Validators.pattern('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$')]],
@@ -276,6 +277,7 @@ export class CompanyForm implements OnInit {
                 // Patch the rest of the form
                 this.companyForm.patchValue({
                     ...res,
+                    companyCode: res.companyCode,
                     email: res.email
                 });
 
@@ -349,6 +351,7 @@ export class CompanyForm implements OnInit {
         // Explicit Payload construction with safe defaults to avoid 400 Bad Request
         const payload: UpsertCompanyRequest = {
             companyId: formData.companyId || null,
+            companyCode: formData.companyCode || '',
             name: formData.name || '',
             tagline: formData.tagline || '',
             registrationNumber: formData.registrationNumber || '',

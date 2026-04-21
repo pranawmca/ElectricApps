@@ -1,6 +1,7 @@
 export interface LoginDto {
     Email: string;
     Password: string;
+    CompanyCode?: string;
 }
 
 export interface User {

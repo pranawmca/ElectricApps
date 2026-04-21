@@ -50,6 +50,7 @@ export class AddSubscriptionDialogComponent implements OnInit {
   ) {
     this.brandForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
+      companyCode: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
       address: ['']
@@ -79,6 +80,7 @@ export class AddSubscriptionDialogComponent implements OnInit {
     // 1. Prepare DTO-compliant payload for Company API (Strictly following UpsertCompanyRequest)
     const companyPayload: UpsertCompanyRequest = {
       name: this.brandForm.value.name,
+      companyCode: (this.brandForm.value.companyCode || '').toUpperCase().replace(/\s/g, ''),
       tagline: '',
       registrationNumber: "TEMP-123", // Required by Backend
       gstin: "07AAAAA0000A1Z5",       // Required by Backend
@@ -138,6 +140,7 @@ export class AddSubscriptionDialogComponent implements OnInit {
         const subscriptionPayload = {
           companyId: companyId,
           companyName: companyPayload.name,
+          companyCode: companyPayload.companyCode,
           planType: this.selectedPlan,
           durationDays: 30, // Default for onboarding
           email: companyPayload.primaryEmail

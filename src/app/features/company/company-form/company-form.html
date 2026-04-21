@@ -51,10 +51,17 @@
 
               <div class="flex-1 flex-column gap-2">
                 <div class="flex-row flex-wrap gap-4">
-                  <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">
-                    <mat-label>Company Name</mat-label>
-                    <input matInput formControlName="name">
-                    <mat-icon matSuffix>corporate_fare</mat-icon>
+                  <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Company Name</mat-label>
+                      <input matInput formControlName="name" placeholder="Enter company name">
+                      <mat-icon matSuffix>business</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Company Login Code</mat-label>
+                      <input matInput formControlName="companyCode" placeholder="e.g. CHANDAN01">
+                      <mat-icon matSuffix>vpn_key</mat-icon>
+                      <mat-hint>This code is used for user login</mat-hint>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="flex-grow-1 min-w-300">

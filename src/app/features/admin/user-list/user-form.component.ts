@@ -420,7 +420,7 @@ export class UserFormComponent implements OnInit {
             });
           } else {
             // Before save, check for duplicates
-            this.userService.checkDuplicate(dto.UserName, dto.Email).subscribe({
+            this.userService.checkDuplicate(dto.UserName, dto.Email, dto.CompanyId).subscribe({
               next: (res) => {
                 if (res.exists) {
                   this.notificationService.showStatus(false, res.message);

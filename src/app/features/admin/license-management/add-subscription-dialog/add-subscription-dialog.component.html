@@ -21,6 +21,13 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Company Login Code</mat-label>
+          <input matInput formControlName="companyCode" placeholder="e.g. ACME01">
+          <mat-icon matPrefix class="mr-3 opacity-60">vpn_key</mat-icon>
+          <mat-hint>Unique code used for login</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>Admin Email</mat-label>
           <input matInput formControlName="email" placeholder="admin@company.com">
           <mat-icon matPrefix class="mr-3 opacity-60">email</mat-icon>
@@ -95,6 +102,10 @@
         <div class="summary-item">
           <span class="label">Company</span>
           <span class="value">{{brandForm.value.name}}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Company Code</span>
+          <span class="value text-blue-700 font-bold">{{brandForm.value.companyCode | uppercase}}</span>
         </div>
         <div class="summary-item">
           <span class="label">Admin Email</span>

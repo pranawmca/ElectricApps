@@ -45,6 +45,12 @@
         <!-- LOGIN FORM -->
         <form [formGroup]="loginForm" (ngSubmit)="Login()" *ngIf="!changePasswordMode && !forgotPasswordMode && !resetPasswordMode" class="auth-form">
           <mat-form-field appearance="outline">
+            <mat-label>Company Code</mat-label>
+            <input matInput formControlName="CompanyCode" placeholder="e.g. SONU01" (input)="cdr.detectChanges()">
+            <mat-icon matPrefix>business</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput formControlName="Email" type="email" placeholder="name@company.com" #emailInputField (input)="cdr.detectChanges()">
             <mat-icon matPrefix>mail</mat-icon>
