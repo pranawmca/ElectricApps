@@ -54,15 +54,16 @@ import { forkJoin, of } from 'rxjs';
           <mat-error *ngIf="userForm.get('Password')?.hasError('required')">Password is required</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" *ngIf="isSuperAdmin">
+        <mat-form-field appearance="outline" *ngIf="isSuperAdmin || loggedInCompanyId">
           <mat-label>Assign Company</mat-label>
           <mat-select formControlName="CompanyId">
-            <mat-option [value]="null" *ngIf="!loggedInCompanyId">Master (System Admin)</mat-option>
+            <mat-option [value]="null" *ngIf="isSuperAdmin && !loggedInCompanyId">Master (System Admin)</mat-option>
             <mat-option *ngFor="let company of companies" [value]="company.id">
-              {{company.name}}
+              {{company.name || company.Name}}
             </mat-option>
           </mat-select>
           <mat-icon matPrefix>business</mat-icon>
+          <mat-hint *ngIf="!isSuperAdmin && loggedInCompanyId">You can only create users for your assigned company</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -281,17 +282,20 @@ export class UserFormComponent implements OnInit {
   ) {
     this.isEdit = !!data;
     
-    // Check if current user is Super Admin
+    // Check if current user is System-level Root Admin
     const role = this.authService.getUserRole();
     this.loggedInCompanyId = this.authService.getCompanyId();
-    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !this.loggedInCompanyId;
+    
+    // 🔥 FINAL FIX: Default Admin is ALWAYS a Global Super Admin.
+    // Super Admin role is only global if no companyId is bound.
+    this.isSuperAdmin = (role === 'Default Admin') || (role === 'Super Admin' && !this.loggedInCompanyId);
 
     this.userForm = this.fb.group({
       UserName: [{ value: '', disabled: false }, Validators.required],
       Email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
       Password: ['', this.isEdit ? [] : [Validators.required]],
       RoleIds: [[]],
-      CompanyId: [this.loggedInCompanyId || null] // Default to active company context
+      CompanyId: [{ value: this.loggedInCompanyId || null, disabled: !this.isSuperAdmin }] // Default to active company context
     });
 
     // 🔄 REFRESH ROLES WHEN COMPANY CHANGES
@@ -308,12 +312,23 @@ export class UserFormComponent implements OnInit {
      this.isLoadingRoles = true;
      this.roleService.getByCompany(companyId).subscribe({
        next: (roles) => {
-          // 🔥 FRONTEND FILTER: Hide "Default Admin" ONLY for tenant admins.
-          // Root admins (Default Admin) should see it.
           const currentRole = this.authService.getUserRole();
-          if (currentRole === 'Default Admin') {
+          const selectedCid = this.userForm.get('CompanyId')?.value;
+
+          // 🛡️ SECURITY FILTER: 
+          // 1. If it's a tenant company (NOT our Admin Dashboard), ALWAYS hide "Default Admin"
+          // 2. If it's our Admin Dashboard (or Master context), show it only to existing Default Admins.
+          
+          const isAdminDashboard = (selectedCid === this.loggedInCompanyId) || (!selectedCid && !this.loggedInCompanyId);
+
+          if (!isAdminDashboard) {
+            // It's a different company/tenant -> HIDE Default Admin
+            this.roles = roles.filter(r => r.roleName !== 'Default Admin');
+          } else if (currentRole === 'Default Admin') {
+            // It's Admin Dashboard and user is Default Admin -> SHOW ALL
             this.roles = roles;
           } else {
+            // Otherwise -> HIDE Default Admin
             this.roles = roles.filter(r => r.roleName !== 'Default Admin');
           }
           
@@ -333,7 +348,7 @@ export class UserFormComponent implements OnInit {
 
     const companies$ = this.isSuperAdmin 
       ? this.companyService.getPaged({ pageNumber: 1, pageSize: 100 }) 
-      : of({ items: [] });
+      : this.companyService.getCompanyProfile(); // Tenant admins get their own profile
     
     const roles$ = this.roleService.getByCompany(defaultCompanyId || null);
 
@@ -342,8 +357,15 @@ export class UserFormComponent implements OnInit {
       companiesRes: companies$,
       roles: roles$
     }).subscribe(({ companiesRes, roles }) => {
-      let allCompanies = (companiesRes as any).items || [];
+      let allCompanies: any[] = [];
       const loggedInCompanyId = this.authService.getCompanyId();
+
+      if (this.isSuperAdmin) {
+        allCompanies = (companiesRes as any).items || [];
+      } else {
+        // Wrap single profile in array
+        allCompanies = companiesRes ? [companiesRes] : [];
+      }
 
       // 🛡️ RESTRAIN: If logged into a company context AND NOT a global root admin, ONLY show that company
       if (loggedInCompanyId && !this.isSuperAdmin) {
