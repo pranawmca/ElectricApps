@@ -251,4 +251,8 @@
 
 
     </form>
+    
+    <div class="scroll-fab" *ngIf="items.length > 0" [class.to-bottom]="isAtTop" (click)="toggleScroll()" [@fadeInOut]>
+        <mat-icon>{{ isAtTop ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</mat-icon>
+    </div>
 </div>

@@ -805,8 +805,8 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
         const userId = localStorage.getItem('email') || 'System User';
         this.isLoading = true;
         const payload: any = {
-          id: this.isEditMode ? Number(this.poId) : 0,
-          supplierId: Number(formValue.supplierId),
+          id: this.isEditMode ? this.poId : '00000000-0000-0000-0000-000000000000',
+          supplierId: formValue.supplierId,
           supplierName: supplier ? supplier.name : 'Unknown',
           priceListId: formValue.priceListId,
           poDate: DateHelper.toLocalISOString(formValue.poDate),

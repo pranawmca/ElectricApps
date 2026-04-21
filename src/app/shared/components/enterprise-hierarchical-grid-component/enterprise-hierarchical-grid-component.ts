@@ -41,6 +41,7 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   @Input() pageSize: number = 10;
   @Input() addNewLabel: string = 'New Record';
   @Input() addNewRoute: string = '';
+  isNavigating: boolean = false;
   @Input() entityName: string = 'Record';
   @Input() showApprovalWorkflow: boolean = true;
   @Input() showBulkConfirm: boolean = false;
@@ -457,15 +458,21 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   }
 
   onAddNewClick() { 
-    if (this.addNewRoute) {
+    if (this.addNewRoute && !this.isNavigating) {
+      this.isNavigating = true;
       this.loadingService.setLoading(true, `Opening ${this.addNewLabel || 'Form'}...`);
+      this.cdr.detectChanges();
+
       // Small timeout to ensure loader is visible before routing starts
       setTimeout(() => {
-        this.router.navigate([this.addNewRoute]).then(() => {
-          // The target component should ideally hide it, but we can hide it here too after navigation completes
+        this.router.navigate([this.addNewRoute]).then((success) => {
+          this.isNavigating = false;
           this.loadingService.setLoading(false);
+          this.cdr.detectChanges();
         }).catch(() => {
+          this.isNavigating = false;
           this.loadingService.setLoading(false);
+          this.cdr.detectChanges();
         });
       }, 500);
     } 

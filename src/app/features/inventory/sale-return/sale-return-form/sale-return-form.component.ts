@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
+import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -32,8 +33,19 @@ import { AuthService } from '../../../../core/services/auth.service';
     providers: [DatePipe, CurrencyPipe],
     templateUrl: './sale-return-form.component.html',
     styleUrl: './sale-return-form.component.scss',
+    animations: [
+        trigger('fadeInOut', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'scale(0.5)' }),
+                animate('200ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.5)' }))
+            ])
+        ])
+    ]
 })
-export class SaleReturnFormComponent implements OnInit, AfterViewInit {
+export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy {
     private fb = inject(FormBuilder);
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild('tableContainer') tableContainer!: ElementRef;
@@ -76,6 +88,34 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
 
     warehouses: any[] = [];
     racks: any[] = [];
+    
+    isAtTop = true;
+    private scrollContainer: HTMLElement | null = null;
+    private scrollListener: any;
+
+    onScroll() {
+        if (this.scrollContainer) {
+            const { scrollTop } = this.scrollContainer;
+            this.isAtTop = scrollTop < 50;
+            this.cdr.detectChanges();
+        }
+    }
+
+    toggleScroll() {
+        if (this.scrollContainer) {
+            if (this.isAtTop) {
+                this.scrollContainer.scrollTo({ top: this.scrollContainer.scrollHeight, behavior: 'smooth' });
+            } else {
+                this.scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.scrollContainer && this.scrollListener) {
+            this.scrollContainer.removeEventListener('scroll', this.scrollListener);
+        }
+    }
 
     itemsDataSource = new MatTableDataSource<AbstractControl>();
     displayedColumns: string[] = ['productName', 'grnNo', 'refNo', 'mfgDate', 'expDate', 'quantity', 'rate', 'itemCondition', 'warehouse', 'rack', 'reason', 'returnQty', 'discount', 'tax', 'total'];
@@ -92,6 +132,13 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         this.itemsDataSource.paginator = this.paginator;
+        setTimeout(() => {
+            this.scrollContainer = document.querySelector('.content');
+            if (this.scrollContainer) {
+                this.scrollListener = this.onScroll.bind(this);
+                this.scrollContainer.addEventListener('scroll', this.scrollListener);
+            }
+        }, 500);
     }
 
     ngOnInit(): void {
@@ -281,6 +328,10 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit {
 
     get itemsFormArray(): FormArray {
         return this.returnForm.get('items') as FormArray;
+    }
+
+    get items() {
+        return this.itemsFormArray;
     }
 
     scrollTable(direction: 'left' | 'right') {

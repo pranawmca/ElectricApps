@@ -703,6 +703,9 @@ export class PoList implements OnInit {
       case 'DELETE':
         this.onDeleteSingleParentRecord(row);
         break;
+      case 'TOGGLE_DISPATCH':
+        this.onToggleDispatch(row);
+        break;
 
       default:
         console.warn(`Action ${event.action} is not handled.`);
@@ -736,6 +739,43 @@ export class PoList implements OnInit {
         partyName: row.supplierName,
         qty: resultQty,
         isReplacement: (totalReturned > 0 || totalRejected > 0) ? 'true' : 'false'
+      }
+    });
+  }
+
+  onToggleDispatch(row: any) {
+    const dialogRef = this.dialog.open(ActionConfirmDialog, {
+      width: '420px',
+      data: {
+        title: 'Confirm Shipment Dispatch',
+        message: `Are you sure you want to mark Order #${row.poNumber} as dispatched? This will enable Inward/GRN processing for this order.`,
+        confirmText: 'Confirm Dispatch',
+        confirmColor: 'primary'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true;
+        this.cdr.detectChanges();
+
+        this.poService.toggleDispatchStatus(row.id).subscribe({
+          next: (res) => {
+            this.isLoading = false;
+            if (res.success) {
+              this.notification.showStatus(true, `Order ${row.poNumber} is now marked as In-Transit.`);
+              this.loadData(this.currentGridState);
+            } else {
+              this.notification.showStatus(false, res.message || 'Error updating dispatch status.');
+            }
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.isLoading = false;
+            this.notification.showStatus(false, 'Failed to update dispatch status.');
+            this.cdr.detectChanges();
+          }
+        });
       }
     });
   }

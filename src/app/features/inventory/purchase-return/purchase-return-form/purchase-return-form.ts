@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs'; // Import forkJoin for parallel API calls
 
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core'; // CDR add kiya
+import { trigger, transition, style, animate } from '@angular/animations';
+import { Component, inject, OnInit, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core'; // CDR add kiya
 import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MaterialModule } from '../../../../shared/material/material/material-module';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -28,8 +29,19 @@ import { AuthService } from '../../../../core/services/auth.service';
   providers: [DatePipe, CurrencyPipe],
   templateUrl: './purchase-return-form.html',
   styleUrl: './purchase-return-form.scss',
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'scale(0.5)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.5)' }))
+      ])
+    ])
+  ]
 })
-export class PurchaseReturnForm implements OnInit {
+export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
   returnForm!: FormGroup;
   suppliers: any[] = [];
   displayedColumns: string[] = ['product', 'rejectedQty', 'returnQty', 'rate', 'discount', 'gst', 'taxAmount', 'total', 'actions'];
@@ -41,6 +53,44 @@ export class PurchaseReturnForm implements OnInit {
   returnWindowLabel: string = '72-Hour';
   returnWindowHours: number = 72;
   returnPolicyDisclaimer: string = 'Items from GRNs received more than 3 days ago are blocked for return as per company policy.';
+  
+  isAtTop = true;
+  private scrollContainer: HTMLElement | null = null;
+  private scrollListener: any;
+
+  onScroll() {
+    if (this.scrollContainer) {
+      const { scrollTop } = this.scrollContainer;
+      this.isAtTop = scrollTop < 50;
+      this.cdr.detectChanges();
+    }
+  }
+
+  toggleScroll() {
+    if (this.scrollContainer) {
+      if (this.isAtTop) {
+        this.scrollContainer.scrollTo({ top: this.scrollContainer.scrollHeight, behavior: 'smooth' });
+      } else {
+        this.scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.scrollContainer = document.querySelector('.content');
+      if (this.scrollContainer) {
+        this.scrollListener = this.onScroll.bind(this);
+        this.scrollContainer.addEventListener('scroll', this.scrollListener);
+      }
+    }, 500);
+  }
+
+  ngOnDestroy() {
+    if (this.scrollContainer && this.scrollListener) {
+      this.scrollContainer.removeEventListener('scroll', this.scrollListener);
+    }
+  }
 
   private sharedPrintService = inject(SharedPrintService);
   private authService = inject(AuthService);
@@ -264,9 +314,9 @@ export class PurchaseReturnForm implements OnInit {
       const rate = item.rate ?? item.Rate ?? 0;
       let rDate = item.receivedDate || item.ReceivedDate || item.podate || new Date();
 
-      // UTC to Local Conversion: Append 'Z' if missing to force UTC interpretation
+      // UTC to Local Conversion: Append 'Z' to force UTC interpretation so Angular pipe converts to IST
       if (typeof rDate === 'string' && !rDate.includes('Z') && !rDate.includes('+')) {
-        rDate = rDate.replace(' ', 'T') + '+05:30';
+        rDate = rDate.replace(' ', 'T') + 'Z';
       }
 
       if (!groups[ref]) {

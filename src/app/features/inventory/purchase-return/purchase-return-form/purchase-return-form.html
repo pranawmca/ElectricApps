@@ -97,7 +97,7 @@
                       <div class="grn-info">
                          <mat-icon class="folder-icon">{{expandedGrn === group.grnRef ? 'folder_open' : 'folder'}}</mat-icon>
                          <span class="grn-ref">{{group.grnRef}}</span>
-                         <span class="grn-date">{{group.receivedDate | date:'medium'}}</span>
+                         <span class="grn-date">{{group.receivedDate | date:'dd MMM yyyy, hh:mm:ss a'}}</span>
                       </div>
                       <div class="grn-meta">
                          <span class="item-count">{{group.items.length}} Items</span>
@@ -269,4 +269,8 @@
 
     </mat-card>
   </form>
+  
+  <div class="scroll-fab" *ngIf="receivedStockItems.length > 0 || items.length > 0" [class.to-bottom]="isAtTop" (click)="toggleScroll()" [@fadeInOut]>
+    <mat-icon>{{ isAtTop ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</mat-icon>
+  </div>
 </div>

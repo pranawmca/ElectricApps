@@ -1,5 +1,6 @@
 export interface PurchaseOrderPayload {
-  supplierId: number;
+  id?: string | number;
+  supplierId: string;
   supplierName: string;
   priceListId?: string;
   poDate: string;
