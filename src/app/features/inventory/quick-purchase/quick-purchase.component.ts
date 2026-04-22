@@ -351,7 +351,8 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                         if (res) {
                             itemForm.patchValue({
                                 rate: res.recommendedRate || res.rate,
-                                discountPercent: res.discount || res.discountPercent || 0
+                                discountPercent: res.discount || res.discountPercent || 0,
+                                gstPercent: res.gstPercent ?? 18,
                             });
                             this.calculateItemTotal(index);
                             this.cdr.detectChanges();
@@ -549,7 +550,8 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                         if (res) {
                             control.patchValue({
                                 rate: res.recommendedRate || res.rate,
-                                discountPercent: res.discount || res.discountPercent || 0
+                                discountPercent: res.discount || res.discountPercent || 0,
+                                gstPercent: res.gstPercent ?? 18,
                             });
                         }
                         this.calculateItemTotal(index);

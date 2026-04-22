@@ -5,4 +5,5 @@ export interface PriceListItemDto {
   rate: number;         // Decimal value jo calculation mein use hogi
   unit: string;         // Unit field update karne ke liye
   gstPercent?: number;  // Optional: Agar tax calculation bhi karni ho
+  discountPercent: number;
 }

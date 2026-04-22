@@ -39,7 +39,7 @@ export class InventoryService {
     }
 
     getProductRate(productId: string, priceListId: string): Observable<any> {
-        const url = `products/rate?productId=${productId}&priceListId=${priceListId}`;
+        const url = `PurchaseOrders/get-product-rate?productId=${productId}&priceListId=${priceListId}`;
         return this.api.get(url);
     }
 

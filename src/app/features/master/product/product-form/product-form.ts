@@ -14,6 +14,7 @@ import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dial
 import { Observable, Subject, of } from 'rxjs';
 import { map, startWith, takeUntil, finalize } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
+import { ApiService } from '../../../../shared/api.service';
 
 import { LocationService } from '../../locations/services/locations.service';
 import { Warehouse, Rack } from '../../locations/models/locations.model';
@@ -37,6 +38,7 @@ export class ProductForm implements OnInit, OnDestroy {
   private locationService = inject(LocationService);
   private destroy$ = new Subject<void>();
   private authService = inject(AuthService);
+  private api = inject(ApiService);
   public dialogRef = inject(MatDialogRef<ProductForm>, { optional: true });
   public data = inject(MAT_DIALOG_DATA, { optional: true });
 
@@ -462,12 +464,25 @@ export class ProductForm implements OnInit, OnDestroy {
 
   loadInitialLookups() {
     this.unitService.getAll().subscribe(data => this.units = data || []);
-    this.locationService.getWarehouses().pipe(takeUntil(this.destroy$)).subscribe(data => this.warehouses = data.filter(w => w.isActive));
+    this.locationService.getWarehouses().pipe(takeUntil(this.destroy$)).subscribe(data => {
+      this.warehouses = data.filter(w => w.isActive);
+      // Auto-select if only 1 warehouse exists and it's Add Mode
+      if (!this.isEditMode && this.warehouses.length === 1) {
+        this.productsForm.get('defaultWarehouseId')?.setValue(this.warehouses[0].id);
+        this.onWarehouseChange(this.warehouses[0].id, false);
+      }
+    });
+
     this.locationService.getRacks().pipe(takeUntil(this.destroy$)).subscribe(data => {
       this.racks = data.filter(r => r.isActive);
       const warehouseId = this.productsForm.get('defaultWarehouseId')?.value;
       if (warehouseId) {
         this.onWarehouseChange(warehouseId, false);
+        
+        // Auto-select rack if only 1 exists for this warehouse and it's Add Mode
+        if (!this.isEditMode && this.filteredRacks.length === 1) {
+          this.productsForm.get('defaultRackId')?.setValue(this.filteredRacks[0].id);
+        }
       }
     });
 
@@ -635,6 +650,22 @@ export class ProductForm implements OnInit, OnDestroy {
       return;
     }
     this.router.navigate(['/app/master/products']);
+  }
+
+  setupDefaults() {
+    this.loading = true;
+    this.api.get<any>('warehouses/seed-sample').pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+    })).subscribe({
+        next: (res) => {
+            this.showDialog(true, "Default Warehouse and Racks have been setup successfully. You can now select them.");
+            this.loadInitialLookups();
+        },
+        error: (err) => {
+            this.showDialog(false, "Failed to setup defaults: " + (err.error?.message || err.message));
+        }
+    });
   }
 
   private mapToProducts(formValue: any): any {

@@ -185,6 +185,9 @@
             {{ w.name }}
           </mat-option>
         </mat-select>
+        <div matHint *ngIf="warehouses.length === 0" class="text-danger mt-1 d-flex align-items-center cursor-pointer" (click)="setupDefaults()" style="font-size: 0.75rem; cursor: pointer;">
+           <mat-icon style="font-size: 14px; width: 14px; height: 14px; margin-right: 4px;">add_circle</mat-icon> No Warehouse found? Setup Default
+        </div>
         <mat-error *ngIf="productsForm.get('defaultWarehouseId')?.hasError('required')">
           Warehouse is required
         </mat-error>
