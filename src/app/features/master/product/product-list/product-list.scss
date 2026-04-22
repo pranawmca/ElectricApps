@@ -246,4 +246,12 @@
     .price-breakdown { .sale-price { color: #f1f5f9 !important; } .base-price { color: #94a3b8 !important; } }
     .gst-badge { background: rgba(13, 148, 136, 0.1) !important; color: #4fd1c5 !important; border-color: rgba(13, 148, 136, 0.2) !important; }
   }
+}.responsive-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  .nested-table {
+    min-width: 800px; // Ensure nested table has enough width
+  }
 }

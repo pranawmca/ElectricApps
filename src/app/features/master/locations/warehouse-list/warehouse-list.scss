@@ -201,4 +201,61 @@ mat-form-field {
   }
 }
 
+// Responsive Adjustments
+@media (max-width: 1024px) {
+  .warehouse-list-container {
+    padding: 15px;
+  }
+}
 
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+
+    .header-actions {
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      button {
+        flex: 1;
+        min-width: 140px;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+      }
+    }
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .table-container {
+    overflow-x: auto !important; // Enable horizontal scroll
+    
+    table {
+      min-width: 700px; // Ensure table doesn't squash too much
+    }
+  }
+
+  // Hide non-essential columns on mobile
+  .cdk-column-description {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+
+  .cdk-column-city {
+    display: none !important;
+  }
+}

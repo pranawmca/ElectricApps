@@ -102,77 +102,79 @@
         </div>
 
         <div class="table-card" *ngIf="!nestedLoading[subcategory.id] && nestedData[subcategory.id]?.length">
-          <table class="nested-table">
-            <thead>
-              <tr>
-                <th style="width: 25%;">Product & Brand</th>
-                <th style="width: 15%;">SKU & HSN</th>
-                <th style="width: 15%;">Stock & Storage</th>
-                <th style="width: 15%;">Commercials</th>
-                <th style="width: 10%;">Taxation</th>
-                <th style="width: 20%; text-align: center;">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let p of nestedData[subcategory.id]" class="nested-item-row">
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <img *ngIf="p.imageUrl" [src]="p.imageUrl" class="product-mini-img shadow-sm" alt="img">
+          <div class="responsive-table-wrapper">
+            <table class="nested-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 200px;">Product & Brand</th>
+                  <th style="min-width: 120px;">SKU & HSN</th>
+                  <th style="min-width: 150px;">Stock & Storage</th>
+                  <th style="min-width: 150px;">Commercials</th>
+                  <th style="min-width: 100px;">Taxation</th>
+                  <th style="min-width: 120px; text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of nestedData[subcategory.id]" class="nested-item-row">
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <img *ngIf="p.imageUrl" [src]="p.imageUrl" class="product-mini-img shadow-sm" alt="img">
+                      <div class="d-flex flex-column">
+                        <span class="fw-bold sub-name">{{ p.productName }}</span>
+                        <span class="brand-tag" *ngIf="p.brand"><mat-icon>verified</mat-icon> {{ p.brand }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex flex-column gap-1">
+                      <code class="code-tag">{{ p.sku }}</code>
+                      <span class="x-small text-muted" *ngIf="p.hsnCode">HSN: {{ p.hsnCode }}</span>
+                    </div>
+                  </td>
+                  <td>
                     <div class="d-flex flex-column">
-                      <span class="fw-bold sub-name">{{ p.productName }}</span>
-                      <span class="brand-tag" *ngIf="p.brand"><mat-icon>verified</mat-icon> {{ p.brand }}</span>
+                      <span class="status-indicator" [ngClass]="p.currentStock <= p.minStock ? 'inactive' : 'active'">
+                        {{ p.currentStock }} {{ p.unit }}
+                      </span>
+                      <span class="x-small text-muted" *ngIf="p.defaultWarehouseName">
+                          <mat-icon style="font-size: 10px; height: 10px; width: 10px;">location_on</mat-icon>
+                          {{ p.defaultWarehouseName }} | {{ p.defaultRackName || 'No Rack' }}
+                      </span>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <div class="d-flex flex-column gap-1">
-                    <code class="code-tag">{{ p.sku }}</code>
-                    <span class="x-small text-muted" *ngIf="p.hsnCode">HSN: {{ p.hsnCode }}</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="d-flex flex-column">
-                    <span class="status-indicator" [ngClass]="p.currentStock <= p.minStock ? 'inactive' : 'active'">
-                      {{ p.currentStock }} {{ p.unit }}
-                    </span>
-                    <span class="x-small text-muted" *ngIf="p.defaultWarehouseName">
-                        <mat-icon style="font-size: 10px; height: 10px; width: 10px;">location_on</mat-icon>
-                        {{ p.defaultWarehouseName }} | {{ p.defaultRackName || 'No Rack' }}
-                    </span>
-                  </div>
-                </td>
-                <td>
-                  <div class="d-flex flex-column price-breakdown">
-                    <span class="sale-price">₹{{ p.saleRate || 0 }} <small class="text-muted" style="font-size: 9px;">(Sale)</small></span>
-                    <div class="d-flex flex-wrap gap-2 x-small mt-1">
-                        <span class="text-muted text-decoration-line-through decoration-slate-400" *ngIf="p.mrp && p.saleRate && p.mrp > p.saleRate">
-                            <b class="text-slate-500">MRP:</b> ₹{{ p.mrp }}
-                        </span>
-                        <span class="base-price">
-                            <b class="text-slate-500">Base:</b> ₹{{ p.basePurchasePrice || 0 }}
-                        </span>
+                  </td>
+                  <td>
+                    <div class="d-flex flex-column price-breakdown">
+                      <span class="sale-price">₹{{ p.saleRate || 0 }} <small class="text-muted" style="font-size: 9px;">(Sale)</small></span>
+                      <div class="d-flex flex-wrap gap-2 x-small mt-1">
+                          <span class="text-muted text-decoration-line-through decoration-slate-400" *ngIf="p.mrp && p.saleRate && p.mrp > p.saleRate">
+                              <b class="text-slate-500">MRP:</b> ₹{{ p.mrp }}
+                          </span>
+                          <span class="base-price">
+                              <b class="text-slate-500">Base:</b> ₹{{ p.basePurchasePrice || 0 }}
+                          </span>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td>
-                    <span class="gst-badge">{{ p.defaultGst }}% GST</span>
-                </td>
-                <td class="text-center">
-                  <div class="mini-actions">
-                    <button mat-icon-button color="accent" *ngIf="p.currentStock <= p.minStock" (click)="navigateToCreatePO(p)" matTooltip="Quick Reorder">
-                      <mat-icon>shopping_cart_checkout</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="onEdit(p)" matTooltip="Edit Product">
-                      <mat-icon>edit_note</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="deleteProduct(p)" matTooltip="Delete Product">
-                      <mat-icon>delete_outline</mat-icon>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  </td>
+                  <td>
+                      <span class="gst-badge">{{ p.defaultGst }}% GST</span>
+                  </td>
+                  <td class="text-center">
+                    <div class="mini-actions">
+                      <button mat-icon-button color="accent" *ngIf="p.currentStock <= p.minStock" (click)="navigateToCreatePO(p)" matTooltip="Quick Reorder">
+                        <mat-icon>shopping_cart_checkout</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="onEdit(p)" matTooltip="Edit Product">
+                        <mat-icon>edit_note</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteProduct(p)" matTooltip="Delete Product">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div *ngIf="!nestedLoading[subcategory.id] && !nestedData[subcategory.id]?.length" class="empty-nested-state p-5 text-center">

@@ -892,4 +892,66 @@ th.mat-mdc-header-cell.select-col {
     }
   }
 }
+
+// Responsive Datagrid Styles
+@media (max-width: 1024px) {
+  .datagrid-container {
+    .table-wrapper {
+      overflow-x: auto !important;
+      
+      table {
+        min-width: 900px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    
+    .button-container {
+      width: 100%;
+      button { width: 100%; }
+    }
+  }
+
+  .table-wrapper {
+    table {
+      min-width: 800px;
+    }
+
+    .sticky-right {
+      position: sticky;
+      right: 0;
+      background: inherit !important;
+      z-index: 2;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+    }
+
+    .sticky-left {
+      position: sticky;
+      left: 0;
+      background: inherit !important;
+      z-index: 2;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .table-wrapper table {
+    min-width: 700px;
+  }
+  
+  .action-btn-group {
+    gap: 4px !important;
+    button {
+      scale: 0.85;
+    }
+  }
+}
+
 
