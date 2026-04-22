@@ -201,14 +201,23 @@ mat-form-field {
   }
 }
 
-// Responsive Adjustments
-@media (max-width: 1024px) {
-  .warehouse-list-container {
-    padding: 15px;
-  }
-}
-
 @media (max-width: 768px) {
+  :host {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .warehouse-list-container {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 15px 10px;
+  }
+
+  .list-card {
+    min-height: 500px !important;
+    overflow: visible !important;
+  }
+
   .list-header {
     flex-direction: column;
     align-items: flex-start;
@@ -231,19 +240,6 @@ mat-form-field {
   .page-title {
     font-size: 20px;
   }
-
-  .table-container {
-    overflow-x: auto !important; // Enable horizontal scroll
-    
-    table {
-      min-width: 700px; // Ensure table doesn't squash too much
-    }
-  }
-
-  // Hide non-essential columns on mobile
-  .cdk-column-description {
-    display: none !important;
-  }
 }
 
 @media (max-width: 480px) {
@@ -253,9 +249,5 @@ mat-form-field {
     button {
       width: 100%;
     }
-  }
-
-  .cdk-column-city {
-    display: none !important;
   }
 }

@@ -144,6 +144,57 @@ h1, h2, h3, h4, h5, h6 {
 /* =====================================================
    3. BODY SCROLL CONTROL
 ===================================================== */
+/* =====================================================
+   4. GLOBAL MOBILE RESPONSIVITY (LIST PAGES)
+===================================================== */
+@media (max-width: 768px) {
+  /* Prevent height collapse on all list components */
+  [class$="-list-container"], 
+  .list-container, 
+  .page-container,
+  .container-fluid,
+  [class*="list-component"] {
+    height: auto !important;
+    min-height: 0 !important; /* Reset 100vh */
+    overflow: visible !important;
+    padding: 10px 15px !important;
+    display: block !important;
+  }
+
+  /* Ensure cards have enough space but aren't excessively tall */
+  .list-card, .mat-mdc-card, .unit-card, .product-card, .table-card {
+    min-height: 350px !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Force headers to stack vertically for better button placement */
+  .list-header, .header-actions {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    
+    .header-actions, .d-flex {
+        width: 100% !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        
+        button {
+            flex: 1 !important;
+            min-width: 130px !important;
+            font-size: 11px !important;
+            padding: 0 8px !important;
+        }
+    }
+  }
+
+  .page-title {
+    font-size: 20px !important;
+    margin-bottom: 5px !important;
+  }
+}
+
 body {
   width: 100%;
   background-color: var(--mat-sys-surface);
@@ -154,17 +205,19 @@ body {
    4. SCROLLBAR BEHAVIOR
 ===================================================== */
 
-/* Default behavior: Hide all scrollbars but allow scrolling */
-* {
-  scrollbar-width: none;          /* Firefox: hide scrollbar */
-  -ms-overflow-style: none;      /* IE/Edge: hide scrollbar */
+/* Default behavior: Hide all scrollbars but allow scrolling 
+   (Except for containers that explicitly need them like tables) */
+/* Default behavior: Hide all scrollbars globally */
+*:not(.table-container):not(.table-container *):not(.table-responsive):not(.table-responsive *):not(.table-wrapper):not(.table-wrapper *):not(.datagrid-container):not(.datagrid-container *):not(.responsive-table-wrapper):not(.responsive-table-wrapper *) {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
-/* WebKit: Hide scrollbars */
-*::-webkit-scrollbar {
-  width: 0px;      /* Vertical hidden */
-  height: 0px;     /* Horizontal hidden */
-  display: none;
+/* WebKit: Hide scrollbars except for responsive containers */
+*:not(.table-container):not(.table-container *):not(.table-responsive):not(.table-responsive *):not(.table-wrapper):not(.table-wrapper *):not(.datagrid-container):not(.datagrid-container *):not(.responsive-table-wrapper):not(.responsive-table-wrapper *)::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  display: none !important;
 }
 
 /* Specific fix for Material Drawer - consistent with global hide */
@@ -718,7 +771,60 @@ html.dark-mode {
 }
 
 /* =====================================================
-   15. GLOBAL DATATABLE STANDARDIZATION
+   15. GLOBAL RESPONSIVE DATATABLE FIX (PERMANENT)
+===================================================== */
+.table-container, .table-responsive, .table-wrapper, .datagrid-container, .responsive-table-wrapper {
+  display: block !important;
+  width: 100% !important;
+  min-height: 300px !important; /* Ensure it never collapses to zero */
+  overflow-x: auto !important; 
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  position: relative !important;
+  background: var(--card-bg, #ffffff) !important;
+  
+  /* 💎 Premium Custom Scrollbar for Responsive Tables */
+  &::-webkit-scrollbar {
+    height: 6px !important;
+    display: block !important;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(var(--dg-primary-theme-rgb, 59, 130, 246), 0.3) !important;
+    border-radius: 10px;
+    
+    &:hover {
+      background: rgba(var(--dg-primary-theme-rgb, 59, 130, 246), 0.6) !important;
+    }
+  }
+
+  /* Force minimum width on small screens to prevent column squashing */
+  table.mat-mdc-table, table.mat-table {
+    width: 100% !important;
+    min-width: 850px !important; 
+    border-collapse: separate !important;
+    
+    @media (max-width: 768px) {
+      min-width: 900px !important; 
+    }
+  }
+
+  /* Dark mode specific scrollbar polish */
+  html.dark-mode & {
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+}
+
+/* =====================================================
+   16. GLOBAL DATATABLE STANDARDIZATION
 ===================================================== */
 
 /* Force standardization on all Material MDC Tables */

@@ -125,4 +125,22 @@ export class ProductDashboard implements OnInit {
     return product.imageUrl || 'https://via.placeholder.com/300x300.png?text=No+Image';
   }
 
+  scrollToTop() {
+    const header = document.querySelector('.dashboard-header');
+    if (header) {
+      header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  scrollToBottom() {
+    const grid = document.querySelector('.product-grid');
+    if (grid) {
+      grid.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    } else {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  }
+
 }

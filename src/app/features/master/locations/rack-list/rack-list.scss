@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -10,11 +9,10 @@
   padding: 20px 24px;
   background-color: var(--app-bg);
   color: var(--app-text);
-  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   box-sizing: border-box;
+  flex: 1;
 }
 
 .list-header {
@@ -228,47 +226,9 @@ mat-form-field {
   }
 }
 // Responsive Adjustments
-@media (max-width: 1024px) {
-  .rack-list-container {
-    padding: 15px;
-  }
-}
-
 @media (max-width: 768px) {
   .list-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-
-    .header-actions {
-      width: 100%;
-      flex-wrap: wrap;
-      gap: 8px;
-
-      button {
-        flex: 1;
-        min-width: 140px;
-        padding: 0 10px !important;
-        font-size: 12px !important;
-      }
-    }
-  }
-
-  .page-title {
-    font-size: 20px;
-  }
-
-  .table-container {
-    overflow-x: auto !important;
-    
-    table {
-      min-width: 800px;
-    }
-  }
-
-  // Hide non-essential columns on mobile/tablet
-  .cdk-column-description {
-    display: none !important;
+    padding: 10px 0;
   }
 }
 

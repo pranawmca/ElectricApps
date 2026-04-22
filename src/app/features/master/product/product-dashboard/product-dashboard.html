@@ -137,4 +137,14 @@
   <ng-template #loader>
     <div style="min-height: 200px;"></div>
   </ng-template>
+  <!-- 🚀 Animated Scroll Navigation Widget -->
+  <div class="scroll-nav-widget animate__animated animate__fadeInRight">
+    <button mat-fab color="primary" class="scroll-btn up" (click)="scrollToTop()" matTooltip="Scroll to Top">
+      <mat-icon>keyboard_double_arrow_up</mat-icon>
+    </button>
+    <div class="scroll-divider"></div>
+    <button mat-fab color="accent" class="scroll-btn down" (click)="scrollToBottom()" matTooltip="Scroll to Bottom">
+      <mat-icon>keyboard_double_arrow_down</mat-icon>
+    </button>
+  </div>
 </div>
