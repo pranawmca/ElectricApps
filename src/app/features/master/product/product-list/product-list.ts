@@ -324,13 +324,24 @@ export class ProductList implements OnInit {
   }
 
   downloadTemplate(): void {
-    this.service.downloadTemplate().subscribe(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Product_Template.xlsx';
-      a.click();
-      window.URL.revokeObjectURL(url);
+    this.loadingService.setLoading(true);
+    this.service.downloadTemplate().subscribe({
+      next: blob => {
+        setTimeout(() => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'Product_Template.xlsx';
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.loadingService.setLoading(false);
+          this.cdr.detectChanges();
+        }, 800);
+      },
+      error: () => {
+        this.loadingService.setLoading(false);
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -349,18 +360,24 @@ export class ProductList implements OnInit {
       if (!confirm) return;
 
       this.loading = true;
+      this.loadingService.setLoading(true);
       this.cdr.detectChanges();
 
       this.service.syncStock().subscribe({
         next: (res: any) => {
-          this.loading = false;
-          this.dialog.open(StatusDialogComponent, {
-            data: { isSuccess: true, message: res.message || 'Stock synchronized successfully!' }
-          });
-          this.reloadGrid(); // Refresh the list to show new counts
+          setTimeout(() => {
+            this.loading = false;
+            this.loadingService.setLoading(false);
+            this.dialog.open(StatusDialogComponent, {
+              data: { isSuccess: true, message: res.message || 'Stock synchronized successfully!' }
+            });
+            this.reloadGrid(); // Refresh the list to show new counts
+            this.cdr.detectChanges();
+          }, 800);
         },
         error: (err: any) => {
           this.loading = false;
+          this.loadingService.setLoading(false);
           const errorMessage = err?.error?.message || err?.message || 'Sync failed. Please try again later.';
           this.dialog.open(StatusDialogComponent, {
             data: { isSuccess: false, message: errorMessage }

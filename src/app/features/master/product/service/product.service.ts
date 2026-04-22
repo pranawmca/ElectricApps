@@ -36,9 +36,7 @@ export class ProductService {
     }
 
     getPaged(request: GridRequest): Observable<GridResponse<Product>> {
-        return this.api.get<GridResponse<Product>>(
-            `products/paged?${this.api.toQueryString(request)}`
-        );
+        return this.api.post<GridResponse<Product>>(`products/paged`, request);
     }
 
     getById(id: string): Observable<Product> {
