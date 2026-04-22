@@ -274,24 +274,31 @@ export class SubcategoryList implements OnInit, OnChanges {
       this.loading = true;
       this.cdr.detectChanges();
 
+      this.loadingService.setLoading(true);
       this.subCategoryService.uploadExcel(file).subscribe({
         next: (res) => {
-          this.loading = false;
-          this.cdr.detectChanges();
-          
-          this.dialog.open(StatusDialogComponent, {
-            width: '500px',
-            data: {
-              isSuccess: res.errors.length === 0,
-              message: res.message,
-              errors: res.errors
-            }
-          });
-          
-          this.reloadGrid();
+          setTimeout(() => {
+            this.loading = false;
+            this.loadingService.setLoading(false);
+            this.cdr.detectChanges();
+            
+            this.dialog.open(StatusDialogComponent, {
+              width: '500px',
+              data: {
+                isSuccess: !res.errors || res.errors.length === 0,
+                title: res.errors?.length > 0 ? 'Upload Completed with Errors' : 'Success',
+                message: res.message,
+                errors: res.errors,
+                status: res.errors?.length > 0 ? 'warning' : 'success'
+              }
+            });
+            
+            this.reloadGrid();
+          }, 800);
         },
         error: (err) => {
           this.loading = false;
+          this.loadingService.setLoading(false);
           console.error('Upload error', err);
           this.dialog.open(StatusDialogComponent, {
             data: { isSuccess: false, message: 'Failed to upload subcategories.' }

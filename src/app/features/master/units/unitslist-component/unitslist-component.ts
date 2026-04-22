@@ -84,18 +84,21 @@ export class UnitslistComponent implements OnInit {
       this.loadingService.setLoading(true);
       this.unitService.importUnits(file).subscribe({
         next: (res: any) => {
-          this.isLoading = false;
-          this.loadingService.setLoading(false);
-          this.dialog.open(StatusDialogComponent, {
-            width: '400px',
-            data: {
-              isSuccess: true,
-              status: 'success',
-              title: 'Success',
-              message: res.message || 'Units imported successfully'
-            }
-          });
-          this.loadUnits();
+          setTimeout(() => {
+            this.isLoading = false;
+            this.loadingService.setLoading(false);
+            this.dialog.open(StatusDialogComponent, {
+              width: '500px',
+              data: {
+                isSuccess: !res.errors || res.errors.length === 0,
+                status: res.errors?.length > 0 ? 'warning' : 'success',
+                title: res.errors?.length > 0 ? 'Upload Completed with Errors' : 'Success',
+                message: res.message || 'Units processed successfully',
+                errors: res.errors
+              }
+            });
+            this.loadUnits();
+          }, 800);
         },
         error: (err) => {
           console.error(err);

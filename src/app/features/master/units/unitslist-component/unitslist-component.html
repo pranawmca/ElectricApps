@@ -6,11 +6,11 @@
         <mat-icon>add</mat-icon> ADD NEW UNIT
       </button>
 
-      <button *appPermission="'DOWNLOAD_TEMPLATE'" mat-raised-button class="pill-btn template-btn" (click)="downloadTemplate()">
+      <button mat-raised-button class="pill-btn template-btn" (click)="downloadTemplate()">
         <mat-icon>download</mat-icon> TEMPLATE
       </button>
 
-      <button *appPermission="'BULK_UPLOAD'" mat-raised-button class="pill-btn upload-btn" (click)="fileInput.click()">
+      <button mat-raised-button class="pill-btn upload-btn" (click)="fileInput.click()">
         <mat-icon>upload_file</mat-icon> UPLOAD EXCEL
       </button>
       <input #fileInput type="file" (change)="onFileSelected($event)" accept=".xlsx, .xls" style="display: none;">
