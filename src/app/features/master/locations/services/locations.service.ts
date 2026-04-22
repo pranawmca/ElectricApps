@@ -24,6 +24,12 @@ export class LocationService {
         return this.api.delete(`warehouses/${id}`);
     }
 
+    uploadWarehousesExcel(file: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.api.post('warehouses/upload-excel', formData);
+    }
+
     // Rack Methods
     getRacks(): Observable<Rack[]> {
         return this.api.get<Rack[]>('racks');
@@ -43,5 +49,19 @@ export class LocationService {
 
     getRacksByWarehouse(warehouseId: string): Observable<Rack[]> {
         return this.api.get<Rack[]>(`racks/warehouse/${warehouseId}`);
+    }
+
+    uploadRacksExcel(file: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.api.post('racks/upload-excel', formData);
+    }
+
+    downloadWarehouseTemplate(): Observable<Blob> {
+        return this.api.getBlob('warehouses/download-template');
+    }
+
+    downloadRackTemplate(): Observable<Blob> {
+        return this.api.getBlob('racks/download-template');
     }
 }

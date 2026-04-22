@@ -44,8 +44,8 @@
         </div>
   
         <div class="form-actions">
-          <button mat-button class="back-btn" routerLink="/app/master/racks">CANCEL</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="rackForm.invalid || isLoading">
+          <button mat-raised-button type="button" class="pill-btn cancel-btn" routerLink="/app/master/racks">CANCEL</button>
+          <button mat-raised-button color="primary" class="pill-btn submit-btn" type="submit" [disabled]="rackForm.invalid || isLoading">
             <mat-icon>save</mat-icon> {{ isEditMode ? 'UPDATE' : 'SAVE' }} RACK
           </button>
         </div>

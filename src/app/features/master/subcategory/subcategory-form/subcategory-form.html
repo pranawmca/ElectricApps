@@ -8,31 +8,21 @@
         {{ selectedFileName }}
       </span>
       
-      <!-- Download Template -->
-      <button mat-stroked-button color="primary" (click)="downloadTemplate()">
-        <mat-icon>download</mat-icon> Download Template
-      </button>
-
-      <!-- Upload Excel Trigger -->
-      <button mat-stroked-button color="primary" (click)="fileInput.click()" *ngIf="!selectedFileName">
-        <mat-icon>cloud_upload</mat-icon> Upload Excel
-      </button>
-
       <!-- Hidden Input -->
       <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none;" accept=".xlsx, .xls, .csv">
 
       <!-- Upload Actions (Visible when file selected) -->
-      <button mat-raised-button class="submit-btn" *ngIf="selectedFileName" (click)="uploadExcel()">
+      <button mat-raised-button class="submit-btn pill-btn" *ngIf="selectedFileName" (click)="uploadExcel()">
         <mat-icon>save</mat-icon> Save
       </button>
 
 
-      <button mat-raised-button class="submit-btn" *ngIf="!selectedFileName" (click)="onSave()" [disabled]="loading">
+      <button mat-raised-button class="submit-btn pill-btn" *ngIf="!selectedFileName" (click)="onSave()" [disabled]="loading">
         <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
       </button>
 
       <!-- Cancel Button (Header) -->
-      <button mat-raised-button class="cancel-btn" (click)="onCancel()" *ngIf="!selectedFileName">
+      <button mat-raised-button class="cancel-btn pill-btn" (click)="onCancel()" *ngIf="!selectedFileName">
         <mat-icon>close</mat-icon> Cancel
       </button>
     </div>

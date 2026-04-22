@@ -23,6 +23,38 @@
   align-items: center;
   margin-bottom: 20px;
   flex-shrink: 0;
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+}
+
+::ng-deep {
+  .pill-btn {
+    border-radius: 50px !important;
+    padding: 0 25px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 600 !important;
+  }
+
+  .bulk-upload-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: white !important;
+  }
+
+  .add-btn {
+    border-radius: 50px !important;
+  }
+}
+
+.me-2 {
+  margin-right: 15px;
 }
 
 .page-title {

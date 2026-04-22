@@ -54,6 +54,10 @@ export class CategoryService {
         return this.api.post(`categories/upload-excel`, formData);
     }
 
+    downloadTemplate(): Observable<Blob> {
+        return this.api.getBlob('categories/download-template');
+    }
+
     checkDuplicate(name: string, id: string | null = null): Observable<{ exists: boolean, message: string }> {
         let url = `categories/check-duplicate?name=${encodeURIComponent(name)}`;
         if (id) {

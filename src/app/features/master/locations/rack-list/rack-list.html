@@ -1,9 +1,25 @@
 <div class="rack-list-container">
     <div class="list-header">
       <h1 class="page-title">Rack Management</h1>
-      <button mat-raised-button color="primary" *ngIf="canAdd" routerLink="/app/master/racks/add">
-        <mat-icon>add</mat-icon> ADD NEW RACK
-      </button>
+      <div class="header-actions" style="display: flex !important; gap: 15px !important; align-items: center !important;">
+        <!-- Hidden file input -->
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept=".xlsx, .xls" style="display: none;">
+        
+        <!-- Download Template -->
+        <button mat-raised-button class="template-btn pill-btn" (click)="downloadTemplate()" [disabled]="isLoading">
+          <mat-icon>download</mat-icon> TEMPLATE
+        </button>
+
+        <!-- Bulk Upload Button -->
+        <button mat-raised-button class="bulk-upload-btn pill-btn" (click)="fileInput.click()">
+          <mat-icon>upload_file</mat-icon> BULK UPLOAD
+        </button>
+
+        <!-- Add New Button -->
+        <button mat-raised-button color="primary" class="add-btn pill-btn" *ngIf="canAdd" routerLink="/app/master/racks/add">
+          <mat-icon>add</mat-icon> ADD NEW RACK
+        </button>
+      </div>
     </div>
   
     <app-summary-stats [stats]="summaryStats" [isLoading]="isLoading"></app-summary-stats>

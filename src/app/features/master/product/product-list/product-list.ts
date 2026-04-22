@@ -279,6 +279,54 @@ export class ProductList implements OnInit {
     this.selectedRows = rows;
   }
 
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.loading = true;
+      this.cdr.detectChanges();
+
+      this.service.uploadExcel(file).subscribe({
+        next: (res) => {
+          this.loading = false;
+          this.cdr.detectChanges();
+          
+          this.dialog.open(StatusDialogComponent, {
+            width: '600px',
+            data: {
+              isSuccess: res.errors.length === 0,
+              message: res.message,
+              errors: res.errors
+            }
+          });
+          
+          this.reloadGrid();
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Upload error', err);
+          this.dialog.open(StatusDialogComponent, {
+            data: { isSuccess: false, message: 'Failed to upload products.' }
+          });
+          this.cdr.detectChanges();
+        }
+      });
+
+      // Clear input
+      event.target.value = '';
+    }
+  }
+
+  downloadTemplate(): void {
+    this.service.downloadTemplate().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Product_Template.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
   /**
    * 🔄 Re-calculate all product stock from transactions
    */

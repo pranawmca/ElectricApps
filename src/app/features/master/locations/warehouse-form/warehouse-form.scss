@@ -44,6 +44,42 @@
   justify-content: flex-end;
 }
 
+.pill-btn {
+  border-radius: 50px !important;
+  padding: 0 25px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s ease !important;
+  font-size: 11px !important;
+
+  mat-icon {
+    margin-right: 6px !important;
+    font-size: 18px !important;
+  }
+
+  &:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.1) !important;
+  }
+}
+
+.submit-btn {
+    background: #4361ee !important;
+    color: white !important;
+}
+
+.cancel-btn {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
 .status-toggle {
   margin-top: 8px;
 }

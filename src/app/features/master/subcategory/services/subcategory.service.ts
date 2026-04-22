@@ -50,6 +50,10 @@ export class SubCategoryService {
         return this.api.post('subcategories/upload-excel', formData);
     }
 
+    downloadTemplate(): Observable<Blob> {
+        return this.api.getBlob('subcategories/download-template');
+    }
+
     checkDuplicate(name: string, id: string | null = null): Observable<{ exists: boolean, message: string }> {
         let url = `subcategories/check-duplicate?name=${encodeURIComponent(name)}`;
         if (id) {

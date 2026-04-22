@@ -4,36 +4,50 @@
       <mat-icon>report_problem</mat-icon>
       <span>Dashboard Alert: Showing only <b>Low Stock</b> items.</span>
     </div>
-    <button mat-button class="view-all-btn" (click)="clearFilter()">
+    <button mat-raised-button class="view-all-btn pill-btn" (click)="clearFilter()">
       VIEW ALL PRODUCTS
     </button>
   </div>
 
   <div class="header-actions">
     <h1 class="page-title m-0">All Products</h1>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-3">
+      <!-- Hidden file input -->
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept=".xlsx, .xls" style="display: none;">
+      
+      <!-- Download Template -->
+      <button mat-raised-button class="template-btn pill-btn" (click)="downloadTemplate()" [disabled]="loading">
+        <mat-icon>download</mat-icon> TEMPLATE
+      </button>
+
+      <!-- Bulk Upload -->
+      <button mat-raised-button class="bulk-upload-btn pill-btn" (click)="fileInput.click()" [disabled]="loading">
+        <mat-icon>upload_file</mat-icon> BULK UPLOAD
+      </button>
+
       <ng-container *appPermission="'BULK_REORDER'">
-        <button *ngIf="isLowStockFilterActive && selectedRows.length > 1" mat-raised-button class="reorder-action-btn" (click)="bulkReorder()">
+        <button *ngIf="isLowStockFilterActive && selectedRows.length > 1" mat-raised-button class="reorder-action-btn pill-btn" (click)="bulkReorder()">
           <mat-icon>shopping_cart_checkout</mat-icon>
           Bulk Reorder ({{selectedRows.length}})
         </button>
       </ng-container>
 
-      <button *ngIf="canDelete && selectedRows.length > 0" mat-raised-button color="warn" class="delete-action-btn" (click)="confirmBulkDelete()" [disabled]="loading">
+      <button *ngIf="canDelete && selectedRows.length > 0" mat-raised-button color="warn" class="delete-action-btn pill-btn" (click)="confirmBulkDelete()" [disabled]="loading">
         <mat-icon>delete_sweep</mat-icon>
-        Delete Selected ({{selectedRows.length}})
+        Delete ({{selectedRows.length}})
       </button>
-      <button *appPermission="'SYNC_STOCK'" mat-raised-button color="accent" class="sync-action-btn" (click)="syncAllStock()" [disabled]="loading">
+
+      <button *appPermission="'SYNC_STOCK'" mat-raised-button color="accent" class="sync-action-btn pill-btn" (click)="syncAllStock()" [disabled]="loading">
         <mat-icon>sync</mat-icon>
         Sync All Stock
       </button>
 
-      <button mat-raised-button class="main-add-btn" routerLink="/app/master/products" [disabled]="loading">
+      <button mat-raised-button class="main-add-btn pill-btn" routerLink="/app/master/products" [disabled]="loading">
         <mat-icon>dashboard</mat-icon>
         Dashboard
       </button>
 
-      <button mat-raised-button class="main-add-btn" *ngIf="canAdd" routerLink="/app/master/products/add" [disabled]="loading">
+      <button mat-raised-button color="primary" class="pill-btn" *ngIf="canAdd" routerLink="/app/master/products/add" [disabled]="loading">
         <mat-icon>add</mat-icon>
         New Product
       </button>

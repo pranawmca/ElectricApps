@@ -50,51 +50,93 @@
   }
 
   .d-flex {
-    gap: 0 !important;
+    gap: 12px !important;
     button {
-      margin-left: 10px !important;
-      &:first-child { margin-left: 0 !important; }
+      margin-left: 0 !important;
     }
   }
 }
 
-/* 🏢 ERP STANDARD SLATE BUTTONS (Matched to PriceList) */
-.main-add-btn, .mini-add-btn, .delete-action-btn, .sync-action-btn, .reorder-action-btn {
-  background: #1e293b !important; /* Standard ERP Dark Slate */
-  color: white !important;
-  border-radius: 12px !important;
-  font-weight: 500 !important;
-  height: 40px !important; 
-  padding: 0 16px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  white-space: nowrap !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+::ng-deep {
+  .pill-btn {
+    border-radius: 50px !important;
+    padding: 0 16px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.3s ease !important;
+    
+    mat-icon {
+      margin-right: 6px !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .template-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4) !important;
+
+    &:hover {
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.5) !important;
+    }
+  }
+
+  .bulk-upload-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4) !important;
+    
+    &:hover {
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.5) !important;
+    }
+  }
+
+  .sync-action-btn {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+    color: white !important;
+  }
   
-  mat-icon { margin-right: 6px; font-size: 18px; width: 18px; height: 18px; }
+  .reorder-action-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: white !important;
+  }
+
+  .delete-action-btn {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+    color: white !important;
+  }
   
-  &:hover {
-    background: #1e293b !important; /* Slightly darker on hover */
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+  .main-add-btn {
+     background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+     color: white !important;
   }
 }
 
-.delete-action-btn {
-  background: #991b1b !important; /* Standard Dark Red for Delete */
-  &:hover { background: #7f1d1d !important; }
-}
-
+/* 🏢 ERP STANDARD SLATE BUTTONS */
 .mini-add-btn {
+  background: #1e293b !important;
+  color: white !important;
   height: 32px !important;
   font-size: 11px !important;
   border-radius: 20px !important;
   text-transform: uppercase;
   padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  mat-icon { margin-right: 4px; font-size: 16px; width: 16px; height: 16px; }
 }
 
 /* 🌳 PREMIUM HIERARCHICAL STYLING (LIGHT MODE NORMAL) */

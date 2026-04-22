@@ -100,6 +100,17 @@ export class WarehouseList implements OnInit {
         });
     }
 
+    downloadTemplate(): void {
+        this.locationService.downloadWarehouseTemplate().subscribe((blob: Blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Warehouse_Template.xlsx';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+    }
+
     private updateStats(): void {
         const total = this.dataSource.data.length;
         const active = this.dataSource.data.filter(u => u.isActive).length;
@@ -115,6 +126,43 @@ export class WarehouseList implements OnInit {
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
         this.dataSource.filter = filterValue.trim().toLowerCase();
+    }
+
+    onFileSelected(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            this.loadingService.setLoading(true);
+            this.locationService.uploadWarehousesExcel(file).subscribe({
+                next: (res: any) => {
+                    this.loadingService.setLoading(false);
+                    this.dialog.open(StatusDialogComponent, {
+                        width: '450px',
+                        data: {
+                            isSuccess: res.errors.length === 0,
+                            status: res.errors.length === 0 ? 'success' : 'warning',
+                            title: 'Bulk Upload Status',
+                            message: res.message || `${res.successCount} Warehouses processed.`,
+                            errors: res.errors
+                        }
+                    });
+                    this.loadWarehouses();
+                    event.target.value = ''; // Reset input
+                },
+                error: (err) => {
+                    this.loadingService.setLoading(false);
+                    this.dialog.open(StatusDialogComponent, {
+                        width: '400px',
+                        data: {
+                            isSuccess: false,
+                            status: 'error',
+                            title: 'Upload Failed',
+                            message: err.error || 'Failed to upload warehouses excel file'
+                        }
+                    });
+                    event.target.value = ''; // Reset input
+                }
+            });
+        }
     }
 
     editWarehouse(warehouse: Warehouse) {

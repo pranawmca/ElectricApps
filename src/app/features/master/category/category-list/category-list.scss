@@ -37,6 +37,10 @@
     color: #1e293b;
     letter-spacing: -0.5px;
   }
+
+  .d-flex {
+    gap: 12px !important;
+  }
 }
 
 
@@ -58,34 +62,61 @@
   }
 }
 
-/* Premium Buttons */
-.main-add-btn {
-  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3) !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  height: 40px !important;
-  padding: 0 16px !important;
-  transition: all 0.3s ease !important;
+::ng-deep {
+  .pill-btn {
+    border-radius: 50px !important;
+    padding: 0 20px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.3s ease !important;
+    
+    mat-icon {
+      margin-right: 6px !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+    }
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+    &:disabled {
+      opacity: 0.7;
+      transform: none;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+    }
   }
-}
 
-.delete-action-btn {
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 14px 0 rgba(225, 29, 72, 0.2) !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  height: 40px !important;
-  padding: 0 16px !important;
+  .template-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4) !important;
 
-  &:hover {
-    transform: translateY(-2px);
+    &:hover {
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.5) !important;
+    }
+  }
+
+  .bulk-upload-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4) !important;
+    
+    &:hover {
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.5) !important;
+    }
+  }
+
+  .delete-action-btn {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 14px 0 rgba(225, 29, 72, 0.2) !important;
   }
 }
 

@@ -7,28 +7,11 @@
         {{ selectedFileName }}
       </span>
       
-      <button mat-stroked-button color="primary" (click)="downloadTemplate()">
-        <mat-icon>download</mat-icon> Download Template
-      </button>
-
-      <button mat-stroked-button color="primary" (click)="fileInput.click()">
-        <mat-icon>cloud_upload</mat-icon> Upload Excel
-      </button>
-
-      <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none;" accept=".xlsx, .xls">
-
-      <button mat-raised-button class="submit-btn" *ngIf="selectedFileName" (click)="uploadExcel()">
-        <mat-icon>save</mat-icon> Save
-      </button>
-
-      <button mat-icon-button class="cancel-btn" *ngIf="selectedFileName" (click)="resetFile(fileInput)" matTooltip="Reset File">
-        <mat-icon>close</mat-icon>
-      </button>
-      <button mat-raised-button class="submit-btn" *ngIf="!selectedFileName" (click)="onSave()" [disabled]="loading">
+      <button mat-raised-button class="submit-btn pill-btn" *ngIf="!selectedFileName" (click)="onSave()" [disabled]="loading">
         <mat-icon>save</mat-icon> {{ categoryId ? 'Update' : 'Save' }}
       </button>
 
-      <button mat-raised-button class="cancel-btn" (click)="onCancel()" *ngIf="!selectedFileName">
+      <button mat-raised-button class="cancel-btn pill-btn" (click)="onCancel()" *ngIf="!selectedFileName">
         <mat-icon>close</mat-icon> Cancel
       </button>
     </div>

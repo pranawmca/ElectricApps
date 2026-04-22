@@ -269,4 +269,52 @@ export class CategoryList implements OnInit {
   onSelectionChange(rows: any[]): void {
     this.selectedRows = rows;
   }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.loading = true;
+      this.cdr.detectChanges();
+
+      this.categoryService.uploadExcel(file).subscribe({
+        next: (res) => {
+          this.loading = false;
+          this.cdr.detectChanges();
+          
+          this.dialog.open(StatusDialogComponent, {
+            width: '500px',
+            data: {
+              isSuccess: res.errors.length === 0,
+              message: res.message,
+              errors: res.errors
+            }
+          });
+          
+          this.reloadGrid();
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Upload error', err);
+          this.dialog.open(StatusDialogComponent, {
+            data: { isSuccess: false, message: 'Failed to upload categories.' }
+          });
+          this.cdr.detectChanges();
+        }
+      });
+
+      // Clear input
+      event.target.value = '';
+    }
+  }
+
+  downloadTemplate(): void {
+    this.categoryService.downloadTemplate().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Category_Template.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }

@@ -140,6 +140,61 @@ mat-card.product-card {
     border-radius: 8px !important;
     box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2) !important;
   }
+
+  .pill-btn {
+    border-radius: 50px !important;
+    padding: 0 20px !important;
+    height: 38px !important;
+    line-height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.3s ease !important;
+    font-size: 11px !important;
+    
+    mat-icon {
+      margin-right: 6px !important;
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    &:hover {
+      transform: translateY(-1.5px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.1) !important;
+    }
+  }
+
+  .template-btn {
+     border: 1px solid #10b981 !important;
+     color: #10b981 !important;
+     background: #f0fdf4 !important;
+     &:hover { background: #dcfce7 !important; }
+  }
+
+  .upload-btn {
+     border: 1px solid #6366f1 !important;
+     color: #6366f1 !important;
+     background: #eef2ff !important;
+     &:hover { background: #e0e7ff !important; }
+  }
+
+  .submit-btn {
+     background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%) !important;
+     color: white !important;
+     border: none !important;
+     box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3) !important;
+  }
+
+  .cancel-btn {
+     background: #f8fafc !important;
+     color: #64748b !important;
+     border: 1px solid #e2e8f0 !important;
+     &:hover { background: #f1f5f9 !important; color: #1e293b !important; }
+  }
 }
 
 // Tablet ke liye responsive
