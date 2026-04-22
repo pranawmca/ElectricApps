@@ -119,35 +119,7 @@ export class UnitslistComponent implements OnInit {
   }
 
   downloadTemplate() {
-    const data = [
-      ['Unit Name', 'Description'],
-      ['KG', 'Kilogram - used for solid items like Rice, Sugar, Flour'],
-      ['GRAM', 'Gram - used for spices and small quantity items'],
-      ['LITER', 'Liter - used for liquid items like Oil, Milk, Ghee'],
-      ['ML', 'Milliliter - used for small liquid packs like essence'],
-      ['PACKET', 'Packet - used for items like Biscuits, Noodles, Snacks'],
-      ['POUCH', 'Pouch - used for small packs of Spices, Detergents'],
-      ['PIECE', 'Piece - used for individual items like Soap, Chocolates'],
-      ['BOTTLE', 'Bottle - used for Ketchup, Pickle, Soft Drinks'],
-      ['BOX', 'Box - used for bulk items or Tea bags'],
-      ['BAG', 'Bag - used for bulk 5kg/10kg/20kg items'],
-      ['TIN', 'Tin - used for edible oil or ghee containers'],
-      ['JAR', 'Jar - used for items like Coffee, Jam, Honey'],
-      ['DOZEN', 'Dozen - used for fruits like Bananas or Eggs'],
-      ['SET', 'Set - used for combo packs or utensils'],
-      ['PAIR', 'Pair - used for small sets'],
-      ['BUNDLE', 'Bundle - used for green leafy vegetables or bulk sticks'],
-      ['ROLL', 'Roll - used for Aluminum foils or Tissue papers'],
-      ['CARTON', 'Carton - used for bulk wholesale shipping'],
-      ['SACK', 'Sack - used for very large quantities of grains'],
-      ['CUP', 'Cup - measure for small flavored items'],
-      ['TRAY', 'Tray - used for Egg trays or small fruits']
-    ];
-
-    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'UnitsTemplate');
-    XLSX.writeFile(wb, 'Units_Bulk_Upload_Template.xlsx');
+    this.unitService.downloadTemplate();
   }
 
   private updateStats(): void {

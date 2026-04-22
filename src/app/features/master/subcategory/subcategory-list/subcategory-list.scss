@@ -39,11 +39,14 @@
   }
 
   .d-flex {
-    gap: 12px !important;
+    gap: 15px !important;
     flex-wrap: wrap;
     
     button {
-      margin: 0 !important;
+      margin-left: 15px !important;
+      &:first-child {
+        margin-left: 0 !important;
+      }
     }
   }
 }

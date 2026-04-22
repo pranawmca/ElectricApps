@@ -34,9 +34,20 @@ export class UnitService {
     importUnits(file: File): Observable<any> {
         const formData = new FormData();
         formData.append('file', file);
-        return this.api.post('units/import', formData);
+        return this.api.post('units/upload-excel', formData);
     }
 
+    downloadTemplate(): void {
+        this.api.getBlob('units/download-template').subscribe((response: any) => {
+          const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'Unit_Template.xlsx';
+          link.click();
+          window.URL.revokeObjectURL(url);
+        });
+    }
 
     getById(id: string): Observable<Unit> {
         return this.api.get<Unit>(`units/getbyid/${id}`);

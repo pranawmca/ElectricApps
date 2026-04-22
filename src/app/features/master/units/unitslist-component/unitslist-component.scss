@@ -4,7 +4,7 @@
 }
 
 .bulk-unit-container {
-  padding: 0 24px;
+  padding: 8px 24px 24px 24px;
   background-color: var(--app-bg, #f8f9fa);
   color: var(--app-text);
   height: 100%;
@@ -13,44 +13,119 @@
   overflow: hidden !important;
   box-sizing: border-box;
 
-  h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
+  @media (max-width: 600px) {
+    padding: 12px;
+  }
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
   }
 
-  app-summary-stats {
-    display: block;
-    margin-bottom: 12px;
+  .page-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1e293b;
+
+      @media (max-width: 600px) {
+          font-size: 20px;
+      }
   }
 
-  .unit-card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  .d-flex {
+      @media (max-width: 600px) {
+          width: 100%;
+          flex-direction: column;
+          gap: 12px !important;
+      }
+  }
+}
 
-    .table-responsive {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-    }
-    
-    table {
+.pill-btn {
+  border-radius: 50px !important;
+  padding: 0 24px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+
+  @media (max-width: 600px) {
       width: 100%;
-    }
+      margin: 0 !important;
   }
 
-  .badge-success {
-    background: #e3f2fd;
-    color: #1976d2;
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 500;
+  mat-icon {
+      margin-right: 8px !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
   }
+
+  &.add-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      color: white !important;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3) !important;
+      &:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4) !important; }
+  }
+
+  &.template-btn {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+      color: white !important;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3) !important;
+      &:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4) !important; }
+  }
+
+  &.upload-btn {
+      background: linear-gradient(135deg, #475569 0%, #334155 100%) !important;
+      color: white !important;
+      box-shadow: 0 4px 10px rgba(71, 85, 105, 0.3) !important;
+      &:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(71, 85, 105, 0.4) !important; }
+  }
+}
+
+.unit-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+  .table-responsive {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  
+  table {
+    width: 100%;
+  }
+}
+
+.badge-success {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 // Global Dark Mode Override for this component
