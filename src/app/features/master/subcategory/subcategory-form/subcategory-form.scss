@@ -39,13 +39,44 @@ mat-card-title {
   grid-column: 1 / -1;
 }
 
+@media (max-width: 992px) {
+  .professional-form-card {
+    margin: 16px;
+  }
+}
+
 /* Mobile adjustments */
 @media (max-width: 600px) {
   .professional-form-card {
-    margin: 10px;
+    margin: 0 !important;
+    border-radius: 0;
     
     mat-card-content {
       padding: 16px;
+    }
+    
+    .form-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px;
+      
+      > * {
+        grid-column: span 1 !important;
+      }
+    }
+    
+    > div:first-child { // Header
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 16px;
+      
+      .d-flex {
+         flex-direction: column;
+         width: 100%;
+         
+         button {
+           width: 100%;
+         }
+      }
     }
   }
 }

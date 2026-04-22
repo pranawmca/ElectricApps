@@ -205,6 +205,24 @@ mat-card.product-card {
 }
 
 @media (max-width: 992px) {
+  .product-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    
+    button {
+      flex: 1;
+      min-width: 130px;
+    }
+  }
+
   .form-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -212,27 +230,59 @@ mat-card.product-card {
 
 // Mobile ke liye responsive
 @media (max-width: 600px) {
+  mat-card.product-card {
+    margin: 0 !important;
+    border-radius: 0;
+  }
+
   .form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     padding: 16px;
+    gap: 12px;
+
+    > * {
+      grid-column: span 1 !important; // 👈 Override all spans for mobile
+    }
   }
   
   .product-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
     padding: 16px;
+    gap: 12px;
   }
   
   .actions {
-    width: 100%;
+    flex-direction: column;
     button {
-      flex: 1;
+      width: 100%;
+      flex: none;
     }
   }
 
+  .image-upload-wrapper {
+    grid-row: span 1;
+    width: 100%;
+    max-width: none;
+  }
+
   .toggle-group {
-    grid-column: span 1;
+    grid-column: span 1 !important;
+    flex-direction: row; // Keep row but wrap if needed
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 56px;
+    padding: 12px;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .price-summary-card {
+    .summary-content {
+      padding: 16px;
+    }
+    .summary-item {
+       align-items: center;
+       text-align: center;
+    }
   }
 }
 

@@ -41,16 +41,47 @@ mat-card-title {
   gap: 12px;
 }
 
+@media (max-width: 992px) {
+  mat-card {
+    margin: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr; // Force 1 column on tablet/mobile for this simple form
+  }
+
+  header, .display-flex-between { // Assuming structure based on my previous view
+     flex-direction: column;
+     align-items: flex-start;
+     gap: 16px;
+  }
+}
+
 /* Mobile adjustments */
 @media (max-width: 600px) {
-
   mat-card {
+    margin: 0 !important;
+    border-radius: 0;
     padding: 12px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+    
+    > * {
+      grid-column: span 1 !important;
+    }
   }
 
   .actions {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
+    
+    button {
+      width: 100%;
+    }
   }
 }
 .card-footer {
