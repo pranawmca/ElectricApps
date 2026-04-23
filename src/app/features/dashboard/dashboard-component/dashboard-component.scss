@@ -1017,8 +1017,108 @@
   }
 }
 
-/* ======================== Responsive Modal ======================== */
+/* ======================== Responsive Layout Updates ======================== */
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr !important; /* Stack charts vertically */
+    gap: 20px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important; /* 2 columns on tablets */
+  }
+}
+
 @media (max-width: 600px) {
+  .dashboard-container {
+    padding: 10px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    
+    .header-info-bar {
+      width: 100%;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .export-actions {
+      width: 100%;
+      justify-content: space-between;
+      button { flex: 1; }
+    }
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 16px;
+    box-sizing: border-box !important;
+  }
+
+  .chart-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 16px 0 !important;
+    box-sizing: border-box !important;
+    
+    .chart-body {
+      height: 280px !important;
+      width: 100% !important;
+      overflow: hidden !important;
+    }
+  }
+
+  .activity-card {
+    width: 100% !important;
+    max-width: calc(100vw - 20px) !important; /* Force fit within screen padding */
+    margin: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    
+    mat-card-content {
+      padding: 0 !important;
+      width: 100% !important;
+      overflow: hidden !important;
+    }
+
+    .table-container {
+      display: block !important;
+      width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+      
+      .table-header {
+        min-width: 650px !important; /* Match rows min-width */
+        display: grid !important;
+        grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr !important;
+      }
+
+      .virtual-scroll-viewport {
+        width: 100% !important;
+        min-width: 650px !important;
+      }
+
+      .table-row {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr !important;
+      }
+    }
+  }
+
   .dues-modal {
     max-height: 95vh;
     border-radius: 16px 16px 0 0;
@@ -1044,8 +1144,74 @@
 
   .dues-table thead th:nth-child(4),
   .dues-table tbody td:nth-child(4) {
-    display: none; /* Hide Due Date on mobile */
+    display: none;
   }
 
   .whatsapp-bulk-btn span { display: none; }
+}
+
+/* 🚀 ANIMATED SCROLL ACTIONS */
+.scroll-actions {
+  position: fixed !important;
+  right: 30px !important;
+  bottom: 80px !important; /* Move it up a bit to avoid footer/badge overlap */
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  z-index: 9999 !important; /* Extremely high to stay on top of everything */
+  pointer-events: auto !important;
+}
+
+.scroll-btn {
+  width: 50px !important;
+  height: 50px !important;
+  background: white !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: normal !important;
+  
+  mat-icon {
+    font-size: 32px !important; /* Slightly larger for better look */
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+
+  &.up {
+    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;
+    color: white !important;
+  }
+
+  &.down {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+  }
+
+  &:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25) !important;
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+/* Pulse animation for a more dynamic feel */
+@keyframes pulse-subtle {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.scroll-btn:hover {
+  animation: pulse-subtle 2s infinite ease-in-out;
 }

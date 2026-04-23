@@ -31,7 +31,15 @@
 
 @media (max-width: 768px) {
   :host {
+    height: auto !important;
+    overflow: visible !important;
     padding: 12px;
+  }
+
+  .list-container {
+    height: auto !important;
+    overflow: visible !important;
+    flex: none !important;
   }
 }
 
@@ -42,6 +50,11 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    height: auto !important;
+    overflow: visible !important;
+  }
 }
 
 .stats-grid {
@@ -52,13 +65,13 @@
   flex-shrink: 0;
   padding: 0;
 
-  @media (max-width: 992px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
   }
 
   @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr !important; /* Stack cards on very small screens */
     gap: 8px;
     margin-bottom: 12px;
   }
@@ -194,6 +207,11 @@ app-enterprise-hierarchical-grid {
   flex: 1 !important;
   min-height: 0 !important;
   height: 100% !important;
+
+  @media (max-width: 768px) {
+    height: auto !important;
+    min-height: 500px !important;
+  }
 }
 
 ::ng-deep .main-grid-content {
@@ -206,7 +224,7 @@ app-enterprise-hierarchical-grid {
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
-    overflow-x: hidden !important; /* Force content to fit 100% */
+    overflow-x: auto !important; /* Enable horizontal scroll */
     overflow-y: auto !important;
     position: relative;
     min-height: 0;
@@ -226,7 +244,7 @@ app-enterprise-hierarchical-grid {
 
   .mat-table {
     width: 100% !important;
-    min-width: 100% !important; /* Force fit without overflow */
+    min-width: 1200px !important; /* Force min-width to trigger scroll on small screens */
     table-layout: fixed !important; 
     border-collapse: separate; /* Required for sticky header */
   }

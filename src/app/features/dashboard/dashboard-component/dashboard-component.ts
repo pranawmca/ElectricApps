@@ -615,4 +615,18 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  scrollToTop() {
+    const container = document.querySelector('.content') || window;
+    container.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  scrollToBottom() {
+    const container = document.querySelector('.content');
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  }
 }

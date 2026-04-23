@@ -196,6 +196,15 @@
       </mat-card-content>
     </mat-card>
 
+  <!-- 🚀 Animated Scroll Actions -->
+  <div class="scroll-actions">
+    <button mat-fab class="scroll-btn up" (click)="scrollToTop()" matTooltip="Scroll to Top">
+      <mat-icon>expand_less</mat-icon>
+    </button>
+    <button mat-fab class="scroll-btn down" (click)="scrollToBottom()" matTooltip="Scroll to Bottom">
+      <mat-icon>expand_more</mat-icon>
+    </button>
+  </div>
 </div>
 
 <!-- ===================== Customer Dues Modal ===================== -->

@@ -181,3 +181,69 @@
     .gst-badge { background: rgba(13, 148, 136, 0.1) !important; color: #4fd1c5 !important; border-color: rgba(13, 148, 136, 0.2) !important; }
   }
 }
+
+/* 🚀 ANIMATED SCROLL ACTIONS */
+.scroll-actions {
+  position: fixed !important;
+  right: 30px !important;
+  bottom: 80px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.scroll-btn {
+  width: 50px !important;
+  height: 50px !important;
+  background: white !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: normal !important;
+
+  mat-icon {
+    font-size: 32px !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+
+  &.up {
+    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;
+    color: white !important;
+  }
+
+  &.down {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+  }
+
+  &:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25) !important;
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+/* Pulse animation for a more dynamic feel */
+@keyframes pulse-subtle {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.scroll-btn:hover {
+  animation: pulse-subtle 2s infinite ease-in-out;
+}
