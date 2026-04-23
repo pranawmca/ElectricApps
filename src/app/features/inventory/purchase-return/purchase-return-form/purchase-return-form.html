@@ -116,10 +116,14 @@
                                  <strong class="item-name">{{item.productName}}</strong> 
                                  <small class="item-avail text-secondary"> 
                                    (Received: {{item.availableQty}} | Rate: {{item.rate | currency:'INR'}} | 
-                                   <span [class.stock-danger]="item.currentStock < 0" [class.stock-success]="item.currentStock >= 0">
+                                   <span [class.stock-danger]="item.currentStock <= 0" [class.stock-success]="item.currentStock > 0"
+                                         class="stock-badge-mini"
+                                         [matTooltip]="item.currentStock <= 0 ? 'Stock Unavailable: This item cannot be returned to the supplier as it has already been sold. Physical stock must be available in the warehouse to process a return.' : ''">
                                      Stock: {{item.currentStock}}
+                                     <mat-icon *ngIf="item.currentStock <= 0" class="info-icon-mini">info_outline</mat-icon>
                                    </span> | 
-                                   <span class="policy-badge-mini" [ngClass]="item.isReturnable ? 'active' : 'expired'">
+                                   <span class="policy-badge-mini" [ngClass]="item.isReturnable ? 'active' : 'expired'" 
+                                         *ngIf="item.currentStock > 0">
                                       {{ item.isReturnable ? formatRemainingTime(item.remainingHours) + ' left' : 'Expired' }}
                                    </span>)
                                  </small>
@@ -170,8 +174,11 @@
                 <span class="type-badge ms-2" [ngClass]="element.value.itemType === 'Rejected' ? 'badge-rejected' : 'badge-accepted'">
                    {{element.value.itemType}}
                 </span>
-                <span class="type-badge ms-2 stock-info-badge" [ngClass]="element.value.currentStock < 0 ? 'badge-danger' : 'badge-success'">
+                <span class="type-badge ms-2 stock-info-badge" 
+                      [ngClass]="element.value.currentStock <= 0 ? 'badge-danger' : 'badge-success'"
+                      [matTooltip]="element.value.currentStock <= 0 ? 'Stock Unavailable: This item cannot be returned to the supplier as it has already been sold. Physical stock must be available in the warehouse to process a return.' : ''">
                    Stock: {{element.value.currentStock}}
+                   <mat-icon *ngIf="element.value.currentStock <= 0" style="font-size: 12px; width: 12px; height: 12px; margin-left: 4px;">info</mat-icon>
                 </span>
                 <span class="type-badge ms-2 location-badge live" 
                       matTooltip="Click to view Live Location details"

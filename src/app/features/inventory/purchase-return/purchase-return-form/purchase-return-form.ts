@@ -466,12 +466,17 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
     const physicalStock = item.currentStock || 0;
     const initialReturnQty = Math.max(0, Math.min(maxQty, physicalStock));
 
+    const returnQtyControl = new FormControl(
+      { value: initialReturnQty, disabled: physicalStock <= 0 },
+      [Validators.required, Validators.min(0), Validators.max(Math.min(maxQty, physicalStock))]
+    );
+
     const group = this.fb.group({
       productId: [item.productId],
       productName: [item.productName],
       grnRef: [item.grnRef],
       maxQty: [maxQty],
-      returnQty: [initialReturnQty, [Validators.required, Validators.min(0), Validators.max(Math.min(maxQty, physicalStock))]],
+      returnQty: returnQtyControl,
       rate: [item.rate],
       currentStock: [physicalStock],
       discountPercent: [item.discountPercent || 0],
