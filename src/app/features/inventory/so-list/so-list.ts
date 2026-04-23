@@ -731,15 +731,19 @@ export class SoList implements OnInit {
   }
 
   createGatePass(row: any) {
-    this.router.navigate(['/app/inventory/gate-pass/outward'], {
-      queryParams: {
-        type: 'sale-order',
-        refNo: row.soNumber,
-        refId: row.id,
-        partyName: row.customerName,
-        qty: row.totalQty || 0
-      }
-    });
+    this.loadingService.setLoading(true, 'Opening Gate Pass Form...');
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/inventory/gate-pass/outward'], {
+        queryParams: {
+          type: 'sale-order',
+          refNo: row.soNumber,
+          refId: row.id,
+          partyName: row.customerName,
+          qty: row.totalQty || 0
+        }
+      });
+    }, 500);
   }
 
   bulkCreateGatePass() {
@@ -765,29 +769,40 @@ export class SoList implements OnInit {
       return;
     }
 
+    this.loadingService.setLoading(true, 'Preparing Bulk Outward...');
     const totalQty = eligibleOrders.reduce((sum, r) => sum + (r.totalQty || 0), 0);
-    const orderNumbers = eligibleOrders.map(r => r.soNumber).join(', ');
     const breakdown = eligibleOrders.map(r => `${r.soNumber} (${r.totalQty || 0})`).join(', ');
 
-    this.router.navigate(['/app/inventory/gate-pass/outward'], {
-      queryParams: {
-        type: 'sale-order',
-        isBulk: 'true',
-        refNo: 'BULK-OUTWARD',
-        partyName: 'Multiple Customers',
-        qty: totalQty,
-        breakdown: breakdown,
-        refId: eligibleOrders.map(r => r.id).join(',')
-      }
-    });
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/inventory/gate-pass/outward'], {
+        queryParams: {
+          type: 'sale-order',
+          isBulk: 'true',
+          refNo: 'BULK-OUTWARD',
+          partyName: 'Multiple Customers',
+          qty: totalQty,
+          breakdown: breakdown,
+          refId: eligibleOrders.map(r => r.id).join(',')
+        }
+      });
+    }, 500);
   }
 
   createNewOrder() {
-    this.router.navigate(['/app/inventory/solist/add']);
+    this.loadingService.setLoading(true, 'Opening New Sale Order Form...');
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/inventory/solist/add']);
+    }, 500);
   }
 
   editOrder(row: any) {
-    this.router.navigate(['/app/inventory/solist/edit', row.id]);
+    this.loadingService.setLoading(true, 'Opening Sale Editor...');
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/inventory/solist/edit', row.id]);
+    }, 500);
   }
 
   deleteOrder(row: any) {
@@ -839,17 +854,21 @@ export class SoList implements OnInit {
     const selected = this.selection.selected;
     if (selected.length === 0) return;
 
+    this.loadingService.setLoading(true, 'Opening Payment Receipt...');
     const customerId = selected[0].customerId;
     const totalAmount = selected.reduce((sum, r) => sum + (r.pendingAmount || r.grandTotal), 0);
     const invoiceNos = selected.map(r => r.soNumber).join(', ');
 
-    this.router.navigate(['/app/finance/customers/receipt'], {
-      queryParams: {
-        customerId: customerId,
-        amount: totalAmount,
-        invoiceNo: invoiceNos // Passing comma separated invoices
-      }
-    });
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/finance/customers/receipt'], {
+        queryParams: {
+          customerId: customerId,
+          amount: totalAmount,
+          invoiceNo: invoiceNos
+        }
+      });
+    }, 500);
   }
 
   collectPayment(row: any) {
@@ -860,13 +879,17 @@ export class SoList implements OnInit {
       ? (row.pendingAmount || row.grandTotal)
       : row.grandTotal;
 
-    this.router.navigate(['/app/finance/customers/receipt'], {
-      queryParams: {
-        customerId: row.customerId,
-        amount: suggestAmount,
-        invoiceNo: row.soNumber
-      }
-    });
+    this.loadingService.setLoading(true, 'Opening Payment Form...');
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/finance/customers/receipt'], {
+        queryParams: {
+          customerId: row.customerId,
+          amount: suggestAmount,
+          invoiceNo: row.soNumber
+        }
+      });
+    }, 500);
   }
 
   downloadReceipt(row: any) {

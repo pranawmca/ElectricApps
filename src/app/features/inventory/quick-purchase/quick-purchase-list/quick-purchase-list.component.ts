@@ -441,7 +441,11 @@ export class QuickPurchaseListComponent implements OnInit {
     const row = event.row;
     switch (event.action) {
       case 'EDIT':
-        this.router.navigate(['/app/quick-inventory/purchase/edit', row.id]);
+        this.loadingService.setLoading(true, 'Opening Purchase Editor...');
+        setTimeout(() => {
+          this.loadingService.setLoading(false);
+          this.router.navigate(['/app/quick-inventory/purchase/edit', row.id]);
+        }, 500);
         break;
       case 'SUBMIT':
         this.onSubmitApproval(row);
@@ -667,14 +671,18 @@ export class QuickPurchaseListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.loadingService.setLoading(true, 'Initiating Bulk GRN...');
         // CHANGED: Direct to Quick GRN form, skipping Gate Pass for Quick Inventory
-        this.router.navigate(['/app/quick-inventory/grn-list/add'], {
-          queryParams: {
-            poId: eligibleOrders.map(r => r.id).join(','),
-            poNo: 'BULK-PURCHASE',
-            qty: totalQty
-          }
-        });
+        setTimeout(() => {
+          this.loadingService.setLoading(false);
+          this.router.navigate(['/app/quick-inventory/grn-list/add'], {
+            queryParams: {
+              poId: eligibleOrders.map(r => r.id).join(','),
+              poNo: 'BULK-PURCHASE',
+              qty: totalQty
+            }
+          });
+        }, 500);
       }
     });
   }
@@ -744,10 +752,14 @@ export class QuickPurchaseListComponent implements OnInit {
   }
 
   onCreateGrn(row: any) {
+    this.loadingService.setLoading(true, 'Opening Quick GRN Form...');
     // Quick PO logic: Direct to Quick GRN form within quick-inventory module
-    this.router.navigate(['/app/quick-inventory/grn-list/add'], { 
-      queryParams: { poId: row.id, poNo: row.poNumber } 
-    });
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/quick-inventory/grn-list/add'], { 
+        queryParams: { poId: row.id, poNo: row.poNumber } 
+      });
+    }, 500);
   }
 
   onPrintPO(row: any, mode: string = 'PRINT') {

@@ -2,10 +2,19 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 84px); /* Subtract Header/Toolbar height */
-  overflow: hidden;
+  overflow-y: hidden;
+  overflow-x: hidden !important; /* NUCLEAR LOCK: Block horizontal scroll on host level */
+  width: 100% !important;
+  max-width: 100% !important;
   padding: 4px 20px 10px 20px;
   box-sizing: border-box;
   background-color: #f8fafc;
+
+  @media (max-width: 768px) {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 12px !important;
+  }
 }
 
 .header-actions {
@@ -53,8 +62,8 @@
     }
 
     @media (max-width: 480px) {
-        grid-template-columns: repeat(2, 1fr); // Keep 2 columns on even smaller screens
-        gap: 8px;
+        grid-template-columns: 1fr !important; /* Stack cards on mobile */
+        gap: 12px !important;
     }
 }
 
@@ -177,16 +186,33 @@
     padding: 0;
     flex: 1;
     min-height: 0;
+    width: 100% !important;
+    max-width: 100% !important;
     position: relative;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    overflow: hidden;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important; /* Block outer scroll */
     display: flex;
     flex-direction: column;
 
+    @media (max-width: 768px) {
+      height: auto !important;
+      overflow: visible !important;
+      flex: none !important;
+    }
+
     .page-container {
       height: 100%;
+      width: 100% !important;
+      max-width: 100% !important;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden !important; /* Block outer scroll */
+
+      @media (max-width: 768px) {
+        height: auto !important;
+        overflow: visible !important;
+      }
     }
 
     &.disabled-content {
@@ -200,13 +226,19 @@ app-enterprise-hierarchical-grid {
   flex: 1 !important;
   min-height: 0 !important;
   height: 100% !important;
+  overflow: hidden !important; /* Block any grid-level scrolls */
+
+  @media (max-width: 768px) {
+    height: auto !important;
+    min-height: 500px !important;
+  }
 }
 
 ::ng-deep .main-grid-content {
   height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
-  overflow: hidden !important;
+  overflow: hidden !important; /* Force hide outer scrolls */
 
   .responsive-table-wrapper {
     flex: 1 !important;
@@ -216,6 +248,15 @@ app-enterprise-hierarchical-grid {
     overflow-y: auto !important;
     position: relative;
     min-height: 0;
+
+    /* ⚡ HIDE SCROLLBAR VISUALS BUT KEEP SCROLLING ⚡ */
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important;  /* IE/Edge */
+    &::-webkit-scrollbar {
+      display: none !important; /* Chrome/Safari/Webkit */
+      width: 0 !important;
+      height: 0 !important;
+    }
   }
 
   .mat-table {
@@ -253,6 +294,11 @@ app-enterprise-hierarchical-grid {
          display: block !important;
          width: 100% !important;
          max-width: calc(100vw - 320px) !important; /* Force width relative to viewport to guarantee scrollbar */
+         
+         @media (max-width: 768px) {
+           max-width: calc(100vw - 40px) !important;
+         }
+
          overflow-x: scroll !important; /* Force internal scrollbar visibility */
          padding: 24px 0 !important; /* Space for scrollbar */
          -webkit-overflow-scrolling: touch !important;

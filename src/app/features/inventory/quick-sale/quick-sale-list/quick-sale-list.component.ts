@@ -410,13 +410,17 @@ export class QuickSaleListComponent implements OnInit {
     const totalAmount = selected.reduce((sum, r) => sum + (r.pendingAmount || r.grandTotal), 0);
     const invoiceNos = selected.map(r => r.soNumber).join(', ');
 
-    this.router.navigate(['/app/finance/customers/receipt'], {
-      queryParams: {
-        customerId: customerId,
-        amount: totalAmount,
-        invoiceNo: invoiceNos
-      }
-    });
+    this.loadingService.setLoading(true, 'Initiating Bulk Payment...');
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/finance/customers/receipt'], {
+        queryParams: {
+          customerId: customerId,
+          amount: totalAmount,
+          invoiceNo: invoiceNos
+        }
+      });
+    }, 500);
   }
 
   handleGridAction(event: { action: string, row: any }) {
@@ -426,7 +430,11 @@ export class QuickSaleListComponent implements OnInit {
         this.onViewOrder(row);
         break;
       case 'EDIT':
-          this.router.navigate(['/app/quick-inventory/sale/edit', row.id]);
+          this.loadingService.setLoading(true, 'Opening Sale Editor...');
+          setTimeout(() => {
+            this.loadingService.setLoading(false);
+            this.router.navigate(['/app/quick-inventory/sale/edit', row.id]);
+          }, 500);
           break;
       case 'DELETE':
         this.onDeleteSingleRecord(row);
@@ -584,13 +592,17 @@ export class QuickSaleListComponent implements OnInit {
       ? (row.pendingAmount || row.grandTotal)
       : row.grandTotal;
 
-    this.router.navigate(['/app/finance/customers/receipt'], {
-      queryParams: {
-        customerId: row.customerId,
-        amount: suggestAmount,
-        invoiceNo: row.soNumber
-      }
-    });
+    this.loadingService.setLoading(true, 'Opening Payment Receipt...');
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/finance/customers/receipt'], {
+        queryParams: {
+          customerId: row.customerId,
+          amount: suggestAmount,
+          invoiceNo: row.soNumber
+        }
+      });
+    }, 500);
   }
 
 

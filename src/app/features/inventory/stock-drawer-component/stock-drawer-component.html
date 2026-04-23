@@ -114,7 +114,8 @@
                 <span class="batch-po">PO: #{{batch.poNumber}}</span>
                 <span *ngIf="!batch.isAlreadyPurged && (batch.receivedQty || 0) === 0" 
                       style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                  (VOIDED/EMPTY)
+                  {{ batch.transactionType?.includes('Sale') ? '(SALE OUTFLOW)' : 
+                     (batch.transactionType?.includes('Adjustment') ? '(ADJUSTMENT)' : '(EMPTY/VOIDED)') }}
                 </span>
                 <span *ngIf="batch.isAlreadyPurged && isPurchaseContext" 
                       style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">

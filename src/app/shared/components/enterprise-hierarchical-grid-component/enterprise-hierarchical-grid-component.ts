@@ -460,26 +460,22 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   onAddNewClick() { 
     if (this.addNewRoute && !this.isNavigating) {
       this.isNavigating = true;
-      this.loadingService.setLoading(true, `Opening ${this.addNewLabel || 'Form'}...`);
+      
+      // ⚡ IMMEDIATE GLOBAL LOADER ⚡
+      this.loadingService.setLoading(true, `Preparing ${this.addNewLabel || 'Form'}...`);
       this.cdr.detectChanges();
 
-      // Faster response (50ms instead of 500ms)
+      // 500ms global loader chalega isko close hone ke baad page load hoga
       setTimeout(() => {
-        this.router.navigate([this.addNewRoute])
-          .then((success) => {
-            if (!success) {
-              console.warn('Navigation failed or was cancelled by a guard.');
-            }
-          })
-          .catch((err) => {
-            console.error('Navigation Error:', err);
-          })
-          .finally(() => {
-            this.isNavigating = false;
-            this.loadingService.setLoading(false);
-            this.cdr.detectChanges();
-          });
-      }, 50);
+        // Pehle loader band karenge
+        this.loadingService.setLoading(false);
+        
+        // Phir navigate karenge
+        this.router.navigate([this.addNewRoute]).finally(() => {
+          this.isNavigating = false;
+          this.cdr.detectChanges();
+        });
+      }, 500);
     } 
   }
 

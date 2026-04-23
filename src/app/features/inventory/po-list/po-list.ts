@@ -516,12 +516,16 @@ export class PoList implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.router.navigate(['/app/inventory/polist/edit', row.id], {
-          state: {
-            data: row,
-            mode: 'edit'
-          }
-        });
+        this.loadingService.setLoading(true, 'Opening PO Editor...');
+        setTimeout(() => {
+          this.loadingService.setLoading(false);
+          this.router.navigate(['/app/inventory/polist/edit', row.id], {
+            state: {
+              data: row,
+              mode: 'edit'
+            }
+          });
+        }, 500);
       }
     });
   }
@@ -714,6 +718,7 @@ export class PoList implements OnInit {
   }
   // 1. Inward Gate Pass Page par bhejta hai (User: PO se pehle Gate Pass banna chahiye)
   redirectToInwardGatePass(row: any) {
+    this.loadingService.setLoading(true, 'Initiating Inward Gate Pass...');
     console.log('--- REDIRECTING TO INWARD GATE PASS ---', row.poNumber);
 
     // DYNAMIC QTY LOGIC:
@@ -731,16 +736,19 @@ export class PoList implements OnInit {
     // Safest fallback: if result is still 0, use totalPending
     if (resultQty <= 0) resultQty = (row.totalPending || 0);
 
-    this.router.navigate(['/app/inventory/gate-pass/inward'], {
-      queryParams: {
-        type: 'po',
-        refNo: row.poNumber,
-        refId: row.id,
-        partyName: row.supplierName,
-        qty: resultQty,
-        isReplacement: (totalReturned > 0 || totalRejected > 0) ? 'true' : 'false'
-      }
-    });
+    setTimeout(() => {
+      this.loadingService.setLoading(false);
+      this.router.navigate(['/app/inventory/gate-pass/inward'], {
+        queryParams: {
+          type: 'po',
+          refNo: row.poNumber,
+          refId: row.id,
+          partyName: row.supplierName,
+          qty: resultQty,
+          isReplacement: (totalReturned > 0 || totalRejected > 0) ? 'true' : 'false'
+        }
+      });
+    }, 500);
   }
 
   onToggleDispatch(row: any) {
