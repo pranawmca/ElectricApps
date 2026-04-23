@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core'; 
 import { Validators, FormBuilder, FormGroup, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../shared/material/material/material-module';
@@ -22,7 +22,7 @@ import { AuthService } from '../../../core/services/auth.service';
     templateUrl: './company-form.html',
     styleUrl: './company-form.scss',
 })
-export class CompanyForm implements OnInit {
+export class CompanyForm implements OnInit, AfterViewInit, OnDestroy {
     private fb = inject(FormBuilder);
     private dialog = inject(MatDialog);
     private cdr = inject(ChangeDetectorRef);
@@ -37,6 +37,44 @@ export class CompanyForm implements OnInit {
     companyId: string | null = null;
     selectedLogo: File | null = null;
     logoPreview: string | null = null;
+    
+    isAtTop = true;
+    private scrollContainer: HTMLElement | null = null;
+    private scrollListener: any;
+
+    onScroll() {
+        if (this.scrollContainer) {
+            const { scrollTop } = this.scrollContainer;
+            this.isAtTop = scrollTop < 100;
+            this.cdr.detectChanges();
+        }
+    }
+
+    toggleScroll() {
+        if (this.scrollContainer) {
+            if (this.isAtTop) {
+                this.scrollContainer.scrollTo({ top: this.scrollContainer.scrollHeight, behavior: 'smooth' });
+            } else {
+                this.scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    }
+
+    ngAfterViewInit() {
+        setTimeout(() => {
+            this.scrollContainer = document.querySelector('.content');
+            if (this.scrollContainer) {
+                this.scrollListener = this.onScroll.bind(this);
+                this.scrollContainer.addEventListener('scroll', this.scrollListener);
+            }
+        }, 500);
+    }
+
+    ngOnDestroy() {
+        if (this.scrollContainer && this.scrollListener) {
+            this.scrollContainer.removeEventListener('scroll', this.scrollListener);
+        }
+    }
 
     ngOnInit(): void {
         this.createForm();

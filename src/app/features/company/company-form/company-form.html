@@ -545,4 +545,10 @@
 
     </form>
   </div>
+
+  <!-- Floating Scroll Button -->
+  <button mat-fab color="primary" class="scroll-fab" (click)="toggleScroll()" matTooltip="Scroll to {{ isAtTop ? 'Bottom' : 'Top' }}">
+    <mat-icon>{{ isAtTop ? 'keyboard_double_arrow_down' : 'keyboard_double_arrow_up' }}</mat-icon>
+  </button>
+
 </div>
