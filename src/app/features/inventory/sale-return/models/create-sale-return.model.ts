@@ -15,6 +15,7 @@ export interface SaleReturnItem {
     createdBy?: string;
     modifiedBy?: string;
     companyId?: string | null;
+    branchId?: string | null;
 }
 
 export interface CreateSaleReturnDto {
@@ -27,4 +28,5 @@ export interface CreateSaleReturnDto {
     items?: SaleReturnItem[];
     isQuick?: boolean;
     companyId?: string | null;
+    branchId?: string | null;
 }

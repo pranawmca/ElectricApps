@@ -189,3 +189,51 @@
 ::ng-deep .mat-mdc-progress-spinner:not(.dark-mode *) {
   --mdc-circular-progress-active-indicator-color: #1a56db;
 }
+
+/* 📱 RESPONSIVE TABLE UTILITY 📱 */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  
+  /* Modern Scrollbar for Webkit */
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  
+  .dark-mode &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Fix for Mat-Table Horizontal Alignment */
+.mat-mdc-table {
+  min-width: 800px; /* Force minimum width to trigger scroll on mobile */
+  background: transparent !important;
+}
+
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+    
+    .action-buttons {
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      
+      button { flex: 1; min-width: 140px; }
+      .search-box { width: 100% !important; max-width: none !important; }
+    }
+  }
+}

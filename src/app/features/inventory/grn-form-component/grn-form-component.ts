@@ -480,6 +480,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
           isQuick: this.isQuick,
           createdBy: currentUserId,
           companyId: this.authService.getCompanyId(),
+          branchId: this.authService.getBranchId(),
           items: poItems.map(i => ({
             productId: i.productId,
             orderedQty: Number(i.orderedQty),
@@ -533,6 +534,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       isQuick: this.isQuick,
       createdBy: currentUserId,
       companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId(),
       items: this.items.map(item => ({
         productId: item.productId,
         orderedQty: Number(item.orderedQty),
@@ -648,7 +650,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       paymentDate: new Date().toISOString(),
       remarks: `Direct Payment for GRN: ${data.grnNumber}`,
       createdBy: localStorage.getItem('email') || 'Admin',
-      companyId: this.authService.getCompanyId()
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId()
     };
 
     console.log('💰 Sending Payment Payload:', paymentPayload);

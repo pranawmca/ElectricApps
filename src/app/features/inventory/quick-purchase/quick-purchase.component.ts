@@ -179,7 +179,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     loadUnits() {
-        this.unitService.getAll().subscribe(res => {
+        this.unitService.getAll().subscribe((res: any) => {
             this.units = res;
         });
     }
@@ -509,7 +509,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     loadNextPoNumber() {
-        this.inventoryService.getNextPoNumber().subscribe(res => {
+        this.inventoryService.getNextPoNumber(this.authService.getBranchId()).subscribe((res: any) => {
             this.purchaseForm.patchValue({ poNumber: res.poNumber });
         });
     }
@@ -517,7 +517,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     bindDropdownPriceList() {
         this.isLoadingPriceLists = true;
         this.inventoryService.getPriceListsForDropdown().subscribe({
-            next: (data) => {
+            next: (data: any) => {
                 this.priceLists = data || [];
                 this.isLoadingPriceLists = false;
             },
@@ -563,7 +563,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
 
     loadSuppliers(selectId?: string) {
         this.supplierService.getSuppliers().subscribe({
-            next: (res) => {
+            next: (res: any) => {
                 this.suppliers = res;
                 this.filteredSuppliers = res;
                 if (selectId) {
@@ -583,7 +583,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             width: '600px',
             disableClose: true
         });
-        dialogRef.afterClosed().subscribe(res => {
+        dialogRef.afterClosed().subscribe((res: any) => {
             if (res) {
                 const newId = (typeof res === 'object') ? res.id : undefined;
                 this.loadSuppliers(newId);
@@ -637,6 +637,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             isQuick: true,
             createdBy: this.authService.getUserEmail(),
             companyId: this.authService.getCompanyId(),
+            branchId: this.authService.getBranchId(),
             items: this.items.getRawValue().map((i: any) => ({
                 id: i.id || 0,
                 productId: i.productId,
@@ -650,16 +651,17 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                 warehouseId: i.warehouseId || null,
                 rackId: i.rackId || null,
                 manufacturingDate: i.manufacturingDate ? DateHelper.toLocalISOString(i.manufacturingDate) : null,
-                expiryDate: i.expiryDate ? DateHelper.toLocalISOString(i.expiryDate) : null
+                expiryDate: i.expiryDate ? DateHelper.toLocalISOString(i.expiryDate) : null,
+                branchId: this.authService.getBranchId()
             }))
         };
         const request$ = this.isEditMode ? this.poService.update(this.poId, payload) : this.inventoryService.savePoDraft(payload);
         request$.subscribe({
-            next: (res) => {
+            next: (res: any) => {
                 this.notification.showStatus(true, `Quick Purchase Draft ${this.isEditMode ? 'Updated' : 'Saved'}!`);
                 this.router.navigate(['/app/quick-inventory/purchase/list']);
             },
-            error: (err) => {
+            error: (err: any) => {
                 this.notification.showStatus(false, err.error?.message || 'Failed to save draft.');
                 this.isSaving = false;
             }
@@ -685,7 +687,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     private initBarcodeListener() {
-        this.barcodeHelper.onScan().pipe(takeUntil(this.destroy$)).subscribe(code => {
+        this.barcodeHelper.onScan().pipe(takeUntil(this.destroy$)).subscribe((code: any) => {
             this.isScanning = true;
             this.lastScannedCode = code;
             this.handleBarcodeScan(code);
@@ -706,7 +708,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             return;
         }
         this.isLoading = true;
-        this.productService.searchProducts(sku).pipe(finalize(() => this.isLoading = false)).subscribe(products => {
+        this.productService.searchProducts(sku).pipe(finalize(() => this.isLoading = false)).subscribe((products: any) => {
             const match = products.find((p: any) => p.sku === sku);
             if (match) {
                 this.addProductToForm(match);
@@ -719,7 +721,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                     data: { sku: sku }
                 });
 
-                dialogRef.afterClosed().subscribe(newProduct => {
+                dialogRef.afterClosed().subscribe((newProduct: any) => {
                     if (newProduct) {
                         this.addProductToForm(newProduct);
                         this.notification.showStatus(true, `New product created and added: ${newProduct.productName}`);

@@ -23,13 +23,14 @@ export class SaleOrderService {
         return this.api.getBlob('saleorder/export-list');
     }
 
-    getSaleOrders(page: number, size: number, sort: string, order: string, search: string, startDate?: Date, endDate?: Date): Observable<any> {
+    getSaleOrders(page: number, size: number, sort: string, order: string, search: string, startDate?: Date, endDate?: Date, branchId?: string | null): Observable<any> {
         const request: any = {
             pageNumber: page,
             pageSize: size,
             sortBy: sort,
             sortOrder: order,
-            searchTerm: search
+            searchTerm: search,
+            branchId: branchId
         };
         if (startDate) request.startDate = startDate.toISOString();
         if (endDate) request.endDate = endDate.toISOString();

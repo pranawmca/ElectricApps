@@ -11,58 +11,62 @@ import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../shared/components/status-dialog-component/status-dialog-component';
 import { PermissionService } from '../../core/services/permission.service';
 import { CompanyService } from '../../features/company/services/company.service';
+import { BranchSelectionDialogComponent } from '../../shared/components/branch-selection-dialog/branch-selection-dialog.component';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MaterialModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.scss',
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  loginForm: FormGroup;
-  forgotPasswordMode = false;
-  resetPasswordMode = false;
-  forgotPasswordForm: FormGroup;
-  resetPasswordForm: FormGroup;
-
-  companyName = '';
-  companyTagline = '';
-  companyLogoUrl = '';
-
-  @ViewChild('emailInputField') emailInputField!: ElementRef;
-  @ViewChild('passwordInputField') passwordInputField!: ElementRef;
-
-  // existing
-  changePasswordMode = false;
-  changePasswordForm: FormGroup;
-  loading = false;
-  errorMessage = '';
-
-  get welcomeMessage(): string {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  }
-
-  private dialog = inject(MatDialog);
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
   public cdr = inject(ChangeDetectorRef);
+  private titleService = inject(Title);
+  private dialog = inject(MatDialog);
   private permissionService = inject(PermissionService);
   private companyService = inject(CompanyService);
-  private titleService = inject(Title);
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  @ViewChild('emailInputField') emailInputField!: ElementRef;
+
+  loginForm!: FormGroup;
+  forgotPasswordForm!: FormGroup;
+  resetPasswordForm!: FormGroup;
+  changePasswordForm!: FormGroup;
+
+  loading = false;
+  errorMessage = '';
+  forgotPasswordMode = false;
+  resetPasswordMode = false;
+  changePasswordMode = false;
+
+  welcomeMessage = 'Welcome Back';
+  companyName = 'Electric ERP';
+  companyTagline = 'Powering Your Business Excellence';
+
+  ngOnInit() {
+    this.titleService.setTitle('Login - Electric ERP');
+    this.initForms();
+    this.loadRememberedData();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      if (this.emailInputField) {
+        this.emailInputField.nativeElement.focus();
+      }
+    }, 500);
+  }
+
+  private initForms() {
     this.loginForm = this.fb.group({
-      CompanyCode: ['', [Validators.required]],
+      CompanyCode: ['', Validators.required],
       Email: ['', [Validators.required, Validators.email]],
-      Password: ['', [Validators.required]],
+      Password: ['', Validators.required],
       rememberMe: [false]
-    });
-
-    this.changePasswordForm = this.fb.group({
-      Email: ['', [Validators.required, Validators.email]],
-      OldPassword: ['', Validators.required],
-      NewPassword: ['', [Validators.required, Validators.minLength(6)]]
     });
 
     this.forgotPasswordForm = this.fb.group({
@@ -75,90 +79,24 @@ export class LoginComponent implements OnInit, AfterViewInit {
       NewPassword: ['', [Validators.required, Validators.minLength(6)]]
     });
 
-    // Ensure change detection runs on form changes for all forms
-    const forms = [this.loginForm, this.forgotPasswordForm, this.resetPasswordForm, this.changePasswordForm];
-    forms.forEach(form => {
-      form.valueChanges.subscribe(() => {
-        this.cdr.detectChanges();
-      });
+    this.changePasswordForm = this.fb.group({
+      Email: ['', [Validators.required, Validators.email]],
+      OldPassword: ['', Validators.required],
+      NewPassword: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
-  ngOnInit() {
-    // Check for saved email from Remember Me
-    const savedEmail = localStorage.getItem('rememberedEmail');
-    const savedCode = localStorage.getItem('lastCompanyCode');
+  private loadRememberedData() {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    const lastCompanyCode = localStorage.getItem('lastCompanyCode');
     
-    if (savedEmail || savedCode) {
+    if (rememberedEmail || lastCompanyCode) {
       this.loginForm.patchValue({
-        Email: savedEmail || '',
-        CompanyCode: savedCode || '',
-        rememberMe: !!savedEmail
+        Email: rememberedEmail || '',
+        CompanyCode: lastCompanyCode || '',
+        rememberMe: !!rememberedEmail
       });
     }
-
-    // Dynamic Tab Title Fallback
-    this.titleService.setTitle(this.welcomeMessage + ' - Login');
-
-    // Fetch Company Profile for Dynamic Title
-    this.companyService.getCompanyProfile().subscribe({
-      next: (profile) => {
-        if (profile) {
-          this.companyName = profile.name;
-          this.companyTagline = profile.tagline;
-          this.companyLogoUrl = profile.logoUrl || '';
-          this.titleService.setTitle(this.companyTagline || this.companyName || 'Enterprise ERP');
-          this.cdr.detectChanges();
-        }
-      },
-      error: (err) => console.warn('Failed to load company profile for login title', err)
-    });
-  }
-
-  ngAfterViewInit() {
-    // Handle browser autofill which might not trigger standard input events
-    // Start checking frequently, then slow down
-    let checkCount = 0;
-    const autofillCheckInterval = setInterval(() => {
-      checkCount++;
-      let changed = false;
-      const emailEl = this.emailInputField?.nativeElement;
-      const pwdEl = this.passwordInputField?.nativeElement;
-
-      if (emailEl && emailEl.value && this.loginForm.get('Email')?.value !== emailEl.value) {
-        this.loginForm.get('Email')?.setValue(emailEl.value, { emitEvent: true });
-        changed = true;
-      }
-      if (pwdEl && pwdEl.value && this.loginForm.get('Password')?.value !== pwdEl.value) {
-        this.loginForm.get('Password')?.setValue(pwdEl.value, { emitEvent: true });
-        changed = true;
-      }
-
-      if (changed) {
-        this.loginForm.markAsDirty();
-        this.loginForm.updateValueAndValidity();
-        this.cdr.detectChanges();
-      } else if (this.loginForm.valid) {
-        // Even if no change detected, if form is valid, ensure UI reflects it
-        this.cdr.detectChanges();
-      }
-
-      // Stop after 20 checks (~10 seconds)
-      if (checkCount > 20) {
-        clearInterval(autofillCheckInterval);
-      }
-    }, 500);
-
-    // Also run a one-time check after a second to catch late autofills
-    setTimeout(() => {
-       const emailEl = this.emailInputField?.nativeElement;
-       const pwdEl = this.passwordInputField?.nativeElement;
-       if (emailEl?.value || pwdEl?.value) {
-         if (emailEl?.value) this.loginForm.get('Email')?.setValue(emailEl.value);
-         if (pwdEl?.value) this.loginForm.get('Password')?.setValue(pwdEl.value);
-         this.cdr.detectChanges();
-       }
-    }, 1000);
   }
 
   toggleChangePasswordMode() {
@@ -166,6 +104,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.errorMessage = '';
     this.loginForm.reset();
     this.changePasswordForm.reset();
+    this.loadRememberedData();
   }
 
   Login() {
@@ -185,40 +124,55 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.auth.login(loginData).pipe(
       finalize(() => {
-        setTimeout(() => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        });
+        this.loading = false;
+        this.cdr.markForCheck();
       })
     ).subscribe({
       next: (res) => {
-        console.log('Login successful:', res);
-
-        // Handle Remember Me
         if (this.loginForm.value.rememberMe) {
           localStorage.setItem('rememberedEmail', this.loginForm.value.Email);
         } else {
           localStorage.removeItem('rememberedEmail');
         }
         
-        // Always remember the last successful company code
         localStorage.setItem('lastCompanyCode', this.loginForm.value.CompanyCode);
-
-        // Reset permission cache so resolver fetches fresh data for this user's role
         this.permissionService.resetForLogin();
 
         if (this.auth.isSubscriptionExpired()) {
           this.router.navigate(['/subscribe']);
-        } else {
-          this.router.navigate(['/app/dashboard']);
+          return;
         }
+
+        // 🚀 BRANCH SELECTION LOGIC
+        this.companyService.getBranchesByCompany(res.companyId || this.auth.getCompanyId()).subscribe({
+          next: (branches) => {
+            if (branches && branches.length > 1) {
+              const dialogRef = this.dialog.open(BranchSelectionDialogComponent, {
+                width: '450px',
+                disableClose: true,
+                data: { branches }
+              });
+
+              dialogRef.afterClosed().subscribe(selectedBranch => {
+                if (selectedBranch) {
+                  this.auth.setWorkingBranch(selectedBranch.id, selectedBranch.branchName);
+                  this.router.navigate(['/app/dashboard']);
+                }
+              });
+            } else {
+              if (branches && branches.length === 1) {
+                this.auth.setWorkingBranch(branches[0].id, branches[0].branchName);
+              }
+              this.router.navigate(['/app/dashboard']);
+            }
+          },
+          error: () => this.router.navigate(['/app/dashboard'])
+        });
       },
-      error: err => {
+      error: (err) => {
         console.error('Login error:', err);
-        const msg = err?.error?.message || 'Invalid credentials or server error. Please try again.';
-        setTimeout(() => {
-          this.showErrorDialog(msg);
-        }, 150);
+        const msg = err?.error?.message || 'Invalid credentials or server error.';
+        setTimeout(() => { this.showErrorDialog(msg); }, 150);
       }
     });
   }
@@ -236,10 +190,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.auth.changePassword(data).pipe(
       finalize(() => {
-        setTimeout(() => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        });
+        this.loading = false;
+        this.cdr.markForCheck();
       })
     ).subscribe({
       next: () => {
@@ -286,20 +238,15 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.auth.forgotPassword(email).pipe(
       finalize(() => {
-        setTimeout(() => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        });
+        this.loading = false;
+        this.cdr.markForCheck();
       })
     ).subscribe({
       next: (res) => {
-        console.log('Forgot Password response:', res);
-        // For dev: show token
         if (res.token) {
           this.dialog.open(StatusDialogComponent, {
             data: { isSuccess: true, message: `Token generated (Dev Mode): ${res.token}` }
           });
-          // pre-fill email and token
           this.resetPasswordForm.patchValue({
             Email: email,
             ResetToken: res.token
@@ -311,7 +258,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         }
 
         this.forgotPasswordMode = false;
-        this.resetPasswordMode = true; // Switch to reset password
+        this.resetPasswordMode = true;
       },
       error: err => {
         console.error('Forgot Password Error:', err);
@@ -321,7 +268,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
           if (typeof err.error === 'string') {
             msg = err.error;
           } else if (err.error.errors) {
-            // Validation errors (ProblemDetails)
             const errors = err.error.errors;
             const firstError = Object.keys(errors)[0];
             msg = errors[firstError][0] || 'Validation error';
@@ -350,10 +296,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.auth.resetPassword(data).pipe(
       finalize(() => {
-        setTimeout(() => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        });
+        this.loading = false;
+        this.cdr.markForCheck();
       })
     ).subscribe({
       next: () => {
@@ -364,14 +308,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.resetPasswordMode = false;
         this.forgotPasswordMode = false;
 
-        // Pre-fill login form with the reset email
         this.loginForm.reset({
           Email: userEmail,
           Password: '',
+          CompanyCode: localStorage.getItem('lastCompanyCode') || '',
           rememberMe: this.loginForm.value.rememberMe
         });
 
-        // Focus the email field after a short delay to allow UI to switch
         setTimeout(() => {
           if (this.emailInputField) {
             this.emailInputField.nativeElement.focus();

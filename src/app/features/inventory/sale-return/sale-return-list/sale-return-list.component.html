@@ -1,107 +1,52 @@
 <div class="list-container" [class.disabled-content]="isDashboardLoading">
-    <div class="header-actions">
-        <h1>Sale Returns (Credit Notes)</h1>
-        <button mat-raised-button class="main-add-btn" *ngIf="canAdd" (click)="navigateToCreate()" [disabled]="isTableLoading">
-            <mat-icon>add</mat-icon> New Return
-        </button>
-    </div>
+    <div class="list-header animate-fade-in">
+        <div class="title-section">
+            <h1 class="page-title">{{ isQuick ? 'Quick Sale Returns' : 'Standard Sale Returns' }}</h1>
+            <p class="subtitle">Comprehensive credit note management and stock refill workflow</p>
+        </div>
+        <div class="action-buttons">
+            <mat-form-field appearance="outline" class="search-box">
+                <mat-label>Search Returns...</mat-label>
+                <input matInput (keyup)="applySearch($event)" [(ngModel)]="searchKey" placeholder="Search Returns">
+                <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
 
-    <div class="stats-grid-container">
-        <mat-card class="stat-card blue-gradient" (click)="filterByStatus('TODAY')">
-            <mat-card-content>
-                <div class="stat-icon"><mat-icon>assignment_return</mat-icon></div>
-                <div class="stat-info">
-                    <span class="label">Total Returns (Today)</span>
-                    <span class="value">{{summaryData.totalReturnsToday}}</span>
-                </div>
-            </mat-card-content>
-        </mat-card>
+            <mat-form-field appearance="outline" class="date-box">
+                <mat-label>From Date</mat-label>
+                <input matInput [matDatepicker]="picker1" [(ngModel)]="fromDate" (dateChange)="loadReturns()">
+                <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
 
-        <mat-card class="stat-card rose-gradient">
-            <mat-card-content>
-                <div class="stat-icon"><mat-icon>payments</mat-icon></div>
-                <div class="stat-info">
-                    <span class="label">Total Refund Value</span>
-                    <span class="value">{{summaryData.totalRefundValue | currency:'INR'}}</span>
-                </div>
-            </mat-card-content>
-        </mat-card>
+            <mat-form-field appearance="outline" class="date-box">
+                <mat-label>To Date</mat-label>
+                <input matInput [matDatepicker]="picker2" [(ngModel)]="toDate" (dateChange)="loadReturns()">
+                <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+            </mat-form-field>
 
-        <mat-card class="stat-card green-gradient">
-            <mat-card-content>
-                <div class="stat-icon"><mat-icon>inventory_2</mat-icon></div>
-                <div class="stat-info">
-                    <span class="label">{{selection.selected.length > 0 ? 'Selected Qty' : 'Stock Re-filled'}}</span>
-                    <span class="value">{{selection.selected.length > 0 ? selectedTotalQty : summaryData.stockRefilledPcs}} PCS</span>
-                </div>
-            </mat-card-content>
-        </mat-card>
-
-        <mat-card class="stat-card orange-gradient" (click)="filterByStatus('Confirmed')">
-            <mat-card-content>
-                <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
-                <div class="stat-info">
-                    <span class="label">Confirmed Returns</span>
-                    <span class="value">{{summaryData.confirmedReturns}}</span>
-                </div>
-            </mat-card-content>
-        </mat-card>
-    </div>
-
-    <div class="active-filter-banner" *ngIf="activeStatus" (click)="filterByStatus(activeStatus)" style="cursor: pointer; margin: 15px 0; display: flex; align-items: center; gap: 8px; color: #666; font-size: 14px; background: #f8f9fa; padding: 10px; border-radius: 4px; border-left: 4px solid #666;">
-        <mat-icon style="font-size: 20px; width: 20px; height: 20px;">filter_list</mat-icon>
-        <span>Showing <strong>{{activeStatus}}</strong> returns. Click here to clear filter.</span>
-    </div>
-
-    <div class="filter-section">
-        <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
-            <mat-label>Search</mat-label>
-            <input matInput (keyup)="applySearch($event)" [(ngModel)]="searchKey" placeholder="Search Returns">
-            <button mat-icon-button matSuffix *ngIf="searchKey" (click)="searchKey=''; loadReturns()">
-                <mat-icon>close</mat-icon>
+            <button mat-raised-button color="primary" class="btn-pill" *ngIf="canAdd" (click)="navigateToCreate()" [disabled]="isTableLoading">
+                <mat-icon>add</mat-icon> New Return
             </button>
-            <mat-icon matSuffix *ngIf="!searchKey">search</mat-icon>
-        </mat-form-field>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>From Date</mat-label>
-            <input matInput [matDatepicker]="picker1" [(ngModel)]="fromDate" (dateChange)="loadReturns()">
-            <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
-            <mat-datepicker #picker1></mat-datepicker>
-        </mat-form-field>
+            <!-- Bulk Action Button -->
+            <button mat-raised-button color="accent" class="btn-pill" (click)="createBulkInwardGatePass()" 
+                    *ngIf="selection.selected.length > 1 && pendingInwardSelected && !isQuick">
+                <mat-icon>merge_type</mat-icon>
+                Bulk Inward ({{pendingInwardSelectedCount}})
+            </button>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>To Date</mat-label>
-            <input matInput [matDatepicker]="picker2" [(ngModel)]="toDate" (dateChange)="loadReturns()">
-            <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
-            <mat-datepicker #picker2></mat-datepicker>
-        </mat-form-field>
-        <div class="d-flex gap-2">
-      <!-- Single Row Inward Gate Pass -->
-      <button mat-raised-button 
-        class="bulk-action-btn" 
-        (click)="createInwardGatePass(selection.selected[0])" 
-        *ngIf="selection.selected.length === 1 && !selection.selected[0]?.gatePassNo && !isQuick">
-        <mat-icon>move_to_inbox</mat-icon>
-        Create Inward Pass
-      </button>
-
-      <!-- Bulk Inward Gate Pass (2+ un-inwarded selected) -->
-      <button mat-raised-button 
-        class="bulk-action-btn" 
-        (click)="createBulkInwardGatePass()" 
-        *ngIf="selection.selected.length > 1 && pendingInwardSelected && !isQuick">
-        <mat-icon>merge_type</mat-icon>
-        Bulk Inward ({{pendingInwardSelectedCount}})
-      </button>
-      <button mat-raised-button 
-class="export-action-btn" (click)="exportToExcel()" [disabled]="isExportLoading || isTableLoading || dataSource.data.length === 0">
-            <mat-icon *ngIf="!isExportLoading">download</mat-icon>
-            <mat-spinner *ngIf="isExportLoading" diameter="20"></mat-spinner>
-            Export
-        </button>
+            <button mat-raised-button class="btn-pill success-btn" (click)="exportToExcel()" 
+                    [disabled]="isExportLoading || isTableLoading || dataSource.data.length === 0">
+                <mat-icon *ngIf="!isExportLoading">download</mat-icon>
+                <mat-spinner *ngIf="isExportLoading" diameter="20"></mat-spinner>
+                Export
+            </button>
+        </div>
     </div>
-    </div>
+
+    <!-- 📊 SUMMARY STATS -->
+    <app-summary-stats [stats]="summaryStats" [isLoading]="isDashboardLoading"></app-summary-stats>
 
     <div class="table-container mat-elevation-z8">
         <div class="loading-shade" *ngIf="isTableLoading && !isDashboardLoading">
@@ -119,126 +64,128 @@ class="export-action-btn" (click)="exportToExcel()" [disabled]="isExportLoading 
         </div>
 
         <div [style.display]="(!isTableLoading && dataSource.data.length > 0) ? 'block' : 'none'">
-            <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
-                
-                <!-- Checkbox Column -->
-                <ng-container matColumnDef="select">
-                    <th mat-header-cell *matHeaderCellDef>
-                        <mat-checkbox (change)="$event ? masterToggle() : null"
-                                     [checked]="selection.hasValue() && isAllSelected()"
-                                     [indeterminate]="selection.hasValue() && !isAllSelected()"
-                                     color="primary">
-                        </mat-checkbox>
-                    </th>
-                    <td mat-cell *matCellDef="let row">
-                        <mat-checkbox (click)="$event.stopPropagation()"
-                                     (change)="$event ? selection.toggle(row) : null"
-                                     [checked]="selection.isSelected(row)"
-                                     color="primary">
-                        </mat-checkbox>
-                    </td>
-                </ng-container>
+            <div class="table-responsive">
+                <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
+                    
+                    <!-- Checkbox Column -->
+                    <ng-container matColumnDef="select">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <mat-checkbox (change)="$event ? masterToggle() : null"
+                                         [checked]="selection.hasValue() && isAllSelected()"
+                                         [indeterminate]="selection.hasValue() && !isAllSelected()"
+                                         color="primary">
+                            </mat-checkbox>
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            <mat-checkbox (click)="$event.stopPropagation()"
+                                         (change)="$event ? selection.toggle(row) : null"
+                                         [checked]="selection.isSelected(row)"
+                                         color="primary">
+                            </mat-checkbox>
+                        </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="returnNumber">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Return No. </th>
-                    <td mat-cell *matCellDef="let row" class="bold-text"> {{row.returnNumber}} </td>
-                </ng-container>
-                                <ng-container matColumnDef="gatePassNo" *ngIf="!isQuick">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Gate Pass </th>
-                    <td mat-cell *matCellDef="let row">
-                        <!-- Case 1: Already Inwarded with Gate Pass -->
-                        <ng-container *ngIf="row.gatePassNo; else nextCheck">
-                            <div class="status-badge-container">
-                                <span class="premium-badge inwarded">
-                                    <mat-icon>done_all</mat-icon>
-                                    INWARDED
-                                </span>
-                                <span class="pass-subtext">{{row.gatePassNo}}</span>
-                            </div>
-                        </ng-container>
-
-                        <!-- Case 2: Quick Sale Return (Direct Inward) -->
-                        <ng-template #nextCheck>
-                            <ng-container *ngIf="row.isQuick || row.IsQuick; else noPass">
+                    <ng-container matColumnDef="returnNumber">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Return No. </th>
+                        <td mat-cell *matCellDef="let row" class="bold-text"> {{row.returnNumber}} </td>
+                    </ng-container>
+                                    <ng-container matColumnDef="gatePassNo" *ngIf="!isQuick">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Gate Pass </th>
+                        <td mat-cell *matCellDef="let row">
+                            <!-- Case 1: Already Inwarded with Gate Pass -->
+                            <ng-container *ngIf="row.gatePassNo; else nextCheck">
                                 <div class="status-badge-container">
-                                    <span class="premium-badge quick-return">
-                                        <mat-icon>bolt</mat-icon>
-                                        QUICK RETURN
+                                    <span class="premium-badge inwarded">
+                                        <mat-icon>done_all</mat-icon>
+                                        INWARDED
                                     </span>
-                                    <span class="pass-subtext">Direct Inward</span>
+                                    <span class="pass-subtext">{{row.gatePassNo}}</span>
                                 </div>
                             </ng-container>
-                        </ng-template>
 
-                        <!-- Case 3: Standard Return (Needs Gate Pass) -->
-                        <ng-template #noPass>
-                            <!-- Standard Return Template -->
-                            <ng-template #standardReturn>
-                                <button mat-icon-button (click)="createInwardGatePass(row)" color="primary" matTooltip="Generate Inward Pass" *ngIf="!isQuick">
-                                    <mat-icon class="pending-pass-icon">local_shipping</mat-icon>
-                                </button>
-                                <span class="text-muted small" *ngIf="isQuick">Pending</span>
+                            <!-- Case 2: Quick Sale Return (Direct Inward) -->
+                            <ng-template #nextCheck>
+                                <ng-container *ngIf="row.isQuick || row.IsQuick; else noPass">
+                                    <div class="status-badge-container">
+                                        <span class="premium-badge quick-return">
+                                            <mat-icon>bolt</mat-icon>
+                                            QUICK RETURN
+                                        </span>
+                                        <span class="pass-subtext">Direct Inward</span>
+                                    </div>
+                                </ng-container>
                             </ng-template>
 
-                            <ng-container *ngTemplateOutlet="standardReturn"></ng-container>
-                        </ng-template>
-                    </td>
-                </ng-container>
+                            <!-- Case 3: Standard Return (Needs Gate Pass) -->
+                            <ng-template #noPass>
+                                <!-- Standard Return Template -->
+                                <ng-template #standardReturn>
+                                    <button mat-icon-button (click)="createInwardGatePass(row)" color="primary" matTooltip="Generate Inward Pass" *ngIf="!isQuick">
+                                        <mat-icon class="pending-pass-icon">local_shipping</mat-icon>
+                                    </button>
+                                    <span class="text-muted small" *ngIf="isQuick">Pending</span>
+                                </ng-template>
+
+                                <ng-container *ngTemplateOutlet="standardReturn"></ng-container>
+                            </ng-template>
+                        </td>
+                    </ng-container>
 
 
-                <ng-container matColumnDef="returnDate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Date </th>
-                    <td mat-cell *matCellDef="let row"> {{row.returnDate | date:'dd/MM/yyyy hh:mm a':'+0530'}} </td>
-                </ng-container>
+                    <ng-container matColumnDef="returnDate">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Date </th>
+                        <td mat-cell *matCellDef="let row"> {{row.returnDate | date:'dd/MM/yyyy hh:mm a':'+0530'}} </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="customerName">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Customer </th>
-                    <td mat-cell *matCellDef="let row"> {{row.customerName}} </td>
-                </ng-container>
+                    <ng-container matColumnDef="customerName">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Customer </th>
+                        <td mat-cell *matCellDef="let row"> {{row.customerName}} </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="soRef">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> SO Ref </th>
-                    <td mat-cell *matCellDef="let row"> {{row.soRef}} </td>
-                </ng-container>
+                    <ng-container matColumnDef="soRef">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> SO Ref </th>
+                        <td mat-cell *matCellDef="let row"> {{row.soRef}} </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="totalQty">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Qty </th>
-                    <td mat-cell *matCellDef="let row" class="text-center fw-bold"> 
-                        {{row.totalQty || row.qty || row.quantity || row.returnQty || row.returnQuantity || 0}} 
-                    </td>
-                </ng-container>
+                    <ng-container matColumnDef="totalQty">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Qty </th>
+                        <td mat-cell *matCellDef="let row" class="text-center fw-bold"> 
+                            {{row.totalQty || row.qty || row.quantity || row.returnQty || row.returnQuantity || 0}} 
+                        </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="totalAmount">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Total </th>
-                    <td mat-cell *matCellDef="let row" class="amount-cell"> {{row.totalAmount | currency:'INR'}} </td>
-                </ng-container>
+                    <ng-container matColumnDef="totalAmount">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Total </th>
+                        <td mat-cell *matCellDef="let row" class="amount-cell"> {{row.totalAmount | currency:'INR'}} </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Status </th>
-                    <td mat-cell *matCellDef="let row">
-                        <span class="status-badge" [ngClass]="row.status?.toLowerCase()">
-                            {{row.status}}
-                        </span>
-                    </td>
-                </ng-container>
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Status </th>
+                        <td mat-cell *matCellDef="let row">
+                            <span class="status-badge" [ngClass]="row.status?.toLowerCase()">
+                                {{row.status}}
+                            </span>
+                        </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef class="text-center"> Actions </th>
-                    <td mat-cell *matCellDef="let row" class="text-center">
-                        <div class="action-buttons">
-                            <button mat-icon-button color="primary" (click)="viewCreditNote(row)" matTooltip="View Details" class="small-action-btn">
-                                <mat-icon>visibility</mat-icon>
-                            </button>
-                            <button mat-icon-button color="accent" (click)="printCreditNote(row)" matTooltip="Print Credit Note" class="small-action-btn">
-                                <mat-icon>print</mat-icon>
-                            </button>
-                        </div>
-                    </td>
-                </ng-container>
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="text-center"> Actions </th>
+                        <td mat-cell *matCellDef="let row" class="text-center">
+                            <div class="action-buttons">
+                                <button mat-icon-button color="primary" (click)="viewCreditNote(row)" matTooltip="View Details" class="small-action-btn">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                                <button mat-icon-button color="accent" (click)="printCreditNote(row)" matTooltip="Print Credit Note" class="small-action-btn">
+                                    <mat-icon>print</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
-            </table>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
+                </table>
+            </div>
 
             <mat-paginator [length]="totalRecords" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]"
                 (page)="onPageChange($event)">

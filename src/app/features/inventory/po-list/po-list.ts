@@ -338,13 +338,14 @@ export class PoList implements OnInit {
       fromDate: state.fromDate ? this.datePipe.transform(state.fromDate, 'yyyy-MM-dd') : null,
       toDate: state.toDate ? this.datePipe.transform(state.toDate, 'yyyy-MM-dd') : null,
       // Column-level filters array → matches backend List<FilterDto>
-      filters: (state.filters || []).filter((f: any) => f.field && f.value)
+      filters: (state.filters || []).filter((f: any) => f.field && f.value),
+      branchId: this.authService.getBranchId()
     };
 
     // Load totals for stats across all pages
     this.loadTotalStats(requestPayload);
 
-    this.poService.getPagedOrders(requestPayload).subscribe({
+    this.poService.getPagedOrders(requestPayload, this.authService.getBranchId()).subscribe({
       next: (res) => {
         console.log('API PO List Response:', res);
         const dataRows = res.data || [];

@@ -8,6 +8,8 @@ import { LoadingService } from '../../../../core/services/loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
+import { CompanyService } from '../../../company/services/company.service';
+import { AuthService } from '../../../../core/services/auth.service';
 @Component({
     selector: 'app-warehouse-form',
     standalone: true,
@@ -22,6 +24,7 @@ export class WarehouseForm implements OnInit {
     warehouseId: string | null = null;
     isLoading = false;
     summaryStats: SummaryStat[] = [];
+    branches: any[] = [];
 
 
     constructor(
@@ -30,11 +33,14 @@ export class WarehouseForm implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private loadingService: LoadingService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private companyService: CompanyService,
+        private authService: AuthService
     ) {
         this.warehouseForm = this.fb.group({
             id: [null],
             name: ['', [Validators.required, Validators.maxLength(100)]],
+            branchId: [null, [Validators.required]],
             city: ['', [Validators.maxLength(100)]],
             description: ['', [Validators.maxLength(500)]],
             isActive: [true]
@@ -42,12 +48,24 @@ export class WarehouseForm implements OnInit {
     }
 
     ngOnInit(): void {
+        this.loadBranches();
         this.warehouseId = this.route.snapshot.paramMap.get('id');
         if (this.warehouseId) {
             this.isEditMode = true;
             this.loadWarehouseData(this.warehouseId);
         } else {
             this.loadStatsOnly();
+        }
+    }
+
+    private loadBranches() {
+        const companyId = this.authService.getCompanyId();
+        if (companyId) {
+            this.companyService.getBranchesByCompany(companyId).subscribe({
+                next: (branches) => {
+                    this.branches = branches;
+                }
+            });
         }
     }
 
@@ -69,6 +87,12 @@ export class WarehouseForm implements OnInit {
                 const warehouse = warehouses.find(w => w.id === id);
                 if (warehouse) {
                     this.warehouseForm.patchValue(warehouse);
+                    
+                    // 🔄 Fix: Populate branchId by matching the numeric type of dropdown options
+                    if (warehouse.branchId) {
+                        const numericBranchId = !isNaN(Number(warehouse.branchId)) ? Number(warehouse.branchId) : warehouse.branchId;
+                        this.warehouseForm.patchValue({ branchId: numericBranchId });
+                    }
                 }
                 this.updateStats(warehouses);
 
@@ -104,7 +128,10 @@ export class WarehouseForm implements OnInit {
         this.isLoading = true;
         this.loadingService.setLoading(true);
 
-        const payload = this.warehouseForm.value;
+        const payload = {
+            ...this.warehouseForm.value,
+            branchId: this.warehouseForm.value.branchId?.toString()
+        };
 
         if (this.isEditMode) {
             this.locationService.updateWarehouse(this.warehouseId!, payload).subscribe({

@@ -6,7 +6,7 @@ export interface SummaryStat {
     label: string;
     value: string | number;
     icon: string;
-    type: 'total' | 'active' | 'overdue' | 'info' | 'success' | 'warning';
+    type: 'total' | 'active' | 'overdue' | 'info' | 'success' | 'warning' | 'danger';
     badge?: string;
 }
 

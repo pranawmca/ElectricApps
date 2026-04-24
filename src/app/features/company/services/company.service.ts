@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { CompanyProfileDto, UpsertCompanyRequest } from '../model/company.model';
 import { ApiService } from '../../../shared/api.service';
 import { environment } from '../../../enviornments/environment';
@@ -25,6 +25,15 @@ export class CompanyService {
      */
     getCompanyProfile(): Observable<CompanyProfileDto> {
         return this.api.get<CompanyProfileDto>('company/profile', this.baseUrl);
+    }
+
+    /**
+     * Fetch branches (addresses) for a specific company
+     */
+    getBranchesByCompany(companyId: string): Observable<any[]> {
+        return this.getById(companyId).pipe(
+            map(profile => profile.addresses || [])
+        );
     }
 
     /**

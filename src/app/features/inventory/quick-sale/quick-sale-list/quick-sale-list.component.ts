@@ -20,6 +20,7 @@ import { FinanceService } from '../../../finance/service/finance.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SharedPrintService } from '../../../../core/services/shared-print.service';
+import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
 
 @Component({
   selector: 'app-quick-sale-list',
@@ -30,6 +31,7 @@ import { SharedPrintService } from '../../../../core/services/shared-print.servi
     FormsModule,
     CommonModule,
     EnterpriseHierarchicalGridComponent,
+    SummaryStatsComponent
   ],
   providers: [CurrencyPipe, DatePipe],
   templateUrl: './quick-sale-list.component.html',
@@ -46,6 +48,7 @@ export class QuickSaleListComponent implements OnInit {
   public todayCount: number = 0;
   public monthCount: number = 0;
   public unpaidOrdersCount: number = 0;
+  public summaryStats: SummaryStat[] = [];
   public pageSize: number = 10;
   public isLoading: boolean = false;
   public isDashboardLoading: boolean = true;
@@ -230,7 +233,7 @@ export class QuickSaleListComponent implements OnInit {
     const searchTerm = state.globalSearch || '';
 
     forkJoin({
-      sales: this.inventoryService.getQuickPagedSales(pageIndex, pageSize, sortField, sortOrder, searchTerm),
+      sales: this.inventoryService.getQuickPagedSales(pageIndex, pageSize, sortField, sortOrder, searchTerm, undefined, undefined, this.authService.getBranchId()),
       pendingDues: this.financeService.getPendingCustomerDues().pipe(catchError(() => of([])))
     }).subscribe({
       next: (res: any) => {
@@ -253,6 +256,17 @@ export class QuickSaleListComponent implements OnInit {
         this.todayCount = salesData.todayCount || 0; 
         this.monthCount = salesData.monthCount || 0; 
         this.unpaidOrdersCount = salesData.unpaidOrdersCount || 0;
+
+        // Generate Summary Stats for Premium UI (5 Cards Preserved)
+        this.summaryStats = [
+          { label: 'Total Quick Sales', value: this.currencyPipe.transform(this.totalSalesAmount, 'INR', 'symbol', '1.0-0') || '0', icon: 'payments', type: 'success' },
+          { label: 'Today\'s Sales', value: this.todayCount, icon: 'today', type: 'total' },
+          { label: 'This Month', value: this.monthCount, icon: 'calendar_month', type: 'info' },
+          { label: 'Total Records', value: this.totalRecords, icon: 'receipt_long', type: 'warning' },
+          { label: 'Unpaid/Partial', value: this.unpaidOrdersCount, icon: 'pending_actions', type: 'danger' }
+        ];
+
+        this.dataSource.data = items;
 
         // 🧠 FIFO LOGIC for Customer Payment Status (Mirroring Standard SO Logic)
         const customerIds = [...new Set(items.map((i: any) => i.customerId))];

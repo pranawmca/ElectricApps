@@ -692,7 +692,8 @@ export class ProductForm implements OnInit, OnDestroy {
       defaultRackId: formValue.defaultRackId,
       isExpiryRequired: Boolean(formValue.isExpiryRequired),
       imageUrl: formValue.imageUrl,
-      companyId: this.authService.getCompanyId()
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId()
     };
   }
 }

@@ -527,6 +527,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy
                     mfgDate: i.manufacturingDate,
                     expDate: i.expiryDate,
                     companyId: this.authService.getCompanyId(),
+                    branchId: this.authService.getBranchId(),
                     createdBy: userId,
                     modifiedBy: userId
                 };
@@ -557,6 +558,7 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy
             createdBy: userId,
             modifiedBy: userId, // Added for audit consistency
             companyId: this.authService.getCompanyId(),
+            branchId: this.authService.getBranchId(),
             items: mappedItems,
             isQuick: this.isQuick
         };
@@ -577,7 +579,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy
                     paymentDate: new Date().toISOString(),
                     remarks: `Sales Return Adjustment: ${returnNo}`,
                     createdBy: userId,
-                    companyId: this.authService.getCompanyId()
+                    companyId: this.authService.getCompanyId(),
+                    branchId: this.authService.getBranchId()
                 }).subscribe({
                     next: () => {
                         this.inventoryService.notifyInventoryChange();

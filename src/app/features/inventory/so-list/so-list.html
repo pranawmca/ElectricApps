@@ -1,42 +1,13 @@
 <div class="container-fluid" [class.disabled-content]="isDashboardLoading">
-  <div class="stats-grid" *ngIf="!isDashboardLoading">
-    <mat-card class="stat-card green-gradient">
-        <mat-card-content>
-            <div class="stat-icon"><mat-icon>payments</mat-icon></div>
-            <div class="stat-info">
-                <span class="label">Total Confirmed Sales</span>
-                <span class="value">₹{{totalSalesAmount | number:'1.2-2'}}</span>
-            </div>
-        </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card orange-gradient">
-        <mat-card-content>
-            <div class="stat-icon"><mat-icon>local_shipping</mat-icon></div>
-            <div class="stat-info">
-                <span class="label">Pending Dispatch</span>
-                <span class="value">{{pendingDispatchCount}}</span>
-            </div>
-            <div class="stat-badge" *ngIf="pendingDispatchCount > 0">Action Required</div>
-        </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card blue-gradient">
-        <mat-card-content>
-            <div class="stat-icon"><mat-icon>pending_actions</mat-icon></div>
-            <div class="stat-info">
-                <span class="label">Unpaid/Partial</span>
-                <span class="value">{{unpaidOrdersCount}}</span>
-            </div>
-        </mat-card-content>
-    </mat-card>
-  </div>
-
-  <div class="header-actions">
-    <div class="d-flex gap-2">
+  <div class="list-header animate-fade-in">
+    <div class="title-section">
+      <h1 class="page-title">Standard Sale Orders</h1>
+      <p class="subtitle">Comprehensive order management and dispatch workflow</p>
+    </div>
+    <div class="action-buttons">
       <!-- Bulk Outward Button -->
       <ng-container *appPermission="'BULK_DISPATCH'">
-        <button mat-raised-button color="primary" class="main-add-btn" 
+        <button mat-raised-button color="primary" class="btn-pill" 
                 (click)="bulkCreateGatePass()" 
                 [disabled]="isLoading"
                 *ngIf="canShowBulkDispatch">
@@ -47,7 +18,7 @@
 
       <!-- Bulk Collect Payment Button -->
       <ng-container *appPermission="'BULK_RECEIPT'">
-        <button mat-raised-button color="primary" class="main-add-btn success-btn" 
+        <button mat-raised-button color="primary" class="btn-pill success-btn" 
                 (click)="bulkCollectPayment()" 
                 [disabled]="isLoading"
                 *ngIf="canShowBulkPayment">
@@ -55,9 +26,11 @@
           Bulk Collect Payment
         </button>
       </ng-container>
-
     </div>
   </div>
+
+  <!-- 📊 SUMMARY STATS -->
+  <app-summary-stats [stats]="summaryStats" [isLoading]="isDashboardLoading"></app-summary-stats>
 
   <div class="mat-elevation-z8 responsive-table-container">
     <div class="loading-overlay" *ngIf="isLoading && !isDashboardLoading">

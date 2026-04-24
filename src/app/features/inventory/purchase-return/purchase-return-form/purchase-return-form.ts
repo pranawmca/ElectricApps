@@ -565,6 +565,7 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
           returnDate: rawData.returnDate,
           remarks: rawData.remarks,
           companyId: this.authService.getCompanyId(),
+          branchId: this.authService.getBranchId(),
           items: itemsToReturn.map((item: any) => ({
             productId: item.productId,
             productName: item.productName,
@@ -582,6 +583,7 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
             mfgDate: item.mfgDate,
             expDate: item.expDate,
             companyId: this.authService.getCompanyId(),
+            branchId: this.authService.getBranchId(),
             createdBy: localStorage.getItem('email') || 'admin@admin.com',
             modifiedBy: localStorage.getItem('email') || 'admin@admin.com'
           }))

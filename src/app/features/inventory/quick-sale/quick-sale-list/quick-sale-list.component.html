@@ -1,8 +1,10 @@
-<div class="header-actions">
-  <h3 class="page-title">Quick Sale Dashboard</h3>
-  <div class="d-flex gap-2">
-    <!-- Bulk Collect Payment Button -->
-    <button mat-raised-button color="primary" class="main-add-btn success-btn" 
+<div class="list-header animate-fade-in">
+  <div class="title-section">
+    <h1 class="page-title">Quick Sale Dashboard</h1>
+    <p class="subtitle">Direct retail sales and real-time inventory deduction</p>
+  </div>
+  <div class="action-buttons">
+    <button mat-raised-button color="primary" class="btn-pill success-btn" 
             (click)="bulkCollectPayment()" 
             [disabled]="isLoading"
             *ngIf="canShowBulkPayment">
@@ -12,62 +14,8 @@
   </div>
 </div>
 
-<div class="stats-grid" *ngIf="!isDashboardLoading">
-  <!-- Total Sales Amount -->
-  <mat-card class="stat-card blue-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>trending_up</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">Total Quick Sales</span>
-              <span class="value">₹{{totalSalesAmount | number:'1.2-2'}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-
-  <!-- Today's Count -->
-  <mat-card class="stat-card green-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>today</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">Today's Sales</span>
-              <span class="value">{{todayCount}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-
-  <!-- Month Count -->
-  <mat-card class="stat-card purple-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>calendar_month</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">This Month</span>
-              <span class="value">{{monthCount}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-
-  <!-- Total Records -->
-  <mat-card class="stat-card active-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>receipt_long</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">Total Records</span>
-              <span class="value">{{totalRecords}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-
-  <!-- Unpaid/Partial -->
-  <mat-card class="stat-card orange-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>pending_actions</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">Unpaid/Partial</span>
-              <span class="value">{{unpaidOrdersCount}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-</div>
+<!-- 📊 SUMMARY STATS -->
+<app-summary-stats [stats]="summaryStats" [isLoading]="isDashboardLoading"></app-summary-stats>
 
 <div class="list-container" [class.disabled-content]="isDashboardLoading">
   <div class="page-container">

@@ -1034,6 +1034,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           grandTotal: this.finalGrandTotal,
           createdBy: userId,
           companyId: this.authService.getCompanyId(),
+          branchId: this.authService.getBranchId(),
           items: this.items.controls.map(item => {
             const val = (item as FormGroup).getRawValue();
             const itemTax = Number(val.taxAmount) || 0;
@@ -1058,7 +1059,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
               warehouseId: val.warehouseId || null,
               rackId: val.rackId || null,
               manufacturingDate: val.manufacturingDate || null,
-              expiryDate: val.expiryDate || null
+              expiryDate: val.expiryDate || null,
+              branchId: this.authService.getBranchId()
             };
           })
         };
@@ -1153,7 +1155,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       paymentDate: new Date().toISOString(),
       remarks: `Direct Receipt for SO: ${data.soNumber}`,
       createdBy: localStorage.getItem('email') || 'Admin',
-      companyId: this.authService.getCompanyId()
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId()
     };
 
     // Calculate total quantity for Gate Pass

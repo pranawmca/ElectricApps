@@ -103,33 +103,58 @@
 
 .title-group {
   .main-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
 
-    h1 { 
-      margin: 0; 
-      font-size: 26px; 
-      font-weight: 700; 
-      color: var(--app-text, #1b1b1b);
-      letter-spacing: -0.5px;
-      
-      [dir='rtl'] & {
-        text-align: right;
+        h1 {
+          margin: 0;
+          font-size: 28px;
+          font-weight: 800;
+          letter-spacing: -0.5px;
+          color: #1e293b;
+        }
+
+        .live-badge {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          animation: pulse-red 2s infinite;
+        }
+
+        .branch-selector-wrap {
+          margin-left: 10px;
+          
+          .dashboard-branch-select {
+            width: 240px;
+            
+            ::ng-deep {
+              .mat-mdc-form-field-wrapper {
+                padding-bottom: 0 !important;
+              }
+              .mat-mdc-form-field-flex {
+                height: 48px !important;
+                background: white !important;
+                border-radius: 12px !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+              }
+              .mat-mdc-text-field-wrapper {
+                padding-top: 0 !important;
+              }
+              .mat-mdc-form-field-infix {
+                padding-top: 8px !important;
+                padding-bottom: 8px !important;
+              }
+            }
+          }
+        }
       }
-    }
-
-    .live-badge {
-      background: #e1f5fe;
-      color: #0288d1;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 4px;
-      letter-spacing: 1px;
-    }
-  }
 
   .subtitle {
     margin: 0;

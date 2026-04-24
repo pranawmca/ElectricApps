@@ -9,6 +9,7 @@ import { LoadingService } from '../../../../core/services/loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-rack-form',
@@ -32,7 +33,8 @@ export class RackForm implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private loadingService: LoadingService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private authService: AuthService
     ) {
         this.rackForm = this.fb.group({
             id: [null],
@@ -110,7 +112,10 @@ export class RackForm implements OnInit {
         this.isLoading = true;
         this.loadingService.setLoading(true);
 
-        const payload = { ...this.rackForm.value };
+        const payload = { 
+            ...this.rackForm.value,
+            branchId: this.authService.getBranchId()
+        };
 
         if (this.isEditMode && this.rackId) {
             // Ensure ID is explicitly set in payload for backend validation

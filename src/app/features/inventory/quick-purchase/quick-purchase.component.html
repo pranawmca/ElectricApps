@@ -1,29 +1,28 @@
 <div class="content-container">
-  <div class="header-section">
-    <div class="title-group">
-      <div style="display: flex; align-items: center;">
-        <mat-icon class="title-icon">shopping_bag</mat-icon>
-        <h1>{{ isEditMode ? 'Edit Quick Purchase Draft' : 'New Quick Purchase Draft' }}</h1>
+  <div class="list-header animate-fade-in">
+    <div class="title-section">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <mat-icon class="page-icon" style="color: #6366f1; font-size: 28px; width: 28px; height: 28px;">shopping_bag</mat-icon>
+        <h1 class="page-title">{{ isEditMode ? 'Edit Quick Purchase' : 'New Quick Purchase' }}</h1>
       </div>
-      <p class="subtitle">Create and manage your simplified purchase orders (No Gatepass flow)</p>
+      <p class="subtitle">Direct material acquisition and real-time ledger updates (Bypasses Gatepass)</p>
     </div>
 
-    <div class="actions">
+    <div class="action-buttons">
       <!-- Active Scanner Status -->
       <div class="barcode-status" [class.scanning]="isScanning">
         <mat-icon>{{ isScanning ? 'settings_overscan' : 'barcode_reader' }}</mat-icon>
         <div class="text-container">
           <span class="status-label">{{ isScanning ? 'Scanning...' : 'Scanner Active' }}</span>
-          <span class="last-scanned" *ngIf="lastScannedCode">{{ lastScannedCode }}</span>
         </div>
       </div>
 
-      <button mat-button class="back-btn" (click)="router.navigate(['/app/quick-inventory/purchase/list'])">
+      <button mat-raised-button class="btn-pill secondary" (click)="router.navigate(['/app/quick-inventory/purchase/list'])">
         <mat-icon>arrow_back</mat-icon> Cancel
       </button>
-      <button mat-flat-button color="primary" class="save-btn" (click)="save()" [disabled]="isSaving">
+      <button mat-raised-button color="primary" class="btn-pill" (click)="save()" [disabled]="isSaving">
         <mat-icon>{{ isSaving ? 'hourglass_empty' : (isEditMode ? 'update' : 'save') }}</mat-icon>
-        {{ isSaving ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Draft' : 'Save Draft') }}
+        {{ isSaving ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Save Purchase' : 'Save Purchase') }}
       </button>
     </div>
   </div>

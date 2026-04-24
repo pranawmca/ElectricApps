@@ -20,11 +20,13 @@ import { catchError } from 'rxjs/operators';
 import { PermissionService } from '../../../../core/services/permission.service';
 import { ResizableColumnDirective } from '../../../../shared/directives/resizable-column.directive';
 import { SharedPrintService } from '../../../../core/services/shared-print.service';
+import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-sale-return-list',
     standalone: true,
-    imports: [CommonModule, MaterialModule, FormsModule, ResizableColumnDirective],
+    imports: [CommonModule, MaterialModule, FormsModule, ResizableColumnDirective, SummaryStatsComponent],
     templateUrl: './sale-return-list.component.html',
     styleUrl: './sale-return-list.component.scss',
 })
@@ -37,6 +39,7 @@ export class SaleReturnListComponent implements OnInit {
     private permissionService = inject(PermissionService);
     private route = inject(ActivatedRoute);
     private sharedPrintService = inject(SharedPrintService);
+    private authService = inject(AuthService);
 
     canAdd: boolean = true;
     isQuick: boolean = false;
@@ -83,6 +86,7 @@ export class SaleReturnListComponent implements OnInit {
         stockRefilledPcs: 0,
         confirmedReturns: 0
     };
+    summaryStats: SummaryStat[] = [];
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -125,9 +129,15 @@ export class SaleReturnListComponent implements OnInit {
     }
 
     loadDashboardSummary() {
-        this.srService.getDashboardSummary(this.isQuick).subscribe({
-            next: (data) => {
+        this.srService.getDashboardSummary(this.isQuick, this.authService.getBranchId()).subscribe({
+            next: (data: any) => {
                 this.summaryData = data;
+                this.summaryStats = [
+                    { label: 'Total Returns (Today)', value: this.summaryData.totalReturnsToday || 0, icon: 'history', type: 'info' },
+                    { label: 'Total Refund Value', value: '₹' + (this.summaryData.totalRefundValue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }), icon: 'payments', type: 'danger' },
+                    { label: 'Stock Re-filled', value: (this.summaryData.stockRefilledPcs || 0) + ' PCS', icon: 'inventory_2', type: 'success' },
+                    { label: 'Confirmed Returns', value: this.summaryData.confirmedReturns || 0, icon: 'check_circle', type: 'warning' }
+                ];
                 this.cdr.detectChanges();
             },
             error: (err) => console.error("Summary load failed", err)
@@ -198,7 +208,8 @@ export class SaleReturnListComponent implements OnInit {
                 this.fromDate || undefined,
                 this.toDate || undefined,
                 this.activeStatus,
-                this.isQuick
+                this.isQuick,
+                this.authService.getBranchId()
             ),
             gatePasses: this.gatePassService.getGatePassesPaged({ pageSize: 150, sortField: 'CreatedAt', sortOrder: 'desc' }).pipe(catchError(() => of({ data: [] })))
         }).subscribe({

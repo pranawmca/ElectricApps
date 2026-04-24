@@ -21,10 +21,11 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const token = authService.getAccessToken();
 
-  // 🔐 Attach token and companyId (except login and refresh endpoints)
+  // 🔐 Attach token, companyId and branchId (except login and refresh endpoints)
   if (token && !req.url.includes('/login') && !req.url.includes('/refresh')) {
     const companyId = authService.getCompanyId();
-    req = addHeaders(req, token, companyId);
+    const branchId = authService.getBranchId();
+    req = addHeaders(req, token, companyId, branchId);
   }
 
   return next(req).pipe(
@@ -39,13 +40,17 @@ export const authInterceptor: HttpInterceptorFn = (
 };
 
 // 🛠️ Helper to add Authorization and Tenant headers
-const addHeaders = (req: HttpRequest<any>, token: string, companyId: string | null) => {
+const addHeaders = (req: HttpRequest<any>, token: string, companyId: string | null, branchId: string | null) => {
   const headers: any = {
     Authorization: `Bearer ${token}`
   };
   
   if (companyId) {
     headers['X-Company-Id'] = companyId;
+  }
+
+  if (branchId) {
+    headers['X-Branch-Id'] = branchId;
   }
   
   return req.clone({
@@ -83,7 +88,7 @@ const handle401Error = (
         refreshTokenSubject.next(res.accessToken);
 
         console.log('[AuthInterceptor] Token refreshed successfully');
-        return next(addHeaders(req, res.accessToken, authService.getCompanyId()));
+        return next(addHeaders(req, res.accessToken, authService.getCompanyId(), authService.getBranchId()));
       }),
       catchError((err) => {
         isRefreshing = false;
@@ -97,7 +102,7 @@ const handle401Error = (
     return refreshTokenSubject.pipe(
       filter(token => token !== null),
       take(1),
-      switchMap((token) => next(addHeaders(req, token, authService.getCompanyId())))
+      switchMap((token) => next(addHeaders(req, token, authService.getCompanyId(), authService.getBranchId())))
     );
   }
 };

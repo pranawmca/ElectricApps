@@ -16,9 +16,10 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LoadingService } from '../../../../core/services/loading.service';
 import { PermissionService } from '../../../../core/services/permission.service';
-import { POService } from '../../service/po.service';
 import { PoPrintModalComponent } from '../../po-list/po-print-modal/po-print-modal.component';
 import { SharedPrintService } from '../../../../core/services/shared-print.service';
+import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
+import { POService } from '../../service/po.service';
 
 @Component({
   selector: 'app-quick-purchase-list',
@@ -29,6 +30,7 @@ import { SharedPrintService } from '../../../../core/services/shared-print.servi
     FormsModule,
     CommonModule,
     EnterpriseHierarchicalGridComponent,
+    SummaryStatsComponent
   ],
   providers: [CurrencyPipe, DatePipe],
   templateUrl: './quick-purchase-list.component.html',
@@ -78,6 +80,7 @@ export class QuickPurchaseListComponent implements OnInit {
   totalPurchaseAmount: number = 0;
   todayCount: number = 0;
   monthCount: number = 0;
+  summaryStats: SummaryStat[] = [];
 
   constructor(
     private inventoryService: InventoryService,
@@ -244,14 +247,15 @@ export class QuickPurchaseListComponent implements OnInit {
       filter: state.globalSearch || '',
       fromDate: state.fromDate ? this.datePipe.transform(state.fromDate, 'yyyy-MM-dd') : null,
       toDate: state.toDate ? this.datePipe.transform(state.toDate, 'yyyy-MM-dd') : null,
-      filters: (state.filters || []).filter((f: any) => f.field && f.value)
+      filters: (state.filters || []).filter((f: any) => f.field && f.value),
+      branchId: this.authService.getBranchId()
     };
 
     // Stats are now coming with the paged data
     // this.loadTotalStats(requestPayload);
 
     this.inventoryService.getQuickPagedOrders(requestPayload).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         const dataRows = res.data || [];
         const items = dataRows.map((item: any) => {
           ['poDate', 'expectedDeliveryDate', 'CreatedAt', 'createdAt', 'CreatedDate', 'createdDate', 'CreatedOn', 'createdOn', 'UpdatedDate', 'updatedDate'].forEach(key => {
@@ -285,6 +289,14 @@ export class QuickPurchaseListComponent implements OnInit {
         this.totalPurchaseAmount = res.totalAmount || 0;
         this.todayCount = res.todayCount || 0;
         this.monthCount = res.monthCount || 0;
+
+        // Generate Summary Stats for Premium UI
+        this.summaryStats = [
+          { label: 'Total Quick Purchase', value: this.currencyPipe.transform(this.totalPurchaseAmount, 'INR', 'symbol', '1.0-0') || '0', icon: 'bolt', type: 'success' },
+          { label: 'Today\'s Purchases', value: this.todayCount, icon: 'today', type: 'total' },
+          { label: 'This Month', value: this.monthCount, icon: 'calendar_month', type: 'info' },
+          { label: 'Total Records', value: this.totalRecords, icon: 'receipt_long', type: 'warning' }
+        ];
         
         this.isLoading = false;
 
@@ -295,7 +307,7 @@ export class QuickPurchaseListComponent implements OnInit {
         }
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Quick Purchase List Error:', err);
         this.isLoading = false;
         if (this.isFirstLoad) {
@@ -321,11 +333,11 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.isLoading = true;
         this.inventoryService.deletePurchaseOrder(row.id).subscribe({
-          next: (res) => {
+          next: (res: any) => {
             this.isLoading = false;
             if (res.success) {
               this.notification.showStatus(true, `PO: ${row.poNumber} deleted!`);
@@ -336,7 +348,7 @@ export class QuickPurchaseListComponent implements OnInit {
             }
             this.cdr.detectChanges();
           },
-          error: (err) => {
+          error: (err: any) => {
             this.isLoading = false;
             const errorMsg = err.error?.message || err.message || 'Error: PO not deleted.';
             this.notification.showStatus(false, errorMsg);
@@ -364,13 +376,13 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.isLoading = true;
         const parentIds = selectedRows.map(row => row.id);
 
         this.inventoryService.bulkDeletePurchaseOrders(parentIds).subscribe({
-          next: (res) => {
+          next: (res: any) => {
             this.isLoading = false;
             if (res.success) {
               this.notification.showStatus(true, `${selectedRows.length} Orders deleted.`);
@@ -381,7 +393,7 @@ export class QuickPurchaseListComponent implements OnInit {
             }
             this.cdr.detectChanges();
           },
-          error: (err) => {
+          error: (err: any) => {
             this.isLoading = false;
             const errorMsg = err.error?.message || err.message || 'Error: Bulk delete failed.';
             this.notification.showStatus(false, errorMsg);
@@ -407,11 +419,11 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.isLoading = true;
         this.inventoryService.bulkDeletePOItems(event.parent.id, itemIds).subscribe({
-          next: (res) => {
+          next: (res: any) => {
             this.isLoading = false;
             if (res.success) {
               this.notification.showStatus(true, 'Items removed successfully.');
@@ -422,7 +434,7 @@ export class QuickPurchaseListComponent implements OnInit {
             }
             this.cdr.detectChanges();
           },
-          error: (err) => {
+          error: (err: any) => {
             this.isLoading = false;
             const errorMsg = err.error?.message || err.message || 'Error removing items.';
             this.notification.showStatus(false, errorMsg);
@@ -506,7 +518,7 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.isLoading = true;
         this.cdr.detectChanges();
@@ -519,7 +531,7 @@ export class QuickPurchaseListComponent implements OnInit {
             if (this.grid) this.grid.selection.clear();
             this.loadData(this.currentGridState);
           },
-          error: (err) => {
+          error: (err: any) => {
             this.isLoading = false;
             this.notification.showStatus(false, err.error?.message || 'Bulk submission failed.');
             this.cdr.detectChanges();
@@ -548,7 +560,7 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.isLoading = true;
         this.cdr.detectChanges();
@@ -561,7 +573,7 @@ export class QuickPurchaseListComponent implements OnInit {
             if (this.grid) this.grid.selection.clear();
             this.loadData(this.currentGridState);
           },
-          error: (err) => {
+          error: (err: any) => {
             this.isLoading = false;
             this.notification.showStatus(false, err.error?.message || 'Bulk approval failed.');
             this.cdr.detectChanges();
@@ -585,7 +597,7 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.isLoading = true;
         this.cdr.detectChanges();
@@ -598,7 +610,7 @@ export class QuickPurchaseListComponent implements OnInit {
             if (this.grid) this.grid.selection.clear();
             this.loadData(this.currentGridState);
           },
-          error: (err) => {
+          error: (err: any) => {
             this.isLoading = false;
             this.notification.showStatus(false, err.error?.message || 'Bulk rejection failed.');
             this.cdr.detectChanges();
@@ -624,7 +636,7 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.isLoading = true;
         this.cdr.detectChanges();
@@ -634,7 +646,7 @@ export class QuickPurchaseListComponent implements OnInit {
             this.notification.showStatus(true, `Dispatch status updated!`);
             this.loadData(this.currentGridState);
           },
-          error: (err) => {
+          error: (err: any) => {
             this.isLoading = false;
             this.notification.showStatus(false, 'Status update failed.');
             this.cdr.detectChanges();
@@ -669,7 +681,7 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.loadingService.setLoading(true, 'Initiating Bulk GRN...');
         // CHANGED: Direct to Quick GRN form, skipping Gate Pass for Quick Inventory
@@ -693,7 +705,7 @@ export class QuickPurchaseListComponent implements OnInit {
         this.notification.showStatus(true, `PO ${row.poNumber} submitted for approval.`);
         this.loadData(this.currentGridState);
       },
-      error: (err) => this.notification.showStatus(false, err.error?.message || 'Submission failed.')
+      error: (err: any) => this.notification.showStatus(false, err.error?.message || 'Submission failed.')
     });
   }
 
@@ -708,14 +720,14 @@ export class QuickPurchaseListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(res => {
+    dialogRef.afterClosed().subscribe((res: any) => {
       if (res) {
         this.inventoryService.updatePOStatus(row.id, 'Approved').subscribe({
           next: () => {
             this.notification.showStatus(true, `PO ${row.poNumber} Approved.`);
             this.loadData(this.currentGridState);
           },
-          error: (err) => this.notification.showStatus(false, err.error?.message || 'Approval failed.')
+          error: (err: any) => this.notification.showStatus(false, err.error?.message || 'Approval failed.')
         });
       }
     });
@@ -729,7 +741,7 @@ export class QuickPurchaseListComponent implements OnInit {
       data: { poNo: row.poNumber || 'N/A' }
     });
 
-    dialogRef.afterClosed().subscribe(reason => {
+    dialogRef.afterClosed().subscribe((reason: any) => {
       if (reason) {
         this.inventoryService.updatePOStatus(row.id, 'Rejected', reason).subscribe({
           next: () => {
@@ -743,7 +755,7 @@ export class QuickPurchaseListComponent implements OnInit {
             });
             this.loadData(this.currentGridState);
           },
-          error: (err) => {
+          error: (err: any) => {
             this.notification.showStatus(false, err.error?.message || 'Rejection failed.');
           }
         });
@@ -767,12 +779,12 @@ export class QuickPurchaseListComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.poActionService.getById(row.id).subscribe({
-      next: (fullOrder) => {
+      next: (fullOrder: any) => {
         this.isLoading = false;
         this.cdr.detectChanges();
         this.sharedPrintService.printDocument('Quick Purchase Order', 'PO', fullOrder);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading = false;
         this.cdr.detectChanges();
         console.error('Print Fetch Error:', err);

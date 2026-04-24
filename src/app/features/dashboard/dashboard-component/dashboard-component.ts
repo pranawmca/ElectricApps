@@ -16,6 +16,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { CompanyProfileDto } from '../../company/model/company.model';
 import { environment } from '../../../enviornments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -40,6 +41,11 @@ export class DashboardComponent implements OnInit {
   private companyService = inject(CompanyService);
 
   companyInfo: CompanyProfileDto | null = null;
+  branches: any[] = [];
+  selectedBranchId: string | null = null;
+  isSuperAdmin = false;
+  isCompanyAdmin = false;
+  private authService = inject(AuthService);
 
 
   // Stats array with 'hasAlert' property for type safety in HTML
@@ -163,9 +169,24 @@ export class DashboardComponent implements OnInit {
   constructor(private dashboardService: DashboardService) { }
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    const role = this.authService.getUserRole();
+    const companyId = this.authService.getCompanyId();
+    this.selectedBranchId = this.authService.getBranchId();
+
+    this.isSuperAdmin = (role === 'Default Admin') || (role === 'Super Admin' && !companyId);
+    this.isCompanyAdmin = (role === 'Admin' || role === 'Manager') && !!companyId;
+
     this.loadCompanyInfo();
+    this.loadDashboardData();
     this.loadCustomerDuesSummary();
+  }
+
+  onBranchChange(branchId: string | null) {
+    this.selectedBranchId = branchId;
+    const branch = this.branches.find(b => b.id === branchId);
+    const branchName = branch ? (branch.branchName || 'Main Branch') : null;
+    this.authService.setWorkingBranch(branchId, branchName);
+    this.loadDashboardData();
   }
 
   loadCustomerDuesSummary() {
@@ -183,7 +204,10 @@ export class DashboardComponent implements OnInit {
 
   loadCompanyInfo() {
     this.companyService.getCompanyProfile().subscribe({
-      next: (profile) => this.companyInfo = profile,
+      next: (profile) => {
+        this.companyInfo = profile;
+        this.branches = profile.addresses || [];
+      },
       error: (err) => console.error('Failed to load company info for reports:', err)
     });
   }

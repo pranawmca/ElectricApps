@@ -1,0 +1,299 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  padding: 4px 20px 20px 20px;
+  box-sizing: border-box;
+  background-color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+
+  .title-section {
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: -0.5px;
+      margin: 0;
+      margin-bottom: 4px !important;
+    }
+    .subtitle {
+      color: #64748b;
+      font-size: 13px;
+      margin: 0;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .search-box {
+      width: 250px;
+      margin-bottom: -1.25em;
+      
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        background-color: white !important;
+        border-radius: 100px !important;
+        height: 40px !important;
+        padding-top: 0 !important;
+      }
+      
+      ::ng-deep .mat-mdc-form-field-flex {
+        height: 40px !important;
+        align-items: center !important;
+      }
+      
+      ::ng-deep .mat-mdc-form-field-infix {
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+      }
+
+      ::ng-deep .mat-mdc-form-field-label-wrapper {
+        top: -8px !important;
+      }
+    }
+
+    .btn-pill {
+      background: #6366f1 !important;
+      color: white !important;
+      border-radius: 100px !important;
+      font-weight: 600 !important;
+      height: 40px;
+      padding: 0 20px !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+
+      mat-icon {
+        margin-right: 8px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover:not(:disabled) {
+        background: #4f46e5 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3) !important;
+      }
+
+      &.success-btn {
+        background: #10b981 !important;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+        &:hover:not(:disabled) { background: #059669 !important; }
+      }
+    }
+  }
+}
+
+.table-container-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.grid-wrapper {
+  flex: 1;
+  overflow: auto;
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    th.mat-header-cell {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 16px;
+      border-bottom: 2px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    td.mat-cell {
+      padding: 16px;
+      font-size: 13px;
+      color: #1e293b;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .stock-row {
+      transition: background-color 0.2s;
+      &:hover { background-color: #f8fafc; }
+    }
+  }
+}
+
+.product-name {
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.sku-badge {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.warehouse-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.qty-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 13px;
+  display: inline-block;
+  min-width: 80px;
+
+  &.low-stock {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+}
+
+.min-stock-cell {
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.status-indicator {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  &.status-success {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  &.status-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+
+  p { font-size: 14px; margin: 0; }
+}
+
+.stock-paginator {
+  border-top: 1px solid #e2e8f0;
+}
+
+.disabled-content {
+  pointer-events: none;
+  opacity: 0.7;
+  filter: grayscale(0.5);
+}
+
+:host-context(.dark-mode) {
+  background-color: #1e293b !important;
+
+  .header-actions h1 { color: #f8fafc !important; }
+  .subtitle { color: rgba(255,255,255,0.6) !important; }
+
+  .table-container-wrapper {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .grid-wrapper table {
+    th.mat-header-cell {
+      background-color: #1e293b !important;
+      color: rgba(255, 255, 255, 0.5) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    td.mat-cell {
+      color: #ffffff !important;
+      border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+    }
+    .stock-row:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
+  }
+
+  .product-name { color: #818cf8 !important; }
+  .sku-badge {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .action-buttons .export-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    &:hover { background: rgba(255, 255, 255, 0.1) !important; }
+  }
+
+  .stock-paginator {
+    background-color: #1e293b !important;
+    color: white !important;
+    border-top-color: rgba(255, 255, 255, 0.05) !important;
+    ::ng-deep {
+       .mat-mdc-paginator-range-label,
+       .mat-mdc-select-value-text,
+       .mat-mdc-select-arrow svg { color: white !important; }
+    }
+  }
+}

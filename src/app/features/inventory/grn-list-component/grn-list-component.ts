@@ -17,7 +17,9 @@ import { ActivatedRoute } from '@angular/router';
 import { GrnPrintDialogComponent } from '../grn-print-dialog/grn-print-dialog.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PermissionService } from '../../../core/services/permission.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ResizableColumnDirective } from '../../../shared/directives/resizable-column.directive';
+import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
 
 export interface GRNItem {
   productName: string;
@@ -54,7 +56,7 @@ export interface GRNListRow {
 @Component({
   selector: 'app-grn-list-component',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule, ResizableColumnDirective],
+  imports: [CommonModule, MaterialModule, ReactiveFormsModule, ResizableColumnDirective, SummaryStatsComponent],
   templateUrl: './grn-list-component.html',
   styleUrl: './grn-list-component.scss',
 
@@ -95,6 +97,7 @@ export class GrnListComponent implements OnInit, AfterViewInit {
   pendingPaymentCount: number = 0;
   qualityIssueCount: number = 0;
   totalRejectedItemsQty: number = 0;
+  summaryStats: SummaryStat[] = [];
 
   constructor(
     private router: Router,
@@ -102,7 +105,8 @@ export class GrnListComponent implements OnInit, AfterViewInit {
     private inventoryService: InventoryService,
     private financeService: FinanceService,
     private dialog: MatDialog,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private authService: AuthService
   ) { }
 
   canAdd: boolean = true;
@@ -178,9 +182,10 @@ export class GrnListComponent implements OnInit, AfterViewInit {
               this.paginator.pageIndex,
               this.paginator.pageSize,
               this.searchControl.value || '',
-              this.isQuick
+              this.isQuick,
+              this.authService.getBranchId()
             ),
-            pendingDues: this.financeService.getPendingDues().pipe(catchError(() => of([])))
+            pendingDues: this.financeService.getPendingDues(this.authService.getBranchId()).pipe(catchError(() => of([])))
           }).pipe(
             catchError(() => {
               this.isLoadingResults = false;
@@ -254,6 +259,13 @@ export class GrnListComponent implements OnInit, AfterViewInit {
             this.totalRejectedItemsQty += (item.totalRejected || 0);
           });
 
+          this.summaryStats = [
+            { label: 'Total Stock Received', value: '₹' + this.totalStockAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 }), icon: 'inventory_2', type: 'success' },
+            { label: 'Pending Payments', value: this.pendingPaymentCount, icon: 'payments', type: 'warning' },
+            { label: 'Quality Issues', value: this.qualityIssueCount, icon: 'report_problem', type: 'info' },
+            { label: 'Rejected Items', value: this.totalRejectedItemsQty, icon: 'cancel', type: 'danger' }
+          ];
+
           return items.map((item: any): GRNListRow => {
             const rawGrnItems = item.items || item.Items || [];
             const grnItems = Array.isArray(rawGrnItems) ? rawGrnItems.map((gi: any) => ({
@@ -279,9 +291,10 @@ export class GrnListComponent implements OnInit, AfterViewInit {
             };
           });
         })
-      ).subscribe(data => {
+      ).subscribe((data: any) => {
         this.dataSource.data = data;
         console.log('GRN Data Loaded:', data);
+        this.cdr.detectChanges();
       });
   }
 

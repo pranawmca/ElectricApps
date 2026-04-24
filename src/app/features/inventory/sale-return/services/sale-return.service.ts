@@ -20,7 +20,8 @@ export class SaleReturnService {
         fromDate?: Date,
         toDate?: Date,
         status: string = '',
-        isQuick: boolean = false
+        isQuick: boolean = false,
+        branchId?: string | null
     ): Observable<SaleReturnPagedResponse> {
         const request: any = {
             search,
@@ -29,7 +30,8 @@ export class SaleReturnService {
             pageSize,
             sortField,
             sortOrder,
-            isQuick
+            isQuick,
+            branchId
         };
 
         if (fromDate) request.fromDate = fromDate.toISOString();
@@ -79,8 +81,10 @@ export class SaleReturnService {
         return this.api.getBlob(`SaleReturn/print/${id}`);
     }
 
-    getDashboardSummary(isQuick: boolean = false): Observable<any> {
-        return this.api.get(`SaleReturn/summary?isQuick=${isQuick}`);
+    getDashboardSummary(isQuick: boolean = false, branchId?: string | null): Observable<any> {
+        let url = `SaleReturn/summary?isQuick=${isQuick}`;
+        if (branchId) url += `&branchId=${branchId}`;
+        return this.api.get(url);
     }
 
     getPendingSaleReturns(): Observable<any[]> {

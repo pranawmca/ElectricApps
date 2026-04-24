@@ -95,7 +95,8 @@ export class SupplierModalComponent implements OnInit {
         const supplierData = {
           ...this.supplierForm.value,
           createdBy: currentEmail,
-          companyId: this.authService.getCompanyId()
+          companyId: this.authService.getCompanyId(),
+          branchId: this.authService.getBranchId()
         };
 
         if (this.isEdit) {

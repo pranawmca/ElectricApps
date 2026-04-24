@@ -80,6 +80,20 @@ import { forkJoin, of } from 'rxjs';
           <mat-icon matPrefix>admin_panel_settings</mat-icon>
         </mat-form-field>
 
+        <mat-form-field appearance="outline" *ngIf="branches.length > 0">
+          <mat-label>Assign Branch</mat-label>
+          <mat-select formControlName="BranchId">
+            <mat-option [value]="null">All Branches (Global)</mat-option>
+            <mat-option *ngFor="let branch of branches" [value]="branch.id">
+              {{branch.branchName || 'Main Branch'}}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>location_on</mat-icon>
+          <mat-hint *ngIf="isLoadingBranches">
+             <mat-spinner diameter="15"></mat-spinner> Loading branches...
+          </mat-hint>
+        </mat-form-field>
+
       </form>
     </mat-dialog-content>
     
@@ -263,11 +277,13 @@ export class UserFormComponent implements OnInit {
   userForm: FormGroup;
   roles: Role[] = [];
   companies: any[] = [];
+  branches: any[] = [];
   hidePassword = true;
   isEdit = false;
   isSuperAdmin = false;
   loggedInCompanyId: string | null = null;
   isLoadingRoles = false;
+  isLoadingBranches = false;
 
   constructor(
     private fb: FormBuilder,
@@ -295,17 +311,50 @@ export class UserFormComponent implements OnInit {
       Email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
       Password: ['', this.isEdit ? [] : [Validators.required]],
       RoleIds: [[]],
-      CompanyId: [{ value: this.loggedInCompanyId || null, disabled: !this.isSuperAdmin }] // Default to active company context
+      CompanyId: [{ value: this.loggedInCompanyId || null, disabled: !this.isSuperAdmin }], // Default to active company context
+      BranchId: [null]
     });
 
-    // 🔄 REFRESH ROLES WHEN COMPANY CHANGES
+    // 🔄 REFRESH ROLES & BRANCHES WHEN COMPANY CHANGES
     this.userForm.get('CompanyId')?.valueChanges.subscribe(cid => {
       this.loadRoles(cid);
+      this.loadBranches(cid);
     });
 
     // Initial Load
-    const initialCid = this.isSuperAdmin ? null : this.loggedInCompanyId;
+    const initialCid = this.isEdit ? (this.data.companyId || this.data.CompanyId) : (this.isSuperAdmin ? null : this.loggedInCompanyId);
     this.loadRoles(initialCid);
+    this.loadBranches(initialCid);
+  }
+
+  loadBranches(companyId: string | null) {
+    if (!companyId) {
+      this.branches = [];
+      return;
+    }
+
+    this.isLoadingBranches = true;
+    this.companyService.getById(companyId).subscribe({
+      next: (profile) => {
+        // Map addresses to branches.
+        this.branches = profile.addresses || [];
+        this.isLoadingBranches = false;
+        
+        // If editing, patch the value after load
+        if (this.isEdit && this.data) {
+           const branchId = this.data.branchId || this.data.BranchId;
+           if (branchId) {
+             // 🔄 Convert to number if it's a numeric string to match dropdown option types
+             const numericBranchId = !isNaN(Number(branchId)) ? Number(branchId) : branchId;
+             this.userForm.patchValue({ BranchId: numericBranchId }, { emitEvent: false });
+           }
+        }
+      },
+      error: () => {
+        this.isLoadingBranches = false;
+        this.branches = [];
+      }
+    });
   }
 
   loadRoles(companyId: string | null) {
@@ -399,6 +448,11 @@ export class UserFormComponent implements OnInit {
           RoleIds: selectedRoleIds,
           CompanyId: companyId
         }, { emitEvent: false });
+
+        // 🔥 CRITICAL: Manually load branches for the user's company in edit mode
+        if (companyId) {
+            this.loadBranches(companyId);
+        }
       }
     });
   }
@@ -421,7 +475,8 @@ export class UserFormComponent implements OnInit {
             UserName: formValue.UserName,
             Email: formValue.Email,
             RoleIds: formValue.RoleIds,
-            CompanyId: formValue.CompanyId
+            CompanyId: formValue.CompanyId,
+            BranchId: formValue.BranchId ? formValue.BranchId.toString() : null
           };
           if (formValue.Password) {
             dto.Password = formValue.Password;

@@ -1,0 +1,113 @@
+<div class="list-container" [class.disabled-content]="isLoadingResults">
+<div class="list-header animate-fade-in">
+    <div class="title-section">
+        <h1 class="page-title">Warehouse Stock Distribution</h1>
+        <p class="subtitle">Real-time inventory levels across all locations</p>
+    </div>
+    <div class="action-buttons">
+        <mat-form-field appearance="outline" class="search-box">
+            <mat-label>Search Stock...</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search by Product or Warehouse..." #input>
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="btn-pill" (click)="onSyncStock()">
+            <mat-icon>sync</mat-icon> Sync Stock
+        </button>
+
+        <button mat-raised-button class="btn-pill success-btn">
+            <mat-icon>download</mat-icon> Export
+        </button>
+    </div>
+</div>
+
+<!-- 📊 SUMMARY STATS -->
+<app-summary-stats [stats]="summaryStats" [isLoading]="isLoadingResults"></app-summary-stats>
+
+  <div class="table-container-wrapper">
+
+    <div class="table-responsive">
+      <table mat-table [dataSource]="dataSource" matSort class="w-100">
+
+        <!-- Product Column -->
+        <ng-container matColumnDef="productName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4"> Product </th>
+          <td mat-cell *matCellDef="let row" class="px-4">
+            <div class="product-info">
+              <span class="product-name">{{row.productName}}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- SKU Column -->
+        <ng-container matColumnDef="sku">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center"> SKU </th>
+          <td mat-cell *matCellDef="let row" class="text-center">
+            <span class="sku-badge">{{row.sku || 'N/A'}}</span>
+          </td>
+        </ng-container>
+
+        <!-- Warehouse Column -->
+        <ng-container matColumnDef="warehouseName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Warehouse </th>
+          <td mat-cell *matCellDef="let row">
+            <div class="warehouse-cell">
+              <mat-icon>location_on</mat-icon>
+              <span>{{row.warehouseName}}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Quantity Column -->
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center"> Available Qty </th>
+          <td mat-cell *matCellDef="let row" class="text-center">
+            <span class="qty-badge" [ngClass]="{'low-stock': row.isLowStock}">
+              {{row.quantity}} {{row.unit}}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Min Stock Column -->
+        <ng-container matColumnDef="minStock">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center"> Min Level </th>
+          <td mat-cell *matCellDef="let row" class="text-center min-stock-cell">
+            {{row.minStock || 0}}
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="text-center"> Status </th>
+          <td mat-cell *matCellDef="let row" class="text-center">
+            <span class="status-indicator" [ngClass]="row.isLowStock ? 'status-danger' : 'status-success'">
+              {{row.isLowStock ? 'Low Stock' : 'Optimal'}}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" sticky></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="stock-row"></tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row no-data-row" *matNoDataRow>
+          <td class="mat-cell" colspan="6">
+            <div class="empty-state">
+              <mat-icon class="empty-icon">inventory_2</mat-icon>
+              <h3>No stock data found</h3>
+              <p>Try adjusting your search filters or sync the stock.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <mat-paginator 
+        [length]="resultsLength" 
+        [pageSize]="10" 
+        [pageSizeOptions]="[5, 10, 25, 100]" 
+        showFirstLastButtons
+        class="stock-paginator">
+    </mat-paginator>
+  </div>
+</div>

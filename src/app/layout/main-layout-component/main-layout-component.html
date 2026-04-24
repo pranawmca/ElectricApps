@@ -93,6 +93,14 @@
       <div class="nav-actions">
         <span *ngIf="userEmail" class="welcome-text">{{translate('Welcome')}}, {{ userEmail }}</span>
         
+        <span class="toolbar-spacer"></span>
+        
+        <!-- Current Branch Badge -->
+        <div class="branch-badge" *ngIf="currentBranchName">
+           <mat-icon>location_on</mat-icon>
+           <span>{{currentBranchName}}</span>
+        </div>
+        
         <!-- Live Stock Drawer Toggle -->
         <button mat-icon-button (click)="toggleStockDrawer()" matTooltip="Live Inventory" class="nav-icon stock-trigger">
           <mat-icon [class.pulse]="true">inventory_2</mat-icon>

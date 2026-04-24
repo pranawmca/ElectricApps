@@ -828,6 +828,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
           status: 'Draft',
           createdBy: userId,
           companyId: this.authService.getCompanyId(),
+          branchId: this.authService.getBranchId(),
           items: formValue.items.map((item: any) => ({
             productId: item.productId,
             qty: Number(item.qty),
@@ -841,7 +842,8 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
             expDate: item.expDate ? DateHelper.toLocalISOString(item.expDate) : null,
             manufacturingDate: item.mfgDate ? DateHelper.toLocalISOString(item.mfgDate) : null,
             expiryDate: item.expDate ? DateHelper.toLocalISOString(item.expDate) : null,
-            companyId: this.authService.getCompanyId()
+            companyId: this.authService.getCompanyId(),
+            branchId: this.authService.getBranchId()
           }))
         };
 

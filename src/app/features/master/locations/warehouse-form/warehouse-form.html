@@ -20,6 +20,18 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
+            <mat-label>Select Branch</mat-label>
+            <mat-select formControlName="branchId">
+              <mat-option *ngFor="let branch of branches" [value]="branch.id">
+                {{ branch.branchName || branch.addressLine1 || 'Main Branch' }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="warehouseForm.get('branchId')?.hasError('required')">
+              Branch selection is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
             <mat-label>City</mat-label>
             <input matInput formControlName="city" placeholder="Enter city (e.g. Delhi, Mumbai)">
           </mat-form-field>

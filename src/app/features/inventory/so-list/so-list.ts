@@ -25,13 +25,14 @@ import { PermissionService } from '../../../core/services/permission.service';
 import { PermissionDirective } from '../../../core/directives/permission.directive';
 import { EnterpriseHierarchicalGridComponent } from '../../../shared/components/enterprise-hierarchical-grid-component/enterprise-hierarchical-grid-component';
 import { SharedPrintService } from '../../../core/services/shared-print.service';
+import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
 
 
 @Component({
   selector: 'app-so-list',
   standalone: true,
   imports: [MaterialModule, CommonModule, 
-    EnterpriseHierarchicalGridComponent, PermissionDirective],
+    EnterpriseHierarchicalGridComponent, PermissionDirective, SummaryStatsComponent],
 
   templateUrl: './so-list.html',
   styleUrl: './so-list.scss',
@@ -71,9 +72,10 @@ export class SoList implements OnInit {
   paymentFilter: string = "";
 
   // Stats
-  totalSalesAmount: number = 0;
-  pendingDispatchCount: number = 0;
-  unpaidOrdersCount: number = 0;
+  public totalSalesAmount: number = 0;
+  public pendingDispatchCount: number = 0;
+  public unpaidOrdersCount: number = 0;
+  public summaryStats: SummaryStat[] = [];
 
   constructor(
     private inventoryService: InventoryService,
@@ -396,8 +398,8 @@ export class SoList implements OnInit {
     const filter = this.currentGridState.globalSearch || this.searchKey;
 
     forkJoin({
-      orders: this.saleOrderService.getSaleOrders(pageIndex, pageSize, sortField, sortDir, this.searchKey),
-      pendingDues: this.financeService.getPendingCustomerDues().pipe(catchError(() => of([]))),
+      orders: this.saleOrderService.getSaleOrders(pageIndex, pageSize, sortField, sortDir, this.searchKey, undefined, undefined, this.authService.getBranchId()),
+      pendingDues: this.financeService.getPendingCustomerDues(this.authService.getBranchId()).pipe(catchError(() => of([]))),
       gatePasses: this.gatePassService.getGatePassesPaged({ pageSize: 100, sortField: 'CreatedAt', sortOrder: 'desc' }).pipe(catchError(() => of({ data: [] })))
     }).subscribe({
       next: (res: any) => {
@@ -408,33 +410,44 @@ export class SoList implements OnInit {
         this.totalRecords = orderData.totalCount;
         const items = orderData.data || [];
 
-        items.forEach((item: any) => {
+        // 🎯 Global Stats from Backend (Ensures consistency across pages)
+        this.totalSalesAmount = orderData.totalSalesAmount || 0;
+        this.pendingDispatchCount = orderData.pendingDispatchCount || 0;
+
+        // We still calculate Unpaid locally for now because it depends on FIFO + Ledger
+        this.unpaidOrdersCount = 0;
+
+        let processedItems = items.map((item: any) => {
           // QuickOrders (SO-Q) ka gatepass se koi matlab nahi, wo hamesha dispatched maane jayenge
           const isQuick = item.soNumber?.includes('-Q-');
           item.isDispatchPending = !isQuick && !item.gatePassNo;
+
+          if (item.soDate && typeof item.soDate === 'string' && !item.soDate.includes('Z') && !item.soDate.includes('+')) {
+            item.soDate += 'Z';
+          }
+
+          return item;
         });
 
         // 🧠 FIFO LOGIC for Customer Payment Status (Mirroring GRN logic)
-        const customerIds = [...new Set(items.map((i: any) => i.customerId))];
+        const customerIds = [...new Set(processedItems.map((i: any) => i.customerId))];
 
         customerIds.forEach(cid => {
           if (!cid) return;
           const customerDue = pendingDues.find((d: any) => d.customerId === cid);
           let runningDue = customerDue ? customerDue.pendingAmount : 0;
 
-          // Newest orders first for FIFO tracking
-          const custItems = items.filter((i: any) => i.customerId === cid && i.status?.toLowerCase() !== 'draft')
+          const custItems = processedItems.filter((i: any) => i.customerId === cid && i.status?.toLowerCase() !== 'draft')
             .sort((a: any, b: any) => new Date(b.soDate).getTime() - new Date(a.soDate).getTime());
 
-          // Initialize Draft orders payment status
-          items.filter((i: any) => i.customerId === cid && i.status?.toLowerCase() === 'draft').forEach((item: any) => {
+          processedItems.filter((i: any) => i.customerId === cid && i.status?.toLowerCase() === 'draft').forEach((item: any) => {
             item.paymentStatus = 'Unpaid';
             item.pendingAmount = item.grandTotal;
+            this.unpaidOrdersCount++;
           });
 
           custItems.forEach((item: any) => {
             if (runningDue < -0.01) {
-              // Case: Customer has ADVANCE (Negative balance)
               const credit = Math.abs(runningDue);
               if (credit >= item.grandTotal - 0.01) {
                 item.paymentStatus = 'Paid';
@@ -444,45 +457,35 @@ export class SoList implements OnInit {
                 item.paymentStatus = 'Partial';
                 item.pendingAmount = item.grandTotal - credit;
                 runningDue = 0;
+                this.unpaidOrdersCount++;
               }
             } else if (runningDue > 0.01) {
-              // Case: Customer has DEBT (Positive balance)
               if (runningDue >= item.grandTotal - 0.01) {
                 item.paymentStatus = 'Unpaid';
                 item.pendingAmount = item.grandTotal;
                 runningDue -= item.grandTotal;
+                this.unpaidOrdersCount++;
               } else {
                 item.paymentStatus = 'Partial';
                 item.pendingAmount = runningDue;
                 runningDue = 0;
+                this.unpaidOrdersCount++;
               }
             } else {
-              // Case: Balance is 0
               item.paymentStatus = 'Paid';
               item.pendingAmount = 0;
             }
           });
         });
 
-        // 🎯 Global Stats from Backend (Ensures consistency across pages)
-        this.totalSalesAmount = orderData.totalSalesAmount || 0;
-        this.pendingDispatchCount = orderData.pendingDispatchCount || 0;
-
-        // We still calculate Unpaid locally for now because it depends on FIFO + Ledger
-        this.unpaidOrdersCount = 0;
-
-        let processedItems = items.map((item: any) => {
-          if (item.soDate && typeof item.soDate === 'string' && !item.soDate.includes('Z') && !item.soDate.includes('+')) {
-            item.soDate += 'Z';
-          }
-
-          // Local aggregation for Unpaid (Note: this is still page-based but unavoidable without backend FIFO)
-          if (item.paymentStatus === 'Unpaid' || item.paymentStatus === 'Partial') {
-            this.unpaidOrdersCount++;
-          }
-
-          return item;
-        });
+        // Generate Summary Stats for Premium UI
+        this.summaryStats = [
+          { label: 'Total Sales', value: this.currencyPipe.transform(this.totalSalesAmount, 'INR', 'symbol', '1.0-0') || '0', icon: 'payments', type: 'success' },
+          { label: 'Pending Dispatch', value: this.pendingDispatchCount, icon: 'local_shipping', type: 'warning' },
+          { label: 'Unpaid/Partial', value: this.unpaidOrdersCount, icon: 'pending_actions', type: 'danger' },
+          { label: 'Total Orders', value: this.totalRecords, icon: 'receipt_long', type: 'total' },
+          { label: 'Today\'s Orders', value: orderData.todayCount || 0, icon: 'today', type: 'info' }
+        ];
 
         // 🎯 Apply UI Filter if set
         if (this.paymentFilter) {

@@ -18,8 +18,9 @@ export class InventoryService {
         this.inventoryUpdateSource.next();
     }
 
-    getNextPoNumber(): Observable<{ poNumber: string }> {
-        return this.api.get<{ poNumber: string }>('purchaseorders/next-number');
+    getNextPoNumber(branchId?: string | null): Observable<{ poNumber: string }> {
+        const url = branchId ? `purchaseorders/next-number?branchId=${branchId}` : 'purchaseorders/next-number';
+        return this.api.get<{ poNumber: string }>(url);
     }
 
     savePoDraft(payload: PurchaseOrderPayload): Observable<any> {
@@ -43,15 +44,15 @@ export class InventoryService {
         return this.api.get(url);
     }
 
-    getPagedOrders(request: any): Observable<any> {
-        return this.api.post<any>('PurchaseOrders/get-paged-orders', request);
+    getPagedOrders(request: any, branchId?: string | null): Observable<any> {
+        return this.api.post<any>('PurchaseOrders/get-paged-orders', { ...request, branchId: branchId });
     }
 
-    getQuickPagedOrders(request: any): Observable<any> {
-        return this.api.post<any>('PurchaseOrders/get-paged-orders', { ...request, isQuick: true });
+    getQuickPagedOrders(request: any, branchId?: string | null): Observable<any> {
+        return this.api.post<any>('PurchaseOrders/get-paged-orders', { ...request, isQuick: true, branchId: branchId });
     }
 
-    getQuickPagedPurchases(page: number, size: number, sort: string, order: string, search: string, startDate?: Date, endDate?: Date): Observable<any> {
+    getQuickPagedPurchases(page: number, size: number, sort: string, order: string, search: string, startDate?: Date, endDate?: Date, branchId?: string | null): Observable<any> {
         const request = {
             pageIndex: page - 1, // 0-based index
             pageSize: size,
@@ -60,19 +61,21 @@ export class InventoryService {
             filter: search,
             fromDate: startDate?.toISOString(),
             toDate: endDate?.toISOString(),
-            isQuick: true
+            isQuick: true,
+            branchId: branchId
         };
         return this.api.post<any>('PurchaseOrders/get-paged-orders', request);
     }
 
-    getQuickPagedSales(page: number, size: number, sort: string, order: string, search: string, startDate?: Date, endDate?: Date): Observable<any> {
+    getQuickPagedSales(page: number, size: number, sort: string, order: string, search: string, startDate?: Date, endDate?: Date, branchId?: string | null): Observable<any> {
         const request: any = {
             pageNumber: page,
             pageSize: size,
             sortBy: sort === 'Date' ? 'SoDate' : sort,
             sortOrder: order,
             searchTerm: search,
-            isQuick: true
+            isQuick: true,
+            branchId: branchId
         };
         if (startDate) request.startDate = startDate.toISOString();
         if (endDate) request.endDate = endDate.toISOString();
@@ -176,7 +179,8 @@ export class InventoryService {
         pageIndex: number = 0,
         pageSize: number = 10,
         search: string = '',
-        isQuick: boolean = false
+        isQuick: boolean = false,
+        branchId: string | null = null
     ): Observable<any> {
         const request = {
             sortField,
@@ -184,7 +188,8 @@ export class InventoryService {
             pageIndex,
             pageSize,
             search,
-            isQuick
+            isQuick,
+            branchId
         };
         return this.api.get(`grn/grn-list?${this.api.toQueryString(request)}`);
     }
@@ -281,5 +286,26 @@ export class InventoryService {
             expDate
         };
         return this.api.get<any[]>(`stock/batch-history?${this.api.toQueryString(request)}`);
+    }
+
+    getWarehouseStock(
+        search: string = '',
+        sortField: string = '',
+        sortOrder: string = '',
+        pageIndex: number = 0,
+        pageSize: number = 10
+    ): Observable<any> {
+        const request = {
+            search,
+            sortField,
+            sortOrder,
+            pageIndex,
+            pageSize
+        };
+        return this.api.get(`stock/warehouse-stock?${this.api.toQueryString(request)}`);
+    }
+
+    syncStock(): Observable<any> {
+        return this.api.post('stock/sync', {});
     }
 }

@@ -5,6 +5,7 @@ import { environment } from '../../enviornments/environment';
 import { LoginDto } from '../models/user.model';
 import { Router } from '@angular/router';
 import { ApiService } from '../../shared/api.service';
+import { MatDialog } from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private api = inject(ApiService);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   private readonly baseUrl = environment.api.auth;
 
@@ -106,6 +108,8 @@ export class AuthService {
 
     // Store Company Metadata
     const companyId = res.companyId || res.CompanyId;
+    const branchId = res.branchId || res.BranchId;
+    const branchName = res.branchName || res.BranchName;
     const companyName = res.companyName || res.CompanyName;
     const companyTagline = res.companyTagline || res.CompanyTagline;
     
@@ -113,6 +117,16 @@ export class AuthService {
       localStorage.setItem('companyId', companyId);
     } else {
       localStorage.removeItem('companyId');
+    }
+
+    if (branchId) {
+      localStorage.setItem('branchId', branchId);
+      if (branchName) {
+        localStorage.setItem('branchName', branchName);
+      }
+    } else {
+      localStorage.removeItem('branchId');
+      localStorage.removeItem('branchName');
     }
 
     if (companyName) {
@@ -134,6 +148,28 @@ export class AuthService {
     }
   }
 
+  getBranchId(): string | null {
+    const bid = localStorage.getItem('branchId');
+    if (!bid || bid === 'null' || bid === 'undefined') return null;
+    return bid;
+  }
+
+  getBranchName(): string | null {
+    return localStorage.getItem('branchName');
+  }
+
+  setWorkingBranch(branchId: string | null, branchName: string | null = null): void {
+    if (branchId) {
+      localStorage.setItem('branchId', branchId);
+      if (branchName) {
+        localStorage.setItem('branchName', branchName);
+      }
+    } else {
+      localStorage.removeItem('branchId');
+      localStorage.removeItem('branchName');
+    }
+  }
+
   isSubscriptionExpired(): boolean {
     return localStorage.getItem('isSubscriptionExpired') === 'true';
   }
@@ -151,6 +187,10 @@ export class AuthService {
   // 🚪 LOGOUT
   logout(): void {
     console.warn('[AuthService] Logout triggered');
+    
+    // 🚪 Close all open dialogs/popups
+    this.dialog.closeAll();
+    
     localStorage.clear();
     this.router.navigate(['/login']);
   }

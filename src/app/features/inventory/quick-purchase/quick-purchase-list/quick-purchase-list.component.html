@@ -1,57 +1,17 @@
-<div class="header-actions">
-  <h3 class="page-title">Quick Purchase Dashboard</h3>
-  <!-- <div class="d-flex gap-2">
-    <button mat-stroked-button color="primary" (click)="router.navigate(['/app/inventory/polist'])">
-      <mat-icon>arrow_back</mat-icon> Standard PO List
+<div class="list-header animate-fade-in">
+  <div class="title-section">
+    <h1 class="page-title">Quick Purchase Dashboard</h1>
+    <p class="subtitle">Direct material acquisition and real-time ledger updates</p>
+  </div>
+  <div class="action-buttons">
+    <button mat-raised-button class="btn-pill" (click)="router.navigate(['/app/quick-inventory/grn-list'])">
+       <mat-icon>receipt_long</mat-icon> Quick GRN List
     </button>
-  </div> -->
+  </div>
 </div>
 
-<div class="stats-grid" *ngIf="!isDashboardLoading">
-  <!-- Total Purchase Amount -->
-  <mat-card class="stat-card green-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>bolt</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">Total Quick Purchase</span>
-              <span class="value">₹{{totalPurchaseAmount | number:'1.2-2'}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-
-  <!-- Today's Count -->
-  <mat-card class="stat-card blue-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>today</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">Today's Purchases</span>
-              <span class="value">{{todayCount}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-
-  <!-- This Month -->
-  <mat-card class="stat-card purple-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>calendar_month</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">This Month</span>
-              <span class="value">{{monthCount}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-
-  <!-- Total Records -->
-  <mat-card class="stat-card orange-gradient">
-      <mat-card-content>
-          <div class="stat-icon"><mat-icon>receipt_long</mat-icon></div>
-          <div class="stat-info">
-              <span class="label">Total Records</span>
-              <span class="value">{{totalRecords}}</span>
-          </div>
-      </mat-card-content>
-  </mat-card>
-</div>
+<!-- 📊 SUMMARY STATS -->
+<app-summary-stats [stats]="summaryStats" [isLoading]="isDashboardLoading"></app-summary-stats>
 
 <div class="list-container" [class.disabled-content]="isDashboardLoading">
   <div class="page-container">

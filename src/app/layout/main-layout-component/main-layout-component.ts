@@ -72,6 +72,10 @@ export class MainLayoutComponent implements OnInit {
   isSidenavOpened = true; // Track sidebar state
   isGlassMode = false;
   isCompactTable = false;
+  
+  get currentBranchName(): string | null {
+    return this.authService.getBranchName();
+  }
 
 
   translate(key: string): string {

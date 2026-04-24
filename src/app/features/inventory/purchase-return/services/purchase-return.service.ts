@@ -37,7 +37,8 @@ export class PurchaseReturnService {
         sortField: string = 'ReturnDate',
         sortOrder: string = 'desc',
         status: string = '',
-        isQuick: boolean = false
+        isQuick: boolean = false,
+        branchId?: string | null
     ): Observable<any> {
         const request: any = {
             filter: search,
@@ -46,7 +47,8 @@ export class PurchaseReturnService {
             sortField,
             sortOrder,
             status,
-            isQuick
+            isQuick,
+            branchId
         };
 
         if (fromDate) request.fromDate = fromDate;
@@ -75,7 +77,9 @@ export class PurchaseReturnService {
         return this.api.post('PurchaseReturn/bulk-outward', ids);
     }
 
-    getSummary(isQuick: boolean = false): Observable<any> {
-        return this.api.get(`PurchaseReturn/summary?isQuick=${isQuick}`);
+    getSummary(isQuick: boolean = false, branchId?: string | null): Observable<any> {
+        let url = `PurchaseReturn/summary?isQuick=${isQuick}`;
+        if (branchId) url += `&branchId=${branchId}`;
+        return this.api.get(url);
     }
 }

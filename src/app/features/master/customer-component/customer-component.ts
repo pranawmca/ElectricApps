@@ -105,7 +105,8 @@ export class CustomerComponent implements OnInit {
       customerStatus: this.customerForm.value.customerStatus,
       status: this.customerForm.value.customerStatus, // Map both for safety
       createdBy: currentUserId,
-      companyId: this.authService.getCompanyId()
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId()
     };
 
     const request = this.isEdit

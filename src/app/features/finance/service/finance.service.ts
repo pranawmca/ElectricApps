@@ -23,8 +23,9 @@ export class FinanceService {
         return this.http.post(`${this.supplierApi}/payment-entry`, payment);
     }
 
-    getPendingDues(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.supplierApi}/pending-dues`).pipe(
+    getPendingDues(branchId?: string | null): Observable<any[]> {
+        const url = branchId ? `${this.supplierApi}/pending-dues?branchId=${branchId}` : `${this.supplierApi}/pending-dues`;
+        return this.http.get<any[]>(url).pipe(
             map(dues => {
                 if (!Array.isArray(dues)) return [];
                 return dues.map(d => ({
@@ -90,8 +91,9 @@ export class FinanceService {
         return this.http.get(`${this.supplierApi}/pending-total`);
     }
 
-    getPendingCustomerDues(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.customerApi}/pending-dues`).pipe(
+    getPendingCustomerDues(branchId?: string | null): Observable<any[]> {
+        const url = branchId ? `${this.customerApi}/pending-dues?branchId=${branchId}` : `${this.customerApi}/pending-dues`;
+        return this.http.get<any[]>(url).pipe(
             map(dues => {
                 if (!Array.isArray(dues)) return [];
                 return dues.map(d => ({

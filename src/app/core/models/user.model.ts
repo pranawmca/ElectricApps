@@ -12,6 +12,7 @@ export interface User {
     roles: string[];
     createdAt: string;
     companyName?: string;
+    branchId?: string;
 }
 
 export interface RegisterUserDto {
@@ -20,4 +21,5 @@ export interface RegisterUserDto {
     Password: string;
     RoleIds: string[];
     CompanyId?: string;
+    BranchId?: string;
 }

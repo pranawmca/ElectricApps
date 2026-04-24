@@ -1,5 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class IdleService {
 
   constructor(
     private router: Router,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private authService: AuthService
   ) {
     window.addEventListener('focus', () => this.checkInactivity());
     window.addEventListener('pageshow', () => this.checkInactivity()); // Reliable on wake-up
@@ -57,10 +59,8 @@ export class IdleService {
 
   private logout(): void {
     console.warn('User idle → auto logout');
-    // Save current URL for redirect after login if needed
-    const currentUrl = this.router.url;
-    localStorage.clear();
-    this.router.navigate(['/login']);
+    // The centralized auth service will handle clearing storage, closing dialogs, and navigation
+    this.authService.logout();
   }
 
   private resetTimer = (): void => {

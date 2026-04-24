@@ -857,6 +857,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                     grandTotal: this.finalGrandTotal,
                     createdBy: this.authService.getUserEmail(),
                     companyId: this.authService.getCompanyId(),
+                    branchId: this.authService.getBranchId(),
                     isQuick: true,
                     items: this.items.getRawValue().map((i: any) => ({
                         id: i.id || '00000000-0000-0000-0000-000000000000',
@@ -874,7 +875,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                         warehouseId: i.warehouseId || null,
                         rackId: i.rackId || null,
                         manufacturingDate: i.manufacturingDate || null,
-                        expiryDate: i.expiryDate || null
+                        expiryDate: i.expiryDate || null,
+                        branchId: this.authService.getBranchId()
                     }))
                 };
 
@@ -1020,7 +1022,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             paymentDate: new Date().toISOString(),
             remarks: `Direct Receipt for Quick Sale: ${data.soNumber}`,
             createdBy: (this.authService as any).getUserName?.() || localStorage.getItem('email') || 'Admin',
-            companyId: this.authService.getCompanyId()
+            companyId: this.authService.getCompanyId(),
+            branchId: this.authService.getBranchId()
         };
 
         // Delay to ensure SO transaction is fully committed

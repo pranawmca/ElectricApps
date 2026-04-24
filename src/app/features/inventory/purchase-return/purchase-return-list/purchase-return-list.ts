@@ -21,6 +21,7 @@ import { catchError } from 'rxjs/operators';
 import { PermissionService } from '../../../../core/services/permission.service';
 import { ResizableColumnDirective } from '../../../../shared/directives/resizable-column.directive';
 import { SharedPrintService } from '../../../../core/services/shared-print.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-purchase-return-list',
@@ -43,6 +44,7 @@ export class PurchaseReturnList implements OnInit {
   private permissionService = inject(PermissionService);
   private route = inject(ActivatedRoute);
   private sharedPrintService = inject(SharedPrintService);
+  private authService = inject(AuthService);
 
   canAdd: boolean = true;
   isQuick: boolean = false;
@@ -180,9 +182,10 @@ export class PurchaseReturnList implements OnInit {
         sortField,
         sortOrder,
         this.activeStatus,
-        this.isQuick
+        this.isQuick,
+        this.authService.getBranchId()
       ),
-      summary: this.prService.getSummary(this.isQuick),
+      summary: this.prService.getSummary(this.isQuick, this.authService.getBranchId()),
       gatePasses: this.gatePassService.getGatePassesPaged({ pageSize: 150, sortField: 'CreatedAt', sortOrder: 'desc' }).pipe(catchError(() => of({ data: [] })))
     }).subscribe({
       next: (res: any) => {
