@@ -446,9 +446,9 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                       }
                   });
 
-                  // Filter for selectable batches (positive stock or valid future info)
-                  const selectableBatches = allBatches.filter((b: any) => b.availableStock > 0 || b.isExpired || b.manufacturingDate);
-                  const validBatches = allBatches.filter((b: any) => !b.isExpired && b.availableStock > 0);
+                  // Filter for selectable batches (ONLY show batches with positive stock for Sale)
+                  const selectableBatches = allBatches.filter((b: any) => b.availableStock > 0);
+                  const validBatches = selectableBatches.filter((b: any) => !b.isExpired);
 
                   if (bypassBatchDialog && validBatches.length > 0) {
                       // Auto-select first valid batch for scanning

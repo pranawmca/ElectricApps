@@ -94,43 +94,40 @@
           </div>
           
           <div class="batch-list" *ngIf="item.history && item.history.length > 0">
-            <div class="batch-row" *ngFor="let batch of item.history">
-              <div class="batch-info-top">
-                <span class="batch-loc">
-                  <mat-icon>location_on</mat-icon>
-                  {{batch.warehouseName}} - {{batch.rackName}}
-                </span>
-                <span class="batch-qty" [class.expired-qty-text]="(batch.availableQty || 0) === 0 && (batch.expiredQty || 0) > 0">
-                  {{ (batch.availableQty || 0) > 0 ? (batch.availableQty + ' ' + (item.unit || '')) : 
-                     ((batch.expiredQty || 0) > 0 ? (batch.expiredQty + ' ' + (item.unit || '') + ' (Removed)') : ('0 ' + (item.unit || ''))) }}
-                </span>
-              </div>
-              <div class="batch-info-bottom">
-                <span class="batch-date" *ngIf="item.isExpiryRequired">
-                  <span [class.expired-text]="isExpired(batch.expiryDate)">
-                    Exp: {{batch.expiryDate | date:'dd MMM yyyy'}}
+            <ng-container *ngFor="let batch of item.history">
+              <div class="batch-row" *ngIf="(batch.receivedQty || 0) > 0">
+                <div class="batch-info-top">
+                  <span class="batch-loc">
+                    <mat-icon>location_on</mat-icon>
+                    {{batch.warehouseName}} - {{batch.rackName}}
                   </span>
-                </span>
-                <span class="batch-po">PO: #{{batch.poNumber}}</span>
-                <span *ngIf="!batch.isAlreadyPurged && (batch.receivedQty || 0) === 0" 
-                      style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                  {{ batch.transactionType?.includes('Sale') ? '(SALE OUTFLOW)' : 
-                     (batch.transactionType?.includes('Adjustment') ? '(ADJUSTMENT)' : '(EMPTY/VOIDED)') }}
-                </span>
-                <span *ngIf="batch.isAlreadyPurged && isPurchaseContext" 
-                      style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                  (N/A)
-                </span>
-                <span *ngIf="batch.isAlreadyPurged && !isPurchaseContext" 
-                      style="color: #722ed1; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                  (PURGED: {{batch.expiredQty || 0}})
-                </span>
-                <span *ngIf="!batch.isAlreadyPurged && (batch.receivedQty || 0) > 0 && (batch.availableQty || 0) === 0" 
-                      style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                  ({{ isExpired(batch.expiryDate) ? ('EXPIRED: ' + (batch.expiredQty || 0)) : 'SOLD OUT' }})
-                </span>
+                  <span class="batch-qty" [class.expired-qty-text]="(batch.availableQty || 0) === 0 && (batch.expiredQty || 0) > 0">
+                    {{ (batch.availableQty || 0) > 0 ? (batch.availableQty + ' ' + (item.unit || '')) : 
+                       ((batch.expiredQty || 0) > 0 ? (batch.expiredQty + ' ' + (item.unit || '') + ' (Removed)') : ('0 ' + (item.unit || ''))) }}
+                  </span>
+                </div>
+                <div class="batch-info-bottom">
+                  <span class="batch-date" *ngIf="item.isExpiryRequired">
+                    <span [class.expired-text]="isExpired(batch.expiryDate)">
+                      Exp: {{batch.expiryDate | date:'dd MMM yyyy'}}
+                    </span>
+                  </span>
+                  <span class="batch-po">PO: #{{batch.poNumber}}</span>
+                  <span *ngIf="batch.isAlreadyPurged && isPurchaseContext" 
+                        style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
+                    (N/A)
+                  </span>
+                  <span *ngIf="batch.isAlreadyPurged && !isPurchaseContext" 
+                        style="color: #722ed1; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
+                    (PURGED: {{batch.expiredQty || 0}})
+                  </span>
+                  <span *ngIf="!batch.isAlreadyPurged && (batch.receivedQty || 0) > 0 && (batch.availableQty || 0) === 0" 
+                        style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
+                    ({{ isExpired(batch.expiryDate) ? ('EXPIRED: ' + (batch.expiredQty || 0)) : 'SOLD OUT' }})
+                  </span>
+                </div>
               </div>
-            </div>
+            </ng-container>
           </div>
           
           <div class="no-batches" *ngIf="!item.history || item.history.length === 0">

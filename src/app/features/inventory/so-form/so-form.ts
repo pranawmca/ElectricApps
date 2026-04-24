@@ -457,8 +457,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
             }
         });
 
-        // Show batches that have stock OR are expired OR are valid but 0 stock (so they are visible)
-        const selectableBatches = allBatches.filter((b: any) => b.availableStock > 0 || b.isExpired || b.manufacturingDate); 
+        // Show batches that have stock (ONLY show batches with positive stock for Sale)
+        const selectableBatches = allBatches.filter((b: any) => b.availableStock > 0); 
         
         // 🎯 CRITICAL FIX: Re-sort combined batches from ALL racks by FEFO (First Expiry First Out)
         selectableBatches.sort((a, b) => {
@@ -473,7 +473,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           return mfgA - mfgB;
         });
 
-        const validBatches = selectableBatches.filter((b: any) => !b.isExpired && b.availableStock > 0);
+        const validBatches = selectableBatches.filter((b: any) => !b.isExpired);
 
         if (validBatches.length === 1 && selectableBatches.filter((b: any) => b.availableStock > 0).length === 1) {
           this.applyBatchToForm(validBatches[0], currentItem);

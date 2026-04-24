@@ -43,8 +43,20 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto !important;
   min-height: 0;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    &:hover { background: #94a3b8; }
+  }
 
   .loading-state {
     display: flex;
@@ -167,26 +179,10 @@
   }
 
   .table-scroll-area {
-    flex: 1 1 auto;
-    overflow-y: auto !important;
+    flex: 1 0 auto;
+    overflow-y: visible !important;
     margin: 10px 0;
-    min-height: 200px;
-    max-height: 450px; /* Constrain height for mouse scroll */
     padding-right: 4px;
-    
-    /* Premium Custom Scrollbar */
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-    &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 10px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 10px;
-      &:hover { background: #94a3b8; }
-    }
   }
 
   table {

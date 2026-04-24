@@ -44,12 +44,14 @@ export class RoleService {
     }
 
     // Print Settings
-    getRolePrintSettings(roleId: string | number): Observable<any[]> {
-        return this.api.get<any[]>(`roles/${roleId}/print-settings`, this.baseUrl);
+    getRolePrintSettings(roleId: string | number, companyId?: string | null): Observable<any[]> {
+        const query = companyId ? `?companyId=${companyId}` : '';
+        return this.api.get<any[]>(`roles/${roleId}/print-settings${query}`, this.baseUrl);
     }
 
-    updateRolePrintSettings(roleId: string | number, settings: any[]): Observable<void> {
-        return this.api.put<void>(`roles/${roleId}/print-settings`, settings, this.baseUrl);
+    updateRolePrintSettings(roleId: string | number, settings: any[], companyId?: string | null): Observable<void> {
+        const query = companyId ? `?companyId=${companyId}` : '';
+        return this.api.put<void>(`roles/${roleId}/print-settings${query}`, settings, this.baseUrl);
     }
 }
 

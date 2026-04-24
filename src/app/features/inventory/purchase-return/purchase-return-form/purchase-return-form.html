@@ -21,10 +21,10 @@
       </div>
     </div>
 
-    <!-- 72h Policy Alert Banner -->
-    <div class="policy-alert-banner" *ngIf="isPolicyViolated">
+    <!-- 72h Policy Alert Banner (Persistent Reminder) -->
+    <div class="policy-alert-banner" *ngIf="returnForm.get('supplierId')?.value">
       <div class="alert-content">
-        <mat-icon>warning_amber</mat-icon>
+        <mat-icon>assignment_late</mat-icon>
         <div class="text-group">
           <strong>{{ returnWindowLabel }} Return Policy Window</strong>
           <span>{{ returnPolicyDisclaimer }}</span>

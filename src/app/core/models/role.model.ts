@@ -19,6 +19,7 @@ export interface RolePermission {
 export interface RolePrintSetting {
     id?: any;
     roleId: any;
+    companyId?: string | null;
     pageName: string;
     printFormat: string; // 'A4' | 'THERMAL'
 }

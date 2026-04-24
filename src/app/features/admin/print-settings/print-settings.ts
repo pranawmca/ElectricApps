@@ -88,7 +88,10 @@ export class PrintSettings implements OnInit {
       this.loading = true;
       this.loadingService.setLoading(true);
 
-      this.roleService.getRolePrintSettings(this.selectedRoleId).subscribe({
+      const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
+      const companyId = selectedRole?.companyId || null;
+
+      this.roleService.getRolePrintSettings(this.selectedRoleId, companyId).subscribe({
         next: (settings) => {
           this.settings = settings;
 
@@ -98,6 +101,7 @@ export class PrintSettings implements OnInit {
             if (!existing) {
               this.settings.push({
                 roleId: this.selectedRoleId!,
+                companyId: companyId,
                 pageName: page,
                 printFormat: 'A4'
               });
@@ -158,7 +162,11 @@ export class PrintSettings implements OnInit {
         if (confirm) {
           this.loading = true;
           this.loadingService.setLoading(true);
-          this.roleService.updateRolePrintSettings(this.selectedRoleId!, this.settings).subscribe({
+
+          const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
+          const companyId = selectedRole?.companyId || null;
+
+          this.roleService.updateRolePrintSettings(this.selectedRoleId!, this.settings, companyId).subscribe({
             next: () => {
               this.loading = false;
               this.loadingService.setLoading(false);
