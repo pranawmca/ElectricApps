@@ -64,7 +64,9 @@ export class PrintSettings implements OnInit {
 
     this.roleService.getAllRoles().subscribe({
       next: (roles) => {
-        this.roles = roles;
+        // 🛡️ SECURITY: Hide system-level 'Default Admin' from tenant view
+        this.roles = (roles || []).filter(r => r.roleName !== 'Default Admin');
+
         if (this.roles.length > 0) {
           this.selectedRoleId = this.roles[0].id;
           this.onRoleChange();
