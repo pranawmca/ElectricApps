@@ -57,6 +57,16 @@
   <app-summary-stats [stats]="summaryStats" [isLoading]="isDashboardLoading"></app-summary-stats>
 
   <div class="list-container">
+    <div class="search-container mb-3 d-flex justify-content-end">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input type="text" #productSearchInput (input)="onProductSearch(productSearchInput.value)" placeholder="Search Products...">
+        <button mat-icon-button *ngIf="productSearchInput.value" (click)="productSearchInput.value=''; onProductSearch('')" class="clear-search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
     <div class="grid-wrapper">
       <app-server-datagrid gridKey="product-grid" 
         [columns]="columns" 
@@ -65,6 +75,7 @@
         [loading]="loading && !isDashboardLoading"
         [expandable]="true"
         [expandedTemplate]="productTemplate"
+        (rowExpanded)="loadNestedProducts($event)"
         (loadData)="loadPriceLists($event)"
         (selectionChange)="onSelectionChange($event)" 
         (editAction)="onEdit($event)"
@@ -74,7 +85,7 @@
 
     <!-- 📦 Template for Nested Products -->
     <ng-template #productTemplate let-subcategory>
-      <div class="nested-content-container p-4" (mouseenter)="loadNestedProducts(subcategory)">
+      <div class="nested-content-container p-4">
         <div class="nested-header d-flex justify-content-between align-items-center mb-3">
           <div class="d-flex align-items-center gap-3">
             <div class="category-badge" style="color: #10b981; background: #ecfdf5; border-color: #d1fae5;">

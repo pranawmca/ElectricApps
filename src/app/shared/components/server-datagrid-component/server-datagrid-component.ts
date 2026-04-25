@@ -50,6 +50,7 @@ export class ServerDatagridComponent<T> implements OnChanges, OnInit, OnDestroy 
   @Output() selectionChange = new EventEmitter<any[]>();
   @Output() rowClick = new EventEmitter<any>();
   @Output() editAction = new EventEmitter<any>();
+  @Output() rowExpanded = new EventEmitter<any>();
 
   selection = new Set<any>();
   private readonly STORAGE_KEY = 'grid-settings-state';
@@ -186,7 +187,11 @@ export class ServerDatagridComponent<T> implements OnChanges, OnInit, OnDestroy 
 
   toggleExpand(row: T, event: MouseEvent): void {
     event.stopPropagation();
-    this.expandedRow = this.expandedRow === row ? null : row;
+    const isExpanding = this.expandedRow !== row;
+    this.expandedRow = isExpanding ? row : null;
+    if (isExpanding) {
+      this.rowExpanded.emit(row);
+    }
   }
   toggleRow(row: any): void { this.selection.has(row) ? this.selection.delete(row) : this.selection.add(row); this.emitSelection(); }
   toggleAll(event: any): void { event.checked ? this.data.forEach(row => this.selection.add(row)) : this.selection.clear(); this.emitSelection(); }
