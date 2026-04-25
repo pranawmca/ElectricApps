@@ -147,18 +147,25 @@ export class SubcategoryList implements OnInit, OnChanges {
 
 
   onEdit(row: any): void {
+    const isSubcategory = !!row.subcategoryName;
+    const title = isSubcategory ? 'Edit Subcategory' : 'Edit Category';
+    const message = isSubcategory 
+      ? `Are you sure you want to edit subcategory: ${row.subcategoryName}?`
+      : `Are you sure you want to edit category: ${row.categoryName}?`;
+    const targetRoute = isSubcategory ? '/app/master/subcategories/edit' : '/app/master/categories/edit';
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        title: 'Edit Subcategory',
-        message: `Are you sure you want to edit subcategory: ${row.subcategoryName}?`,
+        title: title,
+        message: message,
         confirmText: 'Yes, Edit'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.router.navigate(['/app/master/subcategories/edit', row.id]);
+        this.router.navigate([targetRoute, row.id]);
       }
     });
   }

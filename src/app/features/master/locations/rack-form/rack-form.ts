@@ -114,7 +114,8 @@ export class RackForm implements OnInit {
 
         const payload = { 
             ...this.rackForm.value,
-            branchId: this.authService.getBranchId()
+            branchId: this.authService.getBranchId(),
+            companyId: this.authService.getCompanyId()
         };
 
         if (this.isEditMode && this.rackId) {

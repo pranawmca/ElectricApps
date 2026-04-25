@@ -208,11 +208,15 @@ export class SubcategoryForm implements OnInit, OnDestroy {
       defaultGst: Number(formValue.defaultGst),
       description: formValue.description?.trim(),
       isActive: Boolean(formValue.isActive),
-      companyId: this.authService.getCompanyId()
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId()
     };
 
     if (this.isEditMode && this.subCategoryId) {
       payload.id = this.subCategoryId;
+      payload.modifiedBy = this.authService.getUserEmail();
+    } else {
+      payload.createdBy = this.authService.getUserEmail();
     }
 
     const request$ = this.isEditMode && this.subCategoryId

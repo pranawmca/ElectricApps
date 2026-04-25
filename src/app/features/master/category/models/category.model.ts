@@ -6,6 +6,9 @@ export interface Category {
   description?: string;
   isActive?: boolean;
   companyId?: string | null;
+  branchId?: string | null;
+  createdBy?: string | null;
+  modifiedBy?: string | null;
 }
 
 export interface CategoryDropdown {

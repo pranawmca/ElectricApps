@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, inject, NgZone, OnInit } from '@angular/core';
-import { Validators, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Validators, FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../../shared/material/material/material-module';
@@ -10,15 +10,17 @@ import { ApiResultDialog } from '../../../shared/api-result-dialog/api-result-di
 import { Category } from '../models/category.model';
 
 import { FormFooter } from '../../../shared/form-footer/form-footer';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import * as XLSX from 'xlsx';
 import { AuthService } from '../../../../core/services/auth.service';
+import { SubCategoryService } from '../../subcategory/services/subcategory.service';
 
 
 @Component({
   selector: 'app-category-form',
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MaterialModule, RouterLink],
   templateUrl: './category-form.html',
   styleUrl: './category-form.scss',
 })
@@ -34,13 +36,18 @@ export class CategoryForm implements OnInit {
     private route: ActivatedRoute, private router: Router) { }
 
   readonly categorySvc = inject(CategoryService);
+  readonly subCategorySvc = inject(SubCategoryService);
   private authService = inject(AuthService);
+  subcategories: any[] = [];
+  editingIndex: number | null = null;
+  tempSubcat: any = null;
 
   ngOnInit(): void {
     this.createForm();
     this.categoryId = this.route.snapshot.paramMap.get('id');
     if (this.categoryId) {
       this.loadCategory();
+      this.loadSubCategories();
     }
   }
 
@@ -68,6 +75,91 @@ export class CategoryForm implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       }
+    });
+  }
+
+  loadSubCategories() {
+    if (!this.categoryId) return;
+    this.subCategorySvc.getByCategoryId(this.categoryId).subscribe({
+      next: (res) => {
+        this.subcategories = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading subcategories', err);
+      }
+    });
+  }
+
+  // --- Inline Editing Methods ---
+  
+  startEdit(index: number): void {
+    this.editingIndex = index;
+    this.tempSubcat = { ...this.subcategories[index] };
+  }
+
+  cancelEdit(): void {
+    if (this.editingIndex !== null && this.tempSubcat) {
+      this.subcategories[this.editingIndex] = { ...this.tempSubcat };
+    }
+    this.editingIndex = null;
+    this.tempSubcat = null;
+  }
+
+  saveInlineSubcategory(index: number): void {
+    const subcat = this.subcategories[index];
+    if (!subcat.subcategoryName) return;
+
+    this.loading = true;
+    const payload = {
+      ...subcat,
+      name: subcat.subcategoryName, // Backend expects 'Name'
+      code: subcat.subcategoryCode, // Backend expects 'Code'
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId(),
+      modifiedBy: this.authService.getUserEmail()
+    };
+
+    // Remove navigation property if it's null or empty to prevent backend binding errors
+    if (payload.category === null || payload.category === undefined) {
+      delete payload.category;
+    }
+
+    this.subCategorySvc.update(subcat.id, payload).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.editingIndex = null;
+        this.tempSubcat = null;
+        this.dialog.open(StatusDialogComponent, {
+          data: { isSuccess: true, message: 'Subcategory updated successfully' }
+        });
+        this.loadSubCategories();
+      },
+      error: (err) => {
+        this.loading = false;
+        this.dialog.open(StatusDialogComponent, {
+          data: { isSuccess: false, message: 'Failed to update subcategory' }
+        });
+      }
+    });
+  }
+
+  deleteSubcategory(id: string): void {
+    this.dialog.open(StatusDialogComponent, {
+        data: { isSuccess: false, message: 'Confirm deletion?', title: 'Delete Subcategory', status: 'confirm' }
+    }).afterClosed().subscribe(confirm => {
+        if (!confirm) return;
+        
+        this.loading = true;
+        this.subCategorySvc.delete(id).subscribe({
+            next: () => {
+                this.loading = false;
+                this.loadSubCategories();
+            },
+            error: () => {
+                this.loading = false;
+            }
+        });
     });
   }
 
@@ -236,8 +328,15 @@ export class CategoryForm implements OnInit {
     const payload: Category = {
       ...this.categoryForm.value,
       id: this.categoryId,
-      companyId: this.authService.getCompanyId()
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getBranchId()
     };
+
+    if (this.categoryId) {
+      payload.modifiedBy = this.authService.getUserEmail();
+    } else {
+      payload.createdBy = this.authService.getUserEmail();
+    }
 
     const request = this.categoryId
       ? this.categorySvc.update(this.categoryId, payload)

@@ -52,4 +52,78 @@
     </form>
   </mat-card-content>
 
+  <mat-divider *ngIf="categoryId && subcategories.length > 0"></mat-divider>
+
+  <mat-card-content *ngIf="categoryId" class="subcategories-section mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="m-0">Subcategories</h3>
+      <button mat-flat-button class="submit-btn pill-btn" [routerLink]="['/app/master/subcategories/add']" [queryParams]="{categoryId: categoryId}">
+        <mat-icon>add</mat-icon> Add Subcategory
+      </button>
+    </div>
+
+    <div class="table-responsive" *ngIf="subcategories.length > 0; else noSubcats">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Subcategory Detail</th>
+            <th>Code</th>
+            <th>GST Rate</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of subcategories; let i = index" [class.editing-row]="editingIndex === i">
+            <td data-label="Subcategory Detail">
+              <input *ngIf="editingIndex === i" type="text" [(ngModel)]="s.subcategoryName" class="inline-edit-input" placeholder="Enter name">
+              <span *ngIf="editingIndex !== i" class="fw-bold">{{ s.subcategoryName }}</span>
+            </td>
+            <td data-label="Code">
+              <input *ngIf="editingIndex === i" type="text" [(ngModel)]="s.subcategoryCode" class="inline-edit-input" placeholder="Code">
+              <code *ngIf="editingIndex !== i">{{ s.subcategoryCode }}</code>
+            </td>
+            <td data-label="GST Rate">
+              <div class="d-flex align-items-center gap-2">
+                <input *ngIf="editingIndex === i" type="number" [(ngModel)]="s.defaultGst" class="inline-edit-input gst-input">
+                <span *ngIf="editingIndex !== i" class="text-muted">{{ s.defaultGst }}%</span>
+              </div>
+            </td>
+            <td data-label="Status">
+              <mat-slide-toggle *ngIf="editingIndex === i" [(ngModel)]="s.isActive" [ngModelOptions]="{standalone: true}"></mat-slide-toggle>
+              <span *ngIf="editingIndex !== i" class="badge" [ngClass]="s.isActive ? 'bg-success-subtle' : 'bg-danger-subtle'">
+                {{ s.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="text-end">
+              <div *ngIf="editingIndex !== i" class="d-flex justify-content-end gap-1">
+                <button mat-icon-button class="btn-action" (click)="startEdit(i)" matTooltip="Edit Inline">
+                  <mat-icon>edit_note</mat-icon>
+                </button>
+                <button mat-icon-button class="btn-action btn-delete" (click)="deleteSubcategory(s.id)" matTooltip="Delete">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+              <div *ngIf="editingIndex === i" class="d-flex justify-content-end gap-1">
+                <button mat-icon-button class="btn-action btn-save" (click)="saveInlineSubcategory(i)" matTooltip="Save">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+                <button mat-icon-button class="btn-action" (click)="cancelEdit()" matTooltip="Cancel">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noSubcats>
+      <div class="text-center p-4 bg-light rounded">
+        <mat-icon class="text-muted" style="font-size: 48px; height: 48px; width: 48px;">inventory_2</mat-icon>
+        <p class="text-muted mt-2">No subcategories found for this category.</p>
+      </div>
+    </ng-template>
+  </mat-card-content>
+
 </mat-card>

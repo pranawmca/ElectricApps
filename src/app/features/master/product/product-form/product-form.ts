@@ -597,14 +597,16 @@ export class ProductForm implements OnInit, OnDestroy {
 
   private proceedWithSave(): void {
     this.loading = true;
-    const currentUserId = localStorage.getItem('email') || '';
+    const currentUserId = this.authService.getUserEmail();
     const productsData = this.mapToProducts(this.productsForm.value);
 
     if (this.isEditMode && this.productId) {
       productsData.id = this.productId;
       productsData.updatedby = currentUserId;
+      productsData.modifiedBy = currentUserId;
     } else {
       productsData.createdby = currentUserId;
+      productsData.createdBy = currentUserId;
     }
 
     const request = this.isEditMode && this.productId

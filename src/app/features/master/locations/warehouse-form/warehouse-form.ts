@@ -130,7 +130,8 @@ export class WarehouseForm implements OnInit {
 
         const payload = {
             ...this.warehouseForm.value,
-            branchId: this.warehouseForm.value.branchId?.toString()
+            branchId: this.warehouseForm.value.branchId?.toString(),
+            companyId: this.authService.getCompanyId()
         };
 
         if (this.isEditMode) {

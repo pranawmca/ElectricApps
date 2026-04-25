@@ -104,7 +104,8 @@ export class CustomerComponent implements OnInit {
       shippingAddress: this.customerForm.value.shippingAddress,
       customerStatus: this.customerForm.value.customerStatus,
       status: this.customerForm.value.customerStatus, // Map both for safety
-      createdBy: currentUserId,
+      createdBy: this.authService.getUserEmail(),
+      modifiedBy: this.authService.getUserEmail(),
       companyId: this.authService.getCompanyId(),
       branchId: this.authService.getBranchId()
     };

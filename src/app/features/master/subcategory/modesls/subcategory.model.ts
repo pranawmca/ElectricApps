@@ -10,4 +10,7 @@ export interface SubCategory {
   description?: string;
   isActive: boolean;
   companyId?: string | null;
+  branchId?: string | null;
+  createdBy?: string | null;
+  modifiedBy?: string | null;
 }
