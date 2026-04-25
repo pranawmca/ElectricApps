@@ -282,9 +282,6 @@ export class ProductList implements OnInit {
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
-      this.loading = true;
-      this.cdr.detectChanges();
-
       this.loadingService.setLoading(true);
       this.service.uploadExcel(file).subscribe({
         next: (res) => {

@@ -34,6 +34,10 @@ export class SubCategoryService {
         return this.api.get('subcategories');
     }
 
+    getCount(): Observable<number> {
+        return this.api.get<number>('subcategories/count');
+    }
+
     getPaged(request: GridRequest): Observable<GridResponse<SubCategory>> {
         return this.api.post<GridResponse<SubCategory>>(
             `subcategories/paged`, request

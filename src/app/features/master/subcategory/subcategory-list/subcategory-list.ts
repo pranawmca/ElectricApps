@@ -49,6 +49,8 @@ export class SubcategoryList implements OnInit, OnChanges {
   data: any[] = [];
   totalCount = 0;
 
+  totalCategories = 0;
+  totalSubcategories = 0;
   selectedRows: any[] = [];
   lastRequest!: GridRequest;
 
@@ -103,13 +105,14 @@ export class SubcategoryList implements OnInit, OnChanges {
     this.categoryService.getPaged(request).subscribe({
       next: res => {
         this.data = res.items as any; // Now Category level
+        this.totalCategories = res.totalCount;
         this.totalCount = res.totalCount;
-
-        this.summaryStats = [
-          { label: 'Total Categories', value: this.totalCount, icon: 'category', type: 'total' },
-          { label: 'Hierarchy View', value: 'Active', icon: 'account_tree', type: 'info' },
-          { label: 'Organization', value: 'Master Data', icon: 'inventory_2', type: 'info' }
-        ];
+        
+        this.subCategoryService.getCount().subscribe(count => {
+          this.totalSubcategories = count;
+          this.updateSummaryStats();
+          this.cdr.detectChanges();
+        });
 
         this.loading = false;
         if (this.isFirstLoad) {
@@ -126,6 +129,14 @@ export class SubcategoryList implements OnInit, OnChanges {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  updateSummaryStats(): void {
+    this.summaryStats = [
+      { label: 'Total Subcategories', value: this.totalSubcategories, icon: 'category', type: 'total' },
+      { label: 'Hierarchy View', value: 'Active', icon: 'account_tree', type: 'info' },
+      { label: 'Organization', value: 'Master Data', icon: 'inventory_2', type: 'info' }
+    ];
   }
 
   loadNestedSubcategories(category: any): void {
@@ -278,9 +289,6 @@ export class SubcategoryList implements OnInit, OnChanges {
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
-      this.loading = true;
-      this.cdr.detectChanges();
-
       this.loadingService.setLoading(true);
       this.subCategoryService.uploadExcel(file).subscribe({
         next: (res) => {
