@@ -273,9 +273,6 @@ export class CategoryList implements OnInit {
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
-      this.loading = true;
-      this.cdr.detectChanges();
-
       this.loadingService.setLoading(true);
       this.categoryService.uploadExcel(file).subscribe({
         next: (res) => {
