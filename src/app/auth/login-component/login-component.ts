@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../shared/components/status-dialog-component/status-dialog-component';
 import { PermissionService } from '../../core/services/permission.service';
 import { CompanyService } from '../../features/company/services/company.service';
+import { LoadingService } from '../../core/services/loading.service';
 import { BranchSelectionDialogComponent } from '../../shared/components/branch-selection-dialog/branch-selection-dialog.component';
 
 @Component({
@@ -37,6 +38,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   resetPasswordForm!: FormGroup;
   changePasswordForm!: FormGroup;
 
+  private loadingService = inject(LoadingService);
   loading = false;
   errorMessage = '';
   forgotPasswordMode = false;
@@ -143,31 +145,43 @@ export class LoginComponent implements OnInit, AfterViewInit {
           return;
         }
 
-        // 🚀 BRANCH SELECTION LOGIC
-        this.companyService.getBranchesByCompany(res.companyId || this.auth.getCompanyId()).subscribe({
-          next: (branches) => {
-            if (branches && branches.length > 1) {
-              const dialogRef = this.dialog.open(BranchSelectionDialogComponent, {
-                width: '450px',
-                disableClose: true,
-                data: { branches }
-              });
+        // 🚀 SHOW GLOBAL LOADER
+        this.loadingService.setLoading(true);
+        this.cdr.detectChanges();
 
-              dialogRef.afterClosed().subscribe(selectedBranch => {
-                if (selectedBranch) {
-                  this.auth.setWorkingBranch(selectedBranch.id, selectedBranch.branchName);
-                  this.router.navigate(['/app/dashboard']);
+        setTimeout(() => {
+          this.companyService.getBranchesByCompany(res.companyId || this.auth.getCompanyId()).subscribe({
+            next: (branches) => {
+              this.loadingService.setLoading(false);
+              this.cdr.detectChanges();
+
+              if (branches && branches.length > 1) {
+                const dialogRef = this.dialog.open(BranchSelectionDialogComponent, {
+                  width: '450px',
+                  disableClose: true,
+                  data: { branches }
+                });
+
+                dialogRef.afterClosed().subscribe(selectedBranch => {
+                  if (selectedBranch) {
+                    this.auth.setWorkingBranch(selectedBranch.id, selectedBranch.branchName);
+                    this.router.navigate(['/app/dashboard']);
+                  }
+                });
+              } else {
+                if (branches && branches.length === 1) {
+                  this.auth.setWorkingBranch(branches[0].id, branches[0].branchName);
                 }
-              });
-            } else {
-              if (branches && branches.length === 1) {
-                this.auth.setWorkingBranch(branches[0].id, branches[0].branchName);
+                this.router.navigate(['/app/dashboard']);
               }
+            },
+            error: () => {
+              this.loadingService.setLoading(false);
+              this.cdr.detectChanges();
               this.router.navigate(['/app/dashboard']);
             }
-          },
-          error: () => this.router.navigate(['/app/dashboard'])
-        });
+          });
+        }, 2000); // 2 second animation delay
       },
       error: (err) => {
         console.error('Login error:', err);

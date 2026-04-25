@@ -43,6 +43,7 @@ export class ProductList implements OnInit, OnDestroy {
   selectedRows: any[] = [];
   lastRequest!: GridRequest;
   isLowStockFilterActive = false;
+  isSearching = false;
 
   canAdd: boolean = true;
   canDelete: boolean = true;
@@ -152,6 +153,7 @@ export class ProductList implements OnInit, OnDestroy {
         this.loading = false;
         this.isFirstLoad = false;
         this.isDashboardLoading = false;
+        this.isSearching = false;
         
         // ✅ Stop Global Loader
         this.loadingService.setLoading(false);
@@ -354,6 +356,11 @@ export class ProductList implements OnInit, OnDestroy {
   }
 
   onProductSearch(value: string): void {
+    const val = value.trim();
+    if (val.length > 2 || val.length === 0) {
+      this.isSearching = true;
+      this.loadingService.setLoading(true);
+    }
     this.searchSubject.next(value);
   }
 

@@ -73,6 +73,13 @@
         }
       }
 
+      .search-spinner {
+        margin-right: 10px;
+        ::ng-deep circle {
+          stroke: #3b82f6 !important;
+        }
+      }
+
       .clear-search {
         width: 30px;
         height: 30px;
@@ -245,8 +252,8 @@
 /* 🚀 ANIMATED SCROLL ACTIONS */
 .scroll-actions {
   position: fixed !important;
-  right: 30px !important;
-  bottom: 80px !important;
+  right: 15px !important;
+  bottom: 120px !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 15px !important;
@@ -255,8 +262,8 @@
 }
 
 .scroll-btn {
-  width: 50px !important;
-  height: 50px !important;
+  width: 42px !important;
+  height: 42px !important;
   background: white !important;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
   cursor: pointer !important;
@@ -268,9 +275,9 @@
   line-height: normal !important;
 
   mat-icon {
-    font-size: 32px !important;
-    width: 32px !important;
-    height: 32px !important;
+    font-size: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;

@@ -59,9 +59,10 @@
   <div class="list-container">
     <div class="search-container mb-3 d-flex justify-content-end">
       <div class="search-box">
-        <mat-icon>search</mat-icon>
+        <mat-icon *ngIf="!isSearching">search</mat-icon>
+        <mat-spinner *ngIf="isSearching" [diameter]="20" class="search-spinner"></mat-spinner>
         <input type="text" #productSearchInput (input)="onProductSearch(productSearchInput.value)" placeholder="Search Products...">
-        <button mat-icon-button *ngIf="productSearchInput.value" (click)="productSearchInput.value=''; onProductSearch('')" class="clear-search">
+        <button mat-icon-button *ngIf="productSearchInput.value && !isSearching" (click)="productSearchInput.value=''; onProductSearch('')" class="clear-search">
           <mat-icon>close</mat-icon>
         </button>
       </div>
