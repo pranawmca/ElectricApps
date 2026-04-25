@@ -21,6 +21,7 @@ import { BarcodeReaderHelper } from '../../../shared/barcode-reader-helper/barco
 import { LocationService } from '../../master/locations/services/locations.service';
 import { SharedPrintService } from '../../../core/services/shared-print.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LoadingService } from '../../../core/services/loading.service';
 
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ProductForm } from '../../master/product/product-form/product-form';
@@ -125,6 +126,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   private notification = inject(NotificationService);
   private barcodeHelper = inject(BarcodeReaderHelper);
+  private loadingService = inject(LoadingService);
 
   isPriceListAutoSelected = false;
   filteredProducts: Observable<any[]>[] = [];
@@ -801,6 +803,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.loadingService.setLoading(true, this.isEditMode ? 'Updating Purchase Order...' : 'Saving Purchase Order...');
         const supplier = this.suppliers.find(s => s.id === formValue.supplierId);
         const userId = localStorage.getItem('email') || 'System User';
         this.isLoading = true;
@@ -854,6 +857,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
           next: (res) => {
             console.log('âœ… PO Save Success. Backend Response:', res);
             this.isLoading = false;
+            this.loadingService.setLoading(false);
             this.notification.showStatus(true, `PO ${this.isEditMode ? 'Updated' : 'Saved'} Successfully`);
             
             // Auto Print 
@@ -875,6 +879,7 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
             console.groupEnd();
 
             this.isLoading = false;
+            this.loadingService.setLoading(false);
             this.notification.showStatus(false, `Error ${this.isEditMode ? 'updating' : 'saving'} PO. Check console for details.`);
           }
         });

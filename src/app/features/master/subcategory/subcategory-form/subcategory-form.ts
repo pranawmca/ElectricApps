@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SubCategoryService } from '../services/subcategory.service';
 import { FormFooter } from '../../../shared/form-footer/form-footer';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
+import { LoadingService } from '../../../../core/services/loading.service';
 import * as XLSX from 'xlsx';
 import { Observable, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
@@ -30,6 +31,7 @@ export class SubcategoryForm implements OnInit, OnDestroy {
   private categoryService = inject(CategoryService);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private loadingService = inject(LoadingService);
   private destroy$ = new Subject<void>();
 
   subcategoryForm!: FormGroup;
@@ -198,6 +200,7 @@ export class SubcategoryForm implements OnInit, OnDestroy {
 
   private proceedWithSave(): void {
     this.loading = true;
+    this.loadingService.setLoading(true, this.isEditMode ? 'Updating Subcategory...' : 'Saving Subcategory...');
     const formValue = this.subcategoryForm.value;
     const payload: SubCategory = {
       categoryId: formValue.categoryId,
@@ -226,6 +229,7 @@ export class SubcategoryForm implements OnInit, OnDestroy {
     request$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.loading = false;
+        this.loadingService.setLoading(false);
         this.cdr.detectChanges();
 
         this.dialog.open(StatusDialogComponent, {
@@ -236,6 +240,7 @@ export class SubcategoryForm implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading = false;
+        this.loadingService.setLoading(false);
         this.cdr.detectChanges();
 
         let errorMessage = 'Something went wrong';

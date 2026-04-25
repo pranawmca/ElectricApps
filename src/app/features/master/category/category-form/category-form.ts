@@ -12,6 +12,7 @@ import { Category } from '../models/category.model';
 import { FormFooter } from '../../../shared/form-footer/form-footer';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
+import { LoadingService } from '../../../../core/services/loading.service';
 import * as XLSX from 'xlsx';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SubCategoryService } from '../../subcategory/services/subcategory.service';
@@ -33,7 +34,8 @@ export class CategoryForm implements OnInit {
 
   constructor(private fb: FormBuilder, private dialog: MatDialog,
     private cdr: ChangeDetectorRef, private zone: NgZone,
-    private route: ActivatedRoute, private router: Router) { }
+    private route: ActivatedRoute, private router: Router,
+    private loadingService: LoadingService) { }
 
   readonly categorySvc = inject(CategoryService);
   readonly subCategorySvc = inject(SubCategoryService);
@@ -111,6 +113,7 @@ export class CategoryForm implements OnInit {
     if (!subcat.subcategoryName) return;
 
     this.loading = true;
+    this.loadingService.setLoading(true, 'Updating Subcategory...');
     const payload = {
       ...subcat,
       name: subcat.subcategoryName, // Backend expects 'Name'
@@ -128,6 +131,7 @@ export class CategoryForm implements OnInit {
     this.subCategorySvc.update(subcat.id, payload).subscribe({
       next: (res) => {
         this.loading = false;
+        this.loadingService.setLoading(false);
         this.editingIndex = null;
         this.tempSubcat = null;
         this.dialog.open(StatusDialogComponent, {
@@ -137,6 +141,7 @@ export class CategoryForm implements OnInit {
       },
       error: (err) => {
         this.loading = false;
+        this.loadingService.setLoading(false);
         this.dialog.open(StatusDialogComponent, {
           data: { isSuccess: false, message: 'Failed to update subcategory' }
         });
@@ -151,13 +156,16 @@ export class CategoryForm implements OnInit {
         if (!confirm) return;
         
         this.loading = true;
+        this.loadingService.setLoading(true, 'Deleting Subcategory...');
         this.subCategorySvc.delete(id).subscribe({
             next: () => {
                 this.loading = false;
+                this.loadingService.setLoading(false);
                 this.loadSubCategories();
             },
             error: () => {
                 this.loading = false;
+                this.loadingService.setLoading(false);
             }
         });
     });
@@ -325,6 +333,7 @@ export class CategoryForm implements OnInit {
 
   private proceedWithSave(): void {
     this.loading = true;
+    this.loadingService.setLoading(true, this.categoryId ? 'Updating Category...' : 'Saving Category...');
     const payload: Category = {
       ...this.categoryForm.value,
       id: this.categoryId,
@@ -345,6 +354,7 @@ export class CategoryForm implements OnInit {
     request.subscribe({
       next: (res) => {
         this.loading = false;
+        this.loadingService.setLoading(false);
         this.dialog.open(StatusDialogComponent, {
           data: {
             isSuccess: true,
@@ -363,6 +373,7 @@ export class CategoryForm implements OnInit {
           }
         }).afterClosed().subscribe(() => {
           this.loading = false;
+          this.loadingService.setLoading(false);
           this.cdr.detectChanges();
         });
       }

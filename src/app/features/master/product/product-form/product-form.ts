@@ -11,6 +11,7 @@ import { FormFooter } from '../../../shared/form-footer/form-footer';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { Product } from '../model/product.model';
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { LoadingService } from '../../../../core/services/loading.service';
 import { Observable, Subject, of } from 'rxjs';
 import { map, startWith, takeUntil, finalize } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
@@ -39,6 +40,7 @@ export class ProductForm implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private authService = inject(AuthService);
   private api = inject(ApiService);
+  private loadingService = inject(LoadingService);
   public dialogRef = inject(MatDialogRef<ProductForm>, { optional: true });
   public data = inject(MAT_DIALOG_DATA, { optional: true });
 
@@ -597,6 +599,7 @@ export class ProductForm implements OnInit, OnDestroy {
 
   private proceedWithSave(): void {
     this.loading = true;
+    this.loadingService.setLoading(true, this.isEditMode ? 'Updating Product...' : 'Saving Product...');
     const currentUserId = this.authService.getUserEmail();
     const productsData = this.mapToProducts(this.productsForm.value);
 
@@ -616,6 +619,7 @@ export class ProductForm implements OnInit, OnDestroy {
     request.subscribe({
       next: (res) => {
         this.loading = false;
+        this.loadingService.setLoading(false);
         this.cdr.detectChanges();
         
         const successMsg = res.message || (this.isEditMode ? 'Product updated successfully' : 'Product saved successfully');
@@ -630,6 +634,7 @@ export class ProductForm implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading = false;
+        this.loadingService.setLoading(false);
         this.cdr.detectChanges();
         this.showDialog(false, err.error?.message ?? 'Something went wrong');
       }

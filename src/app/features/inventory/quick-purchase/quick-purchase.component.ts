@@ -6,7 +6,8 @@ import { InventoryService } from '../service/inventory.service';
 import { ProductService } from '../../master/product/service/product.service';
 import { NotificationService } from '../../shared/notification.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Observable, debounceTime, distinctUntilChanged, switchMap, of, catchError, map, startWith, Subject, takeUntil, finalize } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, finalize, catchError, map, startWith } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductSelectionDialogComponent } from '../../../shared/components/product-selection-dialog/product-selection-dialog';
@@ -22,6 +23,8 @@ import { BarcodeReaderHelper } from '../../../shared/barcode-reader-helper/barco
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ProductForm } from '../../master/product/product-form/product-form';
 import { SharedPrintService } from '../../../core/services/shared-print.service';
+import { LocationTrackerDialogComponent } from '../purchase-return/location-tracker-dialog/location-tracker-dialog.component';
+import { LoadingService } from '../../../core/services/loading.service';
 
 // 🎯 Custom Native Date Adapter to force dd/mm/yy format
 export class CustomDateAdapter extends NativeDateAdapter {
@@ -53,10 +56,11 @@ export const MY_DATE_FORMATS = {
     standalone: true,
     imports: [CommonModule, MaterialModule, ReactiveFormsModule, FormsModule],
     templateUrl: './quick-purchase.component.html',
-    styleUrls: ['./quick-purchase.component.scss'],
+    styleUrl: './quick-purchase.component.scss',
     providers: [
         { provide: DateAdapter, useClass: CustomDateAdapter },
         { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+        { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }
     ],
     animations: [
         trigger('fadeInOut', [
@@ -87,20 +91,23 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     private barcodeHelper = inject(BarcodeReaderHelper);
     private cdr = inject(ChangeDetectorRef);
     private sharedPrintService = inject(SharedPrintService);
+    private loadingService = inject(LoadingService);
     private destroy$ = new Subject<void>();
 
-    purchaseForm!: FormGroup;
+    poForm!: FormGroup;
     suppliers: any[] = [];
-    units: any[] = [];
+    allUnits: any[] = [];
     warehouses: any[] = [];
-    racksByItem: any[][] = []; // Racks list for each item row
+    racksByItem: any[][] = []; 
     priceLists: any[] = [];
     filteredUnits: Observable<any[]>[] = [];
-    filteredSuppliers: any[] = [];
+    filteredProducts: Observable<any[]>[] = [];
+    isProductLoading: boolean[] = [];
     isScanning = false;
     lastScannedCode = '';
     isLoading = false;
     isSaving = false;
+    isLoadingSuppliers = false;
     isLoadingPriceLists = false;
     isPriceListAutoSelected = false;
     isEditMode = false;
@@ -111,6 +118,9 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     private scrollContainer: HTMLElement | null = null;
     private scrollListener: any;
     today = new Date();
+    minDate = new Date();
+    isReorder = false;
+    reorderTooltipText = 'Items pre-filled from Reorder recommendations';
 
     onScroll() {
         if (this.scrollContainer) {
@@ -128,6 +138,10 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                 this.scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
+    }
+
+    goBack() {
+        this.router.navigate(['/app/quick-inventory/purchase/list']);
     }
 
     constructor() {
@@ -151,11 +165,19 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             setTimeout(() => {
                 const state = window.history.state;
                 if (state?.refillData) {
-                    this.addProductToForm(state.refillData);
+                    this.isReorder = true;
+                    if (Array.isArray(state.refillData)) {
+                        state.refillData.forEach((item: any) => this.addProductToForm(item));
+                    } else {
+                        this.addProductToForm(state.refillData);
+                    }
                     this.cdr.detectChanges();
                 } else if (state?.refillItems) {
+                    this.isReorder = true;
                     state.refillItems.forEach((item: any) => this.addProductToForm(item));
                     this.cdr.detectChanges();
+                } else {
+                    this.addRow();
                 }
             }, 500);
         }
@@ -167,32 +189,20 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         });
     }
 
-    onWarehouseChange(index: number) {
-        const warehouseId = this.items.at(index).get('warehouseId')?.value;
-        if (warehouseId) {
-            this.locationService.getRacksByWarehouse(warehouseId).subscribe((res: any) => {
-                this.racksByItem[index] = res;
-            });
-        } else {
-            this.racksByItem[index] = [];
-        }
-    }
-
     loadUnits() {
         this.unitService.getAll().subscribe((res: any) => {
-            this.units = res;
+            this.allUnits = res;
         });
     }
 
     private initForm() {
-        this.purchaseForm = this.fb.group({
+        this.poForm = this.fb.group({
             supplierId: [null, Validators.required],
-            supplierName: [''],
             priceListId: [null, Validators.required],
-            remarks: [''],
-            date: [new Date()],
-            expectedDeliveryDate: [this.today, Validators.required],
-            poNumber: [{ value: '', disabled: true }],
+            poDate: [new Date(), Validators.required],
+            expectedDeliveryDate: [new Date(), Validators.required],
+            PoNumber: [{ value: '', disabled: true }],
+            remarks: ['', Validators.required],
             items: this.fb.array([], Validators.required),
             isTaxApplicable: [true],
             taxType: ['local'],
@@ -200,7 +210,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             tcsPercent: [0]
         });
 
-        this.purchaseForm.get('isTaxApplicable')?.valueChanges.subscribe(val => {
+        this.poForm.get('isTaxApplicable')?.valueChanges.subscribe(val => {
             this.selectedSupplierIsUnregistered = !val;
             this.items.controls.forEach((ctrl, idx) => {
                 if (!val) {
@@ -209,7 +219,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                     const original = ctrl.get('originalGst')?.value || 0;
                     ctrl.get('gstPercent')?.setValue(original, { emitEvent: false });
                 }
-                this.calculateItemTotal(idx);
+                this.updateTotal(idx);
             });
         });
     }
@@ -219,12 +229,11 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         this.poService.getById(id).subscribe({
             next: (res: any) => {
                 this.currentStatus = res.status;
-                this.purchaseForm.patchValue({
+                this.poForm.patchValue({
                     supplierId: res.supplierId,
-                    supplierName: res.supplierName,
                     priceListId: res.priceListId,
-                    poNumber: res.poNumber,
-                    date: DateHelper.toDateObject(res.poDate),
+                    PoNumber: res.poNumber,
+                    poDate: DateHelper.toDateObject(res.poDate),
                     expectedDeliveryDate: DateHelper.toDateObject(res.expectedDeliveryDate),
                     remarks: res.remarks || ''
                 });
@@ -245,30 +254,33 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
 
     addEditRow(item: any): void {
         const isExpReq = item.isExpiryRequired || item.IsExpiryRequired || false;
+        const index = this.items.length;
         const row = this.fb.group({
+            productSearch: [item.productName, Validators.required],
             productId: [item.productId, Validators.required],
-            productName: [item.productName, Validators.required],
             sku: [item.sku || ''],
-            availableStock: [item.currentStock || 0],
-            rackName: [item.rackName || 'NA'],
+            currentStock: [item.currentStock || 0],
+            warehouseName: [item.warehouseName || 'Main WH'],
             warehouseId: [item.warehouseId || null],
+            rackName: [item.rackName || 'NA'],
             rackId: [item.rackId || null],
             qty: [item.qty, [Validators.required, Validators.min(0.01)]],
             unit: [item.unit || 'PCS', Validators.required],
-            rate: [item.rate, [Validators.required, Validators.min(0)]],
+            price: [item.rate || item.price || 0, [Validators.required, Validators.min(0)]],
             discountPercent: [item.discountPercent || 0],
             gstPercent: [item.gstPercent || 0],
+            taxAmount: [{ value: item.taxAmount || 0, disabled: true }],
             total: [{ value: item.total, disabled: true }],
             id: [item.id || 0],
             originalGst: [item.gstPercent || 0],
-            manufacturingDate: [item.manufacturingDate ? DateHelper.toDateObject(item.manufacturingDate) : null, isExpReq ? Validators.required : []],
-            expiryDate: [item.expiryDate ? DateHelper.toDateObject(item.expiryDate) : null, isExpReq ? Validators.required : []],
+            mfgDate: [item.manufacturingDate || item.mfgDate ? DateHelper.toDateObject(item.manufacturingDate || item.mfgDate) : null, isExpReq ? Validators.required : []],
+            expDate: [item.expiryDate || item.expDate ? DateHelper.toDateObject(item.expiryDate || item.expDate) : null, isExpReq ? Validators.required : []],
             isExpiryRequired: [isExpReq]
-        }, { validators: [this.dateRangeValidator] });
-        const index = this.items.length;
+        });
+        
         this.items.push(row);
-        this.setupItemCalculations(index);
-        this.calculateItemTotal(index);
+        this.setupFilter(index);
+        this.updateTotal(index);
 
         if (row.get('warehouseId')?.value) {
             this.locationService.getRacksByWarehouse(row.get('warehouseId')?.value).subscribe(racks => {
@@ -277,7 +289,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         }
     }
 
-    openProductDialog() {
+    openBulkAddDialog() {
         const dialogRef = this.dialog.open(ProductSelectionDialogComponent, {
             width: '1250px',
             maxWidth: '96vw',
@@ -290,23 +302,16 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
 
         dialogRef.afterClosed().subscribe((selectedProducts: any[]) => {
             if (selectedProducts && selectedProducts.length > 0) {
+                // If first row is empty, remove it
+                if (this.items.length === 1 && !this.items.at(0).get('productId')?.value) {
+                    this.items.removeAt(0);
+                }
                 selectedProducts.forEach(product => {
-                    const isDuplicate = this.items.controls.some(control => control.get('productId')?.value === product.id);
+                    const currentItems = this.items.value || [];
+                    const isDuplicate = currentItems.some((item: any) => item.productId === (product.id || product.productId));
+                    
                     if (!isDuplicate) {
-                        const mappedProduct = {
-                            ...product,
-                            rackName: product.defaultRackName || product.rackName || 'NA'
-                        };
-                        this.addProductToForm(mappedProduct);
-                        const idx = this.items.length - 1;
-                        if (mappedProduct.defaultWarehouseId) {
-                            this.locationService.getRacksByWarehouse(mappedProduct.defaultWarehouseId).subscribe((racks: any[]) => {
-                                this.racksByItem[idx] = racks;
-                                if (mappedProduct.defaultRackId) {
-                                    this.items.at(idx).get('rackId')?.setValue(mappedProduct.defaultRackId, { emitEvent: false });
-                                }
-                            });
-                        }
+                        this.addProductToForm(product);
                     }
                 });
             }
@@ -315,46 +320,47 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
 
     addProductToForm(product: any) {
         const productId = product.id || product.productId;
+        const index = this.items.length;
         const itemForm = this.fb.group({
+            productSearch: [product.productName || product.name, Validators.required],
             productId: [productId, Validators.required],
-            productName: [product.productName || product.name, Validators.required],
             sku: [product.sku || ''],
-            availableStock: [product.currentStock || product.availableStock || 0],
-            rackName: [product.rackName || 'NA'],
-            warehouseId: [product.defaultWarehouseId || null],
-            rackId: [product.defaultRackId || null],
+            currentStock: [product.currentStock || product.availableStock || 0],
+            warehouseName: [product.defaultWarehouseName || product.warehouseName || 'Main WH'],
+            warehouseId: [product.defaultWarehouseId || product.warehouseId || null],
+            rackName: [product.defaultRackName || product.rackName || 'NA'],
+            rackId: [product.defaultRackId || product.rackId || null],
             qty: [product.suggestedQty || 1, [Validators.required, Validators.min(0.01)]],
             unit: [product.unit || 'PCS', Validators.required],
-            rate: [product.basePurchasePrice || product.purchasePrice || product.basePrice || product.rate || 0, [Validators.required, Validators.min(0)]],
+            price: [product.basePurchasePrice || product.purchasePrice || product.basePrice || product.rate || product.price || 0, [Validators.required, Validators.min(0)]],
             discountPercent: [0],
             gstPercent: [this.selectedSupplierIsUnregistered ? 0 : (product.gstPercent ?? product.defaultGst ?? 18)],
             originalGst: [product.gstPercent ?? product.defaultGst ?? 18],
-            taxAmount: [0],
+            taxAmount: [{ value: 0, disabled: true }],
             total: [{ value: 0, disabled: true }],
-            manufacturingDate: [null, product.isExpiryRequired ? Validators.required : []],
-            expiryDate: [null, product.isExpiryRequired ? Validators.required : []],
-            isExpiryRequired: [product.isExpiryRequired || false]
-        }, { validators: [this.dateRangeValidator] });
+            mfgDate: [null, product.isExpiryRequired ? Validators.required : []],
+            expDate: [null, product.isExpiryRequired ? Validators.required : []],
+            isExpiryRequired: [product.isExpiryRequired || false],
+            id: [0]
+        });
 
-        const index = this.items.length;
         this.items.push(itemForm);
-        this.calculateItemTotal(index);
-        this.setupItemCalculations(index);
-        this.setupUnitFilter(index);
+        this.setupFilter(index);
+        this.updateTotal(index);
         this.cdr.detectChanges();
 
-        if (productId) {
-            const priceListId = this.purchaseForm.get('priceListId')?.value;
-            if (priceListId) {
+        if (productId && productId !== '00000000-0000-0000-0000-000000000000') {
+            const priceListId = this.poForm.get('priceListId')?.value;
+            if (priceListId && priceListId !== '00000000-0000-0000-0000-000000000000') {
                 this.inventoryService.getProductRate(productId, priceListId).subscribe({
                     next: (res: any) => {
                         if (res) {
                             itemForm.patchValue({
-                                rate: res.recommendedRate || res.rate,
+                                price: res.recommendedRate || res.rate,
                                 discountPercent: res.discount || res.discountPercent || 0,
-                                gstPercent: res.gstPercent ?? 18,
+                                gstPercent: this.selectedSupplierIsUnregistered ? 0 : (res.gstPercent ?? 18),
                             });
-                            this.calculateItemTotal(index);
+                            this.updateTotal(index);
                             this.cdr.detectChanges();
                         }
                     }
@@ -364,108 +370,160 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     get items(): FormArray {
-        return this.purchaseForm.get('items') as FormArray;
+        return (this.poForm?.get('items') as FormArray) || this.fb.array([]);
     }
 
-    addItem() {
-        const itemForm = this.fb.group({
+    addRow() {
+        const index = this.items.length;
+        const row = this.fb.group({
+            productSearch: ['', Validators.required],
             productId: [null, Validators.required],
-            productName: ['', Validators.required],
             sku: [''],
-            availableStock: [0],
-            rackName: ['NA'],
+            currentStock: [0],
+            warehouseName: [''],
             warehouseId: [null],
+            rackName: [''],
             rackId: [null],
+            qty: [1, [Validators.required, Validators.min(0.01)]],
             unit: ['PCS', Validators.required],
-            rate: [0, [Validators.required, Validators.min(0)]],
+            price: [0, [Validators.required, Validators.min(0)]],
             discountPercent: [0],
             gstPercent: [this.selectedSupplierIsUnregistered ? 0 : 18],
             originalGst: [18],
-            taxAmount: [0],
+            taxAmount: [{ value: 0, disabled: true }],
             total: [{ value: 0, disabled: true }],
-            manufacturingDate: [null],
-            expiryDate: [null],
-            isExpiryRequired: [false]
-        }, { validators: [this.dateRangeValidator] });
+            mfgDate: [null],
+            expDate: [null],
+            isExpiryRequired: [false],
+            id: [0]
+        });
 
-        const index = this.items.length;
-        this.items.push(itemForm);
-        this.setupItemCalculations(index);
-        this.setupUnitFilter(index);
+        this.items.push(row);
+        this.setupFilter(index);
     }
 
-    dateRangeValidator(group: any): any {
-        const isRequired = group.get('isExpiryRequired')?.value;
-        if (!isRequired) return null;
-        const mfg = group.get('manufacturingDate')?.value;
-        const exp = group.get('expiryDate')?.value;
-        if (mfg && exp) {
-            const mfgDate = new Date(mfg);
-            const expDate = new Date(exp);
-            if (isNaN(mfgDate.getTime()) || isNaN(expDate.getTime())) return null;
-            mfgDate.setHours(0, 0, 0, 0);
-            expDate.setHours(0, 0, 0, 0);
-            if (expDate < mfgDate) return { dateRangeInvalid: true };
+    private setupFilter(index: number): void {
+        const row = this.items.at(index);
+        this.filteredProducts[index] = row.get('productSearch')!.valueChanges.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap(value => {
+                const str = typeof value === 'string' ? value : value?.productName || value?.name;
+                if (!str || str.length < 2) return of([]);
+                this.isProductLoading[index] = true;
+                return this.productService.searchProducts(str).pipe(
+                    finalize(() => this.isProductLoading[index] = false),
+                    catchError(() => of([]))
+                );
+            }),
+            takeUntil(this.destroy$)
+        );
+
+        this.filteredUnits[index] = row.get('unit')!.valueChanges.pipe(
+            debounceTime(200),
+            distinctUntilChanged(),
+            switchMap(value => {
+                const str = (value || '').toLowerCase();
+                return of(this.allUnits.filter(u => (u.unitName || u.name || '').toLowerCase().includes(str)));
+            }),
+            takeUntil(this.destroy$)
+        );
+    }
+
+    displayProductFn(p: any): string {
+        if (!p) return '';
+        return p.productName || p.name || (typeof p === 'string' ? p : '');
+    }
+
+    onProductChange(index: number, event: any): void {
+        const product = event.option.value;
+        const row = this.items.at(index);
+        const priceListId = this.poForm.get('priceListId')?.value;
+
+        if (!product) return;
+
+        const isDuplicate = this.items.controls.some((ctrl, i) => i !== index && ctrl.get('productId')?.value === (product.id || product.productId));
+        if (isDuplicate) {
+            this.notification.showStatus(false, 'Product already added.');
+            row.patchValue({ productId: null, productSearch: '' });
+            return;
         }
-        return null;
-    }
 
-    private setupUnitFilter(index: number) {
-        const unitCtrl = this.items.at(index).get('unit');
-        if (unitCtrl) {
-            this.filteredUnits[index] = unitCtrl.valueChanges.pipe(
-                startWith(''),
-                map(value => this._filterUnits(value || ''))
-            );
+        const isTaxOff = !this.poForm.get('isTaxApplicable')?.value;
+        
+        row.patchValue({
+            productId: product.id || product.productId,
+            productSearch: product,
+            unit: product.unit || 'PCS',
+            price: product.basePurchasePrice || product.purchasePrice || product.basePrice || product.rate || product.price || 0,
+            gstPercent: isTaxOff ? 0 : (product.defaultGst ?? product.gstPercent ?? 18),
+            originalGst: product.defaultGst ?? product.gstPercent ?? 18,
+            discountPercent: 0,
+            qty: 1,
+            currentStock: product.currentStock || 0,
+            sku: product.sku || '',
+            warehouseId: product.warehouseId || product.defaultWarehouseId || null,
+            warehouseName: product.defaultWarehouseName || product.warehouseName || 'Main WH',
+            rackId: product.rackId || product.defaultRackId || null,
+            rackName: product.defaultRackName || product.rackName || 'Rack-1',
+            isExpiryRequired: product.isExpiryRequired ?? false,
+            mfgDate: null,
+            expDate: null
+        });
+
+        if (product.isExpiryRequired) {
+            row.get('mfgDate')?.setValidators(Validators.required);
+            row.get('expDate')?.setValidators(Validators.required);
+        } else {
+            row.get('mfgDate')?.clearValidators();
+            row.get('expDate')?.clearValidators();
         }
-    }
+        row.get('mfgDate')?.updateValueAndValidity();
+        row.get('expDate')?.updateValueAndValidity();
 
-    private _filterUnits(value: string): any[] {
-        const filterValue = value.toLowerCase();
-        return this.units.filter(unit => (unit.unitName || unit.name || '').toLowerCase().includes(filterValue));
+        if ((product.id || product.productId) && priceListId) {
+            this.inventoryService.getProductRate(product.id || product.productId, priceListId).subscribe({
+                next: (res: any) => {
+                    if (res) {
+                        row.patchValue({
+                            price: res.recommendedRate || res.rate,
+                            discountPercent: res.discount || res.discountPercent || 0,
+                            gstPercent: isTaxOff ? 0 : (res.GstPercent || res.gstPercent || row.get('gstPercent')?.value || 18)
+                        });
+                    }
+                    this.updateTotal(index);
+                },
+                error: () => this.updateTotal(index)
+            });
+        } else {
+            this.updateTotal(index);
+        }
     }
 
     removeItem(index: number) {
         this.items.removeAt(index);
         this.racksByItem.splice(index, 1);
         this.filteredUnits.splice(index, 1);
+        this.filteredProducts.splice(index, 1);
+        this.isProductLoading.splice(index, 1);
     }
 
-    getWarehouseName(warehouseId: any): string {
-        if (!warehouseId) return 'No WH';
-        const wh = this.warehouses.find(w => w.id === warehouseId);
-        return wh ? wh.name : 'No WH';
-    }
+    updateTotal(index: number): void {
+        const row = this.items.at(index);
+        if (!row) return;
+        const qty = Number(row.get('qty')?.value || 0);
+        const price = Number(row.get('price')?.value || 0);
+        const discPercent = Number(row.get('discountPercent')?.value || 0);
+        const gstPercent = Number(row.get('gstPercent')?.value || 0);
 
-    getRackName(index: number, rackId: any): string {
-        const item = this.items.at(index);
-        const staticName = item.get('rackName')?.value;
-        if (staticName && staticName !== 'NA') return staticName;
-        if (!rackId) return 'No Rack';
-        const racks = this.racksByItem[index] || [];
-        const rack = racks.find((r: any) => r.id === rackId);
-        return rack ? rack.name : 'No Rack';
-    }
+        const amount = qty * price;
+        const discountAmount = (amount * discPercent) / 100;
+        const taxableAmount = amount - discountAmount;
+        const isTaxApplicable = this.poForm.get('isTaxApplicable')?.value ?? true;
+        const taxAmt = isTaxApplicable ? (taxableAmount * gstPercent) / 100 : 0;
+        const rowTotal = taxableAmount + taxAmt;
 
-    private setupItemCalculations(index: number) {
-        const item = this.items.at(index);
-        item.valueChanges.pipe(debounceTime(100)).subscribe(() => {
-            this.calculateItemTotal(index);
-        });
-    }
-
-    private calculateItemTotal(index: number) {
-        const item = this.items.at(index);
-        const qty = item.get('qty')?.value || 0;
-        const rate = item.get('rate')?.value || 0;
-        const disc = item.get('discountPercent')?.value || 0;
-        const gst = item.get('gstPercent')?.value || 0;
-        const netRate = rate * (1 - disc / 100);
-        const isTaxApplicable = this.purchaseForm.get('isTaxApplicable')?.value ?? true;
-        const tax = isTaxApplicable ? (netRate * (gst / 100)) : 0;
-        const total = qty * (netRate + tax);
-        item.get('total')?.patchValue(total.toFixed(2), { emitEvent: false });
-        item.get('taxAmount')?.patchValue((qty * tax).toFixed(2), { emitEvent: false });
+        row.patchValue({ taxAmount: taxAmt.toFixed(2), total: rowTotal.toFixed(2) }, { emitEvent: false });
     }
 
     get grandTotal(): number {
@@ -479,29 +537,22 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     get subTotal(): number {
         return this.items.controls.reduce((sum, ctrl) => {
             const qty = Number(ctrl.get('qty')?.value) || 0;
-            const rate = Number(ctrl.get('rate')?.value) || 0;
+            const price = Number(ctrl.get('price')?.value || 0);
             const disc = Number(ctrl.get('discountPercent')?.value) || 0;
-            return sum + (qty * rate * (1 - disc / 100));
+            return sum + (qty * price * (1 - disc / 100));
         }, 0);
     }
 
-    get totalTax(): number {
-        return this.items.controls.reduce((sum, ctrl) => {
-            const qty = Number(ctrl.get('qty')?.value) || 0;
-            const rate = Number(ctrl.get('rate')?.value) || 0;
-            const disc = Number(ctrl.get('discountPercent')?.value) || 0;
-            const gst = Number(ctrl.get('gstPercent')?.value) || 0;
-            const netRate = rate * (1 - disc / 100);
-            return sum + (qty * netRate * (gst / 100));
-        }, 0);
+    get totalTaxAmount(): number {
+        return this.items.controls.reduce((sum, ctrl) => sum + (parseFloat(ctrl.get('taxAmount')?.value) || 0), 0);
     }
 
     get tdsAmount(): number {
-        return (this.subTotal * (this.purchaseForm.get('tdsPercent')?.value || 0)) / 100;
+        return (this.subTotal * (this.poForm.get('tdsPercent')?.value || 0)) / 100;
     }
 
     get tcsAmount(): number {
-        return (this.subTotal * (this.purchaseForm.get('tcsPercent')?.value || 0)) / 100;
+        return (this.subTotal * (this.poForm.get('tcsPercent')?.value || 0)) / 100;
     }
 
     get finalGrandTotal(): number {
@@ -510,7 +561,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
 
     loadNextPoNumber() {
         this.inventoryService.getNextPoNumber(this.authService.getBranchId()).subscribe((res: any) => {
-            this.purchaseForm.patchValue({ poNumber: res.poNumber });
+            this.poForm.patchValue({ PoNumber: res.poNumber });
         });
     }
 
@@ -530,9 +581,9 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         this.supplierService.getSupplierById(supplierId).subscribe((res: any) => {
             const pListId = res.defaultpricelistId || res.defaultPriceListId || res.priceListId;
             this.selectedSupplierIsUnregistered = !res.gstIn || res.gstIn === '' || res.gstIn.toUpperCase() === 'PENDING';
-            this.purchaseForm.get('isTaxApplicable')?.setValue(!this.selectedSupplierIsUnregistered, { emitEvent: true });
+            this.poForm.get('isTaxApplicable')?.setValue(!this.selectedSupplierIsUnregistered, { emitEvent: true });
             if (pListId) {
-                this.purchaseForm.get('priceListId')?.setValue(pListId);
+                this.poForm.get('priceListId')?.setValue(pListId);
                 this.isPriceListAutoSelected = true;
                 this.refreshAllItemRates(pListId);
             } else {
@@ -549,12 +600,12 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                     next: (res: any) => {
                         if (res) {
                             control.patchValue({
-                                rate: res.recommendedRate || res.rate,
+                                price: res.recommendedRate || res.rate,
                                 discountPercent: res.discount || res.discountPercent || 0,
-                                gstPercent: res.gstPercent ?? 18,
+                                gstPercent: this.selectedSupplierIsUnregistered ? 0 : (res.gstPercent ?? 18),
                             });
                         }
-                        this.calculateItemTotal(index);
+                        this.updateTotal(index);
                     }
                 });
             }
@@ -562,17 +613,13 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     loadSuppliers(selectId?: string) {
-        this.supplierService.getSuppliers().subscribe({
+        this.isLoadingSuppliers = true;
+        this.supplierService.getSuppliers().pipe(finalize(() => this.isLoadingSuppliers = false)).subscribe({
             next: (res: any) => {
                 this.suppliers = res;
-                this.filteredSuppliers = res;
                 if (selectId) {
-                    this.purchaseForm.get('supplierId')?.setValue(selectId);
-                    const supplier = this.suppliers.find(s => s.id === selectId);
-                    if (supplier) {
-                        this.purchaseForm.patchValue({ supplierName: supplier.name });
-                        this.onSupplierChange(selectId);
-                    }
+                    this.poForm.get('supplierId')?.setValue(selectId);
+                    this.onSupplierChange(selectId);
                 }
             }
         });
@@ -592,46 +639,71 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         });
     }
 
-    onSupplierSelect(event: any) {
-        const supplier = this.suppliers.find(s => s.id === event.value);
-        if (supplier) {
-            this.purchaseForm.patchValue({ supplierName: supplier.name });
-            this.onSupplierChange(event.value);
-        }
+    getMinExpDate(mfgDateValue: any): Date {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (!mfgDateValue) return today;
+        const mfgDate = new Date(mfgDateValue);
+        mfgDate.setHours(0, 0, 0, 0);
+        const nextDay = new Date(mfgDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        return nextDay > today ? nextDay : today;
     }
 
-    save() {
+    openLocationTracker(row: any) {
+        const dialogRef = this.dialog.open(LocationTrackerDialogComponent, {
+          width: '500px',
+          data: { 
+            productId: row.get('productId').value,
+            productName: row.get('productSearch').value?.productName || row.get('productSearch').value
+          }
+        });
+    
+        dialogRef.afterClosed().subscribe(res => {
+          if (res) {
+            row.patchValue({
+              warehouseId: res.warehouseId,
+              warehouseName: res.warehouseName,
+              rackId: res.rackId,
+              rackName: res.rackName,
+              currentStock: res.stock
+            });
+          }
+        });
+    }
+
+    saveDraft() {
         if (!this.permissionService.hasPermission(this.isEditMode ? 'CanEdit' : 'CanAdd')) {
             this.notification.showStatus(false, 'You do not have permission to perform this action.');
             return;
         }
-        if (this.purchaseForm.invalid) {
-            this.purchaseForm.markAllAsTouched();
+        if (this.poForm.invalid) {
+            this.poForm.markAllAsTouched();
             this.notification.showStatus(false, 'Please fill all required fields correctly.');
             return;
         }
-        this.isSaving = true;
-        const formValue = this.purchaseForm.getRawValue();
+        this.loadingService.setLoading(true, this.isEditMode ? 'Updating Purchase Order...' : 'Saving Purchase Order...');
+        const formValue = this.poForm.getRawValue();
         const payload = {
             id: this.isEditMode ? this.poId : '00000000-0000-0000-0000-000000000000',
             supplierId: formValue.supplierId,
             supplierName: this.suppliers.find(s => s.id === formValue.supplierId)?.name || '',
             priceListId: formValue.priceListId,
-            poDate: DateHelper.toLocalISOString(formValue.date) || '',
+            poDate: DateHelper.toLocalISOString(formValue.poDate) || '',
             expectedDeliveryDate: DateHelper.toLocalISOString(formValue.expectedDeliveryDate) || '',
-            poNumber: formValue.poNumber,
+            poNumber: formValue.PoNumber,
             remarks: formValue.remarks || '',
             taxType: formValue.taxType || 'local',
             tdsPercent: Number(formValue.tdsPercent || 0),
             tcsPercent: Number(formValue.tcsPercent || 0),
             tdsAmount: this.tdsAmount,
             tcsAmount: this.tcsAmount,
-            igstAmount: formValue.taxType === 'interState' ? this.totalTax : 0,
-            cgstAmount: formValue.taxType === 'local' ? this.totalTax / 2 : 0,
-            sgstAmount: formValue.taxType === 'local' ? this.totalTax / 2 : 0,
+            igstAmount: formValue.taxType === 'interState' ? this.totalTaxAmount : 0,
+            cgstAmount: formValue.taxType === 'local' ? this.totalTaxAmount / 2 : 0,
+            sgstAmount: formValue.taxType === 'local' ? this.totalTaxAmount / 2 : 0,
             grandTotal: this.finalGrandTotal,
             subTotal: this.subTotal,
-            totalTax: this.totalTax,
+            totalTax: this.totalTaxAmount,
             totalQuantity: this.totalQty,
             status: 'Draft',
             isQuick: true,
@@ -643,27 +715,31 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
                 productId: i.productId,
                 qty: Number(i.qty),
                 unit: i.unit || 'PCS',
-                rate: Number(i.rate),
+                rate: Number(i.price), // Payload expects 'rate'
                 discountPercent: Number(i.discountPercent),
                 gstPercent: Number(i.gstPercent),
                 taxAmount: Number(i.taxAmount || 0),
                 total: Number(i.total),
                 warehouseId: i.warehouseId || null,
                 rackId: i.rackId || null,
-                manufacturingDate: i.manufacturingDate ? DateHelper.toLocalISOString(i.manufacturingDate) : null,
-                expiryDate: i.expiryDate ? DateHelper.toLocalISOString(i.expiryDate) : null,
+                manufacturingDate: i.mfgDate ? DateHelper.toLocalISOString(i.mfgDate) : null,
+                expiryDate: i.expDate ? DateHelper.toLocalISOString(i.expDate) : null,
                 branchId: this.authService.getBranchId()
             }))
         };
+
         const request$ = this.isEditMode ? this.poService.update(this.poId, payload) : this.inventoryService.savePoDraft(payload);
         request$.subscribe({
             next: (res: any) => {
+                this.isSaving = false;
+                this.loadingService.setLoading(false);
                 this.notification.showStatus(true, `Quick Purchase Draft ${this.isEditMode ? 'Updated' : 'Saved'}!`);
                 this.router.navigate(['/app/quick-inventory/purchase/list']);
             },
             error: (err: any) => {
-                this.notification.showStatus(false, err.error?.message || 'Failed to save draft.');
                 this.isSaving = false;
+                this.loadingService.setLoading(false);
+                this.notification.showStatus(false, err.error?.message || 'Failed to save draft.');
             }
         });
     }
@@ -703,7 +779,7 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         if (existingIndex > -1) {
             const qtyCtrl = this.items.at(existingIndex).get('qty');
             qtyCtrl?.setValue(Number(qtyCtrl.value) + 1);
-            this.calculateItemTotal(existingIndex);
+            this.updateTotal(existingIndex);
             this.notification.showStatus(true, `Quantity updated for SKU: ${sku}`);
             return;
         }
@@ -711,10 +787,13 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         this.productService.searchProducts(sku).pipe(finalize(() => this.isLoading = false)).subscribe((products: any) => {
             const match = products.find((p: any) => p.sku === sku);
             if (match) {
+                // If first row is empty, remove it
+                if (this.items.length === 1 && !this.items.at(0).get('productId')?.value) {
+                    this.items.removeAt(0);
+                }
                 this.addProductToForm(match);
                 this.notification.showStatus(true, `Product added: ${match.productName}`);
             } else {
-                // Product not found - Open Quick Add Product Dialog
                 const dialogRef = this.dialog.open(ProductForm, {
                     width: '850px',
                     disableClose: true,
@@ -723,6 +802,9 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
 
                 dialogRef.afterClosed().subscribe((newProduct: any) => {
                     if (newProduct) {
+                        if (this.items.length === 1 && !this.items.at(0).get('productId')?.value) {
+                            this.items.removeAt(0);
+                        }
                         this.addProductToForm(newProduct);
                         this.notification.showStatus(true, `New product created and added: ${newProduct.productName}`);
                     }

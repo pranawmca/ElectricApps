@@ -1,255 +1,335 @@
-<div class="content-container">
-  <div class="list-header animate-fade-in">
-    <div class="title-section">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <mat-icon class="page-icon" style="color: #6366f1; font-size: 28px; width: 28px; height: 28px;">shopping_bag</mat-icon>
-        <h1 class="page-title">{{ isEditMode ? 'Edit Quick Purchase' : 'New Quick Purchase' }}</h1>
-      </div>
-      <p class="subtitle">Direct material acquisition and real-time ledger updates (Bypasses Gatepass)</p>
-    </div>
-
-    <div class="action-buttons">
-      <!-- Active Scanner Status -->
-      <div class="barcode-status" [class.scanning]="isScanning">
-        <mat-icon>{{ isScanning ? 'settings_overscan' : 'barcode_reader' }}</mat-icon>
-        <div class="text-container">
-          <span class="status-label">{{ isScanning ? 'Scanning...' : 'Scanner Active' }}</span>
-        </div>
-      </div>
-
-      <button mat-raised-button class="btn-pill secondary" (click)="router.navigate(['/app/quick-inventory/purchase/list'])">
-        <mat-icon>arrow_back</mat-icon> Cancel
-      </button>
-      <button mat-raised-button color="primary" class="btn-pill" (click)="save()" [disabled]="isSaving">
-        <mat-icon>{{ isSaving ? 'hourglass_empty' : (isEditMode ? 'update' : 'save') }}</mat-icon>
-        {{ isSaving ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Save Purchase' : 'Save Purchase') }}
-      </button>
-    </div>
+<mat-card class="p-4 shadow-sm">
+  <div class="actions">
+    <button mat-button class="back-btn" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon> Back
+    </button>
+    <button mat-raised-button color="primary" class="save-btn" (click)="saveDraft()" [disabled]="poForm.invalid || isLoading">
+      <mat-icon>save</mat-icon> {{ isEditMode ? 'Update Draft (PO)' : 'Save Draft (PO)' }}
+    </button>
   </div>
 
-  <div class="form-card mat-elevation-z1">
-    <form [formGroup]="purchaseForm">
-      <div class="row">
-        <div class="col-3">
-          <div class="supplier-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Select Supplier**</mat-label>
-              <mat-select formControlName="supplierId" (selectionChange)="onSupplierSelect($event)">
-                <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <button mat-mini-fab color="primary" type="button" (click)="openSupplierModal()" matTooltip="Add New Supplier" class="add-supplier-btn">
-              <mat-icon>add</mat-icon>
-            </button>
+  <form [formGroup]="poForm" class="mt-3">
+    <div class="po-header-grid">
+      <div class="field-item">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Select Supplier*</mat-label>
+          <mat-select formControlName="supplierId" (selectionChange)="onSupplierChange($event.value)" [disabled]="isLoadingSuppliers">
+            <mat-option [value]="null">Please Select Supplier</mat-option>
+            <mat-option *ngFor="let s of suppliers" [value]="s.id">
+              {{ s.name }}
+            </mat-option>
+          </mat-select>
+          <div matSuffix *ngIf="isLoadingSuppliers" class="dropdown-loader">
+            <mat-spinner diameter="18"></mat-spinner>
           </div>
-        </div>
-
-        <div class="col-3">
-          <mat-form-field appearance="outline" class="full-width" [class.auto-selected]="isPriceListAutoSelected">
-            <mat-label>Applicable Price List**</mat-label>
-            <mat-select formControlName="priceListId" (selectionChange)="refreshAllItemRates($event.value)">
-              <mat-option *ngFor="let pl of priceLists" [value]="pl.id">{{ pl.name }}</mat-option>
-            </mat-select>
-            <mat-error *ngIf="purchaseForm.get('priceListId')?.hasError('required')">Price List is required.</mat-error>
-          </mat-form-field>
-        </div>
-
-        <div class="col-3">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>PO Number</mat-label>
-            <input matInput formControlName="poNumber" placeholder="PO/26-27/0015">
-          </mat-form-field>
-        </div>
-
-        <div class="col-3">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>PO Date**</mat-label>
-            <input matInput [matDatepicker]="datePicker" formControlName="date">
-            <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
-            <mat-datepicker #datePicker></mat-datepicker>
-          </mat-form-field>
-        </div>
+          <mat-error *ngIf="poForm.get('supplierId')?.hasError('required')">
+            Supplier is required.
+          </mat-error>
+          <mat-error *ngIf="suppliers.length === 0 && !isLoadingSuppliers && !poForm.get('supplierId')?.hasError('required')">
+            No suppliers found.
+          </mat-error>
+        </mat-form-field>
       </div>
 
-      <div class="row">
-        <div class="col-3">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Expected Delivery**</mat-label>
-            <input matInput [matDatepicker]="deliveryPicker" formControlName="expectedDeliveryDate" [min]="today">
-            <mat-datepicker-toggle matIconSuffix [for]="deliveryPicker"></mat-datepicker-toggle>
-            <mat-datepicker #deliveryPicker></mat-datepicker>
-          </mat-form-field>
-        </div>
-        <div class="col-6">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Remarks / Notes</mat-label>
-            <textarea matInput formControlName="remarks" rows="1" placeholder="Notes..." style="resize: none;"></textarea>
-          </mat-form-field>
-        </div>
-        <div class="col-3 d-flex align-items-center" style="padding-bottom: 22px; gap: 15px;">
-          <mat-checkbox formControlName="isTaxApplicable" color="primary">
-            <span style="font-weight: 600; color: #4b5563; font-size: 13px;">Apply GST</span>
-          </mat-checkbox>
-          
-          <mat-button-toggle-group formControlName="taxType" class="tax-type-toggle" *ngIf="purchaseForm.get('isTaxApplicable')?.value">
-            <mat-button-toggle value="local">Local</mat-button-toggle>
-            <mat-button-toggle value="interState">Inter-State</mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
+      <div class="add-btn-circle" (click)="openSupplierModal()" matTooltip="Add New Supplier">
+        <mat-icon>add</mat-icon>
       </div>
 
-      <div class="items-section">
-        <div class="section-title">
-          <span>Items to Buy (Purchase Details)</span>
-          <button mat-flat-button color="primary" (click)="openProductDialog()">
-            <mat-icon>search</mat-icon> Search & Add Products
-          </button>
-        </div>
+      <div class="field-item">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Applicable Price List*</mat-label>
+          <mat-select formControlName="priceListId" (selectionChange)="refreshAllItemRates($event.value)" [disabled]="isLoadingPriceLists">
+            <mat-option [value]="null">Please Select</mat-option>
+            <mat-option *ngFor="let pl of priceLists" [value]="pl.id">
+              {{ pl.name }}
+            </mat-option>
+          </mat-select>
+          <div matSuffix *ngIf="isLoadingPriceLists" class="dropdown-loader">
+            <mat-spinner diameter="18"></mat-spinner>
+          </div>
+          <mat-error *ngIf="poForm.get('priceListId')?.hasError('required')">
+            Price List is required.
+          </mat-error>
+          <mat-error *ngIf="priceLists.length === 0 && !isLoadingPriceLists && !poForm.get('priceListId')?.hasError('required')">
+            No price lists found.
+          </mat-error>
+          <mat-hint *ngIf="isPriceListAutoSelected" style="color: green; font-size: 10px;">
+            Auto-linked from Supplier
+          </mat-hint>
+        </mat-form-field>
+      </div>
 
-        <div class="items-grid" formArrayName="items">
-          <div class="item-header">
-            <div class="col-product">Description*</div>
-            <div class="col-qty">Qty/Pkt/kg</div>
-            <div class="col-unit">Unit</div>
-            <div class="col-rate">Rate (₹)</div>
-            <div class="col-disc">Disc %</div>
-            <div class="col-gst">GST %</div>
-            <div class="col-mfg">Mfg Date</div>
-            <div class="col-exp">Exp Date</div>
-            <div class="col-total">Total (₹)</div>
-            <div class="col-action"></div>
+      <div class="field-item">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>PO Number</mat-label>
+          <input matInput formControlName="PoNumber" readonly>
+        </mat-form-field>
+      </div>
+
+      <div class="field-item">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>PO Date*</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="poDate" [min]="today">
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="field-item">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Expected Delivery*</mat-label>
+          <input matInput [matDatepicker]="expPicker" formControlName="expectedDeliveryDate" [min]="poForm.get('poDate')?.value || minDate">
+          <mat-datepicker-toggle matIconSuffix [for]="expPicker"></mat-datepicker-toggle>
+          <mat-datepicker #expPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="field-item checkbox-field d-flex align-items-center gap-3">
+        <mat-checkbox formControlName="isTaxApplicable" color="primary">
+          <span class="checkbox-label">Apply GST (Tax)</span>
+        </mat-checkbox>
+
+        <mat-button-toggle-group formControlName="taxType" class="tax-type-toggle-small" *ngIf="poForm.get('isTaxApplicable')?.value">
+          <mat-button-toggle value="local">Local</mat-button-toggle>
+          <mat-button-toggle value="interState">Inter-State</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+      <div class="d-flex gap-2 align-items-center">
+        <button mat-stroked-button class="bulk-add-btn" type="button" style="margin-right: 15px;" (click)="openBulkAddDialog()">
+          <mat-icon>list_alt</mat-icon> Bulk Add Items
+        </button>
+        <button mat-flat-button class="add-item-btn" type="button" (click)="addRow()" style="margin-right: 10px;">
+          <mat-icon>add</mat-icon> Add Item
+        </button>
+
+        <span *ngIf="items.length > 0 && !isReorder" style="color: #10b981; font-weight: 600; font-size: 13px;">
+          <mat-icon style="vertical-align: middle; font-size: 18px; width: 18px; height: 18px;">check_circle</mat-icon>
+          {{items.length}} Item(s) added successfully
+        </span>
+        <span *ngIf="items.length > 0 && isReorder" 
+          style="color: #800000; font-weight: 600; font-size: 13px; cursor: help;"
+          [matTooltip]="reorderTooltipText" matTooltipClass="reorder-tooltip">
+          <mat-icon style="vertical-align: middle; font-size: 18px; width: 18px; height: 18px;">shopping_cart</mat-icon>
+          {{items.length}} Item(s) added from Reorder Cart
+        </span>
+
+        <!-- Improved Barcode Indicator -->
+        <div class="barcode-status ms-auto" [class.scanning]="isScanning">
+          <mat-icon>{{ isScanning ? 'settings_overscan' : 'barcode_reader' }}</mat-icon>
+          <div class="text-container">
+            <span class="status-label">{{ isScanning ? 'Scanning...' : 'Scanner Active' }}</span>
+            <span class="last-scanned" *ngIf="lastScannedCode">{{ lastScannedCode }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <span class="text-muted" style="font-size: 12px;">Prices will be fetched from the selected Price List.</span>
+    </div>
+
+    <div formArrayName="items" class="items-section mt-3">
+      <div class="item-row" *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
+        <div style="position: relative; overflow: visible;">
+          <div class="stock-hint clickable" *ngIf="row.get('productId')?.value" 
+               (click)="openLocationTracker(row)" 
+               matTooltip="Click to track inventory location">
+            <span class="sku-hint">{{row.get('warehouseName')?.value}}</span>
+            <span class="sep">/</span>
+            <span class="sku-hint">Rack: {{row.get('rackName')?.value}}</span>
+            <span class="sep">/</span>
+            <span class="stock-val">Avail: <strong>{{row.get('currentStock')?.value || 0}}</strong></span>
           </div>
 
-          <div class="item-row" *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
-            <div class="col-product">
-               <div class="stock-hint" 
-                    *ngIf="item.get('productId')?.value" 
-                    matTooltip="Warehouse, Rack and Current Stock info">
-                  <span class="wh-name">{{getWarehouseName(item.get('warehouseId')?.value)}}</span>
-                  <span class="sep">/</span>
-                  <span class="rack-name">Rack: {{getRackName(i, item.get('rackId')?.value)}}</span>
-                  <span class="sep">/</span>
-                  <span class="stock-label">Stock:</span><span class="stock-val"><strong>{{item.get('availableStock')?.value}}</strong> {{item.get('unit')?.value}}</span>
-               </div>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Search Product</mat-label>
+            <input type="text" matInput formControlName="productSearch" [matAutocomplete]="auto">
+            <div matSuffix *ngIf="isProductLoading[i]" style="display: flex; align-items: center; padding-right: 8px;">
+              <mat-spinner diameter="18"></mat-spinner>
+            </div>
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProductFn" (optionSelected)="onProductChange(i, $event)">
+              <mat-option *ngFor="let product of filteredProducts[i] | async" [value]="product">
+                <div class="product-option-row">
+                  <span class="p-name">{{product.productName || product.name}}</span>
+                  <span class="p-stock" [class.in-stock]="product.currentStock > 0" [class.no-stock]="product.currentStock <= 0">
+                    Stock: {{ product.currentStock || 0 }}
+                  </span>
+                </div>
+                <small class="p-sku text-muted">SKU: {{product.sku}}</small>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
 
-               <mat-form-field appearance="outline" dense class="product-info-field">
-                 <input matInput formControlName="productName" readonly placeholder="Selected Product">
-               </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Qty</mat-label>
+          <input matInput type="number" formControlName="qty" (input)="updateTotal(i)">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="unit-field">
+          <mat-label>Unit</mat-label>
+          <input type="text" matInput formControlName="unit" [matAutocomplete]="autoUnit" readonly style="pointer-events:none; color:#888;">
+          <mat-autocomplete #autoUnit="matAutocomplete">
+            <mat-option *ngFor="let u of filteredUnits[i] | async" [value]="u.name">
+              {{u.name}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Rate</mat-label>
+          <input matInput type="number" formControlName="price" (input)="updateTotal(i)" readonly style="color:#888;">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Disc %</mat-label>
+          <input matInput type="number" formControlName="discountPercent" (input)="updateTotal(i)" readonly style="color:#888;">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" [class.tax-disabled]="!poForm.get('isTaxApplicable')?.value">
+          <mat-label>GST %</mat-label>
+          <input matInput type="number" formControlName="gstPercent" (input)="updateTotal(i)" readonly 
+            [style.color]="!poForm.get('isTaxApplicable')?.value ? '#cbd5e1' : '#888'">
+        </mat-form-field>
+
+        <!-- Mfg Date: Only if IsExpiryRequired = true -->
+        <ng-container *ngIf="row.get('isExpiryRequired')?.value; else mfgNA">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
+            <mat-label>Mfg Date *</mat-label>
+            <input matInput [matDatepicker]="mfgPicker" formControlName="mfgDate" placeholder="dd/mm/yy" required [max]="today">
+            <mat-datepicker-toggle matIconSuffix [for]="mfgPicker"></mat-datepicker-toggle>
+            <mat-datepicker #mfgPicker></mat-datepicker>
+            <mat-error *ngIf="row.get('mfgDate')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+        </ng-container>
+        <ng-template #mfgNA>
+          <div class="na-field">
+            <span class="na-label">Mfg Date</span>
+            <span class="na-badge">N/A</span>
+          </div>
+        </ng-template>
+
+        <!-- Exp Date: Only if IsExpiryRequired = true -->
+        <ng-container *ngIf="row.get('isExpiryRequired')?.value; else expNA">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="date-field">
+            <mat-label>Exp Date *</mat-label>
+            <input matInput [matDatepicker]="expDatePicker" formControlName="expDate" placeholder="dd/mm/yy" required [min]="getMinExpDate(row.get('mfgDate')?.value)">
+            <mat-datepicker-toggle matIconSuffix [for]="expDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #expDatePicker></mat-datepicker>
+            <mat-error *ngIf="row.get('expDate')?.hasError('required')">Required</mat-error>
+            <mat-error *ngIf="row.get('expDate')?.hasError('matDatepickerMin')">Must be after Mfg Date</mat-error>
+          </mat-form-field>
+        </ng-container>
+        <ng-template #expNA>
+          <div class="na-field">
+            <span class="na-label">Exp Date</span>
+            <span class="na-badge">N/A</span>
+          </div>
+        </ng-template>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Tax Amt</mat-label>
+          <input matInput formControlName="taxAmount" readonly>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Total</mat-label>
+          <input matInput formControlName="total" readonly class="fw-bold text-primary">
+        </mat-form-field>
+
+        <button mat-icon-button type="button" color="warn" (click)="removeItem(i)" *ngIf="items.length > 1">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="po-footer mt-4 p-3 bg-light rounded" *ngIf="items.length">
+      <div class="footer-layout">
+        <div class="remarks-box">
+          <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
+            <mat-label>Remarks / Payment Terms</mat-label>
+            <textarea matInput formControlName="remarks" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="summary-box">
+          <div class="premium-summary-card">
+            <div class="summary-header">
+              <mat-icon>calculate</mat-icon>
+              <span>PO Summary</span>
             </div>
-            <div class="col-qty">
-              <mat-form-field appearance="outline" dense>
-                <input matInput type="number" formControlName="qty">
-              </mat-form-field>
+            
+            <div class="summary-content">
+              <div class="summary-row">
+                <span class="label">Total Items Qty</span>
+                <span class="value">{{ totalQty }}</span>
+              </div>
+
+              <div class="summary-row">
+                <span class="label">Sub-Total</span>
+                <span class="value">₹{{ grandTotal - totalTaxAmount | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="summary-row tax-highlight">
+                <span class="label">
+                  Total Tax
+                  <span class="tax-badge text-uppercase" *ngIf="poForm.get('isTaxApplicable')?.value">
+                    {{ poForm.get('taxType')?.value === 'local' ? 'CGST+SGST' : 'IGST' }}
+                  </span>
+                </span>
+                <span class="value tax-plus">+ ₹{{ totalTaxAmount | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="summary-divider"></div>
+
+              <div class="adjustment-section">
+                <div class="summary-row adjustment">
+                  <span class="label">TDS (%)</span>
+                  <div class="input-value-group">
+                    <input type="number" formControlName="tdsPercent" class="footer-tax-input" placeholder="0">
+                    <span class="adj-val minus">- ₹{{ tdsAmount | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+
+                <div class="summary-row adjustment">
+                  <span class="label">TCS (%)</span>
+                  <div class="input-value-group">
+                    <input type="number" formControlName="tcsPercent" class="footer-tax-input" placeholder="0">
+                    <span class="adj-val plus">+ ₹{{ tcsAmount | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="col-unit">
-              <mat-form-field appearance="outline" dense>
-                <input type="text" matInput formControlName="unit" [matAutocomplete]="autoUnit">
-                <mat-autocomplete #autoUnit="matAutocomplete">
-                  <mat-option *ngFor="let u of filteredUnits[i] | async" [value]="u.name">
-                    {{ u.name }}
-                  </mat-option>
-                </mat-autocomplete>
-              </mat-form-field>
+
+            <div class="grand-total-container">
+              <div class="grand-total-inner">
+                <span class="total-label">Final Amount</span>
+                <div class="total-amount-wrapper">
+                  <span class="currency">₹</span>
+                  <span class="amount">{{ finalGrandTotal | number:'1.2-2' }}</span>
+                </div>
+              </div>
             </div>
-            <div class="col-rate">
-              <mat-form-field appearance="outline" dense>
-                <input matInput type="number" formControlName="rate" readonly>
-              </mat-form-field>
-            </div>
-            <div class="col-disc">
-              <mat-form-field appearance="outline" dense>
-                <input matInput type="number" formControlName="discountPercent" readonly style="color: #6b7280;">
-              </mat-form-field>
-            </div>
-            <div class="col-gst">
-              <mat-form-field appearance="outline" dense [class.tax-disabled]="!purchaseForm.get('isTaxApplicable')?.value">
-                <input matInput type="number" formControlName="gstPercent" readonly style="color: #6b7280;">
-              </mat-form-field>
-            </div>
-            <div class="col-mfg">
-              <mat-form-field appearance="outline" dense *ngIf="item.get('isExpiryRequired')?.value; else noMfg">
-                <input matInput [matDatepicker]="mfgPicker" formControlName="manufacturingDate" placeholder="Mfg Date" [max]="today">
-                <mat-datepicker-toggle matIconSuffix [for]="mfgPicker" matTooltip="MFG DATE"></mat-datepicker-toggle>
-                <mat-datepicker #mfgPicker></mat-datepicker>
-                <mat-error *ngIf="item.get('manufacturingDate')?.hasError('required')">Required</mat-error>
-              </mat-form-field>
-              <ng-template #noMfg><span class="na-text-grid">N/A</span></ng-template>
-            </div>
-            <div class="col-exp">
-              <mat-form-field appearance="outline" dense *ngIf="item.get('isExpiryRequired')?.value; else noExp">
-                <input matInput [matDatepicker]="expPicker" formControlName="expiryDate" placeholder="Exp Date" [min]="today">
-                <mat-datepicker-toggle matIconSuffix [for]="expPicker" matTooltip="EXP DATE"></mat-datepicker-toggle>
-                <mat-datepicker #expPicker></mat-datepicker>
-                <mat-error *ngIf="item.get('expiryDate')?.hasError('required')">Required</mat-error>
-                <mat-error *ngIf="item.get('expiryDate')?.hasError('dateRangeInvalid')">Exp > Mfg Date</mat-error>
-              </mat-form-field>
-              <ng-template #noExp><span class="na-text-grid">N/A</span></ng-template>
-            </div>
-            <div class="col-total">
-              <div class="total-badge">{{ item.get('total')?.value | currency:'INR':'symbol':'1.2-2' }}</div>
-            </div>
-            <div class="col-action">
-              <button mat-icon-button color="warn" (click)="removeItem(i)" matTooltip="Remove Item" type="button">
-                <mat-icon>delete_outline</mat-icon>
+
+            <!-- Save Action Button inside the card for emphasis -->
+            <div class="card-action-bar">
+              <button mat-raised-button color="primary" class="save-btn w-100" (click)="saveDraft()" [disabled]="poForm.invalid || isLoading">
+                <mat-icon>save</mat-icon> 
+                {{ isEditMode ? 'Update Draft (PO)' : 'Save Draft (PO)' }}
               </button>
             </div>
           </div>
         </div>
-
-        <div class="summary-section">
-          <div class="summary-box">
-
-            <div class="summary-row">
-              <span class="label">Total Qty:</span>
-              <span class="value qty-value">{{ totalQty | number:'1.0-2' }} <small>Items</small></span>
-            </div>
-
-            <div class="summary-row">
-              <span class="label">Sub Total:</span>
-              <span class="value">{{ subTotal | currency:'INR':'symbol':'1.2-2' }}</span>
-            </div>
-
-            <div class="summary-row">
-              <span class="label">Total Tax (GST):</span>
-              <span class="value tax-value">
-                {{ totalTax | currency:'INR':'symbol':'1.2-2' }}
-                <small class="tax-type-tag" *ngIf="purchaseForm.get('isTaxApplicable')?.value">({{ purchaseForm.get('taxType')?.value === 'local' ? 'CGST+SGST' : 'IGST' }})</small>
-              </span>
-            </div>
-
-            <div class="summary-row tax-extra-row">
-              <span class="label">TDS (%):</span>
-              <div class="tax-input-group">
-                <input matInput type="number" formControlName="tdsPercent" class="small-tax-input" placeholder="0">
-                <span class="tax-calculated-val text-info">-{{ tdsAmount | currency:'INR':'symbol':'1.2-2' }}</span>
-              </div>
-            </div>
-
-            <div class="summary-row tax-extra-row">
-              <span class="label">TCS (%):</span>
-              <div class="tax-input-group">
-                <input matInput type="number" formControlName="tcsPercent" class="small-tax-input" placeholder="0">
-                <span class="tax-calculated-val text-warning">+{{ tcsAmount | currency:'INR':'symbol':'1.2-2' }}</span>
-              </div>
-            </div>
-
-            <div class="summary-row grand-total">
-              <span class="label">Grand Total:</span>
-              <span class="value">{{ finalGrandTotal | currency:'INR':'symbol':'1.2-2' }}</span>
-            </div>
-
-          </div>
-        </div>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
 
-  <!-- Enhanced Scroll Action Button -->
-<button (click)="toggleScroll()" 
-        class="scroll-top-btn" 
-        mat-fab 
-        *ngIf="items.length > 0"
-        [@fadeInOut]>
-  <mat-icon>{{ isAtTop ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
-</button>
-</div>
+  <!-- Floating Scroll to Top/Bottom Button -->
+  <button mat-fab color="primary" class="scroll-top-btn" 
+    *ngIf="items.length > 1" 
+    (click)="toggleScroll()"
+    [@fadeInOut]>
+    <mat-icon>{{ isAtTop ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</mat-icon>
+  </button>
+</mat-card>

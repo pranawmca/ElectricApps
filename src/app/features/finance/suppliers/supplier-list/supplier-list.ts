@@ -12,6 +12,7 @@ import { SupplierService } from '../../../../features/inventory/service/supplier
 import { LoadingService } from '../../../../core/services/loading.service';
 import { SummaryStat, SummaryStatsComponent } from '../../../../shared/components/summary-stats-component/summary-stats-component';
 import { PermissionService } from '../../../../core/services/permission.service';
+import { NotificationService } from '../../../../features/shared/notification.service';
 
 @Component({
   selector: 'app-supplier-list',
@@ -26,6 +27,7 @@ export class SupplierList implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private permissionService = inject(PermissionService);
+  private notification = inject(NotificationService);
 
   canAdd: boolean = true;
 
@@ -79,10 +81,10 @@ export class SupplierList implements OnInit {
     }, 10000);
   }
 
-  loadSuppliers(request: GridRequest): void {
+  loadSuppliers(request: GridRequest, loadingMessage: string = 'Please wait...'): void {
     this.lastRequest = request;
     this.loading = true;
-    this.loadingService.setLoading(true); // Ensure global loader is active
+    this.loadingService.setLoading(true, loadingMessage); // Use custom message if provided
     this.supplierService.getPaged(request).subscribe({
       next: (res) => {
         this.data = res.items;
@@ -171,15 +173,16 @@ export class SupplierList implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadingService.setLoading(true);
+        this.loadingService.setLoading(true, 'Deleting Supplier...');
         this.supplierService.deleteSupplier(row.id).subscribe({
           next: () => {
-            this.loadSuppliers(this.lastRequest);
-            this.loadingService.setLoading(false);
+            this.loadSuppliers(this.lastRequest, 'Refreshing list...');
+            this.notification.showStatus(true, 'Supplier deleted successfully');
           },
           error: (err) => {
             console.error('Delete failed', err);
             this.loadingService.setLoading(false);
+            this.notification.showStatus(false, 'Failed to delete supplier. It may have related records.');
           }
         });
       }
