@@ -22,12 +22,12 @@ export class RoleService {
         return this.api.get<Role>(`roles/${id}`, this.baseUrl);
     }
 
-    createRole(roleName: string, companyId?: string | null): Observable<Role> {
-        return this.api.post<Role>('roles', { roleName, companyId }, this.baseUrl);
+    createRole(roleName: string, companyId?: string | null, branchId?: string | null): Observable<Role> {
+        return this.api.post<Role>('roles', { roleName, companyId, branchId }, this.baseUrl);
     }
 
-    updateRole(id: string, newName: string): Observable<Role> {
-        return this.api.put<Role>(`roles/${id}`, { roleName: newName }, this.baseUrl);
+    updateRole(id: string, roleName: string, branchId: string | null = null): Observable<Role> {
+        return this.api.put<Role>(`roles/${id}`, { roleName, branchId }, this.baseUrl);
     }
 
     deleteRole(id: string): Observable<void> {
@@ -44,13 +44,15 @@ export class RoleService {
     }
 
     // Print Settings
-    getRolePrintSettings(roleId: string | number, companyId?: string | null): Observable<any[]> {
-        const query = companyId ? `?companyId=${companyId}` : '';
+    getRolePrintSettings(roleId: string | number, companyId?: string | null, branchId?: string | null): Observable<any[]> {
+        let query = companyId ? `?companyId=${companyId}` : '?';
+        if (branchId) query += (query === '?' ? '' : '&') + `branchId=${branchId}`;
         return this.api.get<any[]>(`roles/${roleId}/print-settings${query}`, this.baseUrl);
     }
 
-    updateRolePrintSettings(roleId: string | number, settings: any[], companyId?: string | null): Observable<void> {
-        const query = companyId ? `?companyId=${companyId}` : '';
+    updateRolePrintSettings(roleId: string | number, settings: any[], companyId?: string | null, branchId?: string | null): Observable<void> {
+        let query = companyId ? `?companyId=${companyId}` : '?';
+        if (branchId) query += (query === '?' ? '' : '&') + `branchId=${branchId}`;
         return this.api.put<void>(`roles/${roleId}/print-settings${query}`, settings, this.baseUrl);
     }
 }

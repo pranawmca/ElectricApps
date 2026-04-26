@@ -148,9 +148,13 @@ export class MenuManagementComponent implements OnInit, AfterViewInit {
         }
     }
 
-    getParentTitle(parentId: number): string {
+    getParentTitle(parentId: any): string {
         const parent = this.allMenus.find(m => m.id === parentId);
-        return parent ? parent.title : 'Unknown';
+        return parent ? parent.title : 'Root';
+    }
+
+    trackByFn(index: number, item: MenuItem): any {
+        return item.id || index;
     }
 
     openMenuDialog(menu?: MenuItem): void {

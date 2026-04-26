@@ -145,43 +145,53 @@ export class LoginComponent implements OnInit, AfterViewInit {
           return;
         }
 
-        // 🚀 SHOW GLOBAL LOADER
+        // 🚀 BYPASS BRANCH SELECTION POPUP
         this.loadingService.setLoading(true);
         this.cdr.detectChanges();
 
-        setTimeout(() => {
-          this.companyService.getBranchesByCompany(res.companyId || this.auth.getCompanyId()).subscribe({
+        const assignedBranchId = this.auth.getBranchId();
+        const companyId = res.companyId || this.auth.getCompanyId();
+
+        if (assignedBranchId && companyId) {
+          // Fetch branch name to show correct name in toolbar
+          this.companyService.getBranchesByCompany(companyId).subscribe({
             next: (branches) => {
               this.loadingService.setLoading(false);
-              this.cdr.detectChanges();
-
-              if (branches && branches.length > 1) {
-                const dialogRef = this.dialog.open(BranchSelectionDialogComponent, {
-                  width: '450px',
-                  disableClose: true,
-                  data: { branches }
-                });
-
-                dialogRef.afterClosed().subscribe(selectedBranch => {
-                  if (selectedBranch) {
-                    this.auth.setWorkingBranch(selectedBranch.id, selectedBranch.branchName);
-                    this.router.navigate(['/app/dashboard']);
-                  }
-                });
+              console.log('--- LOGIN: Branches found:', branches);
+              console.log('--- LOGIN: Looking for assignedBranchId:', assignedBranchId);
+              
+              // Robust lookup: handle string vs number comparison
+              const branch = branches.find(b => 
+                b.id.toString() === assignedBranchId.toString() || 
+                b.BranchId?.toString() === assignedBranchId.toString()
+              );
+              
+              if (branch) {
+                console.log('--- LOGIN: Found branch name:', branch.branchName);
+                this.auth.setWorkingBranch(assignedBranchId, branch.branchName);
               } else {
-                if (branches && branches.length === 1) {
-                  this.auth.setWorkingBranch(branches[0].id, branches[0].branchName);
-                }
-                this.router.navigate(['/app/dashboard']);
+                console.warn('--- LOGIN: Branch name not found in list, using fallback.');
+                this.auth.setWorkingBranch(assignedBranchId, 'Main Office'); // Default fallback for now
               }
+              
+              this.router.navigate(['/app/dashboard']);
+              this.cdr.detectChanges();
             },
             error: () => {
               this.loadingService.setLoading(false);
-              this.cdr.detectChanges();
+              this.auth.setWorkingBranch(assignedBranchId, 'Assigned Branch');
               this.router.navigate(['/app/dashboard']);
+              this.cdr.detectChanges();
             }
           });
-        }, 2000); // 2 second animation delay
+        } else {
+          // Global User (Super Admin)
+          setTimeout(() => {
+            this.loadingService.setLoading(false);
+            this.router.navigate(['/app/dashboard']);
+            this.cdr.detectChanges();
+          }, 1000);
+        }
       },
       error: (err) => {
         console.error('Login error:', err);

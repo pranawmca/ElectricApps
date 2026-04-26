@@ -8,6 +8,7 @@ import { MaterialModule } from '../../../shared/material/material/material-modul
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { LoadingService } from '../../../core/services/loading.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { PrintConfigService } from '../../../core/services/print-config.service';
 
 export interface ModuleGroup {
@@ -49,6 +50,7 @@ export class PrintSettings implements OnInit {
   readonly pages = this.modules.flatMap(m => m.pages);
 
   private roleService = inject(RoleService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private loadingService = inject(LoadingService);
@@ -92,8 +94,9 @@ export class PrintSettings implements OnInit {
 
       const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
       const companyId = selectedRole?.companyId || null;
+      const branchId = this.authService.getWorkingBranchId();
 
-      this.roleService.getRolePrintSettings(this.selectedRoleId, companyId).subscribe({
+      this.roleService.getRolePrintSettings(this.selectedRoleId, companyId, branchId).subscribe({
         next: (settings) => {
           this.settings = settings;
 
@@ -104,6 +107,7 @@ export class PrintSettings implements OnInit {
               this.settings.push({
                 roleId: this.selectedRoleId!,
                 companyId: companyId,
+                branchId: branchId,
                 pageName: page,
                 printFormat: 'A4'
               });
@@ -125,7 +129,13 @@ export class PrintSettings implements OnInit {
   }
 
   getSetting(pageName: string): RolePrintSetting {
-    return this.settings.find(s => s.pageName === pageName) || { roleId: this.selectedRoleId || 0, pageName, printFormat: 'A4' };
+    return this.settings.find(s => s.pageName === pageName) || { 
+      roleId: this.selectedRoleId || 0, 
+      pageName, 
+      printFormat: 'A4',
+      companyId: this.authService.getCompanyId(),
+      branchId: this.authService.getWorkingBranchId()
+    };
   }
 
   setFormat(pageName: string, format: string) {
@@ -167,8 +177,9 @@ export class PrintSettings implements OnInit {
 
           const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
           const companyId = selectedRole?.companyId || null;
+          const branchId = this.authService.getWorkingBranchId();
 
-          this.roleService.updateRolePrintSettings(this.selectedRoleId!, this.settings, companyId).subscribe({
+          this.roleService.updateRolePrintSettings(this.selectedRoleId!, this.settings, companyId, branchId).subscribe({
             next: () => {
               this.loading = false;
               this.loadingService.setLoading(false);

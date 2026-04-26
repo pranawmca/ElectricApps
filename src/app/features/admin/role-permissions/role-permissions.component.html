@@ -6,16 +6,32 @@
     </div>
     
     <div class="controls-group">
-      <!-- Company Dropdown (Super Admin Only) -->
-      <mat-form-field appearance="outline" class="role-select compact-select" *ngIf="isSuperAdmin">
+      <!-- Company Selection (Super Admin only) -->
+      <mat-form-field appearance="outline" *ngIf="isSuperAdmin" class="header-select company-select">
         <mat-label>Select Company</mat-label>
         <mat-select [(ngModel)]="selectedCompanyId" (selectionChange)="onCompanyChange()">
-          <mat-option [value]="null">System (Global)</mat-option>
           <mat-option *ngFor="let company of companies" [value]="company.id">
-            {{company.name}}
+            <mat-icon>business</mat-icon> {{ company.name }}
           </mat-option>
         </mat-select>
         <mat-icon matPrefix>business</mat-icon>
+      </mat-form-field>
+
+      <!-- Branch Selection (New) -->
+      <mat-form-field appearance="outline" *ngIf="isSuperAdmin && branches.length > 0" class="header-select branch-select">
+       
+        <mat-select [(ngModel)]="selectedBranchId" (selectionChange)="onBranchChange()">
+          <mat-select-trigger>
+            <mat-icon style="vertical-align: middle; margin-right: 8px;">{{ selectedBranchId === 'GLOBAL' ? 'public' : 'store' }}</mat-icon>
+            {{ getSelectedBranchName() }}
+          </mat-select-trigger>
+          <mat-option value="GLOBAL">
+            <mat-icon>public</mat-icon> All Branches (Global)
+          </mat-option>
+          <mat-option *ngFor="let branch of branches" [value]="branch.id">
+            <mat-icon>store</mat-icon> {{ branch.branchName || branch.name }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="role-select compact-select">

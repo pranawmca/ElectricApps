@@ -57,6 +57,14 @@
     flex-direction: column;
     gap: 12px;
     padding: 4px;
+    .trigger-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      vertical-align: middle;
+      color: #4f46e5;
+    }
   }
 
   .full-width {

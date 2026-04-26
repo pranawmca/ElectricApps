@@ -82,6 +82,29 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
               <td mat-cell *matCellDef="let element"> {{element.companyName || 'System'}} </td>
             </ng-container>
 
+            <!-- Audit: Created Column -->
+            <ng-container matColumnDef="created">
+              <th mat-header-cell *matHeaderCellDef> Created </th>
+              <td mat-cell *matCellDef="let element">
+                <div class="audit-cell">
+                  <span class="audit-user">{{element.createdBy || 'System'}}</span>
+                  <span class="audit-date">{{element.createdDate | date:'short'}}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Audit: Modified Column -->
+            <ng-container matColumnDef="modified">
+              <th mat-header-cell *matHeaderCellDef> Modified </th>
+              <td mat-cell *matCellDef="let element">
+                <div class="audit-cell" *ngIf="element.lastModifiedBy">
+                  <span class="audit-user">{{element.lastModifiedBy}}</span>
+                  <span class="audit-date">{{element.lastModifiedDate | date:'short'}}</span>
+                </div>
+                <span class="text-muted" *ngIf="!element.lastModifiedBy">-</span>
+              </td>
+            </ng-container>
+            
             <!-- Status Column -->
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef> Status </th>
@@ -274,6 +297,14 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
           font-weight: 600;
           color: #4f46e5;
         }
+
+        .audit-cell {
+          display: flex;
+          flex-direction: column;
+          line-height: 1.2;
+          .audit-user { font-weight: 600; font-size: 11px; color: #475569; }
+          .audit-date { font-size: 10px; color: #94a3b8; }
+        }
       }
     }
 
@@ -371,11 +402,14 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
         ::ng-deep .mat-mdc-select-value-text,
         ::ng-deep .mat-mdc-select-arrow svg { color: #ffffff !important; }
       }
+
+      .audit-user { color: rgba(255, 255, 255, 0.8) !important; }
+      .audit-date { color: rgba(255, 255, 255, 0.4) !important; }
     }
   `]
 })
 export class UserListComponent implements OnInit {
-  displayedColumns: string[] = ['userName', 'email', 'companyName', 'roles', 'status', 'actions'];
+  displayedColumns: string[] = ['userName', 'email', 'companyName', 'roles', 'created', 'modified', 'status', 'actions'];
   dataSource = new MatTableDataSource<User>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

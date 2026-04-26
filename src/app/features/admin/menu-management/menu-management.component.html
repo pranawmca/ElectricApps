@@ -28,13 +28,13 @@
              [style.grid-template-columns]="getGridTemplate()"
              cdkDropList 
              cdkDropListOrientation="horizontal" 
-             (cdkDropListDropped)="dropColumn($event)">
+             (cdkDropListDropped)="dropColumn($event)"
+             matSort>
           
           <div *ngFor="let col of displayedColumns" 
                class="grid-cell drag-header" 
                [class]="getColumnClass(col)"
                cdkDrag
-               matSort
                [mat-sort-header]="col"
                [cdkDragDisabled]="col === 'actions'"> <!-- Prevent dragging actions column -->
             
@@ -53,8 +53,8 @@
         </div>
 
         <!-- Virtual Viewport -->
-        <cdk-virtual-scroll-viewport itemSize="48" class="viewport"> <!-- Reduced itemSize for compactness -->
-          <div *cdkVirtualFor="let row of dataSource.connect() | async" 
+        <cdk-virtual-scroll-viewport itemSize="72" class="viewport"> <!-- Matched to row min-height -->
+          <div *cdkVirtualFor="let row of visibleData$ | async; trackBy: trackByFn" 
                class="grid-row menu-row"
                [style.grid-template-columns]="getGridTemplate()">
              

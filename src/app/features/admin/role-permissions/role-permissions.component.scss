@@ -45,13 +45,26 @@
     font-weight: 500;
   }
 
+  .header-select {
+    font-size: 14px;
+    margin-right: 12px;
+    
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      background-color: white !important;
+      border-radius: 10px;
+    }
+
+    &.company-select { width: 220px; }
+    &.branch-select { width: 220px; }
+  }
+
   .compact-select {
-    width: 250px;
+    width: 220px;
     font-size: 14px;
     
     ::ng-deep .mat-mdc-text-field-wrapper {
       background-color: white !important;
-      border-radius: 8px;
+      border-radius: 10px;
     }
   }
 }

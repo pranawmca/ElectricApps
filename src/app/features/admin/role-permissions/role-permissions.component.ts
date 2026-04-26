@@ -94,10 +94,12 @@ const SUGGESTED_ACTIONS: { [key: string]: string[] } = {
 export class RolePermissionsComponent implements OnInit {
   roles: Role[] = [];
   companies: any[] = [];
-  selectedRoleId: number | null = null;
+  selectedRoleId: any = null;
   selectedCompanyId: string | null = null;
   isSuperAdmin = false;
   permissions: RolePermission[] = [];
+  branches: any[] = [];
+  selectedBranchId: string = 'GLOBAL';
   loading = false;
   summaryStats: SummaryStat[] = [];
 
@@ -204,9 +206,24 @@ export class RolePermissionsComponent implements OnInit {
 
   onCompanyChange(skipPermissionLoad = false) {
     this.loading = true;
-    this.roleService.getByCompany(this.selectedCompanyId).subscribe({
-      next: (roles) => {
-        this.roles = roles;
+    this.loadingService.setLoading(true);
+
+    const roles$ = this.roleService.getByCompany(this.selectedCompanyId);
+    const branches$ = this.selectedCompanyId ? this.companyService.getBranchesByCompany(this.selectedCompanyId) : of([]);
+
+    forkJoin({
+      roles: roles$,
+      branches: branches$
+    }).subscribe({
+      next: (res) => {
+        this.roles = res.roles;
+        this.branches = res.branches;
+        
+        // Default to 'GLOBAL' if no branch is selected or if current branch not in new list
+        if (!this.selectedBranchId || this.selectedBranchId === 'GLOBAL' || !this.branches.find(b => b.id === this.selectedBranchId)) {
+          this.selectedBranchId = 'GLOBAL';
+        }
+
         this.loading = false;
         this.loadingService.setLoading(false);
         
@@ -229,6 +246,16 @@ export class RolePermissionsComponent implements OnInit {
         this.loadingService.setLoading(false);
       }
     });
+  }
+
+  onBranchChange() {
+    this.onRoleChange();
+  }
+
+  getSelectedBranchName(): string {
+    if (this.selectedBranchId === 'GLOBAL') return 'All Branches (Global)';
+    const branch = this.branches.find(b => b.id === this.selectedBranchId);
+    return branch ? (branch.branchName || branch.name) : 'All Branches (Global)';
   }
 
   onRoleChange() {
@@ -270,7 +297,16 @@ export class RolePermissionsComponent implements OnInit {
 
     let perm = this.permissions.find(p => p.menuId === menuId);
     if (!perm) {
-      perm = { roleId: this.selectedRoleId!, menuId: menuId, canView: false, canAdd: false, canEdit: false, canDelete: false };
+      perm = { 
+        roleId: this.selectedRoleId!, 
+        menuId: menuId, 
+        canView: false, 
+        canAdd: false, 
+        canEdit: false, 
+        canDelete: false,
+        companyId: this.selectedCompanyId,
+        branchId: this.selectedBranchId === 'GLOBAL' ? null : this.selectedBranchId
+      };
       this.permissions.push(perm);
     }
     return perm;

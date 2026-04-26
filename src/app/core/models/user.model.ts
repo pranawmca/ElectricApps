@@ -13,6 +13,10 @@ export interface User {
     createdAt: string;
     companyName?: string;
     branchId?: string;
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
 }
 
 export interface RegisterUserDto {

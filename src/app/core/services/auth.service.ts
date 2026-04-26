@@ -154,6 +154,10 @@ export class AuthService {
     return bid;
   }
 
+  getWorkingBranchId(): string | null {
+    return this.getBranchId();
+  }
+
   getBranchName(): string | null {
     return localStorage.getItem('branchName');
   }
@@ -251,6 +255,10 @@ export class AuthService {
     const tagline = localStorage.getItem('companyTagline');
     if (!tagline || tagline === 'null' || tagline === 'undefined') return null;
     return tagline;
+  }
+
+  isSuperAdmin(): boolean {
+    return this.getUserRole() === 'Super Admin';
   }
 }
 

@@ -312,7 +312,7 @@ export class UserFormComponent implements OnInit {
       Password: ['', this.isEdit ? [] : [Validators.required]],
       RoleIds: [[]],
       CompanyId: [{ value: this.loggedInCompanyId || null, disabled: !this.isSuperAdmin }], // Default to active company context
-      BranchId: [null]
+      BranchId: [this.isEdit ? null : Number(this.authService.getBranchId())] // 🔥 FIX: Ensure numeric for matching dropdown
     });
 
     // 🔄 REFRESH ROLES & BRANCHES WHEN COMPANY CHANGES
@@ -347,6 +347,16 @@ export class UserFormComponent implements OnInit {
              // 🔄 Convert to number if it's a numeric string to match dropdown option types
              const numericBranchId = !isNaN(Number(branchId)) ? Number(branchId) : branchId;
              this.userForm.patchValue({ BranchId: numericBranchId }, { emitEvent: false });
+           } else {
+             // 🔥 Explicitly patch null for Global users
+             this.userForm.patchValue({ BranchId: null }, { emitEvent: false });
+           }
+        } else {
+           // 🔥 NEW USER CASE: Auto-select active branch if not set
+           const activeBid = this.authService.getBranchId();
+           if (activeBid) {
+             console.log('--- NEW USER: Auto-selecting branch', activeBid);
+             this.userForm.patchValue({ BranchId: Number(activeBid) }, { emitEvent: false });
            }
         }
       },
@@ -478,6 +488,13 @@ export class UserFormComponent implements OnInit {
             CompanyId: formValue.CompanyId,
             BranchId: formValue.BranchId ? formValue.BranchId.toString() : null
           };
+          
+          // 🛠️ DEBUG LOGS
+          console.log('--- USER CREATION DEBUG ---');
+          console.log('Active Branch in LocalStorage:', localStorage.getItem('branchId'));
+          console.log('Form Value:', formValue);
+          console.log('Sending DTO to API:', dto);
+          
           if (formValue.Password) {
             dto.Password = formValue.Password;
           }

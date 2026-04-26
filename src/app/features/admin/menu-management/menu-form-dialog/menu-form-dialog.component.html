@@ -45,14 +45,41 @@
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Parent Menu</mat-label>
         <mat-select formControlName="parentId">
-          <mat-option [value]="null">Root (No Parent)</mat-option>
-          <mat-option *ngFor="let m of data.allMenus" [value]="m.id" [disabled]="m.id === data.menu?.id">
+          <mat-option [value]="null">No Parent (Top Level)</mat-option>
+          <mat-option *ngFor="let m of data.allMenus" [value]="m.id">
             {{m.title}}
           </mat-option>
         </mat-select>
         <mat-icon matSuffix>account_tree</mat-icon>
       </mat-form-field>
 
+      <div class="row g-3" *ngIf="isSuperAdmin">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Assign Company</mat-label>
+            <input matInput [value]="menuForm.get('companyId')?.value || 'System'" readonly disabled>
+            <mat-icon matSuffix>business</mat-icon>
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Assign Branch</mat-label>
+            <mat-select formControlName="branchId" (selectionChange)="onBranchChange()">
+              <mat-select-trigger>
+                <mat-icon class="trigger-icon">{{menuForm.get('branchId')?.value === 'GLOBAL' ? 'public' : 'store'}}</mat-icon>
+                {{selectedBranchName}}
+              </mat-select-trigger>
+              <mat-option value="GLOBAL">
+                <mat-icon>public</mat-icon> All Branches (Global)
+              </mat-option>
+              <mat-divider></mat-divider>
+              <mat-option *ngFor="let branch of branches" [value]="branch.branchId">
+                <mat-icon>store</mat-icon> {{branch.branchName}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
     </form>
   </mat-dialog-content>
 

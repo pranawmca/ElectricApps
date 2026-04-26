@@ -23,13 +23,30 @@ import { AuthService } from '../../../core/services/auth.service';
     
     <mat-dialog-content>
       <form [formGroup]="roleForm" class="role-form">
-        <mat-form-field appearance="outline" *ngIf="isSuperAdmin && !isEdit">
+        <mat-form-field appearance="outline" *ngIf="isSuperAdmin">
           <mat-label>Assign Company</mat-label>
           <mat-select formControlName="CompanyId">
             <mat-option [value]="null">Master (System Role)</mat-option>
-            <mat-option *ngFor="let company of companies" [value]="company.id">{{company.name}}</mat-option>
+            <mat-option *ngFor="let company of companies" [value]="company.id">{{company.name || company.Name}}</mat-option>
           </mat-select>
           <mat-icon matPrefix>business</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" *ngIf="branches.length > 0">
+          <mat-label>Assign Branch</mat-label>
+          <mat-select formControlName="BranchId">
+            <mat-select-trigger>
+              <mat-icon style="vertical-align: middle; margin-right: 8px;">{{ roleForm.get('BranchId')?.value === 'GLOBAL' ? 'public' : 'location_on' }}</mat-icon>
+              {{ getSelectedBranchName() }}
+            </mat-select-trigger>
+            <mat-option value="GLOBAL">
+              <mat-icon>public</mat-icon> All Branches (Global)
+            </mat-option>
+            <mat-option *ngFor="let branch of branches" [value]="branch.id">
+              <mat-icon>store</mat-icon> {{branch.branchName || branch.name || 'Main Branch'}}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix *ngIf="!roleForm.get('BranchId')?.value">location_on</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -82,6 +99,8 @@ export class RoleFormComponent implements OnInit {
   isEdit = false;
   isSuperAdmin = false;
   companies: any[] = [];
+  branches: any[] = [];
+  isLoadingBranches = false;
 
   constructor(
     private fb: FormBuilder,
@@ -100,22 +119,65 @@ export class RoleFormComponent implements OnInit {
 
     this.roleForm = this.fb.group({
       RoleName: ['', Validators.required],
-      CompanyId: [null]
+      CompanyId: [null],
+      BranchId: ['GLOBAL']
+    });
+
+    this.roleForm.get('CompanyId')?.valueChanges.subscribe(cid => {
+      this.loadBranches(cid);
+    });
+  }
+
+  getSelectedBranchName(): string {
+    const branchId = this.roleForm.get('BranchId')?.value;
+    if (branchId === 'GLOBAL') return 'All Branches (Global)';
+    const branch = this.branches.find(b => b.id === branchId);
+    return branch ? (branch.branchName || branch.name) : 'All Branches (Global)';
+  }
+
+  loadBranches(companyId: string | null) {
+    if (!companyId) {
+      this.branches = [];
+      return;
+    }
+
+    this.isLoadingBranches = true;
+    this.companyService.getBranchesByCompany(companyId).subscribe({
+      next: (branches) => {
+        this.branches = branches;
+        this.isLoadingBranches = false;
+      },
+      error: () => {
+        this.isLoadingBranches = false;
+        this.branches = [];
+      }
     });
   }
 
   ngOnInit() {
-    if (this.isSuperAdmin && !this.isEdit) {
+    if (this.isSuperAdmin) {
       this.companyService.getPaged({ pageNumber: 1, pageSize: 100 }).subscribe((res: any) => {
         this.companies = res.items || [];
       });
     }
 
+    if (this.isEdit) {
+      this.roleForm.get('CompanyId')?.disable();
+    }
+
     if (this.isEdit && this.data) {
+      const companyId = this.data.companyId || null;
+      const branchId = this.data.branchId || 'GLOBAL';
+
       this.roleForm.patchValue({
         RoleName: this.data.roleName,
-        CompanyId: this.data.companyId || null
-      });
+        CompanyId: companyId,
+        BranchId: branchId
+      }, { emitEvent: false });
+
+      if (companyId) {
+        this.loadBranches(companyId);
+      }
     }
   }
 
@@ -123,7 +185,10 @@ export class RoleFormComponent implements OnInit {
     if (this.roleForm.valid) {
       const { RoleName, CompanyId } = this.roleForm.value;
       if (this.isEdit) {
-        this.roleService.updateRole(this.data.id, RoleName).subscribe({
+        const { RoleName, BranchId } = this.roleForm.value;
+        const branchToSave = (BranchId === 'GLOBAL') ? null : BranchId;
+
+        this.roleService.updateRole(this.data.id, RoleName, branchToSave).subscribe({
           next: () => {
             this.showStatus(true, 'Role updated successfully!');
             this.dialogRef.close(true);
@@ -131,7 +196,10 @@ export class RoleFormComponent implements OnInit {
           error: (err) => this.showStatus(false, err.error?.message || 'Failed to update role')
         });
       } else {
-        this.roleService.createRole(RoleName, CompanyId).subscribe({
+        const { RoleName, CompanyId, BranchId } = this.roleForm.value;
+        const branchToSave = (BranchId === 'GLOBAL') ? null : BranchId;
+        
+        this.roleService.createRole(RoleName, CompanyId, branchToSave).subscribe({
           next: () => {
             this.showStatus(true, 'Role created successfully!');
             this.dialogRef.close(true);
