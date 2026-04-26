@@ -1,5 +1,7 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Subject, takeUntil } from 'rxjs';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -25,8 +27,10 @@ import { LoadingService } from '../../../core/services/loading.service';
     templateUrl: './menu-management.component.html',
     styleUrl: './menu-management.component.scss'
 })
-export class MenuManagementComponent implements OnInit, AfterViewInit {
+export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy {
+    private destroy$ = new Subject<void>();
     displayedColumns: string[] = ['id', 'title', 'url', 'parentId', 'order', 'actions'];
+    isMobile = false;
     summaryStats: SummaryStat[] = [];
     loading = false;
 
@@ -74,11 +78,31 @@ export class MenuManagementComponent implements OnInit, AfterViewInit {
     constructor(
         private menuService: MenuService,
         private dialog: MatDialog,
-        private loadingService: LoadingService
+        private loadingService: LoadingService,
+        private breakpointObserver: BreakpointObserver
     ) { }
 
     ngOnInit(): void {
+        this.observeBreakpoints();
         this.loadMenus();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    private observeBreakpoints(): void {
+        this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(result => {
+                this.isMobile = result.matches;
+                if (this.isMobile) {
+                    this.displayedColumns = ['title', 'parentId', 'actions'];
+                } else {
+                    this.displayedColumns = ['id', 'title', 'url', 'parentId', 'order', 'actions'];
+                }
+            });
     }
 
     ngAfterViewInit() {

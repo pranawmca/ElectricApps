@@ -22,6 +22,8 @@ export class MenuFormDialogComponent implements OnInit {
     loading = false;
     isSuperAdmin = false;
     branches: any[] = [];
+    companies: any[] = [];
+    currentCompanyName = '';
     selectedBranchName = 'All Branches (Global)';
 
     constructor(
@@ -35,27 +37,51 @@ export class MenuFormDialogComponent implements OnInit {
     ) {
         this.isSuperAdmin = this.authService.isSuperAdmin();
         
+        const defaultCompanyId = this.data.menu?.companyId || this.authService.getCompanyId();
+        const defaultBranchId = this.data.menu?.branchId || this.authService.getBranchId() || 'GLOBAL';
+
         this.menuForm = this.fb.group({
             title: [this.data.menu?.title || '', [Validators.required]],
             url: [this.data.menu?.url || ''],
             icon: [this.data.menu?.icon || ''],
             parentId: [this.data.menu?.parentId || null],
             order: [this.data.menu?.order || 0, [Validators.required]],
-            companyId: [this.data.menu?.companyId || null],
-            branchId: [this.data.menu?.branchId || 'GLOBAL']
+            companyId: [{ value: defaultCompanyId, disabled: true }],
+            branchId: [defaultBranchId]
         });
     }
 
     ngOnInit(): void {
+        this.currentCompanyName = this.authService.getCompanyName() || 'System';
+        if (this.isSuperAdmin) {
+            this.loadCompanies();
+        }
+        this.loadBranches();
+    }
+
+    loadCompanies() {
+        this.companyService.getAllCompanies().subscribe((res: any) => {
+            this.companies = res;
+        });
+    }
+
+    onCompanyChange() {
+        this.menuForm.patchValue({ branchId: 'GLOBAL' });
         this.loadBranches();
     }
 
     loadBranches() {
-        const companyId = this.menuForm.get('companyId')?.value;
+        // Use either the menu's companyId or the current logged-in user's companyId
+        const companyId = this.menuForm.getRawValue().companyId;
+        
         if (companyId) {
-            this.companyService.getBranchesByCompany(companyId).subscribe((res: any) => {
-                this.branches = res;
-                this.updateSelectedBranchName();
+            console.log('[MenuFormDialog] Loading branches for company:', companyId);
+            this.companyService.getBranchesByCompany(companyId).subscribe({
+                next: (res: any) => {
+                    this.branches = res;
+                    this.updateSelectedBranchName();
+                },
+                error: (err) => console.error('[MenuFormDialog] Error loading branches:', err)
             });
         }
     }
@@ -65,7 +91,8 @@ export class MenuFormDialogComponent implements OnInit {
         if (branchId === 'GLOBAL') {
             this.selectedBranchName = 'All Branches (Global)';
         } else {
-            const branch = this.branches.find(b => b.branchId === branchId);
+            // AddressDto model uses 'id' instead of 'branchId'
+            const branch = this.branches.find(b => b.id === branchId);
             this.selectedBranchName = branch ? branch.branchName : 'All Branches (Global)';
         }
     }
@@ -92,8 +119,8 @@ export class MenuFormDialogComponent implements OnInit {
                 this.loading = true;
                 const menuData: MenuItem = {
                     ...this.data.menu,
-                    ...this.menuForm.value,
-                    branchId: this.menuForm.value.branchId === 'GLOBAL' ? null : this.menuForm.value.branchId
+                    ...this.menuForm.getRawValue(),
+                    branchId: this.menuForm.get('branchId')?.value === 'GLOBAL' ? null : this.menuForm.get('branchId')?.value
                 };
 
                 const action = this.data.menu?.id

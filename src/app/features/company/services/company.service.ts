@@ -12,6 +12,15 @@ export class CompanyService {
     private readonly api = inject(ApiService);
     private readonly baseUrl = environment.CompanyApiBaseUrl;
     private readonly identityUrl = environment.api.identity;
+    
+    /**
+     * Fetch all companies for selection (Super Admin only)
+     */
+    getAllCompanies(): Observable<any[]> {
+        return this.getPaged({ pageNumber: 1, pageSize: 1000 }).pipe(
+            map(res => res.data || [])
+        );
+    }
 
     /**
      * Naya Tenant (Company) initialize karne ke liye Identity microservice me

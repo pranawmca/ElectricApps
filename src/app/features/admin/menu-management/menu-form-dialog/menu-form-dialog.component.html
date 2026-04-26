@@ -57,7 +57,7 @@
         <div class="col-md-6">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Assign Company</mat-label>
-            <input matInput [value]="menuForm.get('companyId')?.value || 'System'" readonly disabled>
+            <input matInput [value]="currentCompanyName" readonly>
             <mat-icon matSuffix>business</mat-icon>
           </mat-form-field>
         </div>
@@ -73,7 +73,7 @@
                 <mat-icon>public</mat-icon> All Branches (Global)
               </mat-option>
               <mat-divider></mat-divider>
-              <mat-option *ngFor="let branch of branches" [value]="branch.branchId">
+              <mat-option *ngFor="let branch of branches" [value]="branch.id">
                 <mat-icon>store</mat-icon> {{branch.branchName}}
               </mat-option>
             </mat-select>

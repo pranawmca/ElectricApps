@@ -53,7 +53,7 @@
         </div>
 
         <!-- Virtual Viewport -->
-        <cdk-virtual-scroll-viewport itemSize="72" class="viewport"> <!-- Matched to row min-height -->
+        <cdk-virtual-scroll-viewport itemSize="64" class="viewport">
           <div *cdkVirtualFor="let row of visibleData$ | async; trackBy: trackByFn" 
                class="grid-row menu-row"
                [style.grid-template-columns]="getGridTemplate()">
