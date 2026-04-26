@@ -260,5 +260,9 @@ export class AuthService {
   isSuperAdmin(): boolean {
     return this.getUserRole() === 'Super Admin';
   }
+
+  getUserId(): string | null {
+    return localStorage.getItem('userId');
+  }
 }
 

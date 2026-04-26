@@ -1,100 +1,120 @@
-<div class="container-fluid" [class.disabled-content]="loading">
-
-  <!-- Header -->
-  <div class="header-actions">
-    <div>
-      <h1 class="page-title m-0">Print Settings</h1>
-      <p class="subtitle m-0">Manage Thermal or A4 print formats per module and role.</p>
+<div class="print-settings-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Print Settings</h1>
+      <p>Manage Thermal or A4 print formats per module and role.</p>
     </div>
-    <div class="controls-right">
-      <mat-form-field appearance="outline" class="role-select compact-select">
-        <mat-label>Select Role</mat-label>
-        <mat-select [(ngModel)]="selectedRoleId" (selectionChange)="onRoleChange()">
-          <mat-option *ngFor="let role of roles" [value]="role.id">{{ role.roleName }}</mat-option>
+
+    <div class="header-actions">
+      <!-- 1. Company Selection (Only for Super Admin) -->
+      <mat-form-field appearance="outline" class="filter-field" *ngIf="isSuperAdmin">
+        <mat-label>Select Company</mat-label>
+        <mat-select [(ngModel)]="selectedCompanyId" (selectionChange)="onCompanyChange()">
+          <mat-option *ngFor="let company of companies" [value]="company.id">
+            <mat-icon>business</mat-icon> {{company.name || company.Name}}
+          </mat-option>
         </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
       </mat-form-field>
-      <button mat-raised-button class="save-btn" (click)="saveSettings()" [disabled]="loading">
-        <mat-icon>save</mat-icon> Save Changes
+
+      <!-- 2. Branch Selection -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Select Branch</mat-label>
+        <mat-select [(ngModel)]="selectedBranchId" (selectionChange)="onBranchChange()">
+          <mat-select-trigger>
+            <div class="trigger-content">
+              <mat-spinner diameter="16" *ngIf="isLoadingBranches"></mat-spinner>
+              <span>{{isLoadingBranches ? 'Loading...' : getSelectedBranchName()}}</span>
+            </div>
+          </mat-select-trigger>
+          <mat-option value="GLOBAL">
+            <mat-icon>public</mat-icon> All Branches (Global)
+          </mat-option>
+          <mat-divider></mat-divider>
+          <mat-option *ngFor="let branch of branches" [value]="branch.id || branch.branchId">
+            <mat-icon>store</mat-icon> {{branch.branchName || branch.name}}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix *ngIf="!isLoadingBranches">location_on</mat-icon>
+      </mat-form-field>
+
+      <!-- 3. Role Selection -->
+      <mat-form-field appearance="outline" class="filter-field role-field">
+        <mat-label>Select Role</mat-label>
+        <mat-select [(ngModel)]="selectedRoleId" (selectionChange)="onRoleChange()" [disabled]="roles.length === 0">
+          <mat-option *ngFor="let role of roles" [value]="role.Id || role.id">
+            <mat-icon>admin_panel_settings</mat-icon> {{role.RoleName || role.roleName}}
+          </mat-option>
+          <mat-option *ngIf="roles.length === 0" disabled>No roles found for this branch</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>verified_user</mat-icon>
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" class="save-btn" (click)='saveSettings()' [disabled]="!selectedRoleId || loading">
+        <mat-icon>save</mat-icon>
+        SAVE CHANGES
       </button>
     </div>
   </div>
 
-  <!-- Module Expansion Panels -->
-  <div *ngIf="selectedRoleId; else noRoleSelected" class="modules-container">
-    <mat-accordion multi>
-      <mat-expansion-panel
-        *ngFor="let module of modules"
-        class="module-panel"
-        [expanded]="true">
+  <!-- Content Grid (Cards) -->
+  <div class="settings-grid" *ngIf="selectedRoleId; else noRole">
+    <div class="module-section" *ngFor="let module of modules">
+      <div class="module-header" [style.border-left-color]="module.color">
+        <div class="module-title">
+          <div class="icon-box" [style.background]="module.color + '20'" [style.color]="module.color">
+            <mat-icon>{{module.icon}}</mat-icon>
+          </div>
+          <h3>{{module.name}}</h3>
+          <span class="badge">{{module.pages.length}} pages</span>
+        </div>
+        <div class="bulk-actions">
+          <span>Set all:</span>
+          <button class="mini-btn a4" (click)="setAllInModule(module, 'A4')">
+            <mat-icon>description</mat-icon> A4
+          </button>
+          <button class="mini-btn thermal" (click)="setAllInModule(module, 'Thermal')">
+            <mat-icon>receipt</mat-icon> Thermal
+          </button>
+        </div>
+      </div>
 
-        <!-- Panel Header -->
-        <mat-expansion-panel-header class="module-panel-header">
-          <mat-panel-title>
-            <div class="module-title">
-              <span class="module-icon-wrap" [style.background]="module.color + '22'">
-                <mat-icon [style.color]="module.color">{{ module.icon }}</mat-icon>
-              </span>
-              <span class="module-name">{{ module.name }}</span>
-              <span class="page-count-badge">{{ module.pages.length }} pages</span>
-            </div>
-          </mat-panel-title>
-          <mat-panel-description class="module-bulk-actions">
-            <span class="bulk-label">Set all:</span>
-            <button mat-stroked-button class="bulk-btn a4-btn" (click)="setAllInModule(module, 'A4'); $event.stopPropagation()">
-              <mat-icon>article</mat-icon> A4
-            </button>
-            <button mat-stroked-button class="bulk-btn thermal-btn" (click)="setAllInModule(module, 'THERMAL'); $event.stopPropagation()">
-              <mat-icon>receipt_long</mat-icon> Thermal
-            </button>
-          </mat-panel-description>
-        </mat-expansion-panel-header>
+      <div class="pages-grid">
+        <div class="page-card" *ngFor="let page of module.pages">
+          <div class="page-info">
+            <mat-icon class="page-icon">article</mat-icon>
+            <span class="page-name">{{getPageLabel(page)}}</span>
+          </div>
 
-        <!-- Page Cards Grid -->
-        <div class="pages-grid">
-          <div class="page-card" *ngFor="let page of module.pages">
-            <div class="page-card-header">
-              <mat-icon class="page-icon" [style.color]="module.color">description</mat-icon>
-              <span class="page-label">{{ getPageLabel(page) }}</span>
-            </div>
-            <mat-divider></mat-divider>
-            <div class="page-card-body">
-              <mat-radio-group
-                [ngModel]="getSetting(page).printFormat"
-                (ngModelChange)="setFormat(page, $event)"
-                class="format-radio-group">
-                <mat-radio-button value="A4" color="primary" class="format-option">
-                  <div class="format-label">
-                    <mat-icon>article</mat-icon>
-                    <span>A4 Full Size</span>
-                  </div>
-                </mat-radio-button>
-                <mat-radio-button value="THERMAL" color="accent" class="format-option">
-                  <div class="format-label">
-                    <mat-icon>receipt_long</mat-icon>
-                    <span>Thermal (80mm)</span>
-                  </div>
-                </mat-radio-button>
-              </mat-radio-group>
-              <!-- Active badge -->
-              <div class="active-format-badge" [class.thermal]="getSetting(page).printFormat === 'THERMAL'">
-                {{ getSetting(page).printFormat === 'THERMAL' ? '🖨️ Thermal' : '📄 A4' }}
+          <mat-radio-group [ngModel]="getSetting(page).printFormat" (ngModelChange)="setFormat(page, $event)" class="format-group">
+            <mat-radio-button value="A4" color="primary">
+              <div class="radio-label">
+                <mat-icon>description</mat-icon>
+                <span>A4 Full Size</span>
               </div>
-            </div>
+            </mat-radio-button>
+            <mat-radio-button value="Thermal" color="primary">
+              <div class="radio-label">
+                <mat-icon>receipt_long</mat-icon>
+                <span>Thermal (80mm)</span>
+              </div>
+            </mat-radio-button>
+          </mat-radio-group>
+
+          <div class="format-preview" [class.is-thermal]="getSetting(page).printFormat === 'Thermal'">
+            <mat-icon>{{getSetting(page).printFormat === 'A4' ? 'picture_as_pdf' : 'confirmation_number'}}</mat-icon>
+            <span>{{getSetting(page).printFormat}}</span>
           </div>
         </div>
-
-      </mat-expansion-panel>
-    </mat-accordion>
+      </div>
+    </div>
   </div>
 
-  <!-- No role selected -->
-  <ng-template #noRoleSelected>
+  <ng-template #noRole>
     <div class="empty-state">
-      <div class="empty-content">
-        <mat-icon class="empty-icon">print</mat-icon>
-        <h3>Select a Role</h3>
-        <p>Choose a role above to manage print formatting settings.</p>
-      </div>
+      <mat-icon>search_off</mat-icon>
+      <h3>No Roles Selected</h3>
+      <p>Please select a Company, Branch and Role to configure print settings.</p>
     </div>
   </ng-template>
 </div>
