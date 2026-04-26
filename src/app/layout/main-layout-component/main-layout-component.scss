@@ -917,3 +917,101 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+.branch-badge.clickable {
+  cursor: pointer !important;
+  
+  .dropdown-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
+    opacity: 0.7;
+    transition: transform 0.3s;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    .dropdown-icon {
+      opacity: 1;
+      transform: translateY(1px);
+    }
+  }
+}
+
+/* Branch Selector Menu */
+::ng-deep .branch-selector-menu.mat-mdc-menu-panel {
+  min-width: 250px !important;
+  border-radius: 16px !important;
+  padding: 8px 0 !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+
+  .menu-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    mat-icon {
+      color: #6366f1;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+    
+    span {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #1e293b;
+      letter-spacing: 0.3px;
+    }
+  }
+
+  .mat-mdc-menu-item {
+    padding: 12px 16px !important;
+    height: auto !important;
+    min-height: 48px !important;
+
+    mat-icon {
+      color: #64748b !important;
+      margin-right: 12px !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+    }
+
+    span {
+      font-size: 0.85rem !important;
+      font-weight: 600 !important;
+      color: #334155 !important;
+    }
+
+    &:hover {
+      background-color: #f1f5f9 !important;
+      span { color: #6366f1 !important; }
+      mat-icon { color: #6366f1 !important; }
+    }
+  }
+}
+
+:host-context(.dark-mode) {
+  ::ng-deep .branch-selector-menu.mat-mdc-menu-panel {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    
+    .menu-header {
+      span { color: #f8fafc; }
+    }
+    
+    .mat-mdc-menu-item {
+      span { color: #cbd5e1 !important; }
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        span { color: #818cf8 !important; }
+        mat-icon { color: #818cf8 !important; }
+      }
+    }
+  }
+}

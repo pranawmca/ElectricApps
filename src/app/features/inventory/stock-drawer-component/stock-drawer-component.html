@@ -99,6 +99,7 @@
                 <div class="batch-info-top">
                   <span class="batch-loc">
                     <mat-icon>location_on</mat-icon>
+                    <span class="branch-label" *ngIf="batch.branchId">[{{batch.branchId}}] </span>
                     {{batch.warehouseName}} - {{batch.rackName}}
                   </span>
                   <span class="batch-qty" [class.expired-qty-text]="(batch.availableQty || 0) === 0 && (batch.expiredQty || 0) > 0">

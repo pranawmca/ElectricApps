@@ -74,8 +74,11 @@ export class MainLayoutComponent implements OnInit {
   isCompactTable = false;
   
   get currentBranchName(): string | null {
-    return this.authService.getBranchName();
+    return this.authService.getBranchName() || 'All Branches';
   }
+
+  isSuperAdmin = false;
+  branches: any[] = [];
 
 
   translate(key: string): string {
@@ -245,6 +248,44 @@ export class MainLayoutComponent implements OnInit {
         this.titleService.setTitle(baseName);
       }
     });
+
+    this.isSuperAdmin = this.authService.getUserRole() === 'Super Admin';
+    if (this.isSuperAdmin) {
+      this.loadBranches();
+    }
+  }
+
+  loadBranches(): void {
+    const companyId = this.authService.getCompanyId();
+    if (companyId) {
+      this.companyService.getBranchesByCompany(companyId).subscribe({
+        next: (data) => {
+          this.branches = data || [];
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Failed to load branches', err)
+      });
+    }
+  }
+
+  switchBranch(branch: any): void {
+    const branchName = branch ? (branch.branchName || branch.name) : 'Global View';
+    
+    // ⚡ Trigger premium global loader
+    this.loadingService.setLoading(true, `Switching to ${branchName}...`);
+    
+    // Wait for a small duration to show the loader, then reload
+    setTimeout(() => {
+      if (!branch) {
+        // Switch to "All Branches" (Super Admin view)
+        this.authService.setWorkingBranch(null, null);
+      } else {
+        this.authService.setWorkingBranch(branch.id, branch.branchName || branch.name);
+      }
+      
+      // Reload the current page to refresh all data with the new X-Branch-Id header
+      window.location.reload();
+    }, 800);
   }
 
   private updateManifest(name: string): void {
