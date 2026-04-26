@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MaterialModule } from '../../../shared/material/material/material-module';
@@ -32,12 +32,15 @@ import { AuthService } from '../../../core/services/auth.service';
           <mat-icon matPrefix>business</mat-icon>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" *ngIf="branches.length > 0">
+        <mat-form-field appearance="outline" *ngIf="isEdit || branches.length > 0">
           <mat-label>Assign Branch</mat-label>
           <mat-select formControlName="BranchId">
             <mat-select-trigger>
-              <mat-icon style="vertical-align: middle; margin-right: 8px;">{{ roleForm.get('BranchId')?.value === 'GLOBAL' ? 'public' : 'location_on' }}</mat-icon>
-              {{ getSelectedBranchName() }}
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <mat-spinner diameter="18" *ngIf="isLoadingBranches"></mat-spinner>
+                <mat-icon *ngIf="!isLoadingBranches" style="vertical-align: middle;">{{ roleForm.get('BranchId')?.value === 'GLOBAL' ? 'public' : 'location_on' }}</mat-icon>
+                <span>{{ isLoadingBranches ? 'Loading branches...' : getSelectedBranchName() }}</span>
+              </div>
             </mat-select-trigger>
             <mat-option value="GLOBAL">
               <mat-icon>public</mat-icon> All Branches (Global)
@@ -46,7 +49,7 @@ import { AuthService } from '../../../core/services/auth.service';
               <mat-icon>store</mat-icon> {{branch.branchName || branch.name || 'Main Branch'}}
             </mat-option>
           </mat-select>
-          <mat-icon matPrefix *ngIf="!roleForm.get('BranchId')?.value">location_on</mat-icon>
+          <mat-icon matPrefix *ngIf="!isLoadingBranches && !roleForm.get('BranchId')?.value">location_on</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -107,6 +110,7 @@ export class RoleFormComponent implements OnInit {
     private roleService: RoleService,
     private companyService: CompanyService,
     private authService: AuthService,
+    private cdr: ChangeDetectorRef,
     public dialogRef: MatDialogRef<RoleFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialog: MatDialog
@@ -143,9 +147,21 @@ export class RoleFormComponent implements OnInit {
 
     this.isLoadingBranches = true;
     this.companyService.getBranchesByCompany(companyId).subscribe({
-      next: (branches) => {
-        this.branches = branches;
+      next: (branches: any[]) => {
+        // Normalize IDs to string for reliable matching
+        this.branches = branches.map(b => ({
+          ...b,
+          id: String(b.id || b.branchId)
+        }));
+
         this.isLoadingBranches = false;
+
+        // CRITICAL: Re-patch the branch ID after the list is loaded so mat-select can find the match
+        if (this.isEdit && this.data) {
+          const bId = this.data.BranchId || this.data.branchId || 'GLOBAL';
+          this.roleForm.patchValue({ BranchId: String(bId) }, { emitEvent: false });
+          this.cdr.detectChanges(); // Force UI to show selected value
+        }
       },
       error: () => {
         this.isLoadingBranches = false;
@@ -166,13 +182,14 @@ export class RoleFormComponent implements OnInit {
     }
 
     if (this.isEdit && this.data) {
-      const companyId = this.data.companyId || null;
-      const branchId = this.data.branchId || 'GLOBAL';
+      const companyId = this.data.CompanyId || this.data.companyId || null;
+      const branchId = this.data.BranchId || this.data.branchId || 'GLOBAL';
+      const roleName = this.data.RoleName || this.data.roleName || '';
 
       this.roleForm.patchValue({
-        RoleName: this.data.roleName,
+        RoleName: roleName,
         CompanyId: companyId,
-        BranchId: branchId
+        BranchId: branchId ? String(branchId) : 'GLOBAL'
       }, { emitEvent: false });
 
       if (companyId) {
