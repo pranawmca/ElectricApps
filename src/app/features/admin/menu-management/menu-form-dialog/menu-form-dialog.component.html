@@ -66,8 +66,14 @@
             <mat-label>Assign Branch</mat-label>
             <mat-select formControlName="branchId" (selectionChange)="onBranchChange()">
               <mat-select-trigger>
-                <mat-icon class="trigger-icon">{{menuForm.get('branchId')?.value === 'GLOBAL' ? 'public' : 'store'}}</mat-icon>
-                {{selectedBranchName}}
+                <div class="trigger-content" *ngIf="!loadingBranches">
+                  <mat-icon class="trigger-icon">{{menuForm.get('branchId')?.value === 'GLOBAL' ? 'public' : 'store'}}</mat-icon>
+                  <span>{{selectedBranchName}}</span>
+                </div>
+                <div class="trigger-content loading" *ngIf="loadingBranches">
+                  <mat-spinner diameter="16"></mat-spinner>
+                  <span class="ms-2">Loading branches...</span>
+                </div>
               </mat-select-trigger>
               <mat-option value="GLOBAL">
                 <mat-icon>public</mat-icon> All Branches (Global)

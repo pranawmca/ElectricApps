@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -8,6 +8,8 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { CompanyService } from '../../../company/services/company.service';
+import { LoadingService } from '../../../../core/services/loading.service';
+import { delay, finalize } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -23,6 +25,7 @@ export class MenuFormDialogComponent implements OnInit {
     isSuperAdmin = false;
     branches: any[] = [];
     companies: any[] = [];
+    loadingBranches = true; // Default to true to ensure loader shows immediately
     currentCompanyName = '';
     selectedBranchName = 'All Branches (Global)';
 
@@ -32,13 +35,22 @@ export class MenuFormDialogComponent implements OnInit {
         private dialog: MatDialog,
         private companyService: CompanyService,
         private authService: AuthService,
+        private loadingService: LoadingService,
+        private cdr: ChangeDetectorRef,
         private dialogRef: MatDialogRef<MenuFormDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { menu: MenuItem | null, allMenus: MenuItem[] }
     ) {
         this.isSuperAdmin = this.authService.isSuperAdmin();
         
         const defaultCompanyId = this.data.menu?.companyId || this.authService.getCompanyId();
-        const defaultBranchId = this.data.menu?.branchId || this.authService.getBranchId() || 'GLOBAL';
+        
+        // Correctly handle edit mode vs insert mode for branches
+        let defaultBranchId = 'GLOBAL';
+        if (this.data.menu) {
+            defaultBranchId = this.data.menu.branchId || 'GLOBAL';
+        } else {
+            defaultBranchId = this.authService.getBranchId() || 'GLOBAL';
+        }
 
         this.menuForm = this.fb.group({
             title: [this.data.menu?.title || '', [Validators.required]],
@@ -53,6 +65,11 @@ export class MenuFormDialogComponent implements OnInit {
 
     ngOnInit(): void {
         this.currentCompanyName = this.authService.getCompanyName() || 'System';
+        
+        // Ensure loading state is active and detected immediately
+        this.loadingBranches = true;
+        this.cdr.detectChanges();
+
         if (this.isSuperAdmin) {
             this.loadCompanies();
         }
@@ -71,28 +88,38 @@ export class MenuFormDialogComponent implements OnInit {
     }
 
     loadBranches() {
-        // Use either the menu's companyId or the current logged-in user's companyId
         const companyId = this.menuForm.getRawValue().companyId;
         
         if (companyId) {
-            console.log('[MenuFormDialog] Loading branches for company:', companyId);
-            this.companyService.getBranchesByCompany(companyId).subscribe({
+            this.loadingBranches = true;
+            this.companyService.getBranchesByCompany(companyId).pipe(
+                delay(800) // Force loader to be visible for a moment
+            ).subscribe({
                 next: (res: any) => {
-                    this.branches = res;
+                    this.branches = (res || []).map((b: any) => ({
+                        ...b,
+                        id: b.id ? String(b.id) : b.branchId ? String(b.branchId) : ''
+                    }));
                     this.updateSelectedBranchName();
+                    this.loadingBranches = false;
+                    this.cdr.detectChanges();
                 },
-                error: (err) => console.error('[MenuFormDialog] Error loading branches:', err)
+                error: (err) => {
+                    console.error('[MenuFormDialog] Error loading branches:', err);
+                    this.loadingBranches = false;
+                    this.cdr.detectChanges();
+                }
             });
         }
     }
 
     updateSelectedBranchName() {
         const branchId = this.menuForm.get('branchId')?.value;
-        if (branchId === 'GLOBAL') {
+        if (!branchId || branchId === 'GLOBAL') {
             this.selectedBranchName = 'All Branches (Global)';
         } else {
-            // AddressDto model uses 'id' instead of 'branchId'
-            const branch = this.branches.find(b => b.id === branchId);
+            // Backend uses int for Id in some cases (e.g. 1002), so we compare as strings
+            const branch = this.branches.find(b => String(b.id) === String(branchId));
             this.selectedBranchName = branch ? branch.branchName : 'All Branches (Global)';
         }
     }
@@ -117,6 +144,8 @@ export class MenuFormDialogComponent implements OnInit {
         dialogRef.afterClosed().subscribe(confirm => {
             if (confirm) {
                 this.loading = true;
+                this.loadingService.setLoading(true, `${actionText}ing menu item...`);
+                
                 const menuData: MenuItem = {
                     ...this.data.menu,
                     ...this.menuForm.getRawValue(),
@@ -127,15 +156,18 @@ export class MenuFormDialogComponent implements OnInit {
                     ? this.menuService.updateMenu(this.data.menu.id, menuData)
                     : this.menuService.createMenu(menuData);
 
-                action.subscribe({
-                    next: () => {
+                action.pipe(
+                    delay(800), // Artificial delay for "soft update" feel
+                    finalize(() => {
                         this.loading = false;
+                        this.loadingService.setLoading(false);
+                    })
+                ).subscribe({
+                    next: () => {
                         this.dialogRef.close(true);
                     },
                     error: (err) => {
                         console.error(err);
-                        this.loading = false;
-                        // Ideally show error message
                     }
                 });
             }
