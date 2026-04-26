@@ -1,121 +1,158 @@
-<div class="container-fluid" [class.disabled-content]="loading">
-  <div class="header-actions">
-    <div>
-      <h1 class="page-title m-0">Menu Management</h1>
-      <p class="subtitle m-0">Configure navigation menus and hierarchy.</p>
+<div class="menu-management-container" [class.loading-state]="loading">
+  <!-- 1. Header Area with Stats -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">Menu Management</h1>
+        <p class="page-subtitle">Configure system navigation and access hierarchy</p>
+      </div>
+      <div class="actions-section">
+        <div class="search-wrapper">
+          <mat-icon>search</mat-icon>
+          <input type="text" (keyup)="applyFilter($event)" placeholder="Search modules..." #input>
+        </div>
+        <button mat-flat-button color="primary" class="create-btn" (click)="openMenuDialog()">
+          <mat-icon>add</mat-icon>
+          <span>CREATE MENU</span>
+        </button>
+      </div>
     </div>
-    <button mat-raised-button class="main-add-btn" (click)="openMenuDialog()">
-      <mat-icon>add</mat-icon>
-      Create Menu
-    </button>
+    
+    <app-summary-stats [stats]="summaryStats" [isLoading]="loading"></app-summary-stats>
   </div>
 
-  <app-summary-stats [stats]="summaryStats" [isLoading]="loading"></app-summary-stats>
-
-  <div class="list-container">
-    <div class="table-toolbar">
-      <mat-form-field appearance="outline" class="search-field compact-input">
-        <mat-label>Search Menu</mat-label>
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Search menus..." #input>
-      </mat-form-field>
-    </div>
-
-    <div class="grid-wrapper">
-       <div class="table-container virtual-scroll-grid mat-elevation-z0">
-        <!-- Sticky Header with Grid Layout -->
-        <div class="grid-header sticky-header" 
-             [style.grid-template-columns]="getGridTemplate()"
-             cdkDropList 
-             cdkDropListOrientation="horizontal" 
-             (cdkDropListDropped)="dropColumn($event)"
-             matSort>
-          
+  <!-- 2. Main Data Grid Section -->
+  <div class="content-body">
+    <div class="grid-container mat-elevation-z0">
+      <!-- Custom Grid Table -->
+      <div class="modern-grid">
+        <!-- Header -->
+        <div class="grid-header-row" [style.grid-template-columns]="getGridTemplate()" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)">
           <div *ngFor="let col of displayedColumns" 
-               class="grid-cell drag-header" 
+               class="grid-header-cell" 
                [class]="getColumnClass(col)"
-               cdkDrag
-               [mat-sort-header]="col"
-               [cdkDragDisabled]="col === 'actions'"> <!-- Prevent dragging actions column -->
+               cdkDrag 
+               [cdkDragDisabled]="col === 'actions' || col === 'select'">
             
-            <div class="header-content">
-              <!-- Drag Handle Icon -->
-              <mat-icon *ngIf="col !== 'actions'" class="drag-handle" cdkDragHandle>drag_indicator</mat-icon>
-              <span>{{getColumnLabel(col)}}</span>
+            <div class="header-inner">
+              <ng-container *ngIf="col === 'select'">
+                <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                              [checked]="selection.hasValue() && isAllSelected()"
+                              [indeterminate]="selection.hasValue() && !isAllSelected()"
+                              class="premium-checkbox">
+                </mat-checkbox>
+              </ng-container>
+
+              <mat-icon *ngIf="col !== 'actions' && col !== 'select'" class="drag-icon" cdkDragHandle>drag_indicator</mat-icon>
+              <span *ngIf="col !== 'select'" class="header-text">{{getColumnLabel(col)}}</span>
             </div>
             
-            <!-- Resize Handle -->
-            <div class="resize-handle" 
-                 *ngIf="col !== 'actions'"
-                 (mousedown)="onResizeColumn($event, col)">
-            </div>
+            <div class="resize-handle" *ngIf="col !== 'actions' && col !== 'select'" (mousedown)="onResizeColumn($event, col)"></div>
           </div>
         </div>
 
-        <!-- Virtual Viewport -->
-        <cdk-virtual-scroll-viewport itemSize="64" class="viewport">
-          <div *cdkVirtualFor="let row of visibleData$ | async; trackBy: trackByFn" 
-               class="grid-row menu-row"
-               [style.grid-template-columns]="getGridTemplate()">
-             
-            <!-- Loop through columns just like header -->
+        <!-- Body with Virtual Scroll Logic -->
+        <div class="grid-body-viewport">
+          <div *ngFor="let row of dataSource.filteredData; trackBy: trackByFn" 
+               class="grid-data-row" 
+               [style.grid-template-columns]="getGridTemplate()"
+               [class.row-selected]="selection.isSelected(row)">
+            
             <ng-container *ngFor="let col of displayedColumns">
-              
-              <!-- ID Column -->
-              <div class="grid-cell col-id" *ngIf="col === 'id'">
-                <span class="id-badge">#{{row.id}}</span>
+              <!-- Select -->
+              <div class="grid-data-cell col-select" *ngIf="col === 'select'">
+                <mat-checkbox (click)="$event.stopPropagation()"
+                              (change)="$event ? selection.toggle(row) : null"
+                              [checked]="selection.isSelected(row)"
+                              class="premium-checkbox">
+                </mat-checkbox>
               </div>
 
-              <!-- Title Column -->
-              <div class="grid-cell col-title" *ngIf="col === 'title'">
-                <div class="menu-info">
-                  <div class="icon-box">
+              <!-- ID -->
+              <div class="grid-data-cell col-id" *ngIf="col === 'id'">
+                <span class="id-badge">#{{row.id?.toString()?.substring(0,8)}}</span>
+              </div>
+
+              <!-- Title & Icon (Hierarchical) -->
+              <div class="grid-data-cell col-title" *ngIf="col === 'title'" [style.padding-left.px]="12 + ((row.level || 0) * 32)">
+                <div class="menu-identity">
+                  <!-- Tree Toggle Chevron -->
+                  <button mat-icon-button class="tree-toggle" *ngIf="row.children && row.children.length > 0" (click)="row.id && toggleNode(row.id); $event.stopPropagation()">
+                    <mat-icon>{{isExpanded(row.id) ? 'expand_more' : 'chevron_right'}}</mat-icon>
+                  </button>
+                  <div class="tree-spacer" *ngIf="!row.children || row.children.length === 0"></div>
+
+                  <div class="icon-wrapper">
                     <mat-icon>{{row.icon || 'folder'}}</mat-icon>
                   </div>
-                  <span class="menu-title">{{row.title}}</span>
+                  <div class="text-info">
+                    <span class="main-title">{{row.title}}</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- URL Column -->
-              <div class="grid-cell col-url" *ngIf="col === 'url'">
-                <code class="url-code" *ngIf="row.url">{{row.url}}</code>
-                <span class="no-url" *ngIf="!row.url">--</span>
+              <!-- URL -->
+              <div class="grid-data-cell col-url" *ngIf="col === 'url'">
+                <code class="url-pill" *ngIf="row.url">{{row.url}}</code>
+                <span class="no-url" *ngIf="!row.url">No Route</span>
               </div>
 
-              <!-- Parent Column -->
-              <div class="grid-cell col-parent" *ngIf="col === 'parentId'">
-                <span class="parent-chip" *ngIf="row.parentId">
-                  {{ getParentTitle(row.parentId) }}
+              <!-- Parent -->
+              <div class="grid-data-cell col-parent" *ngIf="col === 'parentId'">
+                <span class="parent-tag" [class.is-root]="!row.parentId">
+                  {{row.parentId ? 'Child' : 'Root'}}
                 </span>
-                <span class="root-chip" *ngIf="!row.parentId">Root</span>
               </div>
 
-              <!-- Order Column -->
-              <div class="grid-cell col-order" *ngIf="col === 'order'">
-                <span class="order-badge">{{row.order}}</span>
+              <!-- Order -->
+              <div class="grid-data-cell col-order" *ngIf="col === 'order'">
+                <div class="order-circle">{{row.order}}</div>
               </div>
 
-              <!-- Actions Column -->
-              <div class="grid-cell col-actions" *ngIf="col === 'actions'">
-                <div class="action-buttons">
-                  <button mat-icon-button (click)="openMenuDialog(row)" matTooltip="Edit" class="edit-btn">
-                    <mat-icon>edit</mat-icon>
+              <!-- Actions -->
+              <div class="grid-data-cell col-actions" *ngIf="col === 'actions'">
+                <div class="action-group">
+                  <button mat-icon-button class="edit-btn" (click)="openMenuDialog(row)" matTooltip="Edit Menu">
+                    <mat-icon>edit_note</mat-icon>
                   </button>
-                  <button mat-icon-button (click)="deleteMenu(row)" matTooltip="Delete" class="delete-btn">
-                    <mat-icon>delete</mat-icon>
+                  <button mat-icon-button class="delete-btn" (click)="deleteMenu(row)" matTooltip="Delete Menu">
+                    <mat-icon>delete_sweep</mat-icon>
                   </button>
                 </div>
               </div>
-
             </ng-container>
           </div>
 
           <!-- No Data State -->
-          <div *ngIf="dataSource.data.length === 0" class="no-data-card">
-            <mat-icon>search_off</mat-icon>
-            <p>No menu items found.</p>
+          <div class="empty-state" *ngIf="dataSource.filteredData.length === 0 && !loading">
+            <div class="empty-icon-box">
+              <mat-icon>cloud_off</mat-icon>
+            </div>
+            <h3>No results found</h3>
+            <p>Try adjusting your search filters</p>
           </div>
-        </cdk-virtual-scroll-viewport>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Floating Bulk Action Bar (Premium Look) -->
+  <div class="floating-bulk-bar" [class.active]="selection.hasValue()">
+    <div class="bar-content">
+      <div class="selection-info">
+        <div class="count-badge">{{selection.selected.length}}</div>
+        <span class="label">Items Selected</span>
+      </div>
+      
+      <div class="bar-actions">
+        <button mat-flat-button class="bulk-assign-btn" (click)="openBulkBranchDialog()">
+          <mat-icon>account_balance</mat-icon>
+          <span>Bulk Assign Branch</span>
+        </button>
+        <div class="divider"></div>
+        <button mat-icon-button class="close-bar-btn" (click)="selection.clear()" matTooltip="Clear Selection">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
     </div>
   </div>

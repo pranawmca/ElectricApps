@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { CompanyService } from '../../../company/services/company.service';
 import { LoadingService } from '../../../../core/services/loading.service';
-import { delay, finalize } from 'rxjs/operators';
+import { catchError, delay, finalize, forkJoin, of, tap } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -28,6 +28,8 @@ export class MenuFormDialogComponent implements OnInit {
     loadingBranches = true; // Default to true to ensure loader shows immediately
     currentCompanyName = '';
     selectedBranchName = 'All Branches (Global)';
+    isBulk = false;
+    selectedItems: MenuItem[] = [];
 
     constructor(
         private fb: FormBuilder,
@@ -38,9 +40,11 @@ export class MenuFormDialogComponent implements OnInit {
         private loadingService: LoadingService,
         private cdr: ChangeDetectorRef,
         private dialogRef: MatDialogRef<MenuFormDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { menu: MenuItem | null, allMenus: MenuItem[] }
+        @Inject(MAT_DIALOG_DATA) public data: { menu: MenuItem | null, allMenus: MenuItem[], isBulk?: boolean, selectedItems?: MenuItem[] }
     ) {
         this.isSuperAdmin = this.authService.isSuperAdmin();
+        this.isBulk = data.isBulk || false;
+        this.selectedItems = data.selectedItems || [];
         
         const defaultCompanyId = this.data.menu?.companyId || this.authService.getCompanyId();
         
@@ -59,7 +63,7 @@ export class MenuFormDialogComponent implements OnInit {
             parentId: [this.data.menu?.parentId || null],
             order: [this.data.menu?.order || 0, [Validators.required]],
             companyId: [{ value: defaultCompanyId, disabled: true }],
-            branchId: [defaultBranchId]
+            branchId: [this.parseBranchIds(defaultBranchId)]
         });
     }
 
@@ -114,24 +118,67 @@ export class MenuFormDialogComponent implements OnInit {
     }
 
     updateSelectedBranchName() {
-        const branchId = this.menuForm.get('branchId')?.value;
-        if (!branchId || branchId === 'GLOBAL') {
-            this.selectedBranchName = 'All Branches (Global)';
-        } else {
-            // Backend uses int for Id in some cases (e.g. 1002), so we compare as strings
-            const branch = this.branches.find(b => String(b.id) === String(branchId));
-            this.selectedBranchName = branch ? branch.branchName : 'All Branches (Global)';
+        // No longer using single selectedBranchName variable as we use getSelectedBranchText()
+    }
+
+    isGlobalSelected(): boolean {
+        const value = this.menuForm.get('branchId')?.value;
+        return Array.isArray(value) && value.includes('GLOBAL');
+    }
+
+    toggleGlobal() {
+        const value = this.menuForm.get('branchId')?.value;
+        if (Array.isArray(value) && value.includes('GLOBAL')) {
+            // If Global is selected, clear everything else
+            this.menuForm.patchValue({ branchId: ['GLOBAL'] });
         }
     }
 
+    getSelectedBranchText(): string {
+        const selectedIds = this.menuForm.get('branchId')?.value;
+        if (!Array.isArray(selectedIds) || selectedIds.length === 0) return 'Select Branch';
+        
+        if (selectedIds.includes('GLOBAL')) return 'All Branches (Global)';
+        
+        if (selectedIds.length === 1) {
+            const branch = this.branches.find(b => String(b.id) === String(selectedIds[0]));
+            return branch ? branch.branchName : '1 Branch Selected';
+        }
+        
+        return `${selectedIds.length} Branches Selected`;
+    }
+
+    parseBranchIds(branchId: string | null): string[] {
+        if (!branchId || branchId === 'GLOBAL') return ['GLOBAL'];
+        // Split comma-separated IDs and return as array
+        return branchId.split(',').map(id => id.trim());
+    }
+
     onBranchChange() {
-        this.updateSelectedBranchName();
+        const value = this.menuForm.get('branchId')?.value;
+        if (Array.isArray(value) && value.length > 1 && value.includes('GLOBAL')) {
+            // If user selects a branch while Global was selected, remove Global
+            const newValue = value.filter(id => id !== 'GLOBAL');
+            this.menuForm.patchValue({ branchId: newValue });
+        }
+        if (Array.isArray(value) && value.length === 0) {
+            this.menuForm.patchValue({ branchId: ['GLOBAL'] });
+        }
+    }
+
+    onCancel(): void {
+        this.dialogRef.close();
     }
 
     save(): void {
         if (this.menuForm.invalid) return;
 
         const actionText = this.data.menu?.id ? 'Update' : 'Create';
+        const branchValue = this.menuForm.get('branchId')?.value;
+        const finalBranchId = (Array.isArray(branchValue) && branchValue.includes('GLOBAL')) 
+            ? null 
+            : (Array.isArray(branchValue) ? branchValue.join(',') : null);
+
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
             data: {
@@ -146,14 +193,19 @@ export class MenuFormDialogComponent implements OnInit {
                 this.loading = true;
                 this.loadingService.setLoading(true, `${actionText}ing menu item...`);
                 
+                if (this.isBulk) {
+                    this.bulkSave(finalBranchId);
+                    return;
+                }
+
                 const menuData: MenuItem = {
                     ...this.data.menu,
                     ...this.menuForm.getRawValue(),
-                    branchId: this.menuForm.get('branchId')?.value === 'GLOBAL' ? null : this.menuForm.get('branchId')?.value
+                    branchId: finalBranchId
                 };
 
                 const action = this.data.menu?.id
-                    ? this.menuService.updateMenu(this.data.menu.id, menuData)
+                    ? this.menuService.updateMenu(this.data.menu.id as any, menuData)
                     : this.menuService.createMenu(menuData);
 
                 action.pipe(
@@ -171,6 +223,23 @@ export class MenuFormDialogComponent implements OnInit {
                     }
                 });
             }
+        });
+    }
+
+    private bulkSave(finalBranchId: string | null): void {
+        const updateTasks = this.selectedItems.map(item => {
+            const updatedItem = { ...item, branchId: finalBranchId };
+            return this.menuService.updateMenu(item.id as any, updatedItem).pipe(
+                catchError(err => {
+                    console.error(`Failed to update menu ${item.id}`, err);
+                    return of(null);
+                })
+            );
+        });
+
+        forkJoin(updateTasks).pipe(delay(800)).subscribe(() => {
+            this.loadingService.setLoading(false);
+            this.dialogRef.close(true);
         });
     }
 }

@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject, takeUntil } from 'rxjs';
@@ -29,22 +30,27 @@ import { LoadingService } from '../../../core/services/loading.service';
 })
 export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy {
     private destroy$ = new Subject<void>();
-    displayedColumns: string[] = ['id', 'title', 'url', 'parentId', 'order', 'actions'];
+    selection = new SelectionModel<MenuItem>(true, []);
+    displayedColumns: string[] = ['select', 'id', 'title', 'url', 'parentId', 'order', 'actions'];
     isMobile = false;
     summaryStats: SummaryStat[] = [];
     loading = false;
 
     columnWidths: { [key: string]: number } = {
-        'id': 250,
+        'select': 50,
+        'id': 100,
         'title': 250,
         'url': 250,
-        'parentId': 150,
-        'order': 100,
-        'actions': 120
+        'parentId': 120,
+        'order': 80,
+        'actions': 100
     };
 
     getGridTemplate(): string {
-        return this.displayedColumns.map(col => `${this.columnWidths[col]}px`).join(' ');
+        return this.displayedColumns.map(col => {
+            const width = this.columnWidths[col] || 100;
+            return `${width}px`;
+        }).join(' ');
     }
 
     onResizeColumn(event: MouseEvent, col: string) {
@@ -70,8 +76,9 @@ export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy
         document.addEventListener('mouseup', onMouseUp);
     }
     dataSource = new MatTableDataSource<MenuItem>([]);
-    visibleData$ = this.dataSource.connect();
     allMenus: MenuItem[] = [];
+    treeData: MenuItem[] = [];
+    expandedNodes = new Set<string>(); // Store IDs of expanded parent nodes
 
     @ViewChild(MatSort) sort!: MatSort;
 
@@ -79,7 +86,8 @@ export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy
         private menuService: MenuService,
         private dialog: MatDialog,
         private loadingService: LoadingService,
-        private breakpointObserver: BreakpointObserver
+        private breakpointObserver: BreakpointObserver,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
@@ -98,9 +106,9 @@ export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy
             .subscribe(result => {
                 this.isMobile = result.matches;
                 if (this.isMobile) {
-                    this.displayedColumns = ['title', 'parentId', 'actions'];
+                    this.displayedColumns = ['select', 'title', 'parentId', 'actions'];
                 } else {
-                    this.displayedColumns = ['id', 'title', 'url', 'parentId', 'order', 'actions'];
+                    this.displayedColumns = ['select', 'id', 'title', 'url', 'parentId', 'order', 'actions'];
                 }
             });
     }
@@ -115,7 +123,8 @@ export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy
         this.menuService.getAllMenus().subscribe({
             next: (menus) => {
                 this.allMenus = menus;
-                this.dataSource.data = menus;
+                this.treeData = this.buildMenuTree(menus);
+                this.updateDataSource();
 
                 // Calculate Stats
                 const totalMenus = menus.length;
@@ -139,6 +148,75 @@ export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy
         });
     }
 
+    buildMenuTree(flatMenus: MenuItem[]): MenuItem[] {
+        const menuMap = new Map<string, MenuItem>();
+        const rootMenus: MenuItem[] = [];
+
+        // 1. First pass: Create clones and initialize children array
+        flatMenus.forEach(menu => {
+            const id = String(menu.id);
+            menuMap.set(id, { ...menu, children: [] });
+        });
+
+        // 2. Second pass: Build hierarchy
+        flatMenus.forEach(menu => {
+            const id = String(menu.id);
+            const currentItem = menuMap.get(id)!;
+            
+            if (menu.parentId) {
+                const parentId = String(menu.parentId);
+                const parent = menuMap.get(parentId);
+                if (parent) {
+                    parent.children = parent.children || [];
+                    parent.children.push(currentItem);
+                } else {
+                    rootMenus.push(currentItem);
+                }
+            } else {
+                rootMenus.push(currentItem);
+            }
+        });
+
+        // 3. Sort logic
+        const sortFn = (a: MenuItem, b: MenuItem) => (a.order || 0) - (b.order || 0);
+        rootMenus.sort(sortFn);
+        menuMap.forEach(item => {
+            if (item.children) item.children.sort(sortFn);
+        });
+
+        return rootMenus;
+    }
+
+    toggleNode(nodeId: any) {
+        const idStr = String(nodeId);
+        if (this.expandedNodes.has(idStr)) {
+            this.expandedNodes.delete(idStr);
+        } else {
+            this.expandedNodes.add(idStr);
+        }
+        this.updateDataSource();
+    }
+
+    isExpanded(nodeId: any): boolean {
+        return this.expandedNodes.has(String(nodeId));
+    }
+
+    updateDataSource() {
+        const flattened: MenuItem[] = [];
+        this.treeData.forEach(node => this.flattenNode(node, flattened, 0));
+        this.dataSource.data = flattened;
+        this.cdr.detectChanges(); // Force UI update
+    }
+
+    private flattenNode(node: MenuItem, result: MenuItem[], level: number) {
+        node.level = level;
+        result.push(node);
+        const idStr = String(node.id);
+        if (this.expandedNodes.has(idStr) && node.children && node.children.length > 0) {
+            node.children.forEach(child => this.flattenNode(child, result, level + 1));
+        }
+    }
+
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
         this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -146,6 +224,55 @@ export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy
 
     dropColumn(event: CdkDragDrop<string[]>) {
         moveItemInArray(this.displayedColumns, event.previousIndex, event.currentIndex);
+    }
+
+    /** Whether the number of selected elements matches the total number of rows. */
+    isAllSelected() {
+        const numSelected = this.selection.selected.length;
+        const numRows = this.dataSource.data.length;
+        return numSelected === numRows;
+    }
+
+    /** Selects all rows if they are not all selected; otherwise clear selection. */
+    toggleAllRows() {
+        if (this.isAllSelected()) {
+            this.selection.clear();
+            return;
+        }
+
+        this.selection.select(...this.dataSource.data);
+    }
+
+    /** The label for the checkbox on the passed row */
+    checkboxLabel(row?: MenuItem): string {
+        if (!row) {
+            return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+        }
+        return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id}`;
+    }
+
+    openBulkBranchDialog(): void {
+        const selectedMenus = this.selection.selected;
+        if (selectedMenus.length === 0) return;
+
+        // Reuse MenuFormDialogComponent for bulk branch assignment
+        // We'll pass a "dummy" menu object but indicate it's a bulk action
+        const dialogRef = this.dialog.open(MenuFormDialogComponent, {
+            width: '500px',
+            data: {
+                menu: { title: 'Bulk Update', branchId: 'GLOBAL' } as any,
+                allMenus: [],
+                isBulk: true,
+                selectedItems: selectedMenus
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.selection.clear();
+                this.loadMenus();
+            }
+        });
     }
 
     getColumnClass(column: string): string {

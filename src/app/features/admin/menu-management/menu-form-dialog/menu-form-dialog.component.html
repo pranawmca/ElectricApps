@@ -1,100 +1,108 @@
-<div class="menu-form-container">
+<div class="menu-form-container" [class.bulk-mode]="isBulk">
   <div class="dialog-header">
-    <h2 mat-dialog-title>{{ data.menu ? 'Edit Menu' : 'Create New Menu' }}</h2>
-    <button mat-icon-button mat-dialog-close class="close-btn">
+    <div class="header-main">
+      <h2 mat-dialog-title class="dialog-title">
+        {{ isBulk ? 'Bulk Update Branches' : (data.menu?.id ? 'Edit Menu' : 'Create Menu') }}
+      </h2>
+      <div class="bulk-count-badge" *ngIf="isBulk">
+        <mat-icon>layers</mat-icon>
+        <span>Updating {{selectedItems.length}} items</span>
+      </div>
+    </div>
+    <button mat-icon-button mat-dialog-close class="close-btn" matTooltip="Close">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <mat-dialog-content>
-    <form [formGroup]="menuForm" class="form-grid">
-      
-      <!-- Title -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Menu Title</mat-label>
-        <input matInput formControlName="title" placeholder="e.g. Dashboard">
-        <mat-icon matSuffix>label</mat-icon>
-        <mat-error *ngIf="menuForm.get('title')?.hasError('required')">Title is required</mat-error>
-      </mat-form-field>
-
-      <!-- URL -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>URL / Route</mat-label>
-        <input matInput formControlName="url" placeholder="e.g. /app/dashboard">
-        <mat-icon matSuffix>link</mat-icon>
-      </mat-form-field>
-
-      <div class="form-row">
-        <!-- Icon -->
-        <mat-form-field appearance="outline">
-          <mat-label>Icon Name (Material)</mat-label>
-          <input matInput formControlName="icon" placeholder="e.g. dashboard">
-          <mat-icon matPrefix *ngIf="menuForm.get('icon')?.value">{{menuForm.get('icon')?.value}}</mat-icon>
-          <mat-icon matSuffix *ngIf="!menuForm.get('icon')?.value">search</mat-icon>
-        </mat-form-field>
-
-        <!-- Order -->
-        <mat-form-field appearance="outline">
-          <mat-label>Sort Order</mat-label>
-          <input matInput type="number" formControlName="order">
-          <mat-icon matSuffix>sort</mat-icon>
-        </mat-form-field>
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="menuForm" class="menu-form">
+      <!-- 1. Selection Alert (Only for Bulk) -->
+      <div class="selection-alert" *ngIf="isBulk">
+        <mat-icon>info</mat-icon>
+        <p>Your changes will be applied to all selected menu modules across branches.</p>
       </div>
 
-      <!-- Parent -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Parent Menu</mat-label>
-        <mat-select formControlName="parentId">
-          <mat-option [value]="null">No Parent (Top Level)</mat-option>
-          <mat-option *ngFor="let m of data.allMenus" [value]="m.id">
-            {{m.title}}
-          </mat-option>
-        </mat-select>
-        <mat-icon matSuffix>account_tree</mat-icon>
-      </mat-form-field>
+      <div class="form-grid">
+        <!-- Fields only for Single Edit -->
+        <ng-container *ngIf="!isBulk">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Menu Title</mat-label>
+              <input matInput formControlName="title" placeholder="Enter menu name">
+              <mat-icon matPrefix>label</mat-icon>
+            </mat-form-field>
 
-      <div class="row g-3" *ngIf="isSuperAdmin">
-        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Menu Icon</mat-label>
+              <input matInput formControlName="icon" placeholder="Material icon name">
+              <mat-icon matPrefix>{{menuForm.get('icon')?.value || 'face'}}</mat-icon>
+            </mat-form-field>
+          </div>
+
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Assign Company</mat-label>
-            <input matInput [value]="currentCompanyName" readonly>
-            <mat-icon matSuffix>business</mat-icon>
+            <mat-label>URL / Route Path</mat-label>
+            <input matInput formControlName="url" placeholder="/app/feature/...">
+            <mat-icon matPrefix>link</mat-icon>
           </mat-form-field>
-        </div>
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Assign Branch</mat-label>
-            <mat-select formControlName="branchId" (selectionChange)="onBranchChange()">
-              <mat-select-trigger>
-                <div class="trigger-content" *ngIf="!loadingBranches">
-                  <mat-icon class="trigger-icon">{{menuForm.get('branchId')?.value === 'GLOBAL' ? 'public' : 'store'}}</mat-icon>
-                  <span>{{selectedBranchName}}</span>
-                </div>
-                <div class="trigger-content loading" *ngIf="loadingBranches">
-                  <mat-spinner diameter="16"></mat-spinner>
-                  <span class="ms-2">Loading branches...</span>
-                </div>
-              </mat-select-trigger>
-              <mat-option value="GLOBAL">
-                <mat-icon>public</mat-icon> All Branches (Global)
-              </mat-option>
-              <mat-divider></mat-divider>
-              <mat-option *ngFor="let branch of branches" [value]="branch.id">
-                <mat-icon>store</mat-icon> {{branch.branchName}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Parent Menu</mat-label>
+              <mat-select formControlName="parentId">
+                <mat-option [value]="null">Root Menu</mat-option>
+                <mat-option *ngFor="let m of data.allMenus" [value]="m.id">
+                  {{m.title}}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>account_tree</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Sort Order</mat-label>
+              <input matInput type="number" formControlName="order">
+              <mat-icon matPrefix>reorder</mat-icon>
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <!-- Company Field (Visible in both) -->
+        <mat-form-field appearance="outline" class="full-width readonly-field">
+          <mat-label>Assign Company</mat-label>
+          <input matInput [value]="currentCompanyName" readonly>
+          <mat-icon matPrefix>business</mat-icon>
+          <mat-hint>Company is automatically locked based on your profile</mat-hint>
+        </mat-form-field>
+
+        <!-- Branch Field (Multiple Selection) -->
+        <mat-form-field appearance="outline" class="full-width premium-select">
+          <mat-label>Assign Branch</mat-label>
+          <mat-select formControlName="branchId" multiple (selectionChange)="onBranchChange()">
+            <mat-select-trigger>
+              <div class="trigger-content" [class.loading]="loadingBranches">
+                <mat-icon class="trigger-icon">{{loadingBranches ? 'sync' : 'account_balance'}}</mat-icon>
+                <span>{{getSelectedBranchText()}}</span>
+              </div>
+            </mat-select-trigger>
+
+            <mat-option value="GLOBAL" (click)="toggleGlobal()">
+              <mat-icon>public</mat-icon> All Branches (Global)
+            </mat-option>
+            <mat-divider></mat-divider>
+            <mat-option *ngFor="let branch of branches" [value]="branch.id">
+              <mat-icon>store</mat-icon> {{branch.branchName}}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>location_on</mat-icon>
+        </mat-form-field>
       </div>
     </form>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end">
-    <button mat-raised-button mat-dialog-close class="cancel-btn">Cancel</button>
-    <button mat-raised-button color="primary" class="save-btn" [disabled]="menuForm.invalid || loading" (click)="save()">
-      <mat-icon *ngIf="!loading">save</mat-icon>
-      <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-      {{ data.menu ? 'Update' : 'Create' }} Menu
+  <mat-dialog-actions align="end" class="dialog-footer">
+    <button mat-button (click)="onCancel()" class="cancel-btn">CANCEL</button>
+    <button mat-flat-button color="primary" (click)="save()" [disabled]="menuForm.invalid || loading" class="save-btn">
+      <mat-icon>{{isBulk ? 'check_circle' : (data.menu?.id ? 'save' : 'add_circle')}}</mat-icon>
+      {{ isBulk ? 'BULK UPDATE' : (data.menu?.id ? 'UPDATE MENU' : 'CREATE MENU') }}
     </button>
   </mat-dialog-actions>
 </div>

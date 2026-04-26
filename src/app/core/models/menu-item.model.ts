@@ -12,6 +12,7 @@ export interface MenuItem {
   lastModifiedBy?: string;
   lastModifiedDate?: string;
   children?: MenuItem[];
+  level?: number;
   permissions?: MenuPermissions;
 }
 
