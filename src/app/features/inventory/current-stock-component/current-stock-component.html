@@ -85,9 +85,14 @@
       Removed Batches
       </mat-slide-toggle>
       
-      <button mat-raised-button color="primary" class="filter-btn" (click)="applyDateFilter()" [disabled]="isLoadingResults">
+      <button mat-raised-button color="primary" class="filter-btn" (click)="applyDateFilter()" [disabled]="isLoadingResults || isSyncing">
         <mat-icon>filter_alt</mat-icon>
         Apply
+      </button>
+
+      <button mat-raised-button class="sync-btn" (click)="syncStock()" [disabled]="isLoadingResults || isSyncing">
+        <mat-icon [class.rotating]="isSyncing">sync</mat-icon>
+        {{ isSyncing ? 'Syncing...' : 'Sync Stock' }}
       </button>
     </div>
   </div>
@@ -197,7 +202,7 @@
 
       <ng-container matColumnDef="totalReceived">
         <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Inward Qty </th>
-        <td mat-cell *matCellDef="let element"> {{element.totalReceived | number}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.totalReceived - element.totalReturned | number}} </td>
       </ng-container>
 
       <ng-container matColumnDef="totalRejected">
@@ -289,6 +294,8 @@
                       <th appResizableColumn>Mfg Date</th>
                       <th appResizableColumn>Exp Date</th>
                       <th appResizableColumn>Received</th>
+                      <th appResizableColumn>Sold</th>
+                      <th appResizableColumn>Returned</th>
                       <th appResizableColumn>Rejected</th>
                       <th appResizableColumn>Expired</th>
                       <th appResizableColumn>Action</th>
@@ -329,7 +336,17 @@
                           {{ $any(element).isExpiryRequired ? (($any(h).expiryDate | date:'dd MMM yyyy') ?? 'NA') : 'NA' }}
                         </span>
                       </td>
-                      <td class="font-600">{{$any(h).receivedQty}}</td>
+                      <td class="font-600">{{$any(h).receivedQty || 0}}</td>
+                      <td>
+                        <span [class.text-danger]="$any(h).soldQty > 0" class="font-600">
+                          {{$any(h).soldQty || 0}}
+                        </span>
+                      </td>
+                      <td>
+                        <span [class.text-danger]="$any(h).returnedQty > 0" [class.text-muted]="$any(h).returnedQty === 0">
+                          {{$any(h).returnedQty || 0}}
+                        </span>
+                      </td>
                       <td>
                         <span [class.text-danger]="$any(h).rejectedQty > 0" [class.text-muted]="$any(h).rejectedQty === 0">
                           {{$any(h).rejectedQty}}

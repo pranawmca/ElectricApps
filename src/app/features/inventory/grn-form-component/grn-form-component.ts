@@ -46,6 +46,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   showCountdown: boolean = false;
   isQuick: boolean = false;
   isSaving: boolean = false; // Guard against duplicate submissions
+  isSaveButtonDisabled: boolean = false; // FINAL FLAG for button
   private grnSavedKey: string = ''; // sessionStorage key for this PO
 
   constructor(
@@ -282,6 +283,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     // Final UI Sync
     setTimeout(() => {
       this.calculateGrandTotal();
+      this.validateFormState(); // Capture initial invalid states
       this.cdr.detectChanges();
     }, 150);
 
@@ -323,25 +325,14 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   onQtyChange(item: any) {
     if (this.isViewMode) return;
 
-    const enteredQty = Number(item.receivedQty || 0);
-    const pendingQty = Number(item.pendingQty || 0);
+    const rawValue = item.receivedQty;
+    const isActuallyEmpty = rawValue === null || rawValue === undefined || String(rawValue).trim() === '';
+    
+    const enteredQty = isActuallyEmpty ? 0 : Number(rawValue);
     const rejectedQty = Number(item.rejectedQty || 0);
     const unitRate = Number(item.unitRate || 0);
 
-    if (enteredQty > pendingQty) {
-      item.receivedQty = pendingQty;
-      this.showValidationError(`Received quantity cannot exceed the pending quantity (${pendingQty}).`);
-      this.onQtyChange(item);
-      return;
-    }
-
-    if (rejectedQty > enteredQty) {
-      item.rejectedQty = 0;
-      this.showValidationError(`Rejected quantity cannot exceed the received quantity (${enteredQty}).`);
-      this.onQtyChange(item);
-      return;
-    }
-
+    // Recalculate derived values based on current input (even if potentially invalid)
     item.acceptedQty = Math.max(0, enteredQty - rejectedQty);
 
     const discPer = Number(item.discountPercent || 0);
@@ -356,6 +347,132 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     item.total = taxableAmt + taxAmt;
 
     this.calculateGrandTotal();
+    this.cdr.detectChanges(); 
+  }
+
+  onQtyBlur(item: any) {
+    if (this.isViewMode) return;
+
+    const rawValue = item.receivedQty;
+    const isActuallyEmpty = rawValue === null || rawValue === undefined || String(rawValue).trim() === '';
+    const enteredQty = isActuallyEmpty ? 0 : Number(rawValue);
+    const pendingQty = Number(item.pendingQty || 0);
+    const rejectedQty = Number(item.rejectedQty || 0);
+
+    // 1. Validation for Pending Qty
+    if (enteredQty > pendingQty) {
+      item.receivedQty = ''; // Clear as requested
+      this.showValidationError(`Received quantity cannot exceed the pending quantity (${pendingQty}).`);
+      this.onQtyChange(item); // Refresh totals after clearing
+    } 
+    // 2. Validation for Rejected Qty
+    else if (rejectedQty > enteredQty) {
+      item.rejectedQty = 0;
+      this.showValidationError(`Rejected quantity cannot exceed the received quantity (${enteredQty}).`);
+      this.onQtyChange(item); // Refresh totals after resetting rejection
+    }
+    // 3. General item validation (empty check, etc.)
+    else {
+      this.validateItem(item, true);
+    }
+
+    this.updateButtonState(); // Update button state after validation
+  }
+
+  get isButtonDisabled(): boolean {
+    if (this.isViewMode || this.isSaving) return true;
+    if (this.grnForm && this.grnForm.invalid) return true;
+    if (!this.items || this.items.length === 0) return true;
+
+    // Strict check for every item
+    return this.items.some(item => {
+      // 1. Recv Qty Check (Empty or <= 0 or > Pending)
+      const rawRcvd = item.receivedQty;
+      const rcvdStr = (rawRcvd === null || rawRcvd === undefined) ? '' : String(rawRcvd).trim();
+      if (rcvdStr === '') return true; // Disabled if empty
+      
+      const rcvd = Number(rcvdStr);
+      const pend = Number(item.pendingQty || 0);
+      if (rcvd <= 0 || rcvd > pend) return true; // Disabled if 0 or > pending
+
+      // 2. Rejected Qty Check (Empty or > Recv)
+      const rawRej = item.rejectedQty;
+      const rejStr = (rawRej === null || rawRej === undefined) ? '' : String(rawRej).trim();
+      if (rejStr === '') return true; // Disabled if empty
+
+      const rej = Number(rejStr);
+      if (rej < 0 || rej > rcvd) return true; // Disabled if negative or > recv
+
+      return false;
+    });
+  }
+
+  updateButtonState() {
+    if (this.isViewMode || this.isSaving) {
+      this.isSaveButtonDisabled = true;
+      return;
+    }
+    if (this.grnForm && this.grnForm.invalid) {
+      this.isSaveButtonDisabled = true;
+      return;
+    }
+    if (!this.items || this.items.length === 0) {
+      this.isSaveButtonDisabled = true;
+      return;
+    }
+
+    this.isSaveButtonDisabled = this.items.some(item => {
+      const rcvd = Number(item.receivedQty || 0);
+      const pend = Number(item.pendingQty || 0);
+      const rej = Number(item.rejectedQty || 0);
+
+      const isEmptyRcvd = item.receivedQty === null || item.receivedQty === undefined || String(item.receivedQty).trim() === '';
+      const isEmptyRej = item.rejectedQty === null || item.rejectedQty === undefined || String(item.rejectedQty).trim() === '';
+
+      if (isEmptyRcvd || rcvd <= 0 || rcvd > pend) return true;
+      if (isEmptyRej || rej < 0 || rej > rcvd) return true;
+      return false;
+    });
+
+    this.cdr.detectChanges();
+  }
+
+  private validateFormState() {
+    this.updateButtonState();
+  }
+
+  private validateItem(item: any, showPopup: boolean): boolean {
+    const rcvd = Number(item.receivedQty || 0);
+    const pend = Number(item.pendingQty || 0);
+    const rej = Number(item.rejectedQty || 0);
+
+    // Case 1: Recv. Qty empty, zero or greater than pending
+    if (item.receivedQty === null || item.receivedQty === undefined || item.receivedQty === '') {
+      if (showPopup) this.showValidationError(`Received Quantity for "${item.productName}" cannot be empty.`);
+      return false;
+    }
+    if (rcvd <= 0) {
+      if (showPopup) this.showValidationError(`Received Quantity for "${item.productName}" must be greater than 0.`);
+      return false;
+    }
+    if (rcvd > pend) {
+      if (showPopup) this.showValidationError(`Received Quantity for "${item.productName}" cannot exceed Pending Quantity (${pend}).`);
+      return false;
+    }
+
+    // Rejected Qty empty check
+    if (item.rejectedQty === null || item.rejectedQty === undefined || item.rejectedQty === '') {
+      if (showPopup) this.showValidationError(`Rejected Quantity for "${item.productName}" cannot be empty. Enter 0 if none.`);
+      return false;
+    }
+
+    // Case 2: Rej. Qty greater than Recv. Qty
+    if (rej > rcvd) {
+      if (showPopup) this.showValidationError(`Rejected Quantity for "${item.productName}" cannot exceed Received Quantity (${rcvd}).`);
+      return false;
+    }
+
+    return true;
   }
 
   showValidationError(message: string) {
@@ -373,14 +490,28 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     if (this.grnForm.invalid || this.items.length === 0 || this.isViewMode) return;
     if (this.isSaving) return; // ⛔ Prevent duplicate save
 
-    // Validate that at least one item has qty > 0
-    const hasQty = this.items.some(i => Number(i.receivedQty) > 0);
-    if (!hasQty) {
-      this.dialog.open(StatusDialogComponent, {
-        width: '350px',
-        data: { title: 'Validation', message: 'Please enter received quantity for at least one item.', isSuccess: false }
-      });
-      return;
+    // Detailed validation for all line items
+    for (const item of this.items) {
+      const rcvd = Number(item.receivedQty || 0);
+      const pend = Number(item.pendingQty || 0);
+      const rej = Number(item.rejectedQty || 0);
+
+      if (rcvd <= 0) {
+        this.showValidationError(`Please enter a valid Received Quantity for "${item.productName}". It must be greater than 0.`);
+        return;
+      }
+      if (item.rejectedQty === null || item.rejectedQty === undefined || item.rejectedQty === '') {
+        this.showValidationError(`Rejected Quantity for "${item.productName}" cannot be empty. Please enter 0 if there is no rejection.`);
+        return;
+      }
+      if (rcvd > pend) {
+        this.showValidationError(`Received Quantity for "${item.productName}" cannot exceed Pending Quantity (${pend}).`);
+        return;
+      }
+      if (rej > rcvd) {
+        this.showValidationError(`Rejected Quantity for "${item.productName}" cannot exceed Received Quantity (${rcvd}).`);
+        return;
+      }
     }
 
     this.clearCountdown(); // Cancel auto-save — user is saving manually

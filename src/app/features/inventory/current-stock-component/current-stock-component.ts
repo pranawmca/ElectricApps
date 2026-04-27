@@ -76,6 +76,7 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
   nearExpiryCount: number = 0;
   showPurgedHistory: boolean = false;
   searchValue: string = '';
+  isSyncing: boolean = false;
   lastpurchaseOrderId!: number;
 
   innerPageIndex: number = 0;
@@ -283,7 +284,7 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
     let filteredHistory = element.history;
     if (!this.showPurgedHistory) {
       filteredHistory = element.history.filter((h: any) => 
-        (h.receivedQty || 0) + (h.rejectedQty || 0) + (h.expiredQty || 0) > 0
+        (h.receivedQty || 0) + (h.rejectedQty || 0) + (h.expiredQty || 0) + Math.abs(h.soldQty || 0) > 0
       );
     }
 
@@ -454,6 +455,27 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dialog.open(BatchHistoryDialogComponent, {
       width: '800px',
       data: h
+    });
+  }
+
+  syncStock() {
+    this.isSyncing = true;
+    this.notification.showStatus(true, 'Stock synchronization started...');
+    
+    this.inventoryService.syncStock().subscribe({
+      next: (res) => {
+        this.isSyncing = false;
+        if (res.success) {
+          this.notification.showStatus(true, res.message || 'Stock synchronized successfully!');
+          this.applyDateFilter(); // Refresh data
+        } else {
+          this.notification.showStatus(false, res.message || 'Synchronization failed.');
+        }
+      },
+      error: (err) => {
+        this.isSyncing = false;
+        this.notification.showStatus(false, err.error?.message || 'Error occurred during synchronization.');
+      }
     });
   }
 }

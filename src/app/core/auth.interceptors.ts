@@ -49,8 +49,15 @@ const addHeaders = (req: HttpRequest<any>, token: string, companyId: string | nu
     headers['X-Company-Id'] = companyId;
   }
 
-  if (branchId) {
-    headers['X-Branch-Id'] = branchId;
+  // 🕵️ SMART BRANCH DETECTION:
+  // If no branch in session, try to extract it from the request body (payload)
+  let effectiveBranchId = branchId;
+  if (!effectiveBranchId && req.body && typeof req.body === 'object') {
+    effectiveBranchId = req.body.branchId || req.body.BranchId;
+  }
+
+  if (effectiveBranchId) {
+    headers['X-Branch-Id'] = effectiveBranchId;
   }
   
   return req.clone({

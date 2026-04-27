@@ -5,7 +5,7 @@
     </div>
     <div class="header-buttons">
       <button mat-stroked-button class="cancel-btn" (click)="onCancel()">Cancel</button>
-      <button mat-flat-button class="save-btn" color="primary" (click)="saveGRN()" [disabled]="!grnForm.valid || isViewMode">
+      <button mat-flat-button class="save-btn" color="primary" (click)="saveGRN()" [disabled]="isSaveButtonDisabled">
         <mat-icon>save</mat-icon> Save & Update Stock
       </button>
     </div>
@@ -91,7 +91,9 @@
                   <input matInput type="number" 
                          [(ngModel)]="item.receivedQty" 
                          [ngModelOptions]="{standalone: true}"
-                         (ngModelChange)="onQtyChange(item)"
+                         (input)="onQtyChange(item)"
+                         (change)="onQtyChange(item)"
+                         (blur)="onQtyBlur(item)"
                          [max]="item.pendingQty"
                          [disabled]="isViewMode"
                          min="0">
@@ -102,7 +104,9 @@
                   <input matInput type="number" 
                          [(ngModel)]="item.rejectedQty" 
                          [ngModelOptions]="{standalone: true}"
-                         (ngModelChange)="onQtyChange(item)"
+                         (input)="onQtyChange(item)"
+                         (change)="onQtyChange(item)"
+                         (blur)="onQtyBlur(item)"
                          [disabled]="isViewMode"
                          min="0">
                 </mat-form-field>

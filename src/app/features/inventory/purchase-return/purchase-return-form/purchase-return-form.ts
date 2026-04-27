@@ -490,7 +490,8 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
       warehouseId: [item.warehouseId || item.WarehouseId || null],
       rackId: [item.rackId || item.RackId || null],
       mfgDate: [item.mfgDate],
-      expDate: [item.expDate]
+      expDate: [item.expDate],
+      branchId: [item.branchId || item.BranchId || null]
     });
 
     this.items.push(group);
@@ -565,7 +566,7 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
           returnDate: rawData.returnDate,
           remarks: rawData.remarks,
           companyId: this.authService.getCompanyId(),
-          branchId: this.authService.getBranchId(),
+          branchId: this.authService.getBranchId() || itemsToReturn[0]?.branchId,
           items: itemsToReturn.map((item: any) => ({
             productId: item.productId,
             productName: item.productName,
@@ -583,7 +584,7 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
             mfgDate: item.mfgDate,
             expDate: item.expDate,
             companyId: this.authService.getCompanyId(),
-            branchId: this.authService.getBranchId(),
+            branchId: item.branchId || this.authService.getBranchId(),
             createdBy: localStorage.getItem('email') || 'admin@admin.com',
             modifiedBy: localStorage.getItem('email') || 'admin@admin.com'
           }))

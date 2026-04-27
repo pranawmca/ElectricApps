@@ -57,7 +57,8 @@
                 {{ item.availableStock > 0 ? (item.availableStock + ' ' + (item.unit || '')) : 
                    (isPurchaseContext ? 'Out of Stock' : 
                    (item.isAlreadyPurged ? 'PURGED (' + (item.totalExpired || 0) + ' ' + (item.unit || '') + ')' : 
-                   ((item.totalExpired || 0) > 0 ? (item.totalExpired + ' ' + (item.unit || '') + ' EXPIRED') : 'Qty: Sold out'))) }}
+                   ((item.totalExpired || 0) > 0 ? (item.totalExpired + ' ' + (item.unit || '') + ' EXPIRED') : 
+                   (item.totalReturned > 0 ? 'RETURNED' : 'Qty: Sold out')))) }}
               </span>
               <mat-icon class="expand-icon">{{expandedProductId === item.productId ? 'expand_less' : 'expand_more'}}</mat-icon>
             </div>
@@ -77,8 +78,11 @@
             <span class="indicator purged" *ngIf="!isPurchaseContext && item.isAlreadyPurged">
               <mat-icon>auto_delete</mat-icon> PURGED (Expired)
             </span>
-            <span class="indicator sold-out" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalExpired || 0) === 0">
+            <span class="indicator sold-out" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalExpired || 0) === 0 && (item.totalReturned || 0) === 0">
               <mat-icon>block</mat-icon> Sold out
+            </span>
+            <span class="indicator low" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalReturned || 0) > 0">
+              <mat-icon>assignment_return</mat-icon> Returned to Supplier
             </span>
             <span class="indicator expiry" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalExpired || 0) > 0">
               <mat-icon>timer_off</mat-icon> Expired Stock
