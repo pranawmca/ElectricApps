@@ -48,7 +48,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
       <app-summary-stats [stats]="summaryStats" [isLoading]="loading"></app-summary-stats>
       
       <div class="table-container-wrapper">
-        <div class="grid-wrapper">
+        <div class="grid-wrapper table-responsive">
           <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
             <!-- Username Column -->
             <ng-container matColumnDef="userName">
@@ -405,6 +405,108 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
       .audit-user { color: rgba(255, 255, 255, 0.8) !important; }
       .audit-date { color: rgba(255, 255, 255, 0.4) !important; }
+
+      .grid-wrapper {
+        &::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2) !important;
+        }
+      }
+    }
+
+    /* ==========================================================================
+       RESPONSIVE ADJUSTMENTS
+       ========================================================================== */
+    @media (max-width: 992px) {
+      :host {
+        padding: 12px;
+        height: auto;
+        min-height: calc(100vh - 64px);
+        overflow-y: auto;
+      }
+
+      .list-container {
+        height: auto;
+        overflow: visible;
+      }
+
+      .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        margin-bottom: 20px;
+
+        .title-section {
+          text-align: left;
+        }
+
+        .main-add-btn {
+          width: 100%;
+          justify-content: center;
+          height: 44px !important;
+        }
+      }
+
+      .search-panel {
+        .search-field {
+          max-width: 100%;
+        }
+      }
+
+      .table-container-wrapper {
+        flex: none;
+        min-height: 400px;
+        height: 60vh; /* Fixed relative height for mobile to enable internal vertical scroll */
+        margin-bottom: 20px;
+      }
+      
+      .grid-wrapper {
+        /* Ensure horizontal scroll is active */
+        overflow-x: auto !important;
+        scrollbar-width: thin !important; /* Force scrollbar to show in Firefox */
+        
+        &::-webkit-scrollbar {
+          height: 8px !important; /* Slightly thicker for better visibility */
+          display: block !important;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2) !important;
+          border-radius: 10px !important;
+        }
+        
+        table {
+          min-width: 1100px; /* Force table to maintain width and trigger scrollbar */
+          
+          th.mat-header-cell, td.mat-cell {
+            padding: 12px 8px;
+          }
+        }
+      }
+    }
+
+    @media (max-width: 600px) {
+      :host {
+        padding: 8px;
+      }
+
+      .header-actions {
+        h1 { font-size: 1.3rem; }
+        .subtitle { font-size: 12px; }
+      }
+
+      .table-container-wrapper {
+        height: 65vh;
+      }
+      
+      .role-badge {
+        padding: 2px 6px;
+        font-size: 10px;
+      }
+
+      .action-buttons {
+        gap: 0;
+        button { transform: scale(0.9); }
+      }
     }
   `]
 })

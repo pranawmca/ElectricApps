@@ -323,7 +323,8 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
           rackId: historyItem.rackId, 
           quantity: targetQty, 
           expiryDate: historyItem.expiryDate,
-          companyId: this.authService.getCompanyId()
+          companyId: this.authService.getCompanyId(),
+          branchId: historyItem.branchId || this.authService.getBranchId()
         };
         this.inventoryService.adjustStock(payload).subscribe({
           next: () => {
@@ -364,7 +365,8 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
           sourceRackName: historyItem.rackName, 
           quantity: targetQty, 
           expiryDate: historyItem.expiryDate,
-          companyId: this.authService.getCompanyId()
+          companyId: this.authService.getCompanyId(),
+          branchId: historyItem.branchId || this.authService.getBranchId()
         };
         this.inventoryService.moveStockToExpiredRack(payload).subscribe({
           next: () => {

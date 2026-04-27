@@ -857,7 +857,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                     grandTotal: this.finalGrandTotal,
                     createdBy: this.authService.getUserEmail(),
                     companyId: this.authService.getCompanyId(),
-                    branchId: this.authService.getBranchId(),
+                    branchId: this.authService.getBranchId() || this.items.getRawValue().find(i => i.warehouseId)?.branchId || null,
                     isQuick: true,
                     items: this.items.getRawValue().map((i: any) => ({
                         id: i.id || '00000000-0000-0000-0000-000000000000',
@@ -876,7 +876,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                         rackId: i.rackId || null,
                         manufacturingDate: i.manufacturingDate || null,
                         expiryDate: i.expiryDate || null,
-                        branchId: this.authService.getBranchId()
+                        branchId: i.branchId || this.authService.getBranchId()
                     }))
                 };
 

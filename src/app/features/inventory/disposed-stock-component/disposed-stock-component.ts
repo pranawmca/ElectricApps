@@ -15,6 +15,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { LocationService } from '../../master/locations/services/locations.service';
 import { NotificationService } from '../../shared/notification.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-disposed-stock-component',
@@ -38,6 +39,7 @@ export class DisposedStockComponent implements OnInit, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
   private inventoryService = inject(InventoryService);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   displayedColumns: string[] = ['productName', 'warehouseName', 'rackName', 'disposedQty', 'disposedValue', 'lastPurchase'];
   stockDataSource = new MatTableDataSource<any>([]);
@@ -254,7 +256,8 @@ export class DisposedStockComponent implements OnInit, AfterViewInit {
                 warehouseId: item.warehouseId, 
                 rackId: item.rackId, 
                 quantity: purgeQty, 
-                expiryDate: item.expiryDate || item.history?.[0]?.expiryDate
+                expiryDate: item.expiryDate || item.history?.[0]?.expiryDate,
+                branchId: item.branchId || this.authService.getBranchId()
               };
               
               this.inventoryService.adjustStock(payload).subscribe({

@@ -464,3 +464,114 @@
   h3 { color: #111827; font-weight: 700; margin: 0; font-size: 18px; }
   p { color: #6b7280; margin: 8px 0 0 0; font-size: 14px; }
 }
+
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+@media (max-width: 992px) {
+  .page-header {
+    .header-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+
+      .actions-section {
+        flex-direction: column;
+        align-items: stretch;
+        
+        .search-wrapper {
+          width: 100% !important;
+          max-width: none;
+        }
+
+        .create-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  .content-body {
+    border-radius: 12px;
+  }
+
+  .modern-grid {
+    overflow-x: auto !important; /* Enable horizontal scroll */
+    -webkit-overflow-scrolling: touch;
+    display: block !important;
+    width: 100% !important;
+    
+    /* 🚀 Force scrollbar visibility (overriding global hide) */
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+
+    /* Force minimum width for grid rows to maintain structure and trigger scroll */
+    .grid-header-row, .grid-data-row {
+      min-width: 800px; 
+      display: grid !important; /* Keep grid structure even if container changes */
+    }
+    
+    /* Styling scrollbar for grid */
+    &::-webkit-scrollbar {
+      height: 8px !important;
+      display: block !important;
+    }
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05) !important;
+      border-radius: 10px !important;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(59, 130, 246, 0.4) !important;
+      border-radius: 10px !important;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      
+      &:hover {
+        background: rgba(59, 130, 246, 0.7) !important;
+      }
+    }
+  }
+
+  .floating-bulk-bar {
+    min-width: calc(100% - 40px);
+    width: calc(100% - 40px);
+    border-radius: 20px;
+    padding: 12px 16px;
+    
+    .bar-content {
+      flex-direction: column;
+      gap: 12px;
+      
+      .bar-actions {
+        width: 100%;
+        justify-content: space-between;
+        
+        .bulk-assign-btn {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .menu-management-container {
+    padding: 16px 16px 120px 16px;
+  }
+
+  .page-header {
+    .title-section {
+      .page-title { font-size: 22px; }
+      .page-subtitle { font-size: 13px; }
+    }
+  }
+
+  .modern-grid {
+    .grid-header-row, .grid-data-row {
+      min-width: 700px;
+    }
+  }
+}
+

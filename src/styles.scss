@@ -18,6 +18,20 @@ $app-themes: (
   "spring-green": (primary: mat.$spring-green-palette, tertiary: mat.$azure-palette),
 );
 
+/* 🚀 SURGICAL FIX FOR MENU MANAGEMENT LOADER 🚀 */
+html.on-menu-management-loading {
+  .cdk-overlay-container {
+    z-index: 100 !important; /* Temporarily move dialogs behind the app-root lift */
+  }
+  app-root {
+    position: relative !important;
+    z-index: 10000 !important; /* Lift the app (and its loader) above dialogs */
+  }
+  .global-loading-overlay {
+    z-index: 2147483647 !important; /* Max Priority */
+  }
+}
+
 $theme-colors: (
   "azure-blue": #007fff,  // Match standard Azure/Blue
   "rose-red": #e91e63,    // Pink 500

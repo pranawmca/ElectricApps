@@ -16,7 +16,6 @@ import { MenuItem } from '../../../core/models/menu-item.model';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { MenuFormDialogComponent } from './menu-form-dialog/menu-form-dialog.component';
-// Trigger re-build
 
 import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
 import { LoadingService } from '../../../core/services/loading.service';
@@ -93,9 +92,18 @@ export class MenuManagementComponent implements OnInit, AfterViewInit, OnDestroy
     ngOnInit(): void {
         this.observeBreakpoints();
         this.loadMenus();
+
+        this.loadingService.loading$.pipe(takeUntil(this.destroy$)).subscribe(isLoading => {
+            if (isLoading) {
+                document.documentElement.classList.add('on-menu-management-loading');
+            } else {
+                document.documentElement.classList.remove('on-menu-management-loading');
+            }
+        });
     }
 
     ngOnDestroy(): void {
+        document.documentElement.classList.remove('on-menu-management-loading');
         this.destroy$.next();
         this.destroy$.complete();
     }

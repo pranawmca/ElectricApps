@@ -561,29 +561,6 @@
 .spacer { flex: 1; }
 .nav-actions { display: flex; align-items: center; gap: 8px; }
 
-/* 🔒 GLOBAL LOADING */
-.global-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-}
-
-.global-loading-content {
-  padding: 50px;
-  background: white;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
 .nav-icon.stock-trigger, .nav-icon.menu-trigger-btn {
   background: rgba(255, 255, 255, 0.2) !important;
   border-radius: 50% !important;
