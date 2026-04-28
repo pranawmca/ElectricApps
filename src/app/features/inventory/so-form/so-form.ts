@@ -398,21 +398,34 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     this.updateTotal(row);
 
     if (!isExistingItem) {
-      const productName = product.productName || product.name || '';
-      // 🧐 Using Name for search as Stock controller might not index SKU for search, 
-      // but matching by ID is case-insensitive for GUID consistency.
-      this.inventoryService.getCurrentStock('', '', 0, 100, productName).subscribe((res: any) => {
+      const productName = (product.productName || product.name || '').trim();
+      const lookupTerm = productId ? String(productId) : productName;
+      console.log('[StandardSale] Fetching stock for:', lookupTerm);
+
+      this.inventoryService.getCurrentStock('', '', 0, 100, lookupTerm).subscribe((res: any) => {
         const currentItem = row;
         const itemsArray = res?.data?.items || res?.items || res?.Items || res?.data?.Items || [];
+        console.log('[StandardSale] API Response items:', itemsArray);
         
         // AGGREGATE ALL ITEMS for the same product Id from ALL racks
         const matchingProductItems = itemsArray.filter((x: any) => {
-          const xId = String(x.productId || x.ProductId || x.id || x.Id).toLowerCase();
-          const targetId = String(productId).toLowerCase();
-          return xId === targetId || (x.productName === productName && productName.length > 0);
+          const xId = String(x.productId || x.ProductId || x.id || x.Id || '').toLowerCase();
+          const targetId = String(productId || '').toLowerCase();
+          const xName = String(x.productName || x.ProductName || '').toLowerCase();
+          const targetName = (productName || '').toLowerCase();
+          const xSku = String(x.sku || x.Sku || '').toLowerCase();
+          const targetSku = String(product.sku || '').toLowerCase();
+
+          const isMatch = xId === targetId || 
+                         (xName === targetName && targetName.length > 0) ||
+                         (xSku === targetSku && targetSku.length > 0);
+
+          if (isMatch) console.log('[StandardSale] Found matching item:', x);
+          return isMatch;
         });
 
         if (matchingProductItems.length === 0) {
+          console.error('[StandardSale] No matching product items found for:', lookupTerm);
           this.dialog.open(StatusDialogComponent, { width: '350px', data: { isSuccess: false, title: 'Out of Stock', message: 'No stock available for this product.' } });
           const idx = this.items.controls.indexOf(row);
           if (idx > -1) this.removeItem(idx);
@@ -458,7 +471,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
         });
 
         // Show batches that have stock (ONLY show batches with positive stock for Sale)
-        const selectableBatches = allBatches.filter((b: any) => b.availableStock > 0); 
+        const selectableBatches = allBatches.filter((b: any) => (b.availableStock > 0 || b.availableQty > 0 || b.AvailableQty > 0)); 
+        console.log('[StandardSale] Selectable Batches:', selectableBatches);
         
         // 🎯 CRITICAL FIX: Re-sort combined batches from ALL racks by FEFO (First Expiry First Out)
         selectableBatches.sort((a, b) => {

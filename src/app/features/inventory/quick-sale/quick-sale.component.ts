@@ -387,19 +387,32 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         this.setupUnitFilter(index);
 
         if (!isExistingItem) {
-              const productName = product.productName || product.name || '';
-              this.inventoryService.getCurrentStock('', '', 0, 100, productName).subscribe((res: any) => {
+              const productName = (product.productName || product.name || '').trim();
+              const lookupTerm = productId ? String(productId) : productName;
+              console.log('[QuickSale] Fetching stock for:', lookupTerm);
+              this.inventoryService.getCurrentStock('', '', 0, 100, lookupTerm).subscribe((res: any) => {
                   const currentItem = this.items.at(index);
                   const itemsArray = res?.data?.items || res?.items || res?.Items || res?.data?.Items || [];
+                  console.log('[QuickSale] API Response items:', itemsArray);
                   
-                  // AGGREGATE ALL ITEMS for the same product Id from ALL racks
                   const matchingProductItems = itemsArray.filter((x: any) => {
-                      const xId = String(x.productId || x.ProductId || x.id || x.Id).toLowerCase();
-                      const targetId = String(productId).toLowerCase();
-                      return xId === targetId || (x.productName === productName && productName.length > 0);
+                      const xId = String(x.productId || x.ProductId || x.id || x.Id || '').toLowerCase();
+                      const targetId = String(productId || '').toLowerCase();
+                      const xName = String(x.productName || x.ProductName || '').toLowerCase();
+                      const targetName = productName.toLowerCase();
+                      const xSku = String(x.sku || x.Sku || '').toLowerCase();
+                      const targetSku = String(product.sku || '').toLowerCase();
+                      
+                      const isMatch = xId === targetId || 
+                                     (xName === targetName && targetName.length > 0) ||
+                                     (xSku === targetSku && targetSku.length > 0);
+                      
+                      if (isMatch) console.log('[QuickSale] Found matching item:', x);
+                      return isMatch;
                   });
 
                   if (matchingProductItems.length === 0) {
+                      console.error('[QuickSale] No matching product items found for:', productName, productId);
                       this.notification.showStatus(false, 'No stock available for this product.');
                       this.items.removeAt(index);
                       return;
@@ -447,8 +460,11 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                   });
 
                   // Filter for selectable batches (ONLY show batches with positive stock for Sale)
-                  const selectableBatches = allBatches.filter((b: any) => b.availableStock > 0);
+                  const selectableBatches = allBatches.filter((b: any) => (b.availableStock > 0 || b.availableQty > 0 || b.AvailableQty > 0));
                   const validBatches = selectableBatches.filter((b: any) => !b.isExpired);
+                  
+                  console.log('[QuickSale] Selectable Batches:', selectableBatches);
+                  console.log('[QuickSale] Valid Batches:', validBatches);
 
                   if (bypassBatchDialog && validBatches.length > 0) {
                       // Auto-select first valid batch for scanning
