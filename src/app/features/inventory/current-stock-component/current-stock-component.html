@@ -289,6 +289,7 @@
                       <th appResizableColumn>Type</th>
                       <th appResizableColumn>Product</th> 
                       <th appResizableColumn>Supplier Source</th>
+                      <th appResizableColumn>Branch</th>
                       <th appResizableColumn>Warehouse</th>
                       <th appResizableColumn>Rack</th>
                       <th appResizableColumn>Mfg Date</th>
@@ -313,6 +314,15 @@
                       </td>
                       <td>{{$any(h).productName}}</td> 
                       <td>{{$any(h).supplierName}}</td>
+                      <td>
+                        <span class="branch-badge" [class.global-view]="$any(h).branchName === 'Global View'" *ngIf="$any(h).branchName">
+                           <mat-icon style="font-size: 14px; height: 14px; width: 14px; vertical-align: middle;">
+                             {{ $any(h).branchName === 'Global View' ? 'public' : 'business' }}
+                           </mat-icon>
+                           {{$any(h).branchName}}
+                        </span>
+                        <span class="text-muted small" *ngIf="!$any(h).branchName">N/A</span>
+                      </td>
                       <td>
                         <span class="location-badge live" (click)="$event.stopPropagation(); viewLiveLocation(h)" 
                               matTooltip="Click to track live location">

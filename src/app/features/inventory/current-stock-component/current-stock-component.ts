@@ -19,6 +19,8 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { NotificationService } from '../../shared/notification.service';
 import { BatchHistoryDialogComponent } from '../batch-history-dialog/batch-history-dialog.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { CompanyService } from '../../company/services/company.service';
+
 
 import { ResizableColumnDirective } from '../../../shared/directives/resizable-column.directive';
 
@@ -42,7 +44,10 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
   private notification = inject(NotificationService);
   private locationService = inject(LocationService);
   private authService = inject(AuthService);
+  private companyService = inject(CompanyService);
   private destroy$ = new Subject<void>();
+
+  branchMap: Map<string, string> = new Map();
 
   displayedColumns: string[] = ['select', 'productName', 'warehouseName', 'rackName', 'manufacturingDate', 'expiryDate', 'totalReceived', 'totalRejected', 'totalExpired', 'totalSold', 'availableStock', 'unitRate', 'actions'];
   stockDataSource = new MatTableDataSource<any>([]);
@@ -99,6 +104,7 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.loadLocations();
+    this.loadBranches();
 
     // Re-fetch stock data when another component broadcasts an inventory change
     this.inventoryService.inventoryUpdate$
@@ -123,6 +129,22 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
       this.racks = data.filter(r => r.isActive);
       this.cdr.detectChanges();
     });
+  }
+
+  loadBranches() {
+    const companyId = this.authService.getCompanyId();
+    if (companyId) {
+      this.companyService.getBranchesByCompany(companyId).subscribe((data: any) => {
+        if (data) {
+          data.forEach((b: any) => {
+            const bId = b.id || b.branchId;
+            const bName = b.branchName || b.name || b.address;
+            if (bId) this.branchMap.set(bId.toString(), bName);
+          });
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   onWarehouseChange() {
@@ -208,6 +230,22 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
       const mappedData = (items || []).map((item: any) => {
         const hasMfgDate = item.manufacturingDate && item.manufacturingDate !== 'NA';
         const hasExpDate = item.expiryDate && item.expiryDate !== 'NA';
+        
+        // Enrich history with branch names
+        if (item.history) {
+          item.history.forEach((h: any) => {
+            if (h.branchId && this.branchMap.has(h.branchId.toString())) {
+              h.branchName = this.branchMap.get(h.branchId.toString());
+            } else if (h.branchId) {
+                // Fallback: If not in map, just show the ID or keep what's there
+                h.branchName = h.branchId; 
+            } else {
+              // Case: Super Admin entry or Global Stock [cite: 2026-04-28]
+              h.branchName = 'Global View';
+            }
+          });
+        }
+
         return {
           ...item,
           currentStock: item.availableStock || item.currentStock || 0,

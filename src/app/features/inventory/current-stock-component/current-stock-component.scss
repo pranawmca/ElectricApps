@@ -1478,3 +1478,34 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
     .empty-title { color: #ffffff !important; }
   }
 }
+
+.branch-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+}
+
+:host-context(.dark-mode) .branch-badge {
+    background: rgba(255, 255, 255, 0.05);
+    color: #94a3b8;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.branch-badge.global-view {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+} 
+
+:host-context(.dark-mode) .branch-badge.global-view {
+    background: rgba(37, 99, 235, 0.1);
+    color: #60a5fa;
+    border-color: rgba(37, 99, 235, 0.2);
+}
