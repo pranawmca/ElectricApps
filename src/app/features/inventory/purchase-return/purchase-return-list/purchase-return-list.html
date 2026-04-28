@@ -180,6 +180,13 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> SUPPLIER </th>
             <td mat-cell *matCellDef="let row"> {{row.supplierName}} </td>
           </ng-container>
+
+          <ng-container matColumnDef="productName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> PRODUCT </th>
+            <td mat-cell *matCellDef="let row"> 
+                <span class="product-name-cell" [title]="row.productName">{{row.productName}}</span>
+            </td>
+          </ng-container>
   
           <ng-container matColumnDef="grnRef">
             <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> GRN REF </th>

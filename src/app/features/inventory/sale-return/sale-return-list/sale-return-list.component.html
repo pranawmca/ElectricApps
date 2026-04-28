@@ -142,6 +142,13 @@
                         <td mat-cell *matCellDef="let row"> {{row.customerName}} </td>
                     </ng-container>
 
+                    <ng-container matColumnDef="productName">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Product </th>
+                        <td mat-cell *matCellDef="let row"> 
+                            <span class="product-name-cell" [title]="row.productName">{{row.productName}}</span>
+                        </td>
+                    </ng-container>
+
                     <ng-container matColumnDef="soRef">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> SO Ref </th>
                         <td mat-cell *matCellDef="let row"> {{row.soRef}} </td>

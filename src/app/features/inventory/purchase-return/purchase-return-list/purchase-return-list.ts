@@ -53,7 +53,7 @@ export class PurchaseReturnList implements OnInit {
 
   dataSource = new MatTableDataSource<any>();
   selection = new SelectionModel<any>(true, []);
-  displayedColumns: string[] = ['select', 'returnNumber', 'gatePassNo', 'returnDate', 'supplierName', 'grnRef', 'totalQty', 'totalAmount', 'status', 'actions'];
+  displayedColumns: string[] = ['select', 'returnNumber', 'gatePassNo', 'returnDate', 'supplierName', 'productName', 'grnRef', 'totalQty', 'totalAmount', 'status', 'actions'];
 
   // Separate Loading States [cite: 2026-02-04]
   isTableLoading = true;
@@ -212,35 +212,8 @@ export class PurchaseReturnList implements OnInit {
         this.dataSource.data = items;
         this.totalRecords = returnData.totalCount || 0;
 
-        // Fetch Detail for each item to populate Qty [cite: 2026-02-21]
-        // This is necessary because the list API doesn't return totalQty
-        if (items.length > 0) {
-          const detailRequests = items.map((item: any) =>
-            this.prService.getPurchaseReturnById(item.purchaseReturnHeaderId || item.id).pipe(
-              catchError(() => of(null))
-            )
-          );
-
-          forkJoin(detailRequests).subscribe((details: any) => {
-            items.forEach((item: any, index: number) => {
-              const detail = (details as any[])[index];
-              if (detail) {
-                if (detail.items) {
-                  item.totalQty = detail.items.reduce((sum: number, i: any) => sum + (Number(i.returnQty) || 0), 0);
-                }
-                item.isQuick = detail.isQuick !== undefined ? detail.isQuick : detail.IsQuick;
-              }
-            });
-
-            this.calculateSummaryStats(items);
-            this.dataSource.data = [...items];
-            this.finishLoading();
-          });
-        } else {
-          this.calculateSummaryStats(items);
-          this.dataSource.data = items;
-          this.finishLoading();
-        }
+        this.calculateSummaryStats(items);
+        this.finishLoading();
       },
       error: (err) => {
         console.error("Load Error:", err);

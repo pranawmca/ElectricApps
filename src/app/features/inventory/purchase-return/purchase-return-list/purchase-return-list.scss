@@ -359,7 +359,17 @@
 
     .bold-text {
         font-weight: 600;
-        color: #3f51b5;
+        color: #2c3e50;
+    }
+
+    .product-name-cell {
+        display: block;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+        color: #455a64;
     }
 
     .action-buttons {

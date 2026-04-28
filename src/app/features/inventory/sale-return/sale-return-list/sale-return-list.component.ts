@@ -46,7 +46,7 @@ export class SaleReturnListComponent implements OnInit {
 
     dataSource = new MatTableDataSource<any>();
     selection = new SelectionModel<any>(true, []);
-    displayedColumns: string[] = ['select', 'returnNumber', 'gatePassNo', 'returnDate', 'customerName', 'soRef', 'totalQty', 'totalAmount', 'status', 'actions'];
+    displayedColumns: string[] = ['select', 'returnNumber', 'gatePassNo', 'returnDate', 'customerName', 'productName', 'soRef', 'totalQty', 'totalAmount', 'status', 'actions'];
 
     isTableLoading = true;
     isDashboardLoading: boolean = true;
@@ -235,37 +235,9 @@ export class SaleReturnListComponent implements OnInit {
                     return item;
                 });
 
-                this.totalRecords = returnData.totalCount;
-
-                // Fetch Detail for each item to populate Qty [cite: 2026-02-21]
-                // Using getPrintData instead of getSaleReturnById as it is confirmed to work for qty
-                if (processedItems.length > 0) {
-                    const detailRequests = processedItems.map((item: any) =>
-                        this.srService.getPrintData(item.saleReturnHeaderId || item.id).pipe(
-                            catchError(() => of(null))
-                        )
-                    );
-
-                    forkJoin(detailRequests).subscribe((details: any) => {
-                        processedItems.forEach((item: any, index: number) => {
-                            const detail = (details as any[])[index];
-                            if (detail) {
-                                const returnItems = detail.items || detail.saleReturnItems || detail.returnItems || [];
-                                item.totalQty = returnItems.reduce((sum: number, i: any) =>
-                                    sum + (Number(i.qty) || Number(i.returnQty) || Number(i.returnQuantity) || 0), 0);
-                                item.isQuick = detail.isQuick !== undefined ? detail.isQuick : detail.IsQuick;
-                            }
-                        });
-
-                        this.calculateStats(processedItems);
-                        this.dataSource.data = [...processedItems];
-                        this.finishLoading();
-                    });
-                } else {
-                    this.calculateStats(processedItems);
-                    this.dataSource.data = processedItems;
-                    this.finishLoading();
-                }
+                this.calculateStats(processedItems);
+                this.dataSource.data = processedItems;
+                this.finishLoading();
             },
             error: (err) => {
                 console.error("Error loading returns", err);
