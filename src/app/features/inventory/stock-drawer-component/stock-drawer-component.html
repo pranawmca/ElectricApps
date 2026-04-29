@@ -99,7 +99,7 @@
           
           <div class="batch-list" *ngIf="item.history && item.history.length > 0">
             <ng-container *ngFor="let batch of item.history">
-              <div class="batch-row" *ngIf="(batch.receivedQty || 0) > 0">
+              <div class="batch-row" *ngIf="(batch.receivedQty || 0) > 0 || batch.isAlreadyPurged">
                 <div class="batch-info-top">
                   <span class="batch-loc">
                     <mat-icon>location_on</mat-icon>
