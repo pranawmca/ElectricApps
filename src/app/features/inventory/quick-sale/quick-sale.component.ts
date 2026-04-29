@@ -428,33 +428,35 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                   // Build consolidated history from ALL matching items
                   const allBatches: any[] = [];
                   matchingProductItems.forEach((pItem: any) => {
-                      const pItemHistory = pItem.history || [];
+                      const pItemHistory = pItem.History ?? pItem.history ?? [];
                       pItemHistory.forEach((h: any) => {
+                          const availQty = h.availableQty ?? h.AvailableQty ?? 0;
                           allBatches.push({
-                              grnNumber: h.grnNumber || 'N/A',
-                              manufacturingDate: h.manufacturingDate,
-                              expiryDate: h.expiryDate,
-                              availableStock: h.availableQty ?? h.AvailableQty ?? 0,
-                              warehouseName: h.warehouseName || pItem.warehouseName, 
-                              warehouseId: h.warehouseId || pItem.warehouseId,
-                              rackName: h.rackName || pItem.rackName, 
-                              rackId: h.rackId || pItem.rackId,
-                              isExpired: isExpiredBatch(h.expiryDate)
+                              grnNumber: h.grnNumber ?? h.GRNNumber ?? 'N/A',
+                              manufacturingDate: h.manufacturingDate ?? h.ManufacturingDate,
+                              expiryDate: h.expiryDate ?? h.ExpiryDate,
+                              availableStock: availQty,
+                              availableQty: availQty,
+                              warehouseName: h.warehouseName ?? h.WarehouseName ?? pItem.warehouseName, 
+                              warehouseId: h.warehouseId ?? h.WarehouseId ?? pItem.warehouseId,
+                              rackName: h.rackName ?? h.RackName ?? pItem.rackName, 
+                              rackId: h.rackId ?? h.RackId ?? pItem.rackId,
+                              isExpired: isExpiredBatch(h.expiryDate ?? h.ExpiryDate)
                           });
                       });
 
                       // If item has stock but NO history records, add the item itself as a batch
-                      if (pItemHistory.length === 0 && (pItem.availableStock || 0) > 0) {
+                      if (pItemHistory.length === 0 && (pItem.availableStock ?? pItem.AvailableStock ?? 0) > 0) {
                           allBatches.push({
                               grnNumber: 'N/A',
-                              manufacturingDate: pItem.manufacturingDate,
-                              expiryDate: pItem.expiryDate,
-                              availableStock: pItem.availableStock || 0,
-                              warehouseName: pItem.warehouseName,
-                              rackName: pItem.rackName,
-                              warehouseId: pItem.warehouseId,
-                              rackId: pItem.rackId,
-                              isExpired: isExpiredBatch(pItem.expiryDate)
+                              manufacturingDate: pItem.manufacturingDate ?? pItem.ManufacturingDate,
+                              expiryDate: pItem.expiryDate ?? pItem.ExpiryDate,
+                              availableStock: pItem.availableStock ?? pItem.AvailableStock ?? 0,
+                              warehouseName: pItem.warehouseName ?? pItem.WarehouseName,
+                              rackName: pItem.rackName ?? pItem.RackName,
+                              warehouseId: pItem.warehouseId ?? pItem.WarehouseId,
+                              rackId: pItem.rackId ?? pItem.RackId,
+                              isExpired: isExpiredBatch(pItem.expiryDate ?? pItem.ExpiryDate)
                           });
                       }
                   });

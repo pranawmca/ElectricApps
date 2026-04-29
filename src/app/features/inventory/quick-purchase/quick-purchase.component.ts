@@ -331,16 +331,16 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             rackName: [product.defaultRackName || product.rackName || 'NA'],
             rackId: [product.defaultRackId || product.rackId || null],
             qty: [product.suggestedQty || 1, [Validators.required, Validators.min(0.01)]],
-            unit: [product.unit || 'PCS', Validators.required],
-            price: [product.basePurchasePrice || product.purchasePrice || product.basePrice || product.rate || product.price || 0, [Validators.required, Validators.min(0)]],
+            unit: [product.unit ?? product.Unit ?? 'PCS', Validators.required],
+            price: [product.basePurchasePrice ?? product.BasePurchasePrice ?? product.purchasePrice ?? product.basePrice ?? product.rate ?? product.rate ?? 0, [Validators.required, Validators.min(0)]],
             discountPercent: [0],
-            gstPercent: [this.selectedSupplierIsUnregistered ? 0 : (product.gstPercent ?? product.defaultGst ?? 18)],
-            originalGst: [product.gstPercent ?? product.defaultGst ?? 18],
+            gstPercent: [this.selectedSupplierIsUnregistered ? 0 : (product.gstPercent ?? product.GstPercent ?? product.defaultGst ?? 18)],
+            originalGst: [product.gstPercent ?? product.GstPercent ?? product.defaultGst ?? 18],
             taxAmount: [{ value: 0, disabled: true }],
             total: [{ value: 0, disabled: true }],
-            mfgDate: [null, product.isExpiryRequired ? Validators.required : []],
-            expDate: [null, product.isExpiryRequired ? Validators.required : []],
-            isExpiryRequired: [product.isExpiryRequired || false],
+            mfgDate: [null, (product.isExpiryRequired ?? product.IsExpiryRequired) ? Validators.required : []],
+            expDate: [null, (product.isExpiryRequired ?? product.IsExpiryRequired) ? Validators.required : []],
+            isExpiryRequired: [product.isExpiryRequired ?? product.IsExpiryRequired ?? false],
             id: [0]
         });
 
@@ -454,24 +454,24 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
         row.patchValue({
             productId: product.id || product.productId,
             productSearch: product,
-            unit: product.unit || 'PCS',
-            price: product.basePurchasePrice || product.purchasePrice || product.basePrice || product.rate || product.price || 0,
-            gstPercent: isTaxOff ? 0 : (product.defaultGst ?? product.gstPercent ?? 18),
-            originalGst: product.defaultGst ?? product.gstPercent ?? 18,
+            unit: product.unit ?? product.Unit ?? 'PCS',
+            price: product.basePurchasePrice ?? product.BasePurchasePrice ?? product.purchasePrice ?? product.basePrice ?? product.rate ?? product.price ?? 0,
+            gstPercent: isTaxOff ? 0 : (product.defaultGst ?? product.gstPercent ?? product.GstPercent ?? 18),
+            originalGst: product.defaultGst ?? product.gstPercent ?? product.GstPercent ?? 18,
             discountPercent: 0,
             qty: 1,
-            currentStock: product.currentStock || 0,
-            sku: product.sku || '',
-            warehouseId: product.warehouseId || product.defaultWarehouseId || null,
-            warehouseName: product.defaultWarehouseName || product.warehouseName || 'Main WH',
-            rackId: product.rackId || product.defaultRackId || null,
-            rackName: product.defaultRackName || product.rackName || 'Rack-1',
-            isExpiryRequired: product.isExpiryRequired ?? false,
+            currentStock: product.currentStock ?? product.AvailableStock ?? 0,
+            sku: product.sku ?? product.Sku ?? '',
+            warehouseId: product.warehouseId ?? product.WarehouseId ?? product.defaultWarehouseId ?? null,
+            warehouseName: product.defaultWarehouseName ?? product.warehouseName ?? product.WarehouseName ?? 'Main WH',
+            rackId: product.rackId ?? product.RackId ?? product.defaultRackId ?? null,
+            rackName: product.defaultRackName ?? product.rackName ?? product.RackName ?? 'Rack-1',
+            isExpiryRequired: product.isExpiryRequired ?? product.IsExpiryRequired ?? false,
             mfgDate: null,
             expDate: null
         });
 
-        if (product.isExpiryRequired) {
+        if (product.isExpiryRequired ?? product.IsExpiryRequired) {
             row.get('mfgDate')?.setValidators(Validators.required);
             row.get('expDate')?.setValidators(Validators.required);
         } else {
