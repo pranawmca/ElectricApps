@@ -38,6 +38,8 @@ export class DayBookComponent implements OnInit {
     private saleOrderService = inject(SaleOrderService);
 
     selectedDate: Date = new Date();
+    selectedBranchId: string | null = null;
+    branches: any[] = [];
     transactions: DayBookTransaction[] = [];
     filteredTransactions: DayBookTransaction[] = [];
     isLoading = false;
@@ -49,9 +51,24 @@ export class DayBookComponent implements OnInit {
     ngOnInit() {
         this.loadDayBook();
         this.companyService.getCompanyProfile().subscribe((p: any) => this.companyName = p?.name || 'ElectricApps');
+        this.loadBranches();
+    }
+
+    loadBranches() {
+        this.companyService.getBranches().subscribe(branches => {
+            this.branches = (branches || []).map(b => ({
+                ...b,
+                name: b.branchName || b.name || b.city || 'Unnamed Branch'
+            }));
+        });
     }
 
     onDateChange() {
+        this.loadDayBook();
+    }
+
+    onBranchChange(branchId: string | null) {
+        this.selectedBranchId = branchId;
         this.loadDayBook();
     }
 
@@ -117,13 +134,13 @@ export class DayBookComponent implements OnInit {
         };
 
         forkJoin({
-            payments: this.financeService.getPaymentsReport(paymentParams),
-            receipts: this.financeService.getReceiptsReport(receiptParams),
-            expenses: this.financeService.getExpenseEntries(1, 1000), 
-            purchases: this.inventoryService.getPagedOrders(purchaseParams),
-            quickPurchases: this.inventoryService.getQuickPagedPurchases(1, 1000, 'Date', 'desc', '', startOfDay, endOfDay),
-            quickSales: this.inventoryService.getQuickPagedSales(1, 1000, 'Date', 'desc', '', startOfDay, endOfDay),
-            standardSales: this.saleOrderService.getSaleOrders(1, 1000, 'soDate', 'desc', '', startOfDay, endOfDay)
+            payments: this.financeService.getPaymentsReport(paymentParams, this.selectedBranchId),
+            receipts: this.financeService.getReceiptsReport(receiptParams, this.selectedBranchId),
+            expenses: this.financeService.getExpenseEntries(1, 1000, '', this.selectedBranchId), 
+            purchases: this.inventoryService.getPagedOrders(purchaseParams, this.selectedBranchId),
+            quickPurchases: this.inventoryService.getQuickPagedPurchases(1, 1000, 'Date', 'desc', '', startOfDay, endOfDay, this.selectedBranchId),
+            quickSales: this.inventoryService.getQuickPagedSales(1, 1000, 'Date', 'desc', '', startOfDay, endOfDay, this.selectedBranchId),
+            standardSales: this.saleOrderService.getSaleOrders(1, 1000, 'soDate', 'desc', '', startOfDay, endOfDay, this.selectedBranchId)
         }).subscribe({
             next: (results: any) => {
                 const combinedMap = new Map<string, DayBookTransaction>();

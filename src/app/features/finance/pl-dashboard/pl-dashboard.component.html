@@ -4,8 +4,26 @@
     <app-summary-stats [stats]="summaryStats" [isLoading]="isDashboardLoading"></app-summary-stats>
 
     <div class="page-header">
-        <h1 class="mat-headline-4">Profit & Loss Dashboard</h1>
-        <p class="subtitle">Financial overview and key performance metrics.</p>
+        <div class="header-titles">
+            <h1 class="mat-headline-4">Profit & Loss Dashboard</h1>
+            <p class="subtitle">Financial overview and key performance metrics.</p>
+        </div>
+
+        <div class="header-filters">
+            <mat-form-field appearance="outline" class="branch-selector no-sub">
+                <mat-label>Branch View</mat-label>
+                <mat-select [(ngModel)]="selectedBranchId" (selectionChange)="onBranchChange()">
+                    <mat-option [value]="null">Global View (All Branches)</mat-option>
+                    <mat-option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</mat-option>
+                </mat-select>
+                <mat-icon matPrefix>business</mat-icon>
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" (click)="loadStats()" [disabled]="isDashboardLoading">
+                <mat-icon>refresh</mat-icon>
+                Sync Data
+            </button>
+        </div>
     </div>
 
     <!-- Stats Cards -->

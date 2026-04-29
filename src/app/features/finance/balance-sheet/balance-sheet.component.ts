@@ -14,13 +14,14 @@ import { SummaryStatsComponent, SummaryStat } from '../../../shared/components/s
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { MatDialog } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
 import { BalanceSheetInputDialogComponent } from './balance-sheet-input-dialog.component';
 import { customerService } from '../../master/customer-component/customer.service';
 
 @Component({
     selector: 'app-balance-sheet',
     standalone: true,
-    imports: [CommonModule, RouterModule, MaterialModule, BaseChartDirective, SummaryStatsComponent],
+    imports: [CommonModule, RouterModule, MaterialModule, BaseChartDirective, SummaryStatsComponent, FormsModule],
     templateUrl: './balance-sheet.component.html',
     styleUrl: './balance-sheet.component.scss'
 })
@@ -56,6 +57,9 @@ export class BalanceSheetComponent implements OnInit {
     capital: number = 0; // Dynamic capital (Initial investment)
     companyName: string = '';
     companyProfile: any = null; // Stored profile for dynamic use
+    selectedBranchId: string | null = null;
+    selectedCompanyId: string | null = null;
+    branches: any[] = [];
 
     // Chart Data
     public assetsChartData: ChartConfiguration['data'] = {
@@ -93,6 +97,21 @@ export class BalanceSheetComponent implements OnInit {
             this.companyProfile = p;
             this.companyName = p?.name || '';
         });
+        this.loadBranches();
+    }
+
+    loadBranches() {
+        this.companyService.getBranches().subscribe(branches => {
+            this.branches = (branches || []).map(b => ({
+                ...b,
+                name: b.branchName || b.name || b.city || 'Unnamed Branch'
+            }));
+        });
+    }
+
+    onBranchChange(branchId: string | null) {
+        this.selectedBranchId = branchId;
+        this.loadBalanceSheet();
     }
 
     loadBalanceSheet() {
@@ -100,17 +119,19 @@ export class BalanceSheetComponent implements OnInit {
         this.loadingService.setLoading(true);
         this.cdr.detectChanges();
 
-        const filters = {
+        const filters: any = {
             startDate: '2000-01-01', // Get all time for balance sheet
-            endDate: new Date().toISOString()
+            endDate: new Date().toISOString(),
+            branchId: this.selectedBranchId
         };
+        if (this.selectedCompanyId) filters.companyId = this.selectedCompanyId;
 
         forkJoin({
             pl: this.financeService.getProfitAndLossReport(filters),
-            receivables: this.financeService.getTotalReceivables(),
-            payables: this.financeService.getTotalPayables(),
+            receivables: this.financeService.getTotalReceivables(this.selectedBranchId, this.selectedCompanyId),
+            payables: this.financeService.getTotalPayables(this.selectedBranchId, this.selectedCompanyId),
             // Pass null for dates to get ALL current stock regardless of purchase date
-            stock: this.inventoryService.getCurrentStock('', '', 0, 2000, '', null, null),
+            stock: this.inventoryService.getCurrentStock('', '', 0, 2000, '', null, null, null, null, false, this.selectedBranchId),
             capitalReceipts: this.financeService.getReceiptsReport({
                 searchTerm: this.CAPITAL_TAG,
                 startDate: filters.startDate,
@@ -118,8 +139,9 @@ export class BalanceSheetComponent implements OnInit {
                 pageNumber: 1,
                 pageSize: 1000,
                 sortBy: 'Date',
-                sortOrder: 'desc'
-            }),
+                sortOrder: 'desc',
+                companyId: this.selectedCompanyId
+            }, this.selectedBranchId),
             bankReceipts: this.financeService.getReceiptsReport({
                 searchTerm: this.BANK_TAG,
                 startDate: filters.startDate,
@@ -127,8 +149,9 @@ export class BalanceSheetComponent implements OnInit {
                 pageNumber: 1,
                 pageSize: 1000,
                 sortBy: 'Date',
-                sortOrder: 'desc'
-            })
+                sortOrder: 'desc',
+                companyId: this.selectedCompanyId
+            }, this.selectedBranchId)
         }).subscribe({
             next: (results) => {
                 // 1. Calculate Capital & Bank from DB (Professional Way)

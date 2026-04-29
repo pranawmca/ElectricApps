@@ -138,7 +138,8 @@ export class InventoryService {
         endDate: Date | null = null,
         warehouseId: string | null = null,
         rackId: string | null = null,
-        showPurged: boolean = false
+        showPurged: boolean = false,
+        branchId: string | null = null
     ): Observable<any> {
         const request: any = {
             sortField,
@@ -148,7 +149,8 @@ export class InventoryService {
             search,
             warehouseId,
             rackId,
-            showPurged
+            showPurged,
+            branchId
         };
 
         if (startDate) {
@@ -293,19 +295,36 @@ export class InventoryService {
         sortField: string = '',
         sortOrder: string = '',
         pageIndex: number = 0,
-        pageSize: number = 10
+        pageSize: number = 10,
+        productId: string | null = null,
+        warehouseId: string | null = null
     ): Observable<any> {
         const request = {
             search,
             sortField,
             sortOrder,
             pageIndex,
-            pageSize
+            pageSize,
+            productId,
+            warehouseId
         };
         return this.api.get(`stock/warehouse-stock?${this.api.toQueryString(request)}`);
     }
 
     syncStock(): Observable<any> {
         return this.api.post('stock/sync', {});
+    }
+
+    // --- Stock Transfer Methods ---
+    getTransfers(): Observable<any[]> {
+        return this.api.get<any[]>('StockTransfer/list');
+    }
+
+    createTransfer(request: any): Observable<any> {
+        return this.api.post<any>('StockTransfer/create', request);
+    }
+
+    getTransferById(id: string): Observable<any> {
+        return this.api.get<any>(`StockTransfer/${id}`);
     }
 }

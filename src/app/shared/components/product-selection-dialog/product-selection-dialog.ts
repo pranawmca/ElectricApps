@@ -11,6 +11,7 @@ import { finalize, Subject, debounceTime, distinctUntilChanged, takeUntil, first
 import { ProductLookUpService } from '../../../features/master/product/service/product.lookup.sercice';
 import { LoadingService } from '../../../core/services/loading.service';
 import { LanguageService } from '../../../core/services/language.service';
+import { InventoryService } from '../../../features/inventory/service/inventory.service';
 
 @Component({
   selector: 'app-product-selection-dialog',
@@ -734,6 +735,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
   private lookupService = inject(ProductLookUpService);
   private loadingService = inject(LoadingService);
   private languageService = inject(LanguageService);
+  private inventoryService = inject(InventoryService);
 
   translate(key: string): string {
     return this.languageService.translate(key);
@@ -920,10 +922,25 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
       request.filters['subCategoryId'] = this.selectedSubCategoryId;
     }
 
-    this.productService.getPaged(request).pipe(takeUntil(this.destroy$)).subscribe(res => {
-      this.productsAutocomplete = res.items || [];
-      this.productCtrl.setValue(this.productCtrl.value); // Trigger re-evaluation of filteredProducts$
-    });
+    // If warehouseId provided, fetch products with stock in that warehouse
+    if (this.data?.warehouseId) {
+      this.inventoryService.getCurrentStock(
+        'ProductName', 'asc', 0, 500, '', null, null, this.data.warehouseId, null, false
+      ).pipe(takeUntil(this.destroy$)).subscribe(res => {
+        this.productsAutocomplete = (res.items || []).map((s: any) => ({
+          ...s,
+          productName: s.productName,
+          id: s.productId,
+          sku: s.sku
+        }));
+        this.productCtrl.setValue(this.productCtrl.value);
+      });
+    } else {
+      this.productService.getPaged(request).pipe(takeUntil(this.destroy$)).subscribe(res => {
+        this.productsAutocomplete = res.items || [];
+        this.productCtrl.setValue(this.productCtrl.value); // Trigger re-evaluation of filteredProducts$
+      });
+    }
   }
 
   loadProducts(isSilent: boolean = false) {
@@ -954,7 +971,25 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
        request.filters['id'] = this.selectedProductId;
     }
 
-    this.productService.getPaged(request).pipe(
+    let obs$: Observable<any>;
+    if (this.data?.warehouseId) {
+       obs$ = this.inventoryService.getCurrentStock(
+         'ProductName', 'asc', this.pageIndex, this.pageSize, this.searchQuery, null, null, this.data.warehouseId, null, false
+       ).pipe(
+         map(res => ({
+           ...res,
+           items: (res.items || []).map((s: any) => ({
+             ...s,
+             id: s.productId, // Map productId to id for dialog consistency
+             currentStock: s.availableStock || 0
+           }))
+         }))
+       );
+    } else {
+       obs$ = this.productService.getPaged(request);
+    }
+
+    obs$.pipe(
       timeout(15000), // Safety Timeout
       finalize(() => {
         if (!isSilent) {

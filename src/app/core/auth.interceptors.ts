@@ -21,11 +21,16 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const token = authService.getAccessToken();
 
-  // 🔐 Attach token, companyId and branchId (except login and refresh endpoints)
-  if (token && !req.url.includes('/login') && !req.url.includes('/refresh')) {
+  // 🔐 Attach companyId and branchId (except login)
+  // 🎟️ Attach Authorization token (except login and refresh)
+  if (!req.url.includes('/login')) {
+    const isRefreshReq = req.url.includes('/refresh');
     const companyId = authService.getCompanyId();
     const branchId = authService.getBranchId();
-    req = addHeaders(req, token, companyId, branchId);
+
+    // Pass null as token if it's a refresh request to avoid sending expired token in Authorization header
+    const effectiveToken = isRefreshReq ? null : token;
+    req = addHeaders(req, effectiveToken, companyId, branchId);
   }
 
   return next(req).pipe(
@@ -40,11 +45,13 @@ export const authInterceptor: HttpInterceptorFn = (
 };
 
 // 🛠️ Helper to add Authorization and Tenant headers
-const addHeaders = (req: HttpRequest<any>, token: string, companyId: string | null, branchId: string | null) => {
-  const headers: any = {
-    Authorization: `Bearer ${token}`
-  };
-  
+const addHeaders = (req: HttpRequest<any>, token: string | null, companyId: string | null, branchId: string | null) => {
+  const headers: any = {};
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   if (companyId) {
     headers['X-Company-Id'] = companyId;
   }
@@ -59,7 +66,7 @@ const addHeaders = (req: HttpRequest<any>, token: string, companyId: string | nu
   if (effectiveBranchId) {
     headers['X-Branch-Id'] = effectiveBranchId;
   }
-  
+
   return req.clone({
     setHeaders: headers
   });
@@ -75,7 +82,7 @@ const handle401Error = (
   // 🕒 SECURITY CHECK: If user has been idle for too long, don't refresh, just logout
   const lastActivity = localStorage.getItem('lastActivity');
   const IDLE_TIME = 15 * 60 * 1000; // Match with IdleService
-  
+
   if (lastActivity) {
     const diff = Date.now() - parseInt(lastActivity);
     if (diff >= IDLE_TIME) {

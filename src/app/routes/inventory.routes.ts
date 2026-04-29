@@ -93,5 +93,11 @@ export const INVENTORY_ROUTES: Routes = [
     canActivate: [PermissionGuard],
     data: { breadcrumb: 'Warehouse Stock' },
     loadComponent: () => import('../features/inventory/warehouse-stock-list/warehouse-stock-list.component').then(m => m.WarehouseStockListComponent)
+  },
+  {
+    path: 'item-transfer',
+    canActivate: [PermissionGuard],
+    data: { breadcrumb: 'Item Transfer' },
+    loadComponent: () => import('../features/inventory/item-transfer/item-transfer.component').then(m => m.ItemTransferComponent)
   }
 ];

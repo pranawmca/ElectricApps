@@ -41,7 +41,22 @@ export class CompanyService {
      */
     getBranchesByCompany(companyId: string): Observable<any[]> {
         return this.getById(companyId).pipe(
-            map(profile => profile.addresses || [])
+            map(profile => (profile.addresses || []).map(addr => ({
+                ...addr,
+                name: addr.branchName || addr.city || 'Unnamed Branch'
+            })))
+        );
+    }
+
+    /**
+     * Helper to get branches for the currently logged-in company
+     */
+    getBranches(): Observable<any[]> {
+        return this.getCompanyProfile().pipe(
+            map(profile => (profile.addresses || []).map(addr => ({
+                ...addr,
+                name: addr.branchName || addr.city || 'Unnamed Branch'
+            })))
         );
     }
 

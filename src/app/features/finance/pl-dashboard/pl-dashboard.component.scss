@@ -17,16 +17,61 @@
 
 .page-header {
     margin-bottom: 32px;
-    h1 {
-        margin: 0;
-        color: #1a237e;
-        font-weight: 500;
-        font-size: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
     }
-    .subtitle {
-        color: #757575;
-        font-size: 1rem;
-        margin-top: 8px;
+
+    .header-titles {
+        h1 {
+            margin: 0;
+            color: #1a237e;
+            font-weight: 500;
+            font-size: 2rem;
+            @media (max-width: 500px) { font-size: 1.5rem; }
+        }
+        .subtitle {
+            color: #757575;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+    }
+
+    .header-filters {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
+        button {
+            border-radius: 50px; // Pill shape
+            padding-left: 20px;
+            padding-right: 20px;
+            font-weight: 600;
+            height: 48px;
+            transition: all 0.3s ease;
+
+            mat-icon {
+                margin-right: 8px;
+            }
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        @media (max-width: 500px) { 
+            width: 100%; 
+            flex-direction: column;
+            .branch-selector { width: 100% !important; } 
+            button { width: 100%; }
+        }
     }
 }
 

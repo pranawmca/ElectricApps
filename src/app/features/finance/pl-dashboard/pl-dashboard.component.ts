@@ -8,17 +8,25 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { SummaryStatsComponent, SummaryStat } from '../../../shared/components/summary-stats-component/summary-stats-component';
+import { CompanyService } from '../../company/services/company.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-pl-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterModule, MaterialModule, BaseChartDirective, SummaryStatsComponent],
+    imports: [CommonModule, RouterModule, MaterialModule, BaseChartDirective, SummaryStatsComponent, FormsModule],
     templateUrl: './pl-dashboard.component.html',
     styleUrl: './pl-dashboard.component.scss'
 })
 export class PLDashboardComponent implements OnInit {
     private cdr = inject(ChangeDetectorRef);
     private loadingService = inject(LoadingService);
+    private companyService = inject(CompanyService);
+    private authService = inject(AuthService);
+
+    branches: any[] = [];
+    selectedBranchId: string | null = null;
 
     totalIncome: number = 0;
     totalExpenses: number = 0;
@@ -139,7 +147,21 @@ export class PLDashboardComponent implements OnInit {
 
     constructor(private financeService: FinanceService) { }
 
+    loadBranches() {
+        this.companyService.getBranches().subscribe(branches => {
+            this.branches = (branches || []).map(b => ({
+                ...b,
+                name: b.branchName || b.name || b.city || 'Unnamed Branch'
+            }));
+        });
+    }
+
+    onBranchChange() {
+        this.loadStats();
+    }
+
     ngOnInit() {
+        this.loadBranches();
         this.loadStats();
 
         // Safety timeout - force stop loader after 10 seconds
@@ -187,19 +209,25 @@ export class PLDashboardComponent implements OnInit {
 
         const yearlyFilters = {
             startDate: fyStartDate.toISOString(),
-            endDate: today.toISOString()
+            endDate: today.toISOString(),
+            branchId: this.selectedBranchId
+        };
+
+        const currentFilters = {
+            ...this.filters,
+            branchId: this.selectedBranchId
         };
 
         forkJoin({
-            pl: this.financeService.getProfitAndLossReport(this.filters), // User selected or default
-            dailyPl: this.financeService.getProfitAndLossReport(dailyFilters),
-            monthlyPl: this.financeService.getProfitAndLossReport(monthlyFilters),
+            pl: this.financeService.getProfitAndLossReport(currentFilters),
+            dailyPl: this.financeService.getProfitAndLossReport({ ...dailyFilters, branchId: this.selectedBranchId }),
+            monthlyPl: this.financeService.getProfitAndLossReport({ ...monthlyFilters, branchId: this.selectedBranchId }),
             yearlyPl: this.financeService.getProfitAndLossReport(yearlyFilters),
-            receivables: this.financeService.getTotalReceivables(),
-            payables: this.financeService.getTotalPayables(),
-            expenseChart: this.financeService.getExpenseChartData(this.filters),
-            trends: this.financeService.getMonthlyTrends(6),
-            topCustomers: this.financeService.getOutstandingTracker({ pageNumber: 1, pageSize: 5, sortBy: 'PendingAmount', sortOrder: 'desc' })
+            receivables: this.financeService.getTotalReceivables(this.selectedBranchId),
+            payables: this.financeService.getTotalPayables(this.selectedBranchId),
+            expenseChart: this.financeService.getExpenseChartData(currentFilters),
+            trends: this.financeService.getMonthlyTrends(6, this.selectedBranchId),
+            topCustomers: this.financeService.getOutstandingTracker({ pageNumber: 1, pageSize: 5, sortBy: 'PendingAmount', sortOrder: 'desc', branchId: this.selectedBranchId })
         }).subscribe({
             next: (results) => {
                 console.log('All Dashboard Data:', results);

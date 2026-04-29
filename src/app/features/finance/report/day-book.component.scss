@@ -6,8 +6,15 @@
     .header-section {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
         margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+
+        @media (max-width: 1000px) {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
         .title-group {
             h1 {
@@ -21,17 +28,39 @@
 
         .filter-actions {
             display: flex;
-            gap: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
             align-items: center;
 
-            .type-filter {
-                width: 180px;
-                ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+            button {
+                border-radius: 50px; // Pill shape
+                padding-left: 20px;
+                padding-right: 20px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+
+                mat-icon {
+                    margin-right: 8px;
+                }
+
+                &:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+
+                &.whatsapp-btn {
+                    background-color: #25d366;
+                    color: white;
+                }
             }
 
-            .date-picker {
-                width: 200px;
-                ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+            @media (max-width: 650px) {
+                width: 100%;
+                .branch-selector, .type-filter, .date-picker {
+                    width: 100% !important;
+                    margin: 0 !important;
+                }
+                button { width: 100%; }
             }
         }
     }
@@ -60,6 +89,15 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 24px;
         margin-bottom: 24px;
+
+        @media (max-width: 950px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
 
         .stat-card {
             border-radius: 16px;

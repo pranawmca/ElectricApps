@@ -40,8 +40,10 @@ export class FinanceService {
         );
     }
 
-    getPaymentsReport(request: any): Observable<any> {
-        return this.http.post<any>(`${this.supplierApi}/payments-report`, request);
+    getPaymentsReport(request: any, branchId?: string | null): Observable<any> {
+        const payload = { ...request };
+        if (branchId) payload.branchId = branchId;
+        return this.http.post<any>(`${this.supplierApi}/payments-report`, payload);
     }
 
     checkDuplicateReference(reference: string): Observable<boolean> {
@@ -83,12 +85,20 @@ export class FinanceService {
         return this.http.post(`${this.customerApi}/outstanding`, request);
     }
 
-    getTotalReceivables(): Observable<any> {
-        return this.http.get(`${this.customerApi}/outstanding-total`);
+    getTotalReceivables(branchId?: string | null, companyId?: string | null): Observable<any> {
+        let url = `${this.customerApi}/outstanding-total?`;
+        if (branchId) url += `branchId=${branchId}&`;
+        if (companyId) url += `companyId=${companyId}`;
+        url = url.endsWith('&') || url.endsWith('?') ? url.slice(0, -1) : url;
+        return this.http.get(url);
     }
 
-    getTotalPayables(): Observable<any> {
-        return this.http.get(`${this.supplierApi}/pending-total`);
+    getTotalPayables(branchId?: string | null, companyId?: string | null): Observable<any> {
+        let url = `${this.supplierApi}/pending-total?`;
+        if (branchId) url += `branchId=${branchId}&`;
+        if (companyId) url += `companyId=${companyId}`;
+        url = url.endsWith('&') || url.endsWith('?') ? url.slice(0, -1) : url;
+        return this.http.get(url);
     }
 
     getPendingCustomerDues(branchId?: string | null): Observable<any[]> {
@@ -109,8 +119,10 @@ export class FinanceService {
         );
     }
 
-    getReceiptsReport(request: any): Observable<any> {
-        return this.http.post<any>(`${this.customerApi}/receipts-report`, request);
+    getReceiptsReport(request: any, branchId?: string | null): Observable<any> {
+        const payload = { ...request };
+        if (branchId) payload.branchId = branchId;
+        return this.http.post<any>(`${this.customerApi}/receipts-report`, payload);
     }
 
     sendDuesSms(smsData: any): Observable<any> {
@@ -128,11 +140,15 @@ export class FinanceService {
             pageIndex: 0,
             pageSize: 2000,
             fromDate: filters.startDate,
-            toDate: filters.endDate
+            toDate: filters.endDate,
+            branchId: filters.branchId
         };
         const purchaseReq = this.http.post<any>(`${this.inventoryApi}/PurchaseOrders/get-paged-orders`, purchaseParams);
         
-        const saleUrl = `${this.inventoryApi}/saleorder?pageNumber=1&pageSize=2000&startDate=${filters.startDate}&endDate=${filters.endDate}`;
+        let saleUrl = `${this.inventoryApi}/saleorder?pageNumber=1&pageSize=2000&startDate=${filters.startDate}&endDate=${filters.endDate}`;
+        if (filters.branchId) {
+            saleUrl += `&branchId=${filters.branchId}`;
+        }
         const saleReq = this.http.get<any>(saleUrl);
 
         return forkJoin([paymentReq, receiptReq, expensesReq, purchaseReq, saleReq]).pipe(
@@ -175,8 +191,10 @@ export class FinanceService {
     }
 
     // Expense Entry Methods
-    getExpenseEntries(pageNumber: number = 1, pageSize: number = 50, search: string = ''): Observable<any> {
-        return this.http.get<any>(`${this.inventoryApi}/expense-entries?pageNumber=${pageNumber}&pageSize=${pageSize}&search=${search}`);
+    getExpenseEntries(pageNumber: number = 1, pageSize: number = 50, search: string = '', branchId?: string | null): Observable<any> {
+        let url = `${this.inventoryApi}/expense-entries?pageNumber=${pageNumber}&pageSize=${pageSize}&search=${search}`;
+        if (branchId) url += `&branchId=${branchId}`;
+        return this.http.get<any>(url);
     }
 
     createExpenseEntry(entry: any): Observable<any> {
@@ -205,10 +223,11 @@ export class FinanceService {
         return this.http.post<any[]>(`${this.inventoryApi}/expense-entries/chart-data`, filters);
     }
 
-    getMonthlyTrends(months: number = 6): Observable<any> {
-        const receiptsReq = this.http.get<any[]>(`${this.customerApi}/monthly-receipts?months=${months}`);
-        const paymentsReq = this.http.get<any[]>(`${this.supplierApi}/monthly-payments?months=${months}`);
-        const expensesReq = this.http.get<any[]>(`${this.inventoryApi}/expense-entries/monthly-totals?months=${months}`);
+    getMonthlyTrends(months: number = 6, branchId?: string | null): Observable<any> {
+        const query = branchId ? `?months=${months}&branchId=${branchId}` : `?months=${months}`;
+        const receiptsReq = this.http.get<any[]>(`${this.customerApi}/monthly-receipts${query}`);
+        const paymentsReq = this.http.get<any[]>(`${this.supplierApi}/monthly-payments${query}`);
+        const expensesReq = this.http.get<any[]>(`${this.inventoryApi}/expense-entries/monthly-totals${query}`);
 
         return forkJoin([receiptsReq, paymentsReq, expensesReq]).pipe(
             map(([receipts, payments, expenses]) => {

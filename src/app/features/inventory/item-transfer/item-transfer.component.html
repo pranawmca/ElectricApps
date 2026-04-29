@@ -1,0 +1,157 @@
+<div class="transfer-container">
+  <div class="header-row">
+    <div class="title-group">
+      <h1>Item Stock Transfer</h1>
+      <p>Move inventory between branches and warehouses</p>
+    </div>
+    <div class="action-group">
+      <button mat-flat-button color="primary" (click)="saveTransfer()" [disabled]="!isFormValid() || isSaving">
+        <mat-icon *ngIf="!isSaving">swap_horiz</mat-icon>
+        <mat-spinner diameter="20" *ngIf="isSaving"></mat-spinner>
+        {{ isSaving ? 'Processing...' : 'Complete Transfer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <!-- SOURCE PANEL -->
+    <mat-card class="location-card source-card">
+      <mat-card-header>
+        <div mat-card-avatar class="icon-circle source-icon">
+          <mat-icon>outbound</mat-icon>
+        </div>
+        <mat-card-title>Source Location</mat-card-title>
+        <mat-card-subtitle>Where is stock moving FROM?</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="card-inputs">
+          <mat-form-field appearance="outline">
+            <mat-label>Source Branch</mat-label>
+            <mat-select [(ngModel)]="fromBranchId" (selectionChange)="onFromBranchChange()">
+              <mat-option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Source Warehouse</mat-label>
+            <mat-select [(ngModel)]="fromWarehouseId" (selectionChange)="onFromWarehouseChange()">
+              <mat-option *ngIf="fromWarehouses.length === 0" disabled>No warehouses found for this branch</mat-option>
+              <mat-option *ngFor="let w of fromWarehouses" [value]="w.id">{{ w.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- DESTINATION PANEL -->
+    <mat-card class="location-card dest-card">
+      <mat-card-header>
+        <div mat-card-avatar class="icon-circle dest-icon">
+          <mat-icon>login</mat-icon>
+        </div>
+        <mat-card-title>Destination Location</mat-card-title>
+        <mat-card-subtitle>Where is stock moving TO?</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="card-inputs">
+          <mat-form-field appearance="outline">
+            <mat-label>Destination Branch</mat-label>
+            <mat-select [(ngModel)]="toBranchId" (selectionChange)="onToBranchChange()">
+              <mat-option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Destination Warehouse</mat-label>
+            <mat-select [(ngModel)]="toWarehouseId">
+              <mat-option *ngIf="toWarehouses.length === 0" disabled>No warehouses found for this branch</mat-option>
+              <mat-option *ngFor="let w of toWarehouses" [value]="w.id" [disabled]="w.id === fromWarehouseId">{{ w.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- ITEMS TABLE -->
+  <mat-card class="items-card mt-4">
+    <mat-card-header>
+      <mat-card-title>Items to Transfer</mat-card-title>
+      <div class="header-actions">
+        <button mat-stroked-button color="primary" class="me-2" (click)="openProductSelectionDialog()" [disabled]="!fromWarehouseId">
+          <mat-icon>inventory_2</mat-icon> Bulk Add
+        </button>
+        <button mat-stroked-button color="primary" (click)="addItemRow()" [disabled]="!fromWarehouseId">
+          <mat-icon>add</mat-icon> Add Item
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-responsive">
+        <table class="transfer-table">
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th style="width: 150px;">Available Stock</th>
+              <th style="width: 150px;">Transfer Qty</th>
+              <th style="width: 80px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of items; let i = index">
+              <td>
+                <mat-form-field appearance="fill" class="w-100 no-sub">
+                  <input type="text" matInput [matAutocomplete]="auto" [(ngModel)]="item.productName" (input)="searchProducts(item, i)">
+                  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProductName" (optionSelected)="onProductSelected($event, i)">
+                    <mat-option *ngFor="let p of filteredProducts" [value]="p" [disabled]="isProductAlreadyAdded(p.productId)">
+                      <div class="prod-opt">
+                        <span>{{ p.productName }}</span>
+                        <small class="text-muted">Stock: {{ p.availableStock }}</small>
+                      </div>
+                    </mat-option>
+                  </mat-autocomplete>
+                  <div class="stock-hint mt-1" *ngIf="item.productId">
+                    <span class="badge bg-light text-primary border me-1">WH: {{ item.warehouseName || 'N/A' }}</span>
+                    <span class="badge bg-light text-secondary border me-1">Rack: {{ item.rackName || 'N/A' }}</span>
+                    <span class="badge" [class.bg-success-subtle]="item.availableStock > 0" [class.bg-danger-subtle]="item.availableStock <= 0">
+                      Stock: {{ item.availableStock }} {{ item.unit }}
+                    </span>
+                  </div>
+                </mat-form-field>
+              </td>
+              <td>
+                <div class="stock-badge" [class.low]="item.availableStock <= 0">
+                  {{ item.availableStock || 0 }} {{ item.unit }}
+                </div>
+              </td>
+              <td>
+                <mat-form-field appearance="fill" class="w-100 no-sub">
+                  <input type="number" matInput [(ngModel)]="item.quantity" [max]="item.availableStock" min="1">
+                  <mat-hint *ngIf="item.quantity > item.availableStock" class="error-hint">Exceeds Stock!</mat-hint>
+                </mat-form-field>
+              </td>
+              <td class="text-center">
+                <button mat-icon-button color="warn" (click)="removeItemRow(i)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="items.length === 0">
+              <td colspan="4" class="empty-state">
+                <mat-icon>inventory_2</mat-icon>
+                <p>No items added yet. Click 'Add Item' to begin.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="remarks-box mt-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Remarks / Reason for Transfer</mat-label>
+          <textarea matInput rows="3" [(ngModel)]="remarks" placeholder="e.g. Stock replenishment for Patna Branch"></textarea>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

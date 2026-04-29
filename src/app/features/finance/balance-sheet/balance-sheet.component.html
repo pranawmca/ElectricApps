@@ -5,6 +5,16 @@
             <p class="subtitle">Financial Position as of Today | {{ today | date:'mediumDate' }}</p>
         </div>
         <div class="header-actions">
+            <!-- Branch Selector -->
+            <mat-form-field appearance="outline" class="branch-selector" style="width: 200px; margin-right: 16px;">
+                <mat-label>Branch View</mat-label>
+                <mat-select [(ngModel)]="selectedBranchId" (selectionChange)="onBranchChange($event.value)">
+                    <mat-option [value]="null">Global View (All Branches)</mat-option>
+                    <mat-option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</mat-option>
+                </mat-select>
+                <mat-icon matPrefix>business</mat-icon>
+            </mat-form-field>
+
             <button mat-flat-button color="primary" (click)="loadBalanceSheet()">
                 <mat-icon>refresh</mat-icon> Refresh Data
             </button>
