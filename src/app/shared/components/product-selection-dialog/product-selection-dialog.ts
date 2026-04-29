@@ -936,9 +936,16 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
         this.productCtrl.setValue(this.productCtrl.value);
       });
     } else {
-      this.productService.getPaged(request).pipe(takeUntil(this.destroy$)).subscribe(res => {
-        this.productsAutocomplete = res.items || [];
-        this.productCtrl.setValue(this.productCtrl.value); // Trigger re-evaluation of filteredProducts$
+      // Fallback for general search
+      this.inventoryService.getCurrentStock(
+        'ProductName', 'asc', 0, 100, this.productCtrl.value || '', null, null, null, null, false
+      ).pipe(takeUntil(this.destroy$)).subscribe(res => {
+        this.productsAutocomplete = (res.items || []).map((s: any) => ({
+          ...s,
+          id: s.productId,
+          currentStock: s.availableStock || 0
+        }));
+        this.productCtrl.setValue(this.productCtrl.value);
       });
     }
   }
@@ -972,22 +979,21 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
     }
 
     let obs$: Observable<any>;
-    if (this.data?.warehouseId) {
-       obs$ = this.inventoryService.getCurrentStock(
-         'ProductName', 'asc', this.pageIndex, this.pageSize, this.searchQuery, null, null, this.data.warehouseId, null, false
-       ).pipe(
-         map(res => ({
-           ...res,
-           items: (res.items || []).map((s: any) => ({
-             ...s,
-             id: s.productId, // Map productId to id for dialog consistency
-             currentStock: s.availableStock || 0
-           }))
-         }))
-       );
-    } else {
-       obs$ = this.productService.getPaged(request);
-    }
+    // 🎯 Always use getCurrentStock to get real-time figures with transfers
+    obs$ = this.inventoryService.getCurrentStock(
+        'ProductName', 'asc', this.pageIndex, this.pageSize, this.searchQuery, 
+        null, null, this.data?.warehouseId || null, null, false
+    ).pipe(
+        map(res => ({
+        ...res,
+        items: (res.items || []).map((s: any) => ({
+            ...s,
+            id: s.productId, // Map productId to id for dialog consistency
+            currentStock: s.availableStock || 0,
+            productName: s.productName // Ensure productName is mapped
+        }))
+        }))
+    );
 
     obs$.pipe(
       timeout(15000), // Safety Timeout
