@@ -99,7 +99,7 @@ export class RolePermissionsComponent implements OnInit {
   isSuperAdmin = false;
   permissions: RolePermission[] = [];
   branches: any[] = [];
-  selectedBranchId: string = 'GLOBAL';
+  selectedBranchIds: string[] = ['GLOBAL'];
   loading = false;
   summaryStats: SummaryStat[] = [];
 
@@ -219,9 +219,13 @@ export class RolePermissionsComponent implements OnInit {
         this.roles = res.roles;
         this.branches = res.branches;
         
-        // Default to 'GLOBAL' if no branch is selected or if current branch not in new list
-        if (!this.selectedBranchId || this.selectedBranchId === 'GLOBAL' || !this.branches.find(b => b.id === this.selectedBranchId)) {
-          this.selectedBranchId = 'GLOBAL';
+        // Handle multiple selection logic
+        if (!this.selectedBranchIds || this.selectedBranchIds.length === 0) {
+          this.selectedBranchIds = ['GLOBAL'];
+        } else {
+          // Keep only valid IDs
+          this.selectedBranchIds = this.selectedBranchIds.filter(id => id === 'GLOBAL' || this.branches.find(b => b.id === id));
+          if (this.selectedBranchIds.length === 0) this.selectedBranchIds = ['GLOBAL'];
         }
 
         this.loading = false;
@@ -230,14 +234,14 @@ export class RolePermissionsComponent implements OnInit {
         if (!skipPermissionLoad) {
           if (this.roles.length > 0) {
             this.selectedRoleId = this.roles[0].id;
-            this.onRoleChange();
+            this.onRoleChange(true); // Force auto-detect on initial load
           } else {
             this.selectedRoleId = null;
             this.permissions = [];
             this.summaryStats = [];
           }
         } else if (this.selectedRoleId) {
-          this.onRoleChange();
+          this.onRoleChange(true); // Force auto-detect on initial load
         }
         this.cdr.detectChanges();
       },
@@ -249,23 +253,74 @@ export class RolePermissionsComponent implements OnInit {
   }
 
   onBranchChange() {
-    this.onRoleChange();
+    // We only reload permissions template if exactly one branch is selected.
+    // If multiple are selected, we keep current permissions to apply to all.
+    if (this.selectedBranchIds.length === 1) {
+       this.onRoleChange(false); // Don't auto-detect branches while manually switching
+    }
   }
 
   getSelectedBranchName(): string {
-    if (this.selectedBranchId === 'GLOBAL') return 'All Branches (Global)';
-    const branch = this.branches.find(b => b.id === this.selectedBranchId);
-    return branch ? (branch.branchName || branch.name) : 'All Branches (Global)';
+    if (!this.selectedBranchIds || this.selectedBranchIds.length === 0) return 'All Branches (Global)';
+    if (this.selectedBranchIds.includes('GLOBAL')) return 'All Branches (Global)';
+    if (this.selectedBranchIds.length === 1) {
+      const branch = this.branches.find(b => b.id === this.selectedBranchIds[0]);
+      return branch ? (branch.branchName || branch.name) : 'All Branches (Global)';
+    }
+    return `${this.selectedBranchIds.length} Branches Selected`;
   }
 
-  onRoleChange() {
+  onRoleChange(forceDetect: boolean = false) {
     if (this.selectedRoleId) {
       this.loading = true;
       this.loadingService.setLoading(true);
 
+      // 🎯 Auto-sync branch selection based on Role Type
+      const isSuper = this.isSelectedRoleSuperAdmin();
+      if (isSuper) {
+          this.selectedBranchIds = ['GLOBAL'];
+      } else if (this.selectedBranchIds.includes('GLOBAL')) {
+          // If switching from a Super role to a Normal role, clear 'GLOBAL'
+          this.selectedBranchIds = [];
+      }
+
       this.roleService.getRolePermissions(this.selectedRoleId).subscribe({
         next: (perms) => {
-          this.permissions = perms;
+          // 💡 Detect branches only if forced (initial load) or if nothing was selected yet
+          if (forceDetect || !this.selectedBranchIds || this.selectedBranchIds.length === 0 || (this.selectedBranchIds.length === 1 && this.selectedBranchIds[0] === 'GLOBAL')) {
+             let activeBranches = [...new Set(perms.map(p => {
+                const bid = p.branchId;
+                if (bid === null || bid === undefined) return 'GLOBAL';
+                return String(bid).toLowerCase(); // Normalize for matching
+             }))];
+             
+             if (activeBranches.length > 0) {
+               // 🛡️ Apply Super Admin role constraints to detection
+               if (isSuper) {
+                   this.selectedBranchIds = ['GLOBAL'];
+               } else {
+                   // Filter out 'GLOBAL' for normal roles
+                   this.selectedBranchIds = activeBranches.filter(b => b !== 'GLOBAL');
+                   if (this.selectedBranchIds.length === 0) this.selectedBranchIds = [];
+               }
+             }
+          }
+
+          // Ensure selectedBranchIds values match the case/format of this.branches
+          this.selectedBranchIds = this.selectedBranchIds.map(id => {
+             if (id === 'GLOBAL') return 'GLOBAL';
+             const match = this.branches.find(b => b.id && String(b.id).toLowerCase() === String(id).toLowerCase());
+             return match ? match.id : id;
+          });
+
+          // If multiple branches selected, we just show the first one's permissions as a template
+          const preferredBranch = this.selectedBranchIds.includes('GLOBAL') ? 'GLOBAL' : this.selectedBranchIds[0];
+          this.permissions = perms.filter(p => {
+             const bid = p.branchId;
+             const currentBid = (bid === null || bid === undefined) ? 'GLOBAL' : String(bid).toLowerCase();
+             const targetBid = preferredBranch === 'GLOBAL' ? 'GLOBAL' : String(preferredBranch).toLowerCase();
+             return currentBid === targetBid;
+          });
 
           // Calculate Stats
           const totalPermissions = perms.length;
@@ -305,7 +360,7 @@ export class RolePermissionsComponent implements OnInit {
         canEdit: false, 
         canDelete: false,
         companyId: this.selectedCompanyId,
-        branchId: this.selectedBranchId === 'GLOBAL' ? null : this.selectedBranchId
+        branchId: (this.selectedBranchIds && this.selectedBranchIds.includes('GLOBAL')) ? null : this.selectedBranchIds[0]
       };
       this.permissions.push(perm);
     }
@@ -327,13 +382,30 @@ export class RolePermissionsComponent implements OnInit {
         if (confirm) {
           this.loading = true;
           this.loadingService.setLoading(true);
-          this.roleService.updateRolePermissions(this.selectedRoleId!, this.permissions).subscribe({
+
+          // 🚀 Clone permissions for each selected branch
+          const allPermissionsToSave: RolePermission[] = [];
+          this.selectedBranchIds.forEach(branchId => {
+             const bid = branchId === 'GLOBAL' ? null : branchId;
+             this.permissions.forEach(p => {
+                const clonedPerm = { ...p };
+                delete (clonedPerm as any).id; // Remove existing ID to force new record or let backend match
+                clonedPerm.branchId = bid;
+                allPermissionsToSave.push(clonedPerm);
+             });
+          });
+
+          this.roleService.updateRolePermissions(this.selectedRoleId!, allPermissionsToSave).subscribe({
             next: () => {
               // Clear menu cache immediately so next navigation fetches fresh permissions
               this.menuService.refreshMenu();
 
               this.loading = false;
               this.loadingService.setLoading(false);
+              
+              // 🚀 Refresh from server to ensure UI is in sync
+              this.onRoleChange(true);
+
               this.cdr.detectChanges();
               this.dialog.open(StatusDialogComponent, {
                 width: '400px',
@@ -555,8 +627,13 @@ export class RolePermissionsComponent implements OnInit {
     }
   }
 
-  addSuggestion(nodeId: number, suggestion: string) {
-    this.onActionSelect(nodeId, suggestion);
+  isSelectedRoleSuperAdmin(): boolean {
+    if (!this.selectedRoleId) return false;
+    const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
+    if (!selectedRole) return false;
+    
+    const name = selectedRole.roleName.toLowerCase();
+    return name.includes('super admin') || name.includes('default admin') || name.includes('system admin');
   }
 }
 

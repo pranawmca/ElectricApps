@@ -82,8 +82,7 @@ import { forkJoin, of } from 'rxjs';
 
         <mat-form-field appearance="outline" *ngIf="branches.length > 0">
           <mat-label>Assign Branch</mat-label>
-          <mat-select formControlName="BranchId">
-            <mat-option [value]="null">All Branches (Global)</mat-option>
+          <mat-select formControlName="BranchId" multiple>
             <mat-option *ngFor="let branch of branches" [value]="branch.id">
               {{branch.branchName || 'Main Branch'}}
             </mat-option>
@@ -312,7 +311,7 @@ export class UserFormComponent implements OnInit {
       Password: ['', this.isEdit ? [] : [Validators.required]],
       RoleIds: [[]],
       CompanyId: [{ value: this.loggedInCompanyId || null, disabled: !this.isSuperAdmin }], // Default to active company context
-      BranchId: [this.isEdit ? null : Number(this.authService.getBranchId())] // 🔥 FIX: Ensure numeric for matching dropdown
+      BranchId: [this.isEdit ? [] : (this.authService.getBranchId() ? this.authService.getBranchId()!.split(',').map(b => !isNaN(Number(b.trim())) ? Number(b.trim()) : b.trim()) : [])] // 🔥 FIX: Ensure numeric array for matching dropdown
     });
 
     // 🔄 REFRESH ROLES & BRANCHES WHEN COMPANY CHANGES
@@ -344,19 +343,20 @@ export class UserFormComponent implements OnInit {
         if (this.isEdit && this.data) {
            const branchId = this.data.branchId || this.data.BranchId;
            if (branchId) {
-             // 🔄 Convert to number if it's a numeric string to match dropdown option types
-             const numericBranchId = !isNaN(Number(branchId)) ? Number(branchId) : branchId;
-             this.userForm.patchValue({ BranchId: numericBranchId }, { emitEvent: false });
+             // 🔄 Convert to number array
+             const branchArray = branchId.toString().split(',').map((id: string) => !isNaN(Number(id.trim())) ? Number(id.trim()) : id.trim());
+             this.userForm.patchValue({ BranchId: branchArray }, { emitEvent: false });
            } else {
-             // 🔥 Explicitly patch null for Global users
-             this.userForm.patchValue({ BranchId: null }, { emitEvent: false });
+             // 🔥 Explicitly patch empty array for Global users
+             this.userForm.patchValue({ BranchId: [] }, { emitEvent: false });
            }
         } else {
            // 🔥 NEW USER CASE: Auto-select active branch if not set
            const activeBid = this.authService.getBranchId();
            if (activeBid) {
              console.log('--- NEW USER: Auto-selecting branch', activeBid);
-             this.userForm.patchValue({ BranchId: Number(activeBid) }, { emitEvent: false });
+             const activeBids = activeBid.split(',').map(b => !isNaN(Number(b.trim())) ? Number(b.trim()) : b.trim());
+             this.userForm.patchValue({ BranchId: activeBids }, { emitEvent: false });
            }
         }
       },
@@ -486,7 +486,7 @@ export class UserFormComponent implements OnInit {
             Email: formValue.Email,
             RoleIds: formValue.RoleIds,
             CompanyId: formValue.CompanyId,
-            BranchId: formValue.BranchId ? formValue.BranchId.toString() : null
+            BranchId: formValue.BranchId && formValue.BranchId.length > 0 ? formValue.BranchId.join(',') : null
           };
           
           // 🛠️ DEBUG LOGS

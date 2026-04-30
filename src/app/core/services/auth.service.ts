@@ -121,11 +121,13 @@ export class AuthService {
 
     if (branchId) {
       localStorage.setItem('branchId', branchId);
+      localStorage.setItem('assignedBranches', branchId); // 🛡️ Keep original list for switching
       if (branchName) {
         localStorage.setItem('branchName', branchName);
       }
     } else {
       localStorage.removeItem('branchId');
+      localStorage.removeItem('assignedBranches');
       localStorage.removeItem('branchName');
     }
 
@@ -156,6 +158,10 @@ export class AuthService {
 
   getWorkingBranchId(): string | null {
     return this.getBranchId();
+  }
+
+  getAssignedBranches(): string | null {
+    return localStorage.getItem('assignedBranches');
   }
 
   getBranchName(): string | null {

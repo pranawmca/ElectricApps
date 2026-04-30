@@ -15,6 +15,7 @@ import { StatusDialogComponent } from '../../../shared/components/status-dialog-
 
 import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
 import { LoadingService } from '../../../core/services/loading.service';
+import { CompanyService } from '../../company/services/company.service';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
@@ -71,6 +72,19 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
                          class="role-badge" 
                          [class.root-badge]="role === 'Default Admin'">
                      {{role}}
+                   </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Branches Column -->
+            <ng-container matColumnDef="branches">
+              <th mat-header-cell *matHeaderCellDef> Branches </th>
+              <td mat-cell *matCellDef="let element"> 
+                <div class="role-chips">
+                   <span *ngFor="let branch of getBranchNames(element)" 
+                         class="role-badge" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">
+                     {{branch}}
                    </span>
                 </div>
               </td>
@@ -511,7 +525,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
   `]
 })
 export class UserListComponent implements OnInit {
-  displayedColumns: string[] = ['userName', 'email', 'companyName', 'roles', 'created', 'modified', 'status', 'actions'];
+  displayedColumns: string[] = ['userName', 'email', 'companyName', 'roles', 'branches', 'created', 'modified', 'status', 'actions'];
   dataSource = new MatTableDataSource<User>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -527,11 +541,14 @@ export class UserListComponent implements OnInit {
   
   private searchSubject = new Subject<string>();
 
+  branchesCache: { [companyId: string]: any[] } = {};
+
   constructor(
     private userService: UserService,
     private dialog: MatDialog,
     private roleService: RoleService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private companyService: CompanyService
   ) { 
     // Setup Debounce Search
     this.searchSubject.pipe(
@@ -600,6 +617,34 @@ export class UserListComponent implements OnInit {
     this.sortOrder = sort.direction || 'asc';
     this.pageNumber = 1; // Reset to page 1 when sorting changes
     this.loadUsers();
+  }
+
+  getBranchNames(user: any): string[] {
+    const branchIdsStr = user.branchId || user.BranchId;
+    if (!branchIdsStr) return ['Global'];
+
+    const companyId = user.companyId || user.CompanyId;
+    if (!companyId) return ['Global'];
+
+    const ids = branchIdsStr.toString().split(',').map((b: string) => b.trim());
+
+    if (this.branchesCache[companyId]) {
+       return ids.map((id: string) => {
+           const match = this.branchesCache[companyId].find(b => b.id.toString() === id);
+           return match ? (match.branchName || match.city || `Branch ${id}`) : `Branch ${id}`;
+       });
+    } else {
+       // Initial request to load branches for this company
+       if (this.branchesCache[companyId] === undefined) {
+           this.branchesCache[companyId] = []; // lock
+           this.companyService.getBranchesByCompany(companyId).subscribe(branches => {
+               this.branchesCache[companyId] = branches;
+               // Trigger change detection implicitly via new array ref
+               this.dataSource.data = [...this.dataSource.data];
+           });
+       }
+       return ids.map((id: string) => `Loading...`);
+    }
   }
 
   // --- CRUD Operations (Restored and updated to reload paged data) ---

@@ -96,10 +96,10 @@
         <span class="toolbar-spacer"></span>
         
         <!-- Current Branch Badge -->
-        <div class="branch-badge" *ngIf="currentBranchName" [matMenuTriggerFor]="isSuperAdmin ? branchMenu : null" [class.clickable]="isSuperAdmin">
+        <div class="branch-badge" *ngIf="currentBranchName" [matMenuTriggerFor]="(isSuperAdmin || hasMultipleBranches) ? branchMenu : null" [class.clickable]="isSuperAdmin || hasMultipleBranches">
            <mat-icon>location_on</mat-icon>
            <span>{{currentBranchName}}</span>
-           <mat-icon class="dropdown-icon" *ngIf="isSuperAdmin">expand_more</mat-icon>
+           <mat-icon class="dropdown-icon" *ngIf="isSuperAdmin || hasMultipleBranches">expand_more</mat-icon>
         </div>
 
         <mat-menu #branchMenu="matMenu" xPosition="before" class="branch-selector-menu">
@@ -107,12 +107,12 @@
                 <mat-icon>corporate_fare</mat-icon>
                 <span>Select Working Branch</span>
             </div>
-            <mat-divider></mat-divider>
-            <button mat-menu-item (click)="switchBranch(null)">
+            <mat-divider *ngIf="isSuperAdmin"></mat-divider>
+            <button mat-menu-item (click)="switchBranch(null)" *ngIf="isSuperAdmin">
                 <mat-icon>grid_view</mat-icon>
                 <span>All Branches (Global View)</span>
             </button>
-            <mat-divider></mat-divider>
+            <mat-divider *ngIf="isSuperAdmin"></mat-divider>
             <button mat-menu-item *ngFor="let b of branches" (click)="switchBranch(b)">
                 <mat-icon>storefront</mat-icon>
                 <span>{{b.branchName || b.name}}</span>

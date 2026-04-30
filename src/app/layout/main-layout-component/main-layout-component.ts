@@ -74,10 +74,13 @@ export class MainLayoutComponent implements OnInit {
   isCompactTable = false;
   
   get currentBranchName(): string | null {
-    return this.authService.getBranchName() || 'All Branches';
+    const branchName = this.authService.getBranchName();
+    if (branchName) return branchName;
+    return this.isSuperAdmin ? 'All Branches' : (this.hasMultipleBranches ? 'Multiple Branches' : 'All Branches');
   }
 
   isSuperAdmin = false;
+  hasMultipleBranches = false;
   branches: any[] = [];
 
 
@@ -250,7 +253,10 @@ export class MainLayoutComponent implements OnInit {
     });
 
     this.isSuperAdmin = this.authService.getUserRole() === 'Super Admin';
-    if (this.isSuperAdmin) {
+    const assignedBranchIds = this.authService.getAssignedBranches() || '';
+    this.hasMultipleBranches = assignedBranchIds.includes(',');
+
+    if (this.isSuperAdmin || this.hasMultipleBranches) {
       this.loadBranches();
     }
   }
@@ -260,7 +266,13 @@ export class MainLayoutComponent implements OnInit {
     if (companyId) {
       this.companyService.getBranchesByCompany(companyId).subscribe({
         next: (data) => {
-          this.branches = data || [];
+          if (this.isSuperAdmin) {
+            this.branches = data || [];
+          } else {
+            // Filter only the branches assigned to this user
+            const assignedIds = (this.authService.getAssignedBranches() || '').split(',').map(b => b.trim());
+            this.branches = (data || []).filter(b => assignedIds.includes(b.id.toString()));
+          }
           this.cdr.detectChanges();
         },
         error: (err) => console.error('Failed to load branches', err)
