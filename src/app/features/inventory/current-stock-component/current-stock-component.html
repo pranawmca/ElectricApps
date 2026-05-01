@@ -188,21 +188,31 @@
       
       <ng-container matColumnDef="manufacturingDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Mfg Date </th>
-        <td mat-cell *matCellDef="let element"> {{ element.isExpiryRequired ? ((element.manufacturingDate | date:'dd MMM yyyy') ?? 'NA') : 'NA' }} </td>
+        <td mat-cell *matCellDef="let element"> {{ element.isExpiryRequired ? ((element.manufacturingDate | date:'dd-MM-yyyy') ?? 'NA') : 'NA' }} </td>
       </ng-container>
       
       <ng-container matColumnDef="expiryDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Exp Date </th>
         <td mat-cell *matCellDef="let element"> 
           <span [class.text-danger]="isExpired(element.expiryDate)" [class.text-warning]="isNearExpiry(element.expiryDate)">
-            {{ element.isExpiryRequired ? ((element.expiryDate | date:'dd MMM yyyy') ?? 'NA') : 'NA' }}
+            {{ element.isExpiryRequired ? ((element.expiryDate | date:'dd-MM-yyyy') ?? 'NA') : 'NA' }}
           </span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="totalReceived">
         <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Inward Qty </th>
-        <td mat-cell *matCellDef="let element"> {{element.totalReceived - element.totalReturned | number}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.totalReceived | number}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalReturned">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> Returned </th>
+        <td mat-cell *matCellDef="let element"> 
+          <span class="returned-badge" *ngIf="element.totalReturned > 0">
+            {{element.totalReturned}}
+          </span>
+          <span class="text-muted" *ngIf="element.totalReturned === 0">0</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="totalRejected">
@@ -304,7 +314,7 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let h of getPaginatedHistory(element)">
-                      <td>{{$any(h).receivedDate | date:'dd MMM yyyy, hh:mm a'}}</td>
+                      <td>{{ ($any(h).receivedDate ? $any(h).receivedDate + 'Z' : '') | date:'dd-MM-yyyy hh:mm:ss a' }}</td>
                       <td><span class="po-link">#{{$any(h).poNumber}}</span></td>
                       <td>{{$any(h).grnNumber}}</td>
                       <td>
@@ -335,7 +345,7 @@
                           {{$any(h).rackName}}
                         </span>
                       </td>
-                      <td>{{ $any(element).isExpiryRequired ? (($any(h).manufacturingDate | date:'dd MMM yyyy') ?? 'NA') : 'NA' }}</td>
+                      <td>{{ $any(element).isExpiryRequired ? (($any(h).manufacturingDate | date:'dd-MM-yyyy') ?? 'NA') : 'NA' }}</td>
                       <td>
                         <span
                           [class.text-danger]="isExpired($any(h).expiryDate) && $any(h).availableQty > 0"
@@ -343,7 +353,7 @@
                           [style.font-weight]="((isExpired($any(h).expiryDate) || isNearExpiry($any(h).expiryDate)) && $any(h).availableQty > 0) ? '700' : 'normal'"
                           [matTooltip]="(isExpired($any(h).expiryDate) && $any(h).availableQty > 0) ? '⚠️ Expired Batch!' : (!isExpired($any(h).expiryDate) && isNearExpiry($any(h).expiryDate) && $any(h).availableQty > 0) ? '⏰ Expiring within 15 days!' : ''"
                           matTooltipPosition="above">
-                          {{ $any(element).isExpiryRequired ? (($any(h).expiryDate | date:'dd MMM yyyy') ?? 'NA') : 'NA' }}
+                          {{ $any(element).isExpiryRequired ? (($any(h).expiryDate | date:'dd-MM-yyyy') ?? 'NA') : 'NA' }}
                         </span>
                       </td>
                       <td class="font-600">{{$any(h).receivedQty || 0}}</td>

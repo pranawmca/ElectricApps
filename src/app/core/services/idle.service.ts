@@ -9,8 +9,10 @@ export class IdleService {
 
   // ⏱️ 15 minutes idle time (Production)
   private readonly IDLE_TIME = 15 * 60 * 1000;
+  private readonly REFRESH_CHECK_INTERVAL = 60 * 1000; // Check every 1 minute
 
   private timeoutId: any;
+  private refreshIntervalId: any;
   private readonly events = [
     'mousemove',
     'mousedown',
@@ -37,11 +39,42 @@ export class IdleService {
     localStorage.setItem('lastActivity', Date.now().toString());
     this.resetTimer();
     this.addEventListeners();
+    this.startBackgroundRefreshCheck();
   }
 
   stopWatching(): void {
     this.clearTimer();
+    this.clearRefreshInterval();
     this.removeEventListeners();
+  }
+
+  private startBackgroundRefreshCheck(): void {
+    this.clearRefreshInterval();
+    this.ngZone.runOutsideAngular(() => {
+      this.refreshIntervalId = setInterval(() => {
+        const lastActivity = localStorage.getItem('lastActivity');
+        if (lastActivity) {
+          const diff = Date.now() - parseInt(lastActivity);
+          // If user was active in the last 10 minutes AND token is about to expire
+          if (diff < 10 * 60 * 1000 && this.authService.isTokenExpiredSoon()) {
+            console.log('[IdleService] User is active & token expiring soon → triggering silent refresh');
+            this.ngZone.run(() => {
+              this.authService.refreshTokens().subscribe({
+                next: () => console.log('[IdleService] Silent refresh successful'),
+                error: (err) => console.error('[IdleService] Silent refresh failed', err)
+              });
+            });
+          }
+        }
+      }, this.REFRESH_CHECK_INTERVAL);
+    });
+  }
+
+  private clearRefreshInterval(): void {
+    if (this.refreshIntervalId) {
+      clearInterval(this.refreshIntervalId);
+      this.refreshIntervalId = null;
+    }
   }
 
   private checkInactivity(): boolean {

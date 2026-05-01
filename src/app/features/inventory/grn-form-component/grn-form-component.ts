@@ -223,8 +223,10 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       if (this.isViewMode) {
         received = Number(item.receivedQty || item.ReceivedQty || 0);
       } else if (this.isQuick) {
-        // If it's a Quick GRN, pre-fill with full pending quantity
-        received = pending;
+        // 🎯 FIX: Trust the backend's proposed quantity (handles replacements correctly)
+        // If the backend didn't specify a quantity, fall back to the full pending quantity.
+        const backendQty = (item.receivedQty !== undefined && item.receivedQty !== null) ? item.receivedQty : item.ReceivedQty;
+        received = (backendQty !== undefined && backendQty !== null) ? Number(backendQty) : pending;
       } else if (this.gatePassQty && this.gatePassQty > 0) {
         received = Math.min(this.gatePassQty, pending);
       } else {

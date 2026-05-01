@@ -184,7 +184,7 @@ export class PricelistForm implements OnInit, OnChanges, AfterViewInit, OnDestro
       width: '950px',
       maxWidth: '95vw',
       disableClose: false,
-      data: { existingIds, allowOutOfStock: true }
+      data: { existingIds, allowOutOfStock: true, mode: 'purchase' }
     });
 
     dialogRef.afterClosed().subscribe((selectedProducts: any[]) => {

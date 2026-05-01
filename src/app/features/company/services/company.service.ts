@@ -18,7 +18,13 @@ export class CompanyService {
      */
     getAllCompanies(): Observable<any[]> {
         return this.getPaged({ pageNumber: 1, pageSize: 1000 }).pipe(
-            map(res => res.data || [])
+            map(res => {
+                if (!res) return [];
+                const items = res.items || res.Items || res.data || res.Data;
+                if (Array.isArray(items)) return items;
+                if (Array.isArray(res)) return res;
+                return [];
+            })
         );
     }
 
@@ -41,10 +47,15 @@ export class CompanyService {
      */
     getBranchesByCompany(companyId: string): Observable<any[]> {
         return this.getById(companyId).pipe(
-            map(profile => (profile.addresses || []).map(addr => ({
-                ...addr,
-                name: addr.branchName || addr.city || 'Unnamed Branch'
-            })))
+            map(profile => {
+                const addresses = profile.addresses || (profile as any).Addresses || [];
+                return addresses.map((addr: any) => ({
+                    ...addr,
+                    companyName: profile.name || (profile as any).Name,
+                    companyProfileId: profile.id || (profile as any).Id,
+                    name: addr.branchName || addr.name || addr.city || 'Unnamed Branch'
+                }));
+            })
         );
     }
 
@@ -53,10 +64,13 @@ export class CompanyService {
      */
     getBranches(): Observable<any[]> {
         return this.getCompanyProfile().pipe(
-            map(profile => (profile.addresses || []).map(addr => ({
-                ...addr,
-                name: addr.branchName || addr.city || 'Unnamed Branch'
-            })))
+            map(profile => {
+                const addresses = profile.addresses || (profile as any).Addresses || [];
+                return addresses.map((addr: any) => ({
+                    ...addr,
+                    name: addr.branchName || addr.name || addr.city || 'Unnamed Branch'
+                }));
+            })
         );
     }
 

@@ -368,20 +368,28 @@ export class PoList implements OnInit {
           });
 
           if (poItems.length > 0) {
-            item.totalOrdered = poItems.reduce((sum: number, i: any) => sum + (Number(i.qty || i.orderedQty || 0) || 0), 0);
-            item.totalReceived = poItems.reduce((sum: number, i: any) => sum + (Number(i.receivedQty || 0)), 0);
-            item.totalAccepted = poItems.reduce((sum: number, i: any) => sum + (Number(i.acceptedQty || 0)), 0);
-            item.totalRejected = poItems.reduce((sum: number, i: any) => sum + (Number(i.rejectedQty || 0)), 0);
-            item.totalReturned = poItems.reduce((sum: number, i: any) => sum + (Number(i.returnQty || i.returnedQty || 0) || 0), 0);
-            item.totalPending = Math.max(0, item.totalOrdered - item.totalAccepted);
+            item.totalOrdered = poItems.reduce((sum: number, i: any) => sum + (Number(i.qty || i.orderedQty || i.OrderedQty || 0) || 0), 0);
+            item.totalAccepted = poItems.reduce((sum: number, i: any) => sum + (Number(i.acceptedQty || i.AcceptedQty || i.accptQty || 0)), 0);
+            item.totalRejected = poItems.reduce((sum: number, i: any) => sum + (Number(i.rejectedQty || i.RejectedQty || i.rejQty || 0)), 0);
+            
+            // Gross Received is what actually came in (Accepted + Rejected)
+            item.totalReceived = item.totalAccepted + item.totalRejected;
+            item.totalReturned = poItems.reduce((sum: number, i: any) => sum + (Number(i.returnQty || i.returnedQty || i.ReturnedQty || i.ActualReturnedQty || 0) || 0), 0);
+            
+            // Logic Change: Pending is what remains of the ORIGINAL order
+            item.totalPending = Math.max(0, item.totalOrdered - item.totalReceived);
           } else {
-            // Fallback to Header fields from API (Extensive naming support for both camelCase and PascalCase)
-            item.totalOrdered = Number(item.totalOrdered || item.TotalOrdered || item.totalOrderedQty || item.OrderedQty || item.orderedQty || item.totalQty || 0);
-            item.totalReceived = Number(item.totalReceived || item.TotalReceived || item.totalReceivedQty || item.ReceivedQty || item.receivedQty || 0);
-            item.totalAccepted = Number(item.totalAccepted || item.TotalAccepted || item.totalAcceptedQty || item.AcceptedQty || item.acceptedQty || 0);
-            item.totalRejected = Number(item.totalRejected || item.TotalRejected || item.totalRejectedQty || item.RejectedQty || item.rejectedQty || 0);
-            item.totalReturned = Number(item.totalReturned || item.TotalReturned || item.totalReturnedQty || item.ReturnedQty || item.returnedQty || item.totalReturnQty || item.returnQty || 0);
-            item.totalPending = Math.max(0, item.totalOrdered - item.totalAccepted);
+            // Fallback to Header fields from API
+            item.totalOrdered = Number(item.totalOrdered || item.TotalOrdered || item.totalOrderedQty || item.OrderedQty || item.orderedQty || 0);
+            item.totalAccepted = Number(item.totalAccepted || item.TotalAccepted || item.totalAcceptedQty || item.AcceptedQty || item.acceptedQty || item.accptQty || 0);
+            item.totalRejected = Number(item.totalRejected || item.TotalRejected || item.totalRejectedQty || item.RejectedQty || item.rejectedQty || item.rejQty || 0);
+            
+            // Gross Received calculation for Header
+            item.totalReceived = item.totalAccepted + item.totalRejected;
+            item.totalReturned = Number(item.totalReturned || item.TotalReturned || item.totalReturnedQty || item.ReturnedQty || item.returnedQty || item.ActualReturnedQty || 0);
+            
+            // Logic Change: Pending is what remains of the ORIGINAL order
+            item.totalPending = Math.max(0, item.totalOrdered - item.totalReceived);
           }
 
           // Calculate aging for overdue display in grid status column
@@ -451,14 +459,14 @@ export class PoList implements OnInit {
             tAcc = poItems.reduce((sum: number, i: any) => sum + (Number(i.acceptedQty || 0)), 0);
             tRej = poItems.reduce((sum: number, i: any) => sum + (Number(i.rejectedQty || 0)), 0);
             tRet = poItems.reduce((sum: number, i: any) => sum + (Number(i.returnQty || i.returnedQty || 0) || 0), 0);
-            tPen = Math.max(0, tOrd - tAcc);
+            tPen = Math.max(0, tOrd - tRec);
           } else {
             tOrd = Number(item.totalOrdered || item.TotalOrdered || item.totalOrderedQty || item.OrderedQty || item.orderedQty || item.totalQty || 0);
-            tRec = Number(item.totalReceived || item.TotalReceived || item.totalReceivedQty || item.ReceivedQty || item.receivedQty || 0);
+            tRec = Number(item.totalReceived || item.TotalReceived || item.totalReceivedQty || item.ReceivedQty || item.receivedQty || item.InwardedQty || 0);
             tAcc = Number(item.totalAccepted || item.TotalAccepted || item.totalAcceptedQty || item.AcceptedQty || item.acceptedQty || 0);
             tRej = Number(item.totalRejected || item.TotalRejected || item.totalRejectedQty || item.RejectedQty || item.rejectedQty || 0);
             tRet = Number(item.totalReturned || item.TotalReturned || item.totalReturnedQty || item.ReturnedQty || item.returnedQty || item.totalReturnQty || item.returnQty || 0);
-            tPen = Math.max(0, tOrd - tAcc);
+            tPen = Math.max(0, tOrd - tRec);
           }
 
           const fulfillmentCompleted = tAcc >= tOrd;

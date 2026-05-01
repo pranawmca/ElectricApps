@@ -43,10 +43,10 @@
               <span class="product-name">{{item.productName}}</span>
               <span class="product-sku" *ngIf="item.sku">SKU: {{item.sku}}</span>
               <span class="product-date" *ngIf="!item.isAlreadyPurged && item.receivedDate">
-                <mat-icon>login</mat-icon> Inward: {{item.receivedDate | date:'dd MMM yyyy HH:mm'}}
+                <mat-icon>login</mat-icon> Inward: {{ (item.receivedDate ? item.receivedDate + 'Z' : '') | date:'dd-MM-yyyy hh:mm:ss a' }}
               </span>
               <span class="product-date purged" *ngIf="item.isAlreadyPurged && item.purgedDate">
-                <mat-icon>auto_delete</mat-icon> Purged: {{item.purgedDate | date:'dd MMM yyyy HH:mm'}}
+                <mat-icon>auto_delete</mat-icon> Purged: {{ (item.purgedDate ? item.purgedDate + 'Z' : '') | date:'dd-MM-yyyy hh:mm:ss a' }}
               </span>
             </div>
             <div class="item-stock-section">
@@ -74,6 +74,12 @@
             </span>
             <span class="indicator low" *ngIf="isLowStock(item) && item.availableStock > 0">
               <mat-icon>warning_amber</mat-icon> Low Stock
+            </span>
+            <span class="indicator returned" *ngIf="item.totalReturned > 0" style="color: #92400e; background: #fffbeb; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #fef3c7;">
+              <mat-icon style="font-size: 12px; width: 12px; height: 12px;">assignment_return</mat-icon> Returned: {{item.totalReturned}}
+            </span>
+            <span class="indicator rejected" *ngIf="item.totalRejected > 0" style="color: #dc2626; background: #fef2f2; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #fee2e2;">
+              <mat-icon style="font-size: 12px; width: 12px; height: 12px;">report_problem</mat-icon> Rejected: {{item.totalRejected}}
             </span>
             <span class="indicator purged" *ngIf="!isPurchaseContext && item.isAlreadyPurged">
               <mat-icon>auto_delete</mat-icon> PURGED (Expired)
@@ -114,7 +120,7 @@
                 <div class="batch-info-bottom">
                   <span class="batch-date" *ngIf="item.isExpiryRequired">
                     <span [class.expired-text]="isExpired(batch.expiryDate)">
-                      Exp: {{batch.expiryDate | date:'dd MMM yyyy'}}
+                      Exp: {{batch.expiryDate | date:'dd-MM-yyyy'}}
                     </span>
                   </span>
                   <span class="batch-po">PO: #{{batch.poNumber}}</span>

@@ -268,19 +268,24 @@ export class GrnListComponent implements OnInit, AfterViewInit {
 
           return items.map((item: any): GRNListRow => {
             const rawGrnItems = item.items || item.Items || [];
-            const grnItems = Array.isArray(rawGrnItems) ? rawGrnItems.map((gi: any) => ({
-              productName: gi.productName || gi.ProductName,
-              orderedQty: gi.orderedQty ?? gi.OrderedQty ?? 0,
-              receivedQty: gi.receivedQty ?? gi.ReceivedQty ?? 0,
-              pendingQty: gi.pendingQty ?? gi.PendingQty ?? 0,
-              rejectedQty: gi.rejectedQty ?? gi.RejectedQty ?? 0,
-              actualRejectedQty: gi.actualRejectedQty ?? gi.ActualRejectedQty ?? 0,
-              expiredQty: gi.expiredQty ?? gi.ExpiredQty ?? 0,
-              unitRate: gi.unitRate ?? gi.UnitRate ?? 0,
-              rackName: gi.rackName || gi.RackName,
-              isExpired: gi.isExpired ?? gi.IsExpired ?? false,
-              returnedQty: gi.returnedQty ?? gi.ReturnedQty ?? 0
-            })) : [];
+            const grnItems = Array.isArray(rawGrnItems) ? rawGrnItems.map((gi: any) => {
+              const oQty = gi.orderedQty ?? gi.OrderedQty ?? 0;
+              const rQty = gi.receivedQty ?? gi.ReceivedQty ?? 0;
+              return {
+                productName: gi.productName || gi.ProductName,
+                orderedQty: oQty,
+                receivedQty: rQty,
+                // Pending is based on what's left to receive
+                pendingQty: Math.max(0, oQty - rQty),
+                rejectedQty: gi.rejectedQty ?? gi.RejectedQty ?? gi.rejQty ?? 0,
+                actualRejectedQty: gi.actualRejectedQty ?? gi.ActualRejectedQty ?? gi.rejQty ?? 0,
+                expiredQty: gi.expiredQty ?? gi.ExpiredQty ?? 0,
+                unitRate: gi.unitRate ?? gi.UnitRate ?? 0,
+                rackName: gi.rackName || gi.RackName || gi.warehouse || gi.Warehouse,
+                isExpired: gi.isExpired ?? gi.IsExpired ?? false,
+                returnedQty: Number(gi.returnedQty ?? gi.ReturnedQty ?? gi.ActualReturnedQty ?? gi.actualReturnedQty ?? gi.ReturnQty ?? gi.ReturnedQuantity ?? gi.ReturnQuantity ?? 0)
+              };
+            }) : [];
 
             return {
               ...item,

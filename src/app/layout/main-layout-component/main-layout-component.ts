@@ -20,7 +20,8 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { LoadingService } from '../../core/services/loading.service';
 import { CompanyService } from '../../features/company/services/company.service';
 import { environment } from '../../enviornments/environment';
-import { map, filter } from 'rxjs/operators';
+import { map, filter, switchMap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { StockDrawerComponent } from '../../features/inventory/stock-drawer-component/stock-drawer-component';
 import { NavigationEnd } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
@@ -252,7 +253,7 @@ export class MainLayoutComponent implements OnInit {
       }
     });
 
-    this.isSuperAdmin = this.authService.getUserRole() === 'Super Admin';
+    this.isSuperAdmin = this.authService.isSuperAdmin();
     const assignedBranchIds = this.authService.getAssignedBranches() || '';
     this.hasMultipleBranches = assignedBranchIds.includes(',');
 
@@ -262,17 +263,41 @@ export class MainLayoutComponent implements OnInit {
   }
 
   loadBranches(): void {
-    const companyId = this.authService.getCompanyId();
-    if (companyId) {
-      this.companyService.getBranchesByCompany(companyId).subscribe({
-        next: (data) => {
-          if (this.isSuperAdmin) {
-            this.branches = data || [];
-          } else {
-            // Filter only the branches assigned to this user
-            const assignedIds = (this.authService.getAssignedBranches() || '').split(',').map(b => b.trim());
-            this.branches = (data || []).filter(b => assignedIds.includes(b.id.toString()));
+    const isSuperAdmin = this.authService.isSuperAdmin();
+    const currentCompanyId = this.authService.getCompanyId();
+
+    if (isSuperAdmin) {
+      // 🚀 SUPER ADMIN: Fetch ALL branches from ALL companies directly from the paged response
+      this.companyService.getAllCompanies().subscribe({
+        next: (companies: any[]) => {
+          let allBranches: any[] = [];
+          
+          if (companies && companies.length > 0) {
+            companies.forEach(company => {
+              const addresses = company.addresses || company.Addresses;
+              if (addresses && Array.isArray(addresses) && addresses.length > 0) {
+                allBranches.push(...addresses.map((addr: any) => ({
+                  ...addr,
+                  companyName: company.name || company.Name,
+                  companyProfileId: company.id || company.Id
+                })));
+              }
+            });
           }
+          
+          // Remove potential duplicates by ID and sort by name
+          this.branches = allBranches.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Failed to load global branches', err)
+      });
+    } else if (currentCompanyId) {
+      // TENANT ADMIN: Fetch only their company's branches
+      this.companyService.getBranchesByCompany(currentCompanyId).subscribe({
+        next: (data) => {
+          // Filter only the branches assigned to this user
+          const assignedIds = (this.authService.getAssignedBranches() || '').split(',').map(b => b.trim());
+          this.branches = (data || []).filter(b => assignedIds.includes(b.id.toString()));
           this.cdr.detectChanges();
         },
         error: (err) => console.error('Failed to load branches', err)
@@ -292,6 +317,14 @@ export class MainLayoutComponent implements OnInit {
         // Switch to "All Branches" (Super Admin view)
         this.authService.setWorkingBranch(null, null);
       } else {
+        // --- 🚀 FIX: For Super Admin, also set the working companyId if it's different ---
+        const currentCompanyId = this.authService.getCompanyId();
+        if (branch.companyProfileId && branch.companyProfileId !== currentCompanyId) {
+          localStorage.setItem('companyId', branch.companyProfileId);
+          // Optional: Also update Company Name in UI if available in branch object
+          if (branch.companyName) localStorage.setItem('companyName', branch.companyName);
+        }
+        
         this.authService.setWorkingBranch(branch.id, branch.branchName || branch.name);
       }
       

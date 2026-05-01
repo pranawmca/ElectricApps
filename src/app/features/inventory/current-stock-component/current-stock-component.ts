@@ -49,7 +49,7 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
 
   branchMap: Map<string, string> = new Map();
 
-  displayedColumns: string[] = ['select', 'productName', 'warehouseName', 'rackName', 'manufacturingDate', 'expiryDate', 'totalReceived', 'totalRejected', 'totalExpired', 'totalSold', 'availableStock', 'unitRate', 'actions'];
+  displayedColumns: string[] = ['select', 'productName', 'warehouseName', 'rackName', 'manufacturingDate', 'expiryDate', 'totalReceived', 'totalReturned', 'totalRejected', 'totalExpired', 'totalSold', 'availableStock', 'unitRate', 'actions'];
   stockDataSource = new MatTableDataSource<any>([]);
 
   selectedProductIds: number[] = [];

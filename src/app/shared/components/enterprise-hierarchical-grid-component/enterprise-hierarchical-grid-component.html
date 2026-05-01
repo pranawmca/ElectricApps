@@ -242,13 +242,15 @@
                     <mat-icon color="primary">print</mat-icon>
                   </button>
                   
-                  <!-- Toggle Dispatch Status (Manual) - Enabled only when PR (Purchase Return) is active -->
+                  <!-- Toggle Dispatch Status (Manual) - Enabled only when Rejected items are Returned (Outward) -->
                   <button mat-icon-button color="accent" 
                           *ngIf="(row.status === 'Approved' || row.status === 'Partially Received' || row.status === 'Received') && !row.isDispatched" 
-                          [disabled]="row.status === 'Received' || ((row.totalRejected || 0) <= 0 && (row.totalReturned || 0) <= 0)"
+                          [disabled]="row.status === 'Received' || ((row.totalRejected || 0) > 0 && (row.totalReturned || 0) < (row.totalRejected || 0)) || ((row.totalRejected || 0) <= 0 && (row.totalReturned || 0) <= 0)"
                           (click)="$event.stopPropagation(); handleAction('TOGGLE_DISPATCH', row)" 
-                          [matTooltip]="row.status === 'Received' ? 'Order Already Received' : (((row.totalRejected || 0) > 0 || (row.totalReturned || 0) > 0) ? 'Confirm shipment dispatch from supplier' : 'Dispatch disabled (No Purchase Return raised)')">
-                    <mat-icon [style.opacity]="(row.status !== 'Received' && ((row.totalRejected || 0) > 0 || (row.totalReturned || 0) > 0)) ? 1 : 0.4">watch_later</mat-icon>
+                          [matTooltip]="row.status === 'Received' ? 'Order Already Received' : 
+                                       ((row.totalRejected || 0) > 0 && (row.totalReturned || 0) < (row.totalRejected || 0)) ? 'Pehle rejected items ko Outward Return karein' :
+                                       (((row.totalRejected || 0) > 0 || (row.totalReturned || 0) > 0) ? 'Confirm shipment dispatch from supplier' : 'Dispatch disabled (No Rejections/Returns)')">
+                    <mat-icon [style.opacity]="(row.status !== 'Received' && (row.totalRejected || 0) > 0 && (row.totalReturned || 0) >= (row.totalRejected || 0)) ? 1 : 0.4">watch_later</mat-icon>
                   </button>
 
                   <button mat-icon-button color="warn" *ngIf="(row.totalRejected || 0) > 0 && !((row.totalAccepted || 0) < (row.totalOrdered || 0))" (click)="$event.stopPropagation(); handleAction('PROCESS_RETURN', row)" matTooltip="Process Purchase Return (Outward)">

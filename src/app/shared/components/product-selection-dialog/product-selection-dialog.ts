@@ -907,46 +907,55 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
 
   // Fetch products into a local array so Product autocomplete doesn't need to ask backend for every keystroke
   fetchProductsForAutocomplete() {
-    const request = {
-      pageIndex: 0,
-      pageNumber: 1,
-      pageSize: 500, // Fetch up to 500 matching products for immediate autocomplete
-      search: '',
-      categoryId: this.selectedCategoryId || null,
-      filters: {} as Record<string, string>,
-      sortBy: 'ProductName',
-      sortDirection: 'asc' as 'asc' | 'desc'
-    };
+    const isPurchase = this.data?.mode === 'purchase';
+    
+    if (isPurchase) {
+      const request = {
+        pageNumber: 1,
+        pageSize: 100,
+        search: this.productCtrl.value || '',
+        filters: {} as Record<string, string>,
+        sortBy: 'ProductName',
+        sortDirection: 'asc' as 'asc' | 'desc'
+      };
 
-    if (this.selectedSubCategoryId) {
-      request.filters['subCategoryId'] = this.selectedSubCategoryId;
-    }
+      if (this.selectedCategoryId) request.filters['categoryId'] = this.selectedCategoryId;
+      if (this.selectedSubCategoryId) request.filters['subCategoryId'] = this.selectedSubCategoryId;
 
-    // If warehouseId provided, fetch products with stock in that warehouse
-    if (this.data?.warehouseId) {
-      this.inventoryService.getCurrentStock(
-        'ProductName', 'asc', 0, 500, '', null, null, this.data.warehouseId, null, false
-      ).pipe(takeUntil(this.destroy$)).subscribe(res => {
-        this.productsAutocomplete = (res.items || []).map((s: any) => ({
-          ...s,
-          productName: s.productName,
-          id: s.productId,
-          sku: s.sku
+      this.productService.getPaged(request).pipe(takeUntil(this.destroy$)).subscribe(res => {
+        this.productsAutocomplete = (res.items || []).map((p: any) => ({
+          ...p,
+          id: p.id || p.productId,
+          productName: p.productName || p.name
         }));
-        this.productCtrl.setValue(this.productCtrl.value);
+        this.cdr.detectChanges();
       });
     } else {
-      // Fallback for general search
-      this.inventoryService.getCurrentStock(
-        'ProductName', 'asc', 0, 100, this.productCtrl.value || '', null, null, null, null, false
-      ).pipe(takeUntil(this.destroy$)).subscribe(res => {
-        this.productsAutocomplete = (res.items || []).map((s: any) => ({
-          ...s,
-          id: s.productId,
-          currentStock: s.availableStock || 0
-        }));
-        this.productCtrl.setValue(this.productCtrl.value);
-      });
+      // For Sale/Other modes, stick to Stock API
+      if (this.data?.warehouseId) {
+        this.inventoryService.getCurrentStock(
+          'ProductName', 'asc', 0, 500, '', null, null, this.data.warehouseId, null, false
+        ).pipe(takeUntil(this.destroy$)).subscribe(res => {
+          this.productsAutocomplete = (res.items || []).map((s: any) => ({
+            ...s,
+            productName: s.productName,
+            id: s.productId,
+            sku: s.sku
+          }));
+          this.productCtrl.setValue(this.productCtrl.value);
+        });
+      } else {
+        this.inventoryService.getCurrentStock(
+          'ProductName', 'asc', 0, 100, this.productCtrl.value || '', null, null, null, null, false
+        ).pipe(takeUntil(this.destroy$)).subscribe(res => {
+          this.productsAutocomplete = (res.items || []).map((s: any) => ({
+            ...s,
+            id: s.productId,
+            currentStock: s.availableStock || 0
+          }));
+          this.productCtrl.setValue(this.productCtrl.value);
+        });
+      }
     }
   }
 
@@ -979,21 +988,45 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
     }
 
     let obs$: Observable<any>;
-    // 🎯 Always use getCurrentStock to get real-time figures with transfers
-    obs$ = this.inventoryService.getCurrentStock(
-        'ProductName', 'asc', this.pageIndex, this.pageSize, this.searchQuery, 
-        null, null, this.data?.warehouseId || null, null, false
-    ).pipe(
+    const isPurchase = this.data?.mode === 'purchase';
+
+    if (isPurchase) {
+      // 🎯 For Purchase mode, use Product Master API to show ALL products (even zero stock)
+      obs$ = this.productService.getPaged({
+        pageNumber: this.pageIndex + 1,
+        pageSize: this.pageSize,
+        search: this.searchQuery || '',
+        filters: request.filters,
+        sortBy: 'ProductName',
+        sortDirection: 'asc' as 'asc' | 'desc'
+      }).pipe(
         map(res => ({
-        ...res,
-        items: (res.items || []).map((s: any) => ({
-            ...s,
-            id: s.productId, // Map productId to id for dialog consistency
-            currentStock: s.availableStock || 0,
-            productName: s.productName // Ensure productName is mapped
+          ...res,
+          items: (res.items || []).map((p: any) => ({
+            ...p,
+            id: p.id || p.productId,
+            productName: p.productName || p.name,
+            currentStock: p.currentStock || 0
+          }))
         }))
-        }))
-    );
+      );
+    } else {
+      // 🎯 For Sales/Stock mode, use getCurrentStock for accurate branch-level figures
+      obs$ = this.inventoryService.getCurrentStock(
+          'ProductName', 'asc', this.pageIndex, this.pageSize, this.searchQuery, 
+          null, null, this.data?.warehouseId || null, null, false
+      ).pipe(
+          map(res => ({
+          ...res,
+          items: (res.items || []).map((s: any) => ({
+              ...s,
+              id: s.productId, // Map productId to id for dialog consistency
+              currentStock: s.availableStock || 0,
+              productName: s.productName // Ensure productName is mapped
+          }))
+          }))
+      );
+    }
 
     obs$.pipe(
       timeout(15000), // Safety Timeout

@@ -115,8 +115,13 @@
             <mat-divider *ngIf="isSuperAdmin"></mat-divider>
             <button mat-menu-item *ngFor="let b of branches" (click)="switchBranch(b)">
                 <mat-icon>storefront</mat-icon>
-                <span>{{b.branchName || b.name}}</span>
-                <small class="text-muted ms-2" *ngIf="b.city">({{b.city}})</small>
+                <div class="branch-item-text">
+                    <span class="branch-main-name">{{b.branchName || b.name}}</span>
+                    <div class="branch-meta-row">
+                       <span class="branch-company-sub" *ngIf="isSuperAdmin && b.companyName">{{b.companyName}}</span>
+                       <span class="city-tag" *ngIf="b.city">({{b.city}})</span>
+                    </div>
+                </div>
             </button>
         </mat-menu>
         

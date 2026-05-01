@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, catchError, tap, filter, take, switchMap } from 'rxjs';
 import { environment } from '../../enviornments/environment';
 import { LoginDto } from '../models/user.model';
 import { Router } from '@angular/router';
@@ -18,6 +18,9 @@ export class AuthService {
 
   private readonly baseUrl = environment.api.auth;
 
+  private isRefreshing = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+
   // 🔐 LOGIN
   login(data: LoginDto): Observable<any> {
     const payload = {
@@ -30,21 +33,59 @@ export class AuthService {
     );
   }
 
-  // 🔄 REFRESH TOKENS
+  // 🔄 REFRESH TOKENS (Shared with Interceptor and IdleService)
   refreshTokens(): Observable<any> {
+    if (this.isRefreshing) {
+      return this.refreshTokenSubject.pipe(
+        filter(token => token !== null),
+        take(1),
+        switchMap(() => new Observable(obs => obs.next({ accessToken: this.getAccessToken() })))
+      );
+    }
+
+    this.isRefreshing = true;
+    this.refreshTokenSubject.next(null);
+
     const accessToken = this.getAccessToken();
     const refreshToken = this.getRefreshToken();
 
     if (!accessToken || !refreshToken) {
-      console.warn('[AuthService] No tokens found for refresh');
+      this.isRefreshing = false;
       this.logout();
-      return new Observable();
+      return throwError(() => new Error('No tokens available'));
     }
 
     const payload = { accessToken, refreshToken };
     return this.api.post<any>('refresh', payload, this.baseUrl).pipe(
-      tap(res => this.storeTokens(res))
+      tap(res => {
+        this.storeTokens(res);
+        this.isRefreshing = false;
+        this.refreshTokenSubject.next(res.accessToken || res.AccessToken);
+      }),
+      catchError(err => {
+        this.isRefreshing = false;
+        this.refreshTokenSubject.next(null);
+        return throwError(() => err);
+      })
     );
+  }
+
+  // 🕒 CHECK IF TOKEN IS EXPIRED SOON
+  isTokenExpiredSoon(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return true;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp;
+      if (!exp) return true;
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      // Check if it expires in the next 5 minutes
+      return (exp - currentTime) < 300; 
+    } catch (e) {
+      return true;
+    }
   }
 
   changePassword(data: any): Observable<any> {
@@ -115,6 +156,11 @@ export class AuthService {
     
     if (companyId) {
       localStorage.setItem('companyId', companyId);
+      // 🛡️ Save original system context for Super Admin switching
+      if (this.isSuperAdmin() && !localStorage.getItem('systemCompanyId')) {
+        localStorage.setItem('systemCompanyId', companyId);
+        if (companyName) localStorage.setItem('systemCompanyName', companyName);
+      }
     } else {
       localStorage.removeItem('companyId');
     }
@@ -177,6 +223,14 @@ export class AuthService {
     } else {
       localStorage.removeItem('branchId');
       localStorage.removeItem('branchName');
+      
+      // 🚀 If Super Admin is switching back to Global View, restore System Company context
+      if (this.isSuperAdmin()) {
+        const sysId = localStorage.getItem('systemCompanyId');
+        const sysName = localStorage.getItem('systemCompanyName');
+        if (sysId) localStorage.setItem('companyId', sysId);
+        if (sysName) localStorage.setItem('companyName', sysName);
+      }
     }
   }
 
@@ -224,7 +278,7 @@ export class AuthService {
       const parsedRoles = JSON.parse(roles);
       if (Array.isArray(parsedRoles) && parsedRoles.length > 0) {
         // --- 🚀 FIX: Prioritize the most powerful role ---
-        const priorityOrder = ['Super Admin', 'Admin', 'Manager', 'Warehouse', 'User'];
+        const priorityOrder = ['Default Admin', 'Super Admin', 'Admin', 'Manager', 'Warehouse', 'User'];
         for (const role of priorityOrder) {
           if (parsedRoles.includes(role)) return role;
         }
@@ -264,7 +318,8 @@ export class AuthService {
   }
 
   isSuperAdmin(): boolean {
-    return this.getUserRole() === 'Super Admin';
+    const role = this.getUserRole();
+    return role === 'Super Admin' || role === 'Default Admin';
   }
 
   getUserId(): string | null {

@@ -154,7 +154,7 @@
                                                 <td class="text-right">{{item.unitRate | currency:'INR'}}</td>
                                                 <td class="text-center">
                                                     <button mat-icon-button color="warn" 
-                                                            *ngIf="item.actualRejectedQty > 0"
+                                                            *ngIf="item.actualRejectedQty > 0 && (item.returnedQty || 0) < item.actualRejectedQty"
                                                             (click)="$event.stopPropagation(); processRejectionReturn(row)"
                                                             matTooltip="Process Outward Return for Rejected Items">
                                                         <mat-icon class="return-truck-icon">local_shipping</mat-icon>
