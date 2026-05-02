@@ -1,14 +1,14 @@
 export type PriceListType = 'PURCHASE' | 'SALES';
 
 export interface PriceListModel {
-  id?: number;
-  name: string; // Required for business
-  pricetype: PriceListType;
+  id?: string;
+  name: string; 
+  priceType: PriceListType;
   code: string;
-  validfrom: Date;
-  validto: Date;
+  validFrom: Date;
+  validTo: Date;
   description?: string;
-  isactive: boolean;
+  isActive: boolean;
   
   // 🆕 Parent-Child Relationship (Enterprise Requirement)
   // Jab aap Save karenge, toh items isi ke andar array ban kar jayenge

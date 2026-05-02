@@ -331,6 +331,11 @@ export class GrnListComponent implements OnInit, AfterViewInit {
     return items.reduce((sum, item) => sum + ((Number(item.receivedQty) || 0) - (Number(item.rejectedQty) || 0)), 0);
   }
 
+  calculateTotalReturned(row: any): number {
+    const items = (row as GRNListRow).items || [];
+    return items.reduce((sum, item) => sum + (Number(item.returnedQty) || 0), 0);
+  }
+
   // Navigation Logic
   viewGRN(id: number) {
     this.router.navigate(['/app/inventory/grn-list/view', id]);

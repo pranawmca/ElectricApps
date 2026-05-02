@@ -138,7 +138,7 @@ export class PricelistList implements OnInit {
         this.totalCount = res.totalCount || this.data.length;
 
         // Calculate Active Count
-        const activeCount = this.data.filter(p => p.isactive).length;
+        const activeCount = this.data.filter(p => p.isActive).length;
 
         // Update Summary Stats
         this.summaryStats = [

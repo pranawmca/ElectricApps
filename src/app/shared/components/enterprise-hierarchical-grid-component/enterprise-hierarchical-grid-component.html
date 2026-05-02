@@ -250,7 +250,7 @@
                           [matTooltip]="row.status === 'Received' ? 'Order Already Received' : 
                                        ((row.totalRejected || 0) > 0 && (row.totalReturned || 0) < (row.totalRejected || 0)) ? 'Pehle rejected items ko Outward Return karein' :
                                        (((row.totalRejected || 0) > 0 || (row.totalReturned || 0) > 0) ? 'Confirm shipment dispatch from supplier' : 'Dispatch disabled (No Rejections/Returns)')">
-                    <mat-icon [style.opacity]="(row.status !== 'Received' && (row.totalRejected || 0) > 0 && (row.totalReturned || 0) >= (row.totalRejected || 0)) ? 1 : 0.4">watch_later</mat-icon>
+                    <mat-icon [style.opacity]="(row.status !== 'Received' && (row.totalRejected || 0) >= 0 && (row.totalReturned || 0) > 0 && (row.totalReturned || 0) >= (row.totalRejected || 0)) ? 1 : 0.4">watch_later</mat-icon>
                   </button>
 
                   <button mat-icon-button color="warn" *ngIf="(row.totalRejected || 0) > 0 && !((row.totalAccepted || 0) < (row.totalOrdered || 0))" (click)="$event.stopPropagation(); handleAction('PROCESS_RETURN', row)" matTooltip="Process Purchase Return (Outward)">
@@ -262,7 +262,11 @@
                     <mat-icon>local_shipping</mat-icon>
                   </button>
 
-                  <button mat-icon-button color="warn" *ngIf="(entityName === 'Purchase' || entityName === 'PO') && (row.status === 'Received' || row.status === 'Partially Received')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('PURCHASE_RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Purchase Return' : 'Purchase Return Closed (' + returnWindowHours + ' hrs crossed)'">
+                  <button mat-icon-button color="warn" 
+                          *ngIf="(entityName === 'Purchase' || entityName === 'PO') && (row.status === 'Received' || row.status === 'Partially Received') && ((row.totalAccepted || 0) + (row.totalRejected || 0) > (row.totalReturned || 0))" 
+                          [disabled]="!isWithinReturnWindow(row)" 
+                          (click)="$event.stopPropagation(); handleAction('PURCHASE_RETURN', row)" 
+                          [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Purchase Return' : 'Purchase Return Closed (' + returnWindowHours + ' hrs crossed)'">
                     <mat-icon [style.opacity]="isWithinReturnWindow(row) ? 1 : 0.5">assignment_return</mat-icon>
                   </button>
                   <mat-icon *ngIf="row.status === 'Received' && !((row.totalRejected || 0) > 0) && !((row.totalAccepted || 0) < (row.totalOrdered || 0))" style="color: #4caf50;" matTooltip="Order Completed">verified</mat-icon>
