@@ -83,6 +83,9 @@ import { forkJoin, of } from 'rxjs';
         <mat-form-field appearance="outline" *ngIf="branches.length > 0">
           <mat-label>Assign Branch</mat-label>
           <mat-select formControlName="BranchId" multiple>
+            <mat-option value="GLOBAL">
+              <mat-icon>public</mat-icon> All Branches (Global)
+            </mat-option>
             <mat-option *ngFor="let branch of branches" [value]="branch.id">
               {{branch.branchName || 'Main Branch'}}
             </mat-option>
@@ -93,12 +96,22 @@ import { forkJoin, of } from 'rxjs';
           </mat-hint>
         </mat-form-field>
 
+        <div class="duplicate-warning" *ngIf="isDuplicateSuperAdmin">
+          <mat-icon>warning</mat-icon>
+          <span>A Super Admin already exists for this company. Only one Super Admin is allowed per tenant.</span>
+        </div>
+
       </form>
     </mat-dialog-content>
     
     <mat-dialog-actions align="end">
       <button mat-raised-button mat-dialog-close class="cancel-btn">CANCEL</button>
-      <button mat-raised-button class="main-add-btn" [disabled]="userForm.invalid" (click)="save()">{{ isEdit ? 'UPDATE USER' : 'CREATE USER' }}</button>
+      <button mat-raised-button class="main-add-btn" 
+              [disabled]="userForm.invalid || isDuplicateSuperAdmin || checkingSuperAdmin" 
+              (click)="save()">
+        <mat-spinner diameter="20" *ngIf="checkingSuperAdmin" style="margin-right: 8px;"></mat-spinner>
+        {{ isEdit ? 'UPDATE USER' : 'CREATE USER' }}
+      </button>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -270,6 +283,20 @@ import { forkJoin, of } from 'rxjs';
         .cancel-btn { color: rgba(255, 255, 255, 0.5) !important; }
       }
     }
+    .duplicate-warning {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      background: #fff1f2;
+      color: #e11d48;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid #fecdd3;
+      margin-top: 8px;
+      mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    }
   `]
 })
 export class UserFormComponent implements OnInit {
@@ -283,6 +310,8 @@ export class UserFormComponent implements OnInit {
   loggedInCompanyId: string | null = null;
   isLoadingRoles = false;
   isLoadingBranches = false;
+  isDuplicateSuperAdmin = false;
+  checkingSuperAdmin = false;
 
   constructor(
     private fb: FormBuilder,
@@ -318,12 +347,55 @@ export class UserFormComponent implements OnInit {
     this.userForm.get('CompanyId')?.valueChanges.subscribe(cid => {
       this.loadRoles(cid);
       this.loadBranches(cid);
+      this.checkSuperAdminDuplicate();
+    });
+
+    // 🔄 WATCH ROLE SELECTION FOR SUPER ADMIN
+    this.userForm.get('RoleIds')?.valueChanges.subscribe(() => {
+      this.checkSuperAdminDuplicate();
     });
 
     // Initial Load
     const initialCid = this.isEdit ? (this.data.companyId || this.data.CompanyId) : (this.isSuperAdmin ? null : this.loggedInCompanyId);
     this.loadRoles(initialCid);
     this.loadBranches(initialCid);
+  }
+
+  checkSuperAdminDuplicate() {
+    if (this.isEdit) return; // Skip on edit
+
+    const selectedCid = this.userForm.get('CompanyId')?.value;
+    const selectedRoleIds = this.userForm.get('RoleIds')?.value || [];
+    
+    // Find if 'Super Admin' is among selected roles
+    const superAdminRole = this.roles.find(r => r.roleName === 'Super Admin');
+    const isSelectingSuperAdmin = superAdminRole && selectedRoleIds.includes(superAdminRole.id);
+
+    // Only check for tenant companies (cid exists)
+    if (selectedCid && isSelectingSuperAdmin) {
+      this.checkingSuperAdmin = true;
+      this.userService.getPaged({ 
+        pageNumber: 1, 
+        pageSize: 100, 
+        searchTerm: 'Super Admin' // Narrow down search
+      }).subscribe({
+        next: (res) => {
+          // Check if any existing user in THIS company already has the Super Admin role
+          const exists = res.items.some((u: any) => 
+            (u.companyId === selectedCid || u.CompanyId === selectedCid) && 
+            (u.roles || u.Roles || []).includes('Super Admin')
+          );
+          
+          this.isDuplicateSuperAdmin = exists;
+          this.checkingSuperAdmin = false;
+        },
+        error: () => {
+          this.checkingSuperAdmin = false;
+        }
+      });
+    } else {
+      this.isDuplicateSuperAdmin = false;
+    }
   }
 
   loadBranches(companyId: string | null) {
@@ -342,14 +414,14 @@ export class UserFormComponent implements OnInit {
         // If editing, patch the value after load
         if (this.isEdit && this.data) {
            const branchId = this.data.branchId || this.data.BranchId;
-           if (branchId) {
-             // 🔄 Convert to number array
-             const branchArray = branchId.toString().split(',').map((id: string) => !isNaN(Number(id.trim())) ? Number(id.trim()) : id.trim());
-             this.userForm.patchValue({ BranchId: branchArray }, { emitEvent: false });
-           } else {
-             // 🔥 Explicitly patch empty array for Global users
-             this.userForm.patchValue({ BranchId: [] }, { emitEvent: false });
-           }
+            if (branchId) {
+              // 🔄 Convert to number array
+              const branchArray = branchId.toString().split(',').map((id: string) => !isNaN(Number(id.trim())) ? Number(id.trim()) : id.trim());
+              this.userForm.patchValue({ BranchId: branchArray }, { emitEvent: false });
+            } else {
+              // 🔥 FIX: Use 'GLOBAL' string for reliable selection
+              this.userForm.patchValue({ BranchId: ['GLOBAL'] }, { emitEvent: false });
+            }
         } else {
            // 🔥 NEW USER CASE: Auto-select active branch if not set
            const activeBid = this.authService.getBranchId();
@@ -378,17 +450,13 @@ export class UserFormComponent implements OnInit {
           // 1. If it's a tenant company (NOT our Admin Dashboard), ALWAYS hide "Default Admin"
           // 2. If it's our Admin Dashboard (or Master context), show it only to existing Default Admins.
           
+          // 🛡️ SECURITY: HIDE 'Default Admin' from tenant company contexts
           const isAdminDashboard = (selectedCid === this.loggedInCompanyId) || (!selectedCid && !this.loggedInCompanyId);
 
           if (!isAdminDashboard) {
-            // It's a different company/tenant -> HIDE Default Admin
             this.roles = roles.filter(r => r.roleName !== 'Default Admin');
-          } else if (currentRole === 'Default Admin') {
-            // It's Admin Dashboard and user is Default Admin -> SHOW ALL
-            this.roles = roles;
           } else {
-            // Otherwise -> HIDE Default Admin
-            this.roles = roles.filter(r => r.roleName !== 'Default Admin');
+            this.roles = roles.filter(r => r.roleName !== 'Default Admin' || currentRole === 'Default Admin');
           }
           
           this.isLoadingRoles = false;
@@ -438,7 +506,16 @@ export class UserFormComponent implements OnInit {
         this.companies = allCompanies;
       }
 
-      this.roles = roles;
+      // 🛡️ SECURITY FILTER: Hide 'Default Admin' if a tenant company is selected
+      const currentRole = this.authService.getUserRole();
+      const isAdminDashboard = (defaultCompanyId === this.loggedInCompanyId) || (!defaultCompanyId && !this.loggedInCompanyId);
+      
+      this.roles = roles.filter(r => {
+        if (r.roleName === 'Default Admin') {
+          return isAdminDashboard && currentRole === 'Default Admin';
+        }
+        return true;
+      });
 
       if (this.isEdit && this.data) {
         // Handle Casing Safety
@@ -486,7 +563,9 @@ export class UserFormComponent implements OnInit {
             Email: formValue.Email,
             RoleIds: formValue.RoleIds,
             CompanyId: formValue.CompanyId,
-            BranchId: formValue.BranchId && formValue.BranchId.length > 0 ? formValue.BranchId.join(',') : null
+            BranchId: (formValue.BranchId && formValue.BranchId.length > 0) 
+                      ? (formValue.BranchId.includes('GLOBAL') ? null : formValue.BranchId.join(',')) 
+                      : null
           };
           
           // 🛠️ DEBUG LOGS

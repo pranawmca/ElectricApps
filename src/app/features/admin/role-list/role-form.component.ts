@@ -58,12 +58,22 @@ import { AuthService } from '../../../core/services/auth.service';
           <mat-icon matPrefix>admin_panel_settings</mat-icon>
           <mat-error *ngIf="roleForm.get('RoleName')?.hasError('required')">Role name is required</mat-error>
         </mat-form-field>
+
+        <div class="duplicate-warning" *ngIf="isDuplicateRole">
+          <mat-icon>warning</mat-icon>
+          <span>Super Admin role already exists for this company.</span>
+        </div>
       </form>
     </mat-dialog-content>
     
     <mat-dialog-actions align="end">
       <button mat-raised-button mat-dialog-close class="cancel-btn">CANCEL</button>
-      <button mat-raised-button class="main-add-btn" [disabled]="roleForm.invalid" (click)="save()">{{ isEdit ? 'UPDATE ROLE' : 'CREATE ROLE' }}</button>
+      <button mat-raised-button class="main-add-btn" 
+              [disabled]="roleForm.invalid || isDuplicateRole || checkingDuplicate" 
+              (click)="save()">
+        <mat-spinner diameter="20" *ngIf="checkingDuplicate" style="margin-right: 8px;"></mat-spinner>
+        {{ isEdit ? 'UPDATE ROLE' : 'CREATE ROLE' }}
+      </button>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -90,6 +100,21 @@ import { AuthService } from '../../../core/services/auth.service';
       font-weight: 600 !important;
     }
 
+    .duplicate-warning {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      background: #fff1f2;
+      color: #e11d48;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid #fecdd3;
+      margin-top: 8px;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    }
+
     :host-context(.dark-mode) {
       .dialog-header { background: #1e293b; border-bottom-color: rgba(255,255,255,0.1); h2 { color: white; } }
       mat-dialog-content { background: #1e293b; }
@@ -104,6 +129,8 @@ export class RoleFormComponent implements OnInit {
   companies: any[] = [];
   branches: any[] = [];
   isLoadingBranches = false;
+  isDuplicateRole = false; // 🔥 To track duplicates
+  checkingDuplicate = false;
 
   constructor(
     private fb: FormBuilder,
@@ -129,6 +156,20 @@ export class RoleFormComponent implements OnInit {
 
     this.roleForm.get('CompanyId')?.valueChanges.subscribe(cid => {
       this.loadBranches(cid);
+      
+      // 🛡️ SECURITY: If a tenant company is selected, force RoleName to "Super Admin"
+      if (cid) {
+        this.roleForm.get('RoleName')?.setValue('Super Admin');
+        this.roleForm.get('RoleName')?.disable();
+        this.checkDuplicateRole(cid, 'Super Admin'); // 🔥 Check if exists
+      } else {
+        this.isDuplicateRole = false;
+        // Unlock if switched back to Master (only for new roles)
+        if (!this.isEdit) {
+          this.roleForm.get('RoleName')?.enable();
+          this.roleForm.get('RoleName')?.setValue('');
+        }
+      }
     });
   }
 
@@ -137,6 +178,22 @@ export class RoleFormComponent implements OnInit {
     if (branchId === 'GLOBAL') return 'All Branches (Global)';
     const branch = this.branches.find(b => b.id === branchId);
     return branch ? (branch.branchName || branch.name) : 'All Branches (Global)';
+  }
+
+  checkDuplicateRole(companyId: string, roleName: string) {
+    if (this.isEdit) return; // Don't check on edit
+
+    this.checkingDuplicate = true;
+    this.roleService.getByCompany(companyId).subscribe({
+      next: (roles) => {
+        this.isDuplicateRole = roles.some(r => r.roleName.toLowerCase() === roleName.toLowerCase());
+        this.checkingDuplicate = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.checkingDuplicate = false;
+      }
+    });
   }
 
   loadBranches(companyId: string | null) {
@@ -199,12 +256,11 @@ export class RoleFormComponent implements OnInit {
   }
 
   save() {
-    if (this.roleForm.valid) {
-      const { RoleName, CompanyId } = this.roleForm.value;
-      if (this.isEdit) {
-        const { RoleName, BranchId } = this.roleForm.value;
-        const branchToSave = (BranchId === 'GLOBAL') ? null : BranchId;
+    if (this.roleForm.valid || (this.roleForm.get('RoleName')?.disabled && this.roleForm.get('RoleName')?.value)) {
+      const { RoleName, CompanyId, BranchId } = this.roleForm.getRawValue(); // 🔥 Use getRawValue to get disabled field values
+      const branchToSave = (BranchId === 'GLOBAL') ? null : BranchId;
 
+      if (this.isEdit) {
         this.roleService.updateRole(this.data.id, RoleName, branchToSave).subscribe({
           next: () => {
             this.showStatus(true, 'Role updated successfully!');
@@ -213,9 +269,6 @@ export class RoleFormComponent implements OnInit {
           error: (err) => this.showStatus(false, err.error?.message || 'Failed to update role')
         });
       } else {
-        const { RoleName, CompanyId, BranchId } = this.roleForm.value;
-        const branchToSave = (BranchId === 'GLOBAL') ? null : BranchId;
-        
         this.roleService.createRole(RoleName, CompanyId, branchToSave).subscribe({
           next: () => {
             this.showStatus(true, 'Role created successfully!');
