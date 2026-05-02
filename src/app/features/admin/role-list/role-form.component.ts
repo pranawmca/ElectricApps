@@ -270,6 +270,12 @@ export class RoleFormComponent implements OnInit {
         BranchId: branchId ? String(branchId) : 'GLOBAL'
       }, { emitEvent: false });
 
+      // 🛡️ SECURITY: Disable RoleName if it's a core role
+      const isCoreRole = roleName === 'Super Admin' || roleName === 'Default Admin';
+      if (isCoreRole) {
+        this.roleForm.get('RoleName')?.disable();
+      }
+
       if (companyId) {
         this.loadBranches(companyId);
       }

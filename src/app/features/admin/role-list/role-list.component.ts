@@ -12,6 +12,7 @@ import { StatusDialogComponent } from '../../../shared/components/status-dialog-
 import { RoleFormComponent } from './role-form.component';
 import { Router } from '@angular/router';
 import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-role-list',
@@ -32,6 +33,7 @@ export class RoleListComponent implements OnInit {
   private roleService = inject(RoleService);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   ngOnInit() {
     this.loadRoles();
@@ -39,7 +41,17 @@ export class RoleListComponent implements OnInit {
 
   loadRoles() {
     this.loading = true;
-    this.roleService.getAllRoles().subscribe({
+    const companyId = this.authService.getCompanyId();
+    const role = this.authService.getUserRole();
+    
+    // 🛡️ SECURITY: 
+    // - Default Admin sees ALL roles across ALL tenants.
+    // - Tenant Admins (Bipin) see ONLY their company's roles.
+    const roles$ = (role === 'Default Admin') 
+      ? this.roleService.getAllRoles() 
+      : this.roleService.getByCompany(companyId);
+
+    roles$.subscribe({
       next: (roles) => {
         this.dataSource.data = roles;
         this.dataSource.paginator = this.paginator;

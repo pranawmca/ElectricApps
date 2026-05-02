@@ -486,15 +486,19 @@ export class UserFormComponent implements OnInit {
           const selectedCid = this.userForm.get('CompanyId')?.value;
 
           // 🛡️ SECURITY FILTER: 
-          // 1. If it's a tenant company (NOT our Admin Dashboard), ALWAYS hide "Default Admin"
-          // 2. If it's our Admin Dashboard (or Master context), show it only to existing Default Admins.
+          // 1. If it's a tenant company (NOT our Admin Dashboard), ALWAYS hide "Default Admin" and other Platform Roles.
+          // 2. If it's our Admin Dashboard (or Master context), show them only to authorized admins.
           
-          // 🛡️ SECURITY: HIDE 'Default Admin' from tenant company contexts
           const isAdminDashboard = (selectedCid === this.loggedInCompanyId) || (!selectedCid && !this.loggedInCompanyId);
 
           if (!isAdminDashboard) {
-            this.roles = roles.filter(r => r.roleName !== 'Default Admin');
+            // 🚀 Tenant Context: Only show 'Super Admin' (NULL Company) and Custom Roles (this Company)
+            this.roles = roles.filter(r => {
+                if (!r.companyId) return r.roleName === 'Super Admin'; // Only allow Super Admin from system roles
+                return true; // Allow all custom roles of this company
+            });
           } else {
+            // 🚀 Master Context: Hide 'Default Admin' unless the logged-in user IS one.
             this.roles = roles.filter(r => r.roleName !== 'Default Admin' || currentRole === 'Default Admin');
           }
           
@@ -550,10 +554,17 @@ export class UserFormComponent implements OnInit {
       const isAdminDashboard = (defaultCompanyId === this.loggedInCompanyId) || (!defaultCompanyId && !this.loggedInCompanyId);
       
       this.roles = roles.filter(r => {
-        if (r.roleName === 'Default Admin') {
-          return isAdminDashboard && currentRole === 'Default Admin';
+        if (!isAdminDashboard) {
+           // 🚀 Tenant Context (Filter during initial load)
+           if (!r.companyId) return r.roleName === 'Super Admin';
+           return true;
+        } else {
+           // 🚀 Master Context
+           if (r.roleName === 'Default Admin') {
+             return currentRole === 'Default Admin';
+           }
+           return true;
         }
-        return true;
       });
 
       if (this.isEdit && this.data) {
