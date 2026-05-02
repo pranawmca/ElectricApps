@@ -13,6 +13,7 @@ import { NotificationService } from '../../shared/notification.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-form',
@@ -43,6 +44,16 @@ import { forkJoin, of } from 'rxjs';
           <mat-error *ngIf="userForm.get('Email')?.hasError('required')">Email is required</mat-error>
           <mat-error *ngIf="userForm.get('Email')?.hasError('email')">Invalid email</mat-error>
         </mat-form-field>
+
+        <div class="duplicate-warning" *ngIf="isDuplicateEmail">
+          <mat-icon>warning</mat-icon>
+          <span>Email ID already exists in the system. Please use a unique email.</span>
+        </div>
+
+        <div class="duplicate-warning" *ngIf="isDuplicateEmail">
+          <mat-icon>warning</mat-icon>
+          <span>Email ID already exists in the system. Please use a unique email.</span>
+        </div>
 
         <mat-form-field appearance="outline">
           <mat-label>Password{{ isEdit ? ' (Read Only)' : '*' }}</mat-label>
@@ -107,9 +118,9 @@ import { forkJoin, of } from 'rxjs';
     <mat-dialog-actions align="end">
       <button mat-raised-button mat-dialog-close class="cancel-btn">CANCEL</button>
       <button mat-raised-button class="main-add-btn" 
-              [disabled]="userForm.invalid || isDuplicateSuperAdmin || checkingSuperAdmin" 
+              [disabled]="userForm.invalid || isDuplicateSuperAdmin || checkingSuperAdmin || isDuplicateEmail || checkingEmail" 
               (click)="save()">
-        <mat-spinner diameter="20" *ngIf="checkingSuperAdmin" style="margin-right: 8px;"></mat-spinner>
+        <mat-spinner diameter="20" *ngIf="checkingSuperAdmin || checkingEmail" style="margin-right: 8px;"></mat-spinner>
         {{ isEdit ? 'UPDATE USER' : 'CREATE USER' }}
       </button>
     </mat-dialog-actions>
@@ -312,6 +323,8 @@ export class UserFormComponent implements OnInit {
   isLoadingBranches = false;
   isDuplicateSuperAdmin = false;
   checkingSuperAdmin = false;
+  isDuplicateEmail = false;
+  checkingEmail = false;
 
   constructor(
     private fb: FormBuilder,
@@ -348,6 +361,14 @@ export class UserFormComponent implements OnInit {
       this.loadRoles(cid);
       this.loadBranches(cid);
       this.checkSuperAdminDuplicate();
+    });
+
+    // 🔄 WATCH EMAIL FOR DUPLICATES
+    this.userForm.get('Email')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(email => {
+      this.checkEmailDuplicate(email);
     });
 
     // 🔄 WATCH ROLE SELECTION FOR SUPER ADMIN
@@ -396,6 +417,24 @@ export class UserFormComponent implements OnInit {
     } else {
       this.isDuplicateSuperAdmin = false;
     }
+  }
+
+  checkEmailDuplicate(email: string) {
+    if (this.isEdit || !email || this.userForm.get('Email')?.invalid) {
+      this.isDuplicateEmail = false;
+      return;
+    }
+
+    this.checkingEmail = true;
+    this.userService.checkDuplicate('', email, null).subscribe({
+      next: (res) => {
+        this.isDuplicateEmail = res.exists;
+        this.checkingEmail = false;
+      },
+      error: () => {
+        this.checkingEmail = false;
+      }
+    });
   }
 
   loadBranches(companyId: string | null) {

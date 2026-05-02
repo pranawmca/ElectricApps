@@ -22,12 +22,12 @@ export class RoleService {
         return this.api.get<Role>(`roles/${id}`, this.baseUrl);
     }
 
-    createRole(roleName: string, companyId?: string | null, branchId?: string | null): Observable<Role> {
-        return this.api.post<Role>('roles', { roleName, companyId, branchId }, this.baseUrl);
+    createRole(roleName: string, companyId?: string | null, branchId?: string | null, description?: string | null): Observable<Role> {
+        return this.api.post<Role>('roles', { roleName, companyId, branchId, description }, this.baseUrl);
     }
 
-    updateRole(id: string, roleName: string, branchId: string | null = null): Observable<Role> {
-        return this.api.put<Role>(`roles/${id}`, { roleName, branchId }, this.baseUrl);
+    updateRole(id: string, roleName: string, branchId: string | null = null, description: string | null = null): Observable<Role> {
+        return this.api.put<Role>(`roles/${id}`, { roleName, branchId, description }, this.baseUrl);
     }
 
     deleteRole(id: string): Observable<void> {

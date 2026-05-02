@@ -34,7 +34,10 @@
                   <mat-icon class="role-icon" [color]="role.companyId ? 'primary' : 'accent'">
                       {{ role.companyId ? 'business' : 'settings_suggest' }}
                   </mat-icon>
-                  <span class="role-name">{{role.roleName}}</span>
+                  <div class="role-info">
+                    <span class="role-name">{{role.roleName}}</span>
+                    <span class="role-description" *ngIf="role.description">{{role.description}}</span>
+                  </div>
               </div>
           </td>
         </ng-container>

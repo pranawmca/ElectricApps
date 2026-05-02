@@ -216,7 +216,8 @@ export class RolePermissionsComponent implements OnInit {
       branches: branches$
     }).subscribe({
       next: (res) => {
-        this.roles = res.roles;
+        // 🛡️ SECURITY: Filter out Default Admin so its permissions can't be modified via UI
+        this.roles = res.roles.filter(r => r.roleName !== 'Default Admin');
         this.branches = res.branches;
         
         // Handle multiple selection logic

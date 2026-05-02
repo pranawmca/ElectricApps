@@ -8,6 +8,7 @@ export interface Role {
     createdDate?: string;
     lastModifiedBy?: string;
     lastModifiedDate?: string;
+    description?: string;
 }
 
 export interface RolePermission {

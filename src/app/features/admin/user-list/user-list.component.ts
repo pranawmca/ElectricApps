@@ -100,9 +100,9 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
             <ng-container matColumnDef="created">
               <th mat-header-cell *matHeaderCellDef> Created </th>
               <td mat-cell *matCellDef="let element">
-                <div class="audit-cell">
-                  <span class="audit-user">{{element.createdBy || 'System'}}</span>
-                  <span class="audit-date">{{element.createdDate | date:'short'}}</span>
+                <div class="audit-cell" [matTooltip]="element.createdBy">
+                  <span class="audit-user">{{ (element.createdBy === 'System' || !element.createdBy) ? 'System' : (element.createdBy | slice:0:8) + '...' }}</span>
+                  <span class="audit-date">{{element.createdDate | date:'shortDate'}} {{element.createdDate | date:'shortTime'}}</span>
                 </div>
               </td>
             </ng-container>
@@ -111,9 +111,9 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
             <ng-container matColumnDef="modified">
               <th mat-header-cell *matHeaderCellDef> Modified </th>
               <td mat-cell *matCellDef="let element">
-                <div class="audit-cell" *ngIf="element.lastModifiedBy">
-                  <span class="audit-user">{{element.lastModifiedBy}}</span>
-                  <span class="audit-date">{{element.lastModifiedDate | date:'short'}}</span>
+                <div class="audit-cell" *ngIf="element.lastModifiedBy" [matTooltip]="element.lastModifiedBy">
+                  <span class="audit-user">{{ element.lastModifiedBy === 'System' ? 'System' : (element.lastModifiedBy | slice:0:8) + '...' }}</span>
+                  <span class="audit-date">{{element.lastModifiedDate | date:'shortDate'}} {{element.lastModifiedDate | date:'shortTime'}}</span>
                 </div>
                 <span class="text-muted" *ngIf="!element.lastModifiedBy">-</span>
               </td>
