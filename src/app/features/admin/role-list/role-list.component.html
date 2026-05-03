@@ -55,7 +55,7 @@
         <!-- Branch Column -->
         <ng-container matColumnDef="branch">
           <th mat-header-cell *matHeaderCellDef> Branch </th>
-          <td mat-cell *matCellDef="let element"> {{element.branchId || 'Global'}} </td>
+          <td mat-cell *matCellDef="let element"> {{ formatBranchNames(element.branchId) }} </td>
         </ng-container>
 
         <!-- Audit: Created Column -->

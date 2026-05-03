@@ -276,37 +276,25 @@ export class RolePermissionsComponent implements OnInit {
       this.loading = true;
       this.loadingService.setLoading(true);
 
-      // 🎯 Auto-sync branch selection based on Role Type
+      const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
       const isSuper = this.isSelectedRoleSuperAdmin();
-      if (isSuper) {
+
+      // 🎯 Auto-sync branch selection based on Role definition
+      if (forceDetect && selectedRole) {
+          if (isSuper || !selectedRole.branchId || String(selectedRole.branchId).toUpperCase() === 'GLOBAL') {
+             this.selectedBranchIds = ['GLOBAL'];
+          } else {
+             this.selectedBranchIds = String(selectedRole.branchId).split(',');
+          }
+      } else if (isSuper) {
           this.selectedBranchIds = ['GLOBAL'];
       } else if (this.selectedBranchIds.includes('GLOBAL')) {
-          // If switching from a Super role to a Normal role, clear 'GLOBAL'
+          // If switching from a Super role to a Normal role manually, clear 'GLOBAL'
           this.selectedBranchIds = [];
       }
 
       this.roleService.getRolePermissions(this.selectedRoleId).subscribe({
         next: (perms) => {
-          // 💡 Detect branches only if forced (initial load) or if nothing was selected yet
-          if (forceDetect || !this.selectedBranchIds || this.selectedBranchIds.length === 0 || (this.selectedBranchIds.length === 1 && this.selectedBranchIds[0] === 'GLOBAL')) {
-             let activeBranches = [...new Set(perms.map(p => {
-                const bid = p.branchId;
-                if (bid === null || bid === undefined) return 'GLOBAL';
-                return String(bid).toLowerCase(); // Normalize for matching
-             }))];
-             
-             if (activeBranches.length > 0) {
-               // 🛡️ Apply Super Admin role constraints to detection
-               if (isSuper) {
-                   this.selectedBranchIds = ['GLOBAL'];
-               } else {
-                   // Filter out 'GLOBAL' for normal roles
-                   this.selectedBranchIds = activeBranches.filter(b => b !== 'GLOBAL');
-                   if (this.selectedBranchIds.length === 0) this.selectedBranchIds = [];
-               }
-             }
-          }
-
           // Ensure selectedBranchIds values match the case/format of this.branches
           this.selectedBranchIds = this.selectedBranchIds.map(id => {
              if (id === 'GLOBAL') return 'GLOBAL';

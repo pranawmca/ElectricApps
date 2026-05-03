@@ -34,22 +34,22 @@ import { AuthService } from '../../../core/services/auth.service';
 
         <mat-form-field appearance="outline" *ngIf="isEdit || branches.length > 0">
           <mat-label>Assign Branch</mat-label>
-          <mat-select formControlName="BranchId">
+          <mat-select formControlName="BranchId" multiple>
             <mat-select-trigger>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <mat-spinner diameter="18" *ngIf="isLoadingBranches"></mat-spinner>
-                <mat-icon *ngIf="!isLoadingBranches" style="vertical-align: middle;">{{ roleForm.get('BranchId')?.value === 'GLOBAL' ? 'public' : 'location_on' }}</mat-icon>
+                <mat-icon *ngIf="!isLoadingBranches" style="vertical-align: middle;">{{ isGlobalSelected() ? 'public' : 'location_on' }}</mat-icon>
                 <span>{{ isLoadingBranches ? 'Loading branches...' : getSelectedBranchName() }}</span>
               </div>
             </mat-select-trigger>
-            <mat-option value="GLOBAL">
+            <mat-option value="GLOBAL" *ngIf="!isTenantAdmin">
               <mat-icon>public</mat-icon> All Branches (Global)
             </mat-option>
             <mat-option *ngFor="let branch of branches" [value]="branch.id">
               <mat-icon>store</mat-icon> {{branch.branchName || branch.name || 'Main Branch'}}
             </mat-option>
           </mat-select>
-          <mat-icon matPrefix *ngIf="!isLoadingBranches && !roleForm.get('BranchId')?.value">location_on</mat-icon>
+          <mat-icon matPrefix *ngIf="!isLoadingBranches && (!roleForm.get('BranchId')?.value || roleForm.get('BranchId')?.value?.length === 0)">location_on</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -137,6 +137,7 @@ export class RoleFormComponent implements OnInit {
   isLoadingBranches = false;
   isDuplicateRole = false; // 🔥 To track duplicates
   checkingDuplicate = false;
+  isTenantAdmin = false;
 
   constructor(
     private fb: FormBuilder,
@@ -152,13 +153,19 @@ export class RoleFormComponent implements OnInit {
     
     // Auth Check
     const role = this.authService.getUserRole();
-    this.isSuperAdmin = role === 'Default Admin' || role === 'Super Admin' || role === 'Admin' && !this.authService.getCompanyId();
+    const companyId = this.authService.getCompanyId();
+    
+    // Default Admin is considered Platform Admin, not Tenant Admin, even if they have a companyId stored.
+    this.isTenantAdmin = role !== 'Default Admin' && !!companyId;
+    
+    // Only Platform Admins can see the Assign Company dropdown.
+    this.isSuperAdmin = !this.isTenantAdmin;
 
     this.roleForm = this.fb.group({
       RoleName: ['', Validators.required],
       Description: [''],
       CompanyId: [''],
-      BranchId: ['GLOBAL']
+      BranchId: [this.isTenantAdmin ? [] : ['GLOBAL']]
     });
 
     this.roleForm.get('CompanyId')?.valueChanges.subscribe(cid => {
@@ -175,25 +182,46 @@ export class RoleFormComponent implements OnInit {
         if (!this.isEdit) {
           this.roleForm.get('RoleName')?.enable();
           // Trigger check for current name if any
-          this.checkDuplicateRole('', this.roleForm.get('RoleName')?.value);
+          const currentCid = this.isTenantAdmin ? this.authService.getCompanyId() : '';
+          this.checkDuplicateRole(currentCid || '', this.roleForm.get('RoleName')?.value);
         }
       }
     });
 
-    // 🔄 WATCH ROLE NAME FOR MASTER DUPLICATES
+    // 🔄 WATCH ROLE NAME FOR DUPLICATES
     this.roleForm.get('RoleName')?.valueChanges.subscribe(name => {
-      const cid = this.roleForm.get('CompanyId')?.value;
-      if (!cid && name) {
-        this.checkDuplicateRole('', name);
+      let cid = this.roleForm.get('CompanyId')?.value;
+      if (this.isTenantAdmin) {
+         cid = this.authService.getCompanyId();
+      }
+      
+      if (name) {
+        this.checkDuplicateRole(cid || '', name);
       }
     });
   }
 
+  isGlobalSelected(): boolean {
+    const branchId = this.roleForm.get('BranchId')?.value;
+    if (Array.isArray(branchId)) return branchId.includes('GLOBAL');
+    return branchId === 'GLOBAL';
+  }
+
   getSelectedBranchName(): string {
     const branchId = this.roleForm.get('BranchId')?.value;
+    if (!branchId || (Array.isArray(branchId) && branchId.length === 0)) return 'Select Branch';
+    
+    if (Array.isArray(branchId)) {
+       if (branchId.includes('GLOBAL')) return 'All Branches (Global)';
+       const selectedNames = this.branches
+           .filter(b => branchId.includes(String(b.id)))
+           .map(b => b.branchName || b.name);
+       return selectedNames.length > 0 ? selectedNames.join(', ') : 'Select Branch';
+    }
+
     if (branchId === 'GLOBAL') return 'All Branches (Global)';
     const branch = this.branches.find(b => b.id === branchId);
-    return branch ? (branch.branchName || branch.name) : 'All Branches (Global)';
+    return branch ? (branch.branchName || branch.name) : 'Select Branch';
   }
 
   checkDuplicateRole(companyId: string, roleName: string) {
@@ -235,9 +263,21 @@ export class RoleFormComponent implements OnInit {
 
         // CRITICAL: Re-patch the branch ID after the list is loaded so mat-select can find the match
         if (this.isEdit && this.data) {
-          const bId = this.data.BranchId || this.data.branchId || 'GLOBAL';
-          this.roleForm.patchValue({ BranchId: String(bId) }, { emitEvent: false });
+          const bId = this.data.BranchId || this.data.branchId || (this.isTenantAdmin ? '' : 'GLOBAL');
+          let branchIdValue: any[] = [];
+          if (bId) {
+             if (String(bId) === 'GLOBAL') {
+                branchIdValue = ['GLOBAL'];
+             } else {
+                branchIdValue = String(bId).split(',');
+             }
+          }
+          this.roleForm.patchValue({ BranchId: branchIdValue }, { emitEvent: false });
           this.cdr.detectChanges(); // Force UI to show selected value
+        } else if (!this.isEdit && this.isTenantAdmin && this.branches.length > 0) {
+          // Auto-select first branch for tenant admin
+          this.roleForm.patchValue({ BranchId: [String(this.branches[0].id)] }, { emitEvent: false });
+          this.cdr.detectChanges();
         }
       },
       error: () => {
@@ -252,6 +292,12 @@ export class RoleFormComponent implements OnInit {
       this.companyService.getPaged({ pageNumber: 1, pageSize: 100 }).subscribe((res: any) => {
         this.companies = res.items || [];
       });
+    } else if (this.isTenantAdmin && !this.isEdit) {
+      // Load branches for the tenant automatically, as they don't have the company dropdown
+      const cid = this.authService.getCompanyId();
+      if (cid) {
+        this.loadBranches(cid);
+      }
     }
 
     if (this.isEdit) {
@@ -260,14 +306,25 @@ export class RoleFormComponent implements OnInit {
 
     if (this.isEdit && this.data) {
       const companyId = this.data.CompanyId || this.data.companyId || null;
-      const branchId = this.data.BranchId || this.data.branchId || 'GLOBAL';
+      const branchIdStr = this.data.BranchId || this.data.branchId || '';
+      let branchIdValue: any[] = [];
+      if (branchIdStr) {
+         if (String(branchIdStr) === 'GLOBAL') {
+            branchIdValue = ['GLOBAL'];
+         } else {
+            branchIdValue = String(branchIdStr).split(',');
+         }
+      } else if (!this.isTenantAdmin) {
+         branchIdValue = ['GLOBAL'];
+      }
+
       const roleName = this.data.RoleName || this.data.roleName || '';
 
       this.roleForm.patchValue({
         RoleName: roleName,
         Description: this.data.description || this.data.Description || '',
         CompanyId: companyId,
-        BranchId: branchId ? String(branchId) : 'GLOBAL'
+        BranchId: branchIdValue
       }, { emitEvent: false });
 
       // 🛡️ SECURITY: Disable RoleName if it's a core role
@@ -285,7 +342,18 @@ export class RoleFormComponent implements OnInit {
   save() {
     if (this.roleForm.valid || (this.roleForm.get('RoleName')?.disabled && this.roleForm.get('RoleName')?.value)) {
       const { RoleName, Description, CompanyId, BranchId } = this.roleForm.getRawValue(); // 🔥 Use getRawValue to get disabled field values
-      const branchToSave = (BranchId === 'GLOBAL') ? null : BranchId;
+      
+      let branchToSave: string | null = null;
+      if (Array.isArray(BranchId)) {
+         if (BranchId.includes('GLOBAL')) {
+            branchToSave = null; // GLOBAL means null for API
+         } else {
+            branchToSave = BranchId.length > 0 ? BranchId.join(',') : null;
+         }
+      } else {
+         branchToSave = (BranchId === 'GLOBAL') ? null : BranchId;
+      }
+      
       const companyToSave = (CompanyId === '') ? null : CompanyId; // Map empty string back to null for API
 
       if (this.isEdit) {

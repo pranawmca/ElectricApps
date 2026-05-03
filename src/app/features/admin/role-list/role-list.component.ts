@@ -13,6 +13,7 @@ import { RoleFormComponent } from './role-form.component';
 import { Router } from '@angular/router';
 import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
 import { AuthService } from '../../../core/services/auth.service';
+import { CompanyService } from '../../company/services/company.service';
 
 @Component({
   selector: 'app-role-list',
@@ -26,6 +27,7 @@ export class RoleListComponent implements OnInit {
   displayedColumns: string[] = ['name', 'company', 'branch', 'created', 'modified', 'type', 'actions'];
   loading = false;
   summaryStats: SummaryStat[] = [];
+  branchesMap: Map<string, string> = new Map();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -34,9 +36,53 @@ export class RoleListComponent implements OnInit {
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private companyService = inject(CompanyService);
 
   ngOnInit() {
     this.loadRoles();
+    this.loadBranchNames();
+  }
+
+  loadBranchNames() {
+    const companyId = this.authService.getCompanyId();
+    if (companyId) {
+      this.companyService.getBranchesByCompany(companyId).subscribe({
+        next: (branches) => {
+          branches.forEach(b => {
+            const id = String(b.id || b.branchId);
+            const name = b.name || b.branchName || b.city || 'Unnamed Branch';
+            this.branchesMap.set(id, name);
+          });
+        },
+        error: (err) => console.error('Failed to load branches for name resolution', err)
+      });
+    } else if (this.authService.getUserRole() === 'Default Admin') {
+      this.companyService.getAllCompanies().subscribe({
+        next: (companies) => {
+          companies.forEach(company => {
+            const addresses = company.addresses || company.Addresses || [];
+            addresses.forEach((addr: any) => {
+              const id = String(addr.id || addr.branchId);
+              const name = addr.branchName || addr.name || addr.city || 'Unnamed Branch';
+              this.branchesMap.set(id, name);
+            });
+          });
+        },
+        error: (err) => console.error('Failed to load companies for name resolution', err)
+      });
+    }
+  }
+
+  formatBranchNames(branchIdStr: string | null | undefined): string {
+    if (!branchIdStr || String(branchIdStr).toUpperCase() === 'GLOBAL') return 'Global';
+    
+    const ids = String(branchIdStr).split(',');
+    if (this.branchesMap.size > 0) {
+      const names = ids.map(id => this.branchesMap.get(id.trim()) || id.trim());
+      return names.join(', ');
+    }
+    
+    return branchIdStr;
   }
 
   loadRoles() {
