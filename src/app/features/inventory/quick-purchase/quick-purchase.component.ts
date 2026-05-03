@@ -655,7 +655,10 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
           width: '500px',
           data: { 
             productId: row.get('productId').value,
-            productName: row.get('productSearch').value?.productName || row.get('productSearch').value
+            productName: row.get('productSearch').value?.productName || row.get('productSearch').value,
+            warehouseName: row.get('warehouseName').value,
+            rackName: row.get('rackName').value,
+            description: `Current Stock: ${row.get('currentStock').value} ${row.get('unit').value}`
           }
         });
     

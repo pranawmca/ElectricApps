@@ -481,6 +481,7 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dialog.open(LocationTrackerDialogComponent, {
       width: '450px',
       data: {
+        productName: item.productName,
         warehouseName: item.warehouseName,
         rackName: item.rackName,
         productId: item.productId,

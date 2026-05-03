@@ -917,6 +917,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
     this.dialog.open(LocationTrackerDialogComponent, {
       width: '450px',
       data: {
+        productName: item.get('productSearch')?.value?.productName || item.get('productSearch')?.value?.name || item.get('productSearch')?.value,
         warehouseName: warehouseName,
         rackName: rackName,
         productId: productId,

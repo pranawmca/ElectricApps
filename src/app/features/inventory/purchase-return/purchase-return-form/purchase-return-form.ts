@@ -105,6 +105,7 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
       this.dialog.open(LocationTrackerDialogComponent, {
         width: '500px',
         data: {
+          productName: item.productName,
           warehouseName: item.warehouseName,
           rackName: item.rackName,
           description: warehouse?.description || 'No detailed instructions available for this location.',

@@ -901,9 +901,10 @@ export class PoForm implements OnInit, OnDestroy, AfterViewInit {
       width: '450px',
       data: {
         productId: productId,
+        productName: row.get('productSearch')?.value?.productName || row.get('productSearch')?.value?.name || row.get('productSearch')?.value,
         warehouseName: warehouseName,
         rackName: rackName,
-        description: `Product: ${row.get('productName')?.value}. Current Stock: ${currentStock} ${unit}`
+        description: `Current Stock: ${currentStock} ${unit}`
       }
     });
   }

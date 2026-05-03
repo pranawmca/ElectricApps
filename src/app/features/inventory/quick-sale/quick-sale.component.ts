@@ -606,6 +606,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         this.dialog.open(LocationTrackerDialogComponent, {
             width: '450px',
             data: {
+                productName: item.get('productName')?.value,
                 warehouseName: warehouseName,
                 rackName: rackName,
                 productId: productId,

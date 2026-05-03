@@ -1,0 +1,65 @@
+<div class="location-tracker-container" [formGroup]="locationForm">
+  <div class="header">
+    <div class="title-section">
+      <mat-icon class="pulse-icon">location_on</mat-icon>
+      <div>
+        <div class="title-row">
+          <h3>Live Inventory Tracker</h3>
+          <div class="status-badge live">
+            <span class="dot"></span> LIVE VIEW
+          </div>
+        </div>
+        <p>Precise warehouse positioning</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="dialogRef.close()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="content">
+    <div class="map-visual">
+      <div class="warehouse-grid">
+        <div class="grid-cell" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12]" (click)="selectCell(i)">
+          <div class="cell-content" [class.active]="i === activeIndex">
+            <span *ngIf="i === activeIndex" class="marker">
+              <mat-icon>inventory</mat-icon>
+            </span>
+            <small>{{getLabel(i)}}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <mat-form-field appearance="outline">
+        <mat-label>Warehouse</mat-label>
+        <input matInput formControlName="warehouseName" readonly>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Rack / Shelf</mat-label>
+        <input matInput formControlName="rackName">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Current Status</mat-label>
+        <input matInput formControlName="status" readonly class="status-ok">
+      </mat-form-field>
+    </div>
+
+    <div class="description-box" *ngIf="data.description">
+      <div class="desc-header">
+        <label>Warehouse Note:</label>
+        <span class="product-tag">{{data.productName}}</span>
+      </div>
+      <p>{{data.description}}</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button mat-raised-button color="primary" (click)="dialogRef.close()">
+       Got it
+    </button>
+  </div>
+</div>
