@@ -74,6 +74,17 @@ export class PoList implements OnInit {
   canBulkApprove: boolean = true;
   canBulkInward: boolean = true;
 
+  // Branch Guard: Disable 'New PO' when user is in All Branches (Global) view
+  get isAllBranchesView(): boolean {
+    return !this.authService.getBranchId();
+  }
+
+  get addNewTooltip(): string {
+    return this.isAllBranchesView
+      ? 'Please select a specific branch from the toolbar before creating a new purchase order.'
+      : '';
+  }
+
 
   @ViewChild(EnterpriseHierarchicalGridComponent) grid!: EnterpriseHierarchicalGridComponent;
 

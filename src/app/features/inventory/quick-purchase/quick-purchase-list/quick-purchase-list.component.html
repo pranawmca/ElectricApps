@@ -23,6 +23,8 @@
     <app-enterprise-hierarchical-grid
       [addNewLabel]="'New Purchase'"
       [addNewRoute]="'/app/quick-inventory/purchase/add'"
+      [disableAdd]="isAllBranchesView"
+      [addDisabledTooltip]="addNewTooltip"
       [entityName]="'Purchase'"
       [columns]="poColumns"
       [childColumns]="itemColumns"

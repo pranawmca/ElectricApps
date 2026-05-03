@@ -74,6 +74,17 @@ export class QuickPurchaseListComponent implements OnInit {
   canReject: boolean = false;
   canCreateGrn: boolean = false;
 
+  // Branch Guard: Disable 'New Purchase' when user is in All Branches (Global) view
+  get isAllBranchesView(): boolean {
+    return !this.authService.getBranchId();
+  }
+
+  get addNewTooltip(): string {
+    return this.isAllBranchesView
+      ? 'Please select a specific branch from the toolbar before creating a new purchase.'
+      : '';
+  }
+
   @ViewChild(EnterpriseHierarchicalGridComponent) grid!: EnterpriseHierarchicalGridComponent;
 
   // Stats
@@ -267,18 +278,37 @@ export class QuickPurchaseListComponent implements OnInit {
           // Parity with Standard PO: Calculate summary stats for the parent row
           const poItems = item.items || [];
           if (poItems.length > 0) {
+            // Fix each child item's acceptedQty = receivedQty - rejectedQty (if not set by backend)
+            poItems.forEach((i: any) => {
+              if (!i.acceptedQty || i.acceptedQty === 0) {
+                i.acceptedQty = Math.max(0, (i.receivedQty || 0) - (i.rejectedQty || 0));
+              }
+              // Ensure returnedQty is populated
+              i.returnedQty = i.returnedQty || i.returnQty || 0;
+            });
+
             item.totalOrdered = poItems.reduce((sum: number, i: any) => sum + (Number(i.qty || i.orderedQty || 0) || 0), 0);
             item.totalReceived = poItems.reduce((sum: number, i: any) => sum + (Number(i.receivedQty || 0)), 0);
-            item.totalAccepted = poItems.reduce((sum: number, i: any) => sum + (Number(i.acceptedQty || 0)), 0);
             item.totalRejected = poItems.reduce((sum: number, i: any) => sum + (Number(i.rejectedQty || 0)), 0);
-            item.totalReturned = poItems.reduce((sum: number, i: any) => sum + (Number(i.returnQty || i.returnedQty || 0) || 0), 0);
+            item.totalReturned = poItems.reduce((sum: number, i: any) => sum + (Number(i.returnedQty || 0)), 0);
+            // Trust child rows' acceptedQty instead of recalculating
+            item.totalAccepted = poItems.reduce((sum: number, i: any) => sum + (Number(i.acceptedQty || 0)), 0);
             item.totalPending = Math.max(0, item.totalOrdered - item.totalAccepted);
           } else {
             item.totalOrdered = Number(item.totalOrdered || item.TotalOrdered || item.orderedQty || 0);
             item.totalReceived = Number(item.totalReceived || item.TotalReceived || item.receivedQty || 0);
-            item.totalAccepted = Number(item.totalAccepted || item.TotalAccepted || item.acceptedQty || 0);
             item.totalRejected = Number(item.totalRejected || item.TotalRejected || item.rejectedQty || 0);
+            item.totalReturned = Number(item.totalReturned || item.TotalReturned || 0);
+            item.totalAccepted = Number(item.totalAccepted || item.TotalAccepted || 0);
             item.totalPending = Math.max(0, item.totalOrdered - item.totalAccepted);
+          }
+
+          // 🎯 BUSINESS RULE: If pending items remain, status must reflect that
+          const netRejected = item.totalRejected - item.totalReturned;
+          if (netRejected > 0 && (item.status || '').toLowerCase() === 'received') {
+            item.status = 'Partially Received'; // Unresolved rejections
+          } else if (item.totalPending > 0 && (item.status || '').toLowerCase() === 'received') {
+            item.status = 'Partially Received'; // Replacement pending after return
           }
 
           return item;

@@ -41,6 +41,8 @@
     <app-enterprise-hierarchical-grid
       [addNewLabel]="'New Sale Order'"
       [addNewRoute]="'/app/inventory/solist/add'"
+      [disableAdd]="isAllBranchesView"
+      [addDisabledTooltip]="addNewTooltip"
       [columns]="soColumns"
       [childColumns]="itemColumns"
       [showApprovalWorkflow]="false"

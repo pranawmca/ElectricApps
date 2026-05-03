@@ -41,6 +41,8 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   @Input() pageSize: number = 10;
   @Input() addNewLabel: string = 'New Record';
   @Input() addNewRoute: string = '';
+  @Input() disableAdd: boolean = false;
+  @Input() addDisabledTooltip: string = '';
   isNavigating: boolean = false;
   @Input() entityName: string = 'Record';
   @Input() showApprovalWorkflow: boolean = true;

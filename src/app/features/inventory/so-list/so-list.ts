@@ -257,6 +257,17 @@ export class SoList implements OnInit {
 
   canAdd: boolean = true;
 
+  // Branch Guard: Disable 'New SO' when user is in All Branches (Global) view
+  get isAllBranchesView(): boolean {
+    return !this.authService.getBranchId();
+  }
+
+  get addNewTooltip(): string {
+    return this.isAllBranchesView
+      ? 'Please select a specific branch from the toolbar before creating a new sale order.'
+      : '';
+  }
+
   // --- Column Resizing Logic ---
   private resizingColumn: string = '';
   private startX: number = 0;

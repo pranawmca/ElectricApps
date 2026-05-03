@@ -75,6 +75,17 @@ export class QuickSaleListComponent implements OnInit {
   canEdit: boolean = true;
   canDelete: boolean = true;
 
+  // Branch Guard: Disable 'New Sale' when user is in All Branches (Global) view
+  get isAllBranchesView(): boolean {
+    return !this.authService.getBranchId();
+  }
+
+  get addNewTooltip(): string {
+    return this.isAllBranchesView
+      ? 'Please select a specific branch from the toolbar before creating a new sale.'
+      : '';
+  }
+
   @ViewChild(EnterpriseHierarchicalGridComponent) grid!: EnterpriseHierarchicalGridComponent;
 
 

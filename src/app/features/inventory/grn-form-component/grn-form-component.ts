@@ -209,12 +209,17 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     
     const mappedItems = incomingItems.map((item: any) => {
       const ordered = Number(item.orderedQty || item.OrderedQty || 0);
-      const acceptedSoFar = Number(item.acceptedQty || item.AcceptedQty || 0);
+      const grossReceived = Number(item.receivedQty || item.ReceivedQty || 0);
+      const rejectedSoFar = Number(item.rejectedQty || item.RejectedQty || 0);
+      // Net accepted = gross received - rejected (items actually in stock)
+      const acceptedSoFar = Number(item.acceptedQty || item.AcceptedQty || 0) || Math.max(0, grossReceived - rejectedSoFar);
 
-      let pending = Number(item.pendingQty || item.PendingQty || 0);
-      if (pending === 0 && acceptedSoFar < ordered) {
-        pending = ordered - acceptedSoFar;
-      }
+      // Pending = items still needed (ordered - net accepted). Trust backend if provided.
+      let pending = (item.pendingQty !== undefined && item.pendingQty !== null) 
+                    ? Number(item.pendingQty) 
+                    : ((item.PendingQty !== undefined && item.PendingQty !== null) 
+                       ? Number(item.PendingQty) 
+                       : Math.max(0, ordered - acceptedSoFar));
 
       const rate = Number(item.unitRate || item.unitPrice || item.UnitPrice || 0);
       

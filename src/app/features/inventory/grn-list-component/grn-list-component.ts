@@ -271,19 +271,22 @@ export class GrnListComponent implements OnInit, AfterViewInit {
             const grnItems = Array.isArray(rawGrnItems) ? rawGrnItems.map((gi: any) => {
               const oQty = gi.orderedQty ?? gi.OrderedQty ?? 0;
               const rQty = gi.receivedQty ?? gi.ReceivedQty ?? 0;
+              const rejQty = gi.rejectedQty ?? gi.RejectedQty ?? gi.rejQty ?? 0;
+              const retQty = Number(gi.returnedQty ?? gi.ReturnedQty ?? gi.ActualReturnedQty ?? gi.actualReturnedQty ?? gi.ReturnQty ?? gi.ReturnedQuantity ?? gi.ReturnQuantity ?? 0);
+              
               return {
                 productName: gi.productName || gi.ProductName,
                 orderedQty: oQty,
                 receivedQty: rQty,
-                // Pending is based on what's left to receive
-                pendingQty: Math.max(0, oQty - rQty),
-                rejectedQty: gi.rejectedQty ?? gi.RejectedQty ?? gi.rejQty ?? 0,
+                // Trust backend for pendingQty calculation (Ordered - (Received - Rejected + Returned))
+                pendingQty: gi.pendingQty ?? gi.PendingQty ?? Math.max(0, oQty - rQty),
+                rejectedQty: rejQty,
                 actualRejectedQty: gi.actualRejectedQty ?? gi.ActualRejectedQty ?? gi.rejQty ?? 0,
                 expiredQty: gi.expiredQty ?? gi.ExpiredQty ?? 0,
                 unitRate: gi.unitRate ?? gi.UnitRate ?? 0,
                 rackName: gi.rackName || gi.RackName || gi.warehouse || gi.Warehouse,
                 isExpired: gi.isExpired ?? gi.IsExpired ?? false,
-                returnedQty: Number(gi.returnedQty ?? gi.ReturnedQty ?? gi.ActualReturnedQty ?? gi.actualReturnedQty ?? gi.ReturnQty ?? gi.ReturnedQuantity ?? gi.ReturnQuantity ?? 0)
+                returnedQty: retQty
               };
             }) : [];
 
@@ -328,7 +331,7 @@ export class GrnListComponent implements OnInit, AfterViewInit {
 
   calculateTotalReceived(row: any): number {
     const items = (row as GRNListRow).items || [];
-    return items.reduce((sum, item) => sum + ((Number(item.receivedQty) || 0) - (Number(item.rejectedQty) || 0)), 0);
+    return items.reduce((sum, item) => sum + ((Number(item.receivedQty) || 0) - (Number(item.rejectedQty) || 0) + (Number(item.returnedQty) || 0)), 0);
   }
 
   calculateTotalReturned(row: any): number {

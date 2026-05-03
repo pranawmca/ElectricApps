@@ -95,6 +95,14 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
           
           // 🎯 Fix: If we have batch history, find the REAL expiry date of the stock we actually have
           if (item.history && item.history.length > 0) {
+            
+            // Fix UTC to Local timezone conversion for batch dates
+            item.history.forEach((h: any) => {
+              if (h.receivedDate && typeof h.receivedDate === 'string' && !h.receivedDate.includes('Z') && !h.receivedDate.includes('+')) {
+                h.receivedDate = h.receivedDate + 'Z';
+              }
+            });
+
             const validStockBatches = item.history.filter((h: any) => (h.availableQty || 0) > 0);
             if (validStockBatches.length > 0) {
               // Get the earliest expiry date among batches that HAVE stock

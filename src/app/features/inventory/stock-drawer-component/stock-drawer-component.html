@@ -123,19 +123,28 @@
                       Exp: {{batch.expiryDate | date:'dd-MM-yyyy'}}
                     </span>
                   </span>
-                  <span class="batch-po">PO: #{{batch.poNumber}}</span>
-                  <span *ngIf="batch.isAlreadyPurged && isPurchaseContext" 
-                        style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                    (N/A)
-                  </span>
+                  <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span class="batch-po">PO: #{{batch.poNumber}}</span>
+                    <span style="font-size: 0.65rem; color: #64748b; display: flex; align-items: center; gap: 2px;">
+                      <mat-icon style="font-size: 11px; height: 11px; width: 11px;">schedule</mat-icon>
+                      {{batch.receivedDate | date:'dd-MMM-yyyy hh:mm a'}}
+                    </span>
+                  </div>
+                  
+                  <div style="display: flex; align-items: center;">
+                    <span *ngIf="batch.isAlreadyPurged && isPurchaseContext" 
+                          style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
+                      (N/A)
+                    </span>
                   <span *ngIf="batch.isAlreadyPurged && !isPurchaseContext" 
                         style="color: #722ed1; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
                     (PURGED: {{batch.expiredQty || 0}})
                   </span>
                   <span *ngIf="!batch.isAlreadyPurged && (batch.receivedQty || 0) > 0 && (batch.availableQty || 0) === 0" 
                         style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                    ({{ isExpired(batch.expiryDate) ? ('EXPIRED: ' + (batch.expiredQty || 0)) : 'SOLD OUT' }})
+                    ({{ isExpired(batch.expiryDate) ? ('EXPIRED: ' + (batch.expiredQty || 0)) : ((batch.returnedQty || 0) > 0 ? 'RETURNED' : 'SOLD OUT') }})
                   </span>
+                  </div>
                 </div>
               </div>
             </ng-container>

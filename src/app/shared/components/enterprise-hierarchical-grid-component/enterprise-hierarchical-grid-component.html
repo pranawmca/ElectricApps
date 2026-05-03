@@ -62,14 +62,17 @@
         </button>
       </div>
       
-      <button mat-raised-button color="primary" 
-              *ngIf="canAdd && selection.selected.length < 2 && (userRole !== 'Manager' && userRole !== 'Warehouse' || userRole === 'Super Admin')" 
-              (click)="onAddNewClick()" 
-              [disabled]="isNavigating"
-              class="main-add-btn">
-        <mat-icon>add</mat-icon>
-        {{ addNewLabel }}
-      </button>
+      <span *ngIf="canAdd && selection.selected.length < 2 && (userRole !== 'Manager' && userRole !== 'Warehouse' || userRole === 'Super Admin')" 
+            [matTooltip]="disableAdd ? addDisabledTooltip : ''" 
+            [matTooltipDisabled]="!disableAdd">
+        <button mat-raised-button color="primary" 
+                (click)="onAddNewClick()" 
+                [disabled]="isNavigating || disableAdd"
+                class="main-add-btn">
+          <mat-icon>add</mat-icon>
+          {{ addNewLabel }}
+        </button>
+      </span>
     </div>
   </div>
 
@@ -218,11 +221,6 @@
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status?.toLowerCase() === 'approved' && (userRole === 'Warehouse' || userRole === 'Super Admin')">
-                  <button mat-icon-button color="accent" (click)="$event.stopPropagation(); handleAction('CREATE_GRN', row)" matTooltip="Create GRN">
-                    <mat-icon>local_shipping</mat-icon>
-                  </button>
-                </ng-container>
                 <ng-container *ngIf="row.status?.toLowerCase() === 'approved' && userRole !== 'Warehouse'">
                   <button mat-icon-button color="primary" (click)="$event.stopPropagation(); handleAction('VIEW', row)" matTooltip="View Details">
                     <mat-icon style="opacity: 0.7;">visibility</mat-icon>
@@ -242,23 +240,22 @@
                     <mat-icon color="primary">print</mat-icon>
                   </button>
                   
-                  <!-- Toggle Dispatch Status (Manual) - Enabled only when Rejected items are Returned (Outward) -->
+                  <!-- Watch icon: Show when pending items > 0 AND not yet dispatched -->
+                  <!-- Disabled only when rejections are unresolved (return not done yet) -->
                   <button mat-icon-button color="accent" 
-                          *ngIf="(row.status === 'Approved' || row.status === 'Partially Received' || row.status === 'Received') && !row.isDispatched" 
-                          [disabled]="row.status === 'Received' || ((row.totalRejected || 0) > 0 && (row.totalReturned || 0) < (row.totalRejected || 0)) || ((row.totalRejected || 0) <= 0 && (row.totalReturned || 0) <= 0)"
-                          (click)="$event.stopPropagation(); handleAction('TOGGLE_DISPATCH', row)" 
-                          [matTooltip]="row.status === 'Received' ? 'Order Already Received' : 
-                                       ((row.totalRejected || 0) > 0 && (row.totalReturned || 0) < (row.totalRejected || 0)) ? 'Pehle rejected items ko Outward Return karein' :
-                                       (((row.totalRejected || 0) > 0 || (row.totalReturned || 0) > 0) ? 'Confirm shipment dispatch from supplier' : 'Dispatch disabled (No Rejections/Returns)')">
-                    <mat-icon [style.opacity]="(row.status !== 'Received' && (row.totalRejected || 0) >= 0 && (row.totalReturned || 0) > 0 && (row.totalReturned || 0) >= (row.totalRejected || 0)) ? 1 : 0.4">watch_later</mat-icon>
+                    *ngIf="((row.totalPending || 0) > 0 || (row.status?.toLowerCase() === 'approved' || row.status?.toLowerCase() === 'partially received')) && !row.isDispatched" 
+                    [disabled]="((row.totalRejected || row.totalRej || 0) > 0) && ((row.totalReturned || row.totalRet || 0) < (row.totalRejected || row.totalRej || 0))"
+                    (click)="$event.stopPropagation(); handleAction('TOGGLE_DISPATCH', row)" 
+                    matTooltip="{{ ((row.totalRejected || row.totalRej || 0) > (row.totalReturned || row.totalRet || 0)) ? 'Pehle rejected items ko Outward Return karein.' : 'Confirm Dispatch: Marks as In-Transit' }}">
+                    <mat-icon [style.opacity]="((row.totalRejected || row.totalRej || 0) > 0 && (row.totalReturned || row.totalRet || 0) < (row.totalRejected || row.totalRej || 0)) ? 0.4 : 1">watch_later</mat-icon>
                   </button>
 
-                  <button mat-icon-button color="warn" *ngIf="(row.totalRejected || 0) > 0 && !((row.totalAccepted || 0) < (row.totalOrdered || 0))" (click)="$event.stopPropagation(); handleAction('PROCESS_RETURN', row)" matTooltip="Process Purchase Return (Outward)">
-                    <mat-icon>local_shipping</mat-icon>
-                  </button>
-
-                  <!-- Truck Icon: Only visible/active if Dispatched (Blue color) -->
-                  <button mat-icon-button color="primary" *ngIf="row.isDispatched && row.status !== 'Received'" (click)="$event.stopPropagation(); handleAction('CREATE_GRN', row)" matTooltip="Goods In-Transit: Click to Inward (GRN)">
+                  <!-- Truck Icon (Blue): Only when Dispatched AND all rejections resolved -->
+                  <!-- Business Rule: Supplier must return rejected items BEFORE replacement dispatch is allowed -->
+                  <button mat-icon-button color="primary" 
+                    *ngIf="row.isDispatched && row.status !== 'Received' && ((row.totalOrdered || 0) > (row.totalAccepted || 0)) && ((row.totalRejected || row.totalRej || 0) <= (row.totalReturned || row.totalRet || 0))" 
+                    (click)="$event.stopPropagation(); handleAction('CREATE_GRN', row)" 
+                    matTooltip="Goods In-Transit: Click to Inward (GRN)">
                     <mat-icon>local_shipping</mat-icon>
                   </button>
 
@@ -377,7 +374,13 @@
                               </button>
                               }
                               @if (element.status !== 'Draft' || (!canEdit && !canDelete)) {
-                              <mat-icon style="font-size: 18px; color: #bdbdbd;" title="Locked">lock</mat-icon>
+                                <button mat-icon-button color="warn" 
+                                        *ngIf="(childRow.rejectedQty || childRow.rejQty || 0) > (childRow.returnedQty || childRow.returnQty || 0)"
+                                        (click)="handleAction('PROCESS_RETURN', element)" 
+                                        matTooltip="Process Purchase Return for this item">
+                                  <mat-icon style="font-size: 18px;">local_shipping</mat-icon>
+                                </button>
+                                <mat-icon style="font-size: 18px; color: #bdbdbd;" title="Locked" *ngIf="!((childRow.rejectedQty || childRow.rejQty || 0) > (childRow.returnedQty || childRow.returnQty || 0))">lock</mat-icon>
                               }
                             </div>
                           </td>

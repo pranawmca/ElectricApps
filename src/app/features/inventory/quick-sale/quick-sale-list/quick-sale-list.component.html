@@ -27,6 +27,8 @@
     <app-enterprise-hierarchical-grid
       [addNewLabel]="'New Sale'"
       [addNewRoute]="'/app/quick-inventory/sale/add'"
+      [disableAdd]="isAllBranchesView"
+      [addDisabledTooltip]="addNewTooltip"
       [entityName]="'Sale'"
       [showApprovalWorkflow]="false"
       [columns]="soColumns"

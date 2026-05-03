@@ -66,6 +66,8 @@
  <app-enterprise-hierarchical-grid 
   [addNewLabel]="'New PO'" 
   [addNewRoute]="'/app/inventory/polist/add'"
+  [disableAdd]="isAllBranchesView"
+  [addDisabledTooltip]="addNewTooltip"
   [entityName]="'PO'"
   [columns]="poColumns" 
   [childColumns]="itemColumns" 
