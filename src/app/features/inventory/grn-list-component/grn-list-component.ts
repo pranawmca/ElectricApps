@@ -333,7 +333,7 @@ export class GrnListComponent implements OnInit, AfterViewInit {
 
   calculateTotalReceived(row: any): number {
     const items = (row as GRNListRow).items || [];
-    return items.reduce((sum, item) => sum + (Number(item.displayReceivedQty || item.receivedQty) || 0), 0);
+    return items.reduce((sum, item) => sum + (Number(item.displayReceivedQty || (item.receivedQty + (item.returnedQty || 0))) || 0), 0);
   }
 
   calculateTotalReturned(row: any): number {
