@@ -306,7 +306,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         discountPercent: discPer,
         gstPercent: gstPer,
         taxAmount: taxAmt,
-        total: taxableAmt + taxAmt,
+        total: !!(item.isReplacement || item.IsReplacement) ? 0 : (taxableAmt + taxAmt),
         warehouseId: item.warehouseId || item.WarehouseId || null,
         rackId: item.rackId || item.RackId || null,
         isExpiryRequired: !!(item.isExpiryRequired || item.IsExpiryRequired),
@@ -395,7 +395,13 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     const taxAmt = taxableAmt * (gstPer / 100);
 
     item.taxAmount = taxAmt;
-    item.total = taxableAmt + taxAmt;
+    
+    // 🛡️ REPLACEMENT LOGIC: Replacement items should not add to the financial total
+    if (item.isReplacement) {
+      item.total = 0;
+    } else {
+      item.total = taxableAmt + taxAmt;
+    }
 
     this.calculateGrandTotal();
     this.cdr.detectChanges(); 

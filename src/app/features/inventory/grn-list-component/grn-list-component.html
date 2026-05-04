@@ -141,7 +141,7 @@
                                             <tr *ngFor="let item of getRowItems(row) | slice: (innerPageIndex * innerPageSize) : ((innerPageIndex + 1) * innerPageSize)">
                                                 <td>{{item.productName}}</td>
                                                 <td class="text-center">{{item.orderedQty}}</td> 
-                                                <td class="text-center"><b>{{item.receivedQty - item.rejectedQty}}</b></td>
+                                                <td class="text-center"><b>{{item.displayReceivedQty || item.receivedQty}}</b></td>
                                                 <td class="text-center" [class.text-success]="item.pendingQty === 0">{{item.pendingQty}}</td> 
                                                 <td class="text-center" [class.text-danger]="item.actualRejectedQty > 0">{{item.actualRejectedQty}}</td>
                                                 <td class="text-center" [class.text-warning]="item.expiredQty > 0">{{item.expiredQty}}</td>

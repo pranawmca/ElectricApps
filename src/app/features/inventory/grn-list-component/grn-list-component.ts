@@ -25,6 +25,7 @@ export interface GRNItem {
   productName: string;
   orderedQty: number;
   receivedQty: number;
+  displayReceivedQty?: number;
   pendingQty: number;
   rejectedQty: number;
   actualRejectedQty: number;
@@ -270,7 +271,7 @@ export class GrnListComponent implements OnInit, AfterViewInit {
             const rawGrnItems = item.items || item.Items || [];
             const grnItems = Array.isArray(rawGrnItems) ? rawGrnItems.map((gi: any) => {
               const oQty = gi.orderedQty ?? gi.OrderedQty ?? 0;
-              const rQty = gi.receivedQty ?? gi.ReceivedQty ?? 0;
+              const rQty = gi.ReceivedQty ?? gi.receivedQty ?? 0;
               const rejQty = gi.rejectedQty ?? gi.RejectedQty ?? gi.rejQty ?? 0;
               const retQty = Number(gi.returnedQty ?? gi.ReturnedQty ?? gi.ActualReturnedQty ?? gi.actualReturnedQty ?? gi.ReturnQty ?? gi.ReturnedQuantity ?? gi.ReturnQuantity ?? 0);
               
@@ -278,6 +279,7 @@ export class GrnListComponent implements OnInit, AfterViewInit {
                 productName: gi.productName || gi.ProductName,
                 orderedQty: oQty,
                 receivedQty: rQty,
+                displayReceivedQty: rQty + retQty,
                 // Trust backend for pendingQty calculation (Ordered - (Received - Rejected + Returned))
                 pendingQty: gi.pendingQty ?? gi.PendingQty ?? Math.max(0, oQty - rQty),
                 rejectedQty: rejQty,
@@ -331,7 +333,7 @@ export class GrnListComponent implements OnInit, AfterViewInit {
 
   calculateTotalReceived(row: any): number {
     const items = (row as GRNListRow).items || [];
-    return items.reduce((sum, item) => sum + ((Number(item.receivedQty) || 0) - (Number(item.rejectedQty) || 0) + (Number(item.returnedQty) || 0)), 0);
+    return items.reduce((sum, item) => sum + (Number(item.displayReceivedQty || item.receivedQty) || 0), 0);
   }
 
   calculateTotalReturned(row: any): number {
