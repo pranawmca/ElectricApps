@@ -108,25 +108,42 @@
                       <div class="grn-content" *ngIf="expandedGrn === group.grnRef">
                         <div class="stock-item-row" *ngFor="let item of group.items" 
                              [class.item-rejected]="item.isRejected"
+                             [class.item-settled]="item.isSettled"
                              [class.return-closed]="!item.isReturnable">
                            <mat-checkbox [(ngModel)]="item.selected" [ngModelOptions]="{standalone: true}" 
-                                         [disabled]="!item.isReturnable"
+                                         [disabled]="!item.isReturnable || item.isSettled"
                                          (change)="onItemToggle(item)" color="primary">
                               <span class="item-details-inline">
-                                 <strong class="item-name">{{item.productName}}</strong> 
-                                 <small class="item-avail text-secondary"> 
-                                   (Received: {{item.availableQty}} | Rate: {{item.rate | currency:'INR'}} | 
-                                   <span [class.stock-danger]="item.currentStock <= 0" [class.stock-success]="item.currentStock > 0"
-                                         class="stock-badge-mini"
-                                         [matTooltip]="item.currentStock <= 0 ? 'Stock Unavailable: This item cannot be returned to the supplier as it has already been sold. Physical stock must be available in the warehouse to process a return.' : ''">
-                                     Stock: {{item.currentStock}}
-                                     <mat-icon *ngIf="item.currentStock <= 0" class="info-icon-mini">info_outline</mat-icon>
-                                   </span> | 
-                                   <span class="policy-badge-mini" [ngClass]="item.isReturnable ? 'active' : 'expired'" 
-                                         *ngIf="item.currentStock > 0">
-                                      {{ item.isReturnable ? formatRemainingTime(item.remainingHours) + ' left' : 'Expired' }}
-                                   </span>)
-                                 </small>
+                                  <div class="item-name-group">
+                                    <span class="type-indicator-dot" [ngClass]="item.itemType === 'Rejected' ? 'rejected' : 'accepted'"></span>
+                                    <strong class="item-name" [style.text-decoration]="item.isSettled ? 'line-through' : 'none'">{{item.productName}}</strong>
+                                    <span class="type-label-mini" [ngClass]="item.itemType === 'Rejected' ? 'rejected' : 'accepted'">
+                                      {{item.itemType | uppercase}}
+                                    </span>
+                                    <span class="settled-badge" *ngIf="item.isSettled">
+                                      SETTLED / REPLACED
+                                    </span>
+                                    <span class="audit-ref-badge" *ngIf="item.replacementGrn" style="color: #4338ca; background: #e0e7ff; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 5px;">
+                                      Replaced in {{item.replacementGrn}}
+                                    </span>
+                                    <span class="audit-ref-badge alternate" *ngIf="item.originalGrn" style="color: #15803d; background: #dcfce7; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 5px;">
+                                      Replacement for {{item.originalGrn}}
+                                    </span>
+                                  </div>
+                                  <small class="item-avail text-secondary"> 
+                                    <span *ngIf="!item.isSettled">(Qty Available: {{item.availableQty}} | Rate: {{item.rate | currency:'INR'}} | </span>
+                                    <span *ngIf="item.isSettled" class="settled-text">(Transaction Closed | Replaced | </span>
+                                    <span [class.stock-danger]="item.currentStock <= 0" [class.stock-success]="item.currentStock > 0"
+                                          class="stock-badge-mini"
+                                          [matTooltip]="item.currentStock <= 0 ? 'Stock Unavailable: This item cannot be returned to the supplier as it has already been sold. Physical stock must be available in the warehouse to process a return.' : ''">
+                                      Stock: {{item.currentStock}}
+                                      <mat-icon *ngIf="item.currentStock <= 0" class="info-icon-mini">info_outline</mat-icon>
+                                    </span> | 
+                                    <span class="policy-badge-mini" [ngClass]="item.isReturnable ? 'active' : 'expired'" 
+                                          *ngIf="item.currentStock > 0">
+                                       {{ item.isReturnable ? formatRemainingTime(item.remainingHours) + ' left' : 'Expired' }}
+                                    </span>)
+                                  </small>
                               </span>
                            </mat-checkbox>
                         </div>

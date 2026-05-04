@@ -5,7 +5,7 @@
     </div>
     <div class="header-buttons">
       <button mat-stroked-button class="cancel-btn" (click)="onCancel()">Cancel</button>
-      <button mat-flat-button class="save-btn" color="primary" (click)="saveGRN()" [disabled]="isSaveButtonDisabled">
+      <button mat-flat-button class="save-btn" color="primary" (click)="saveGRN()" [disabled]="isButtonDisabled">
         <mat-icon>save</mat-icon> Save & Update Stock
       </button>
     </div>
@@ -114,7 +114,8 @@
               <td class="text-center text-accepted"><b>{{item.acceptedQty}}</b></td>
               
               <td class="text-center">
-                <mat-form-field appearance="outline" class="dense-input wide" subscriptSizing="dynamic">
+                <mat-form-field appearance="outline" class="dense-input wide" subscriptSizing="dynamic"
+                                [class.error-input]="!isWarehouseValid(item) && !isViewMode">
                   <mat-select [(ngModel)]="item.warehouseId" 
                              [ngModelOptions]="{standalone: true}"
                              (selectionChange)="onWarehouseChange(item)" 
@@ -128,9 +129,11 @@
               </td>
 
               <td class="text-center">
-                <mat-form-field appearance="outline" class="dense-input wide" subscriptSizing="dynamic">
+                <mat-form-field appearance="outline" class="dense-input wide" subscriptSizing="dynamic"
+                                [class.error-input]="!isRackValid(item) && !isViewMode">
                   <mat-select [(ngModel)]="item.rackId" 
                              [ngModelOptions]="{standalone: true}"
+                             (selectionChange)="onRackChange(item)"
                              [disabled]="isViewMode" placeholder="Rack"
                              panelWidth="auto"
                              panelClass="wide-select-panel">
@@ -164,7 +167,16 @@
               <td class="text-center text-secondary small">{{item.discountPercent}}%</td>
               <td class="text-center text-secondary small">{{item.gstPercent}}%</td>
               <td class="text-right text-secondary small">{{item.taxAmount | currency:'INR'}}</td>
-              <td class="text-right text-total"><b>{{item.total | currency:'INR'}}</b></td>
+              <td class="text-right text-total">
+                <div class="d-flex flex-column align-items-end">
+                  <b [class.text-decoration-line-through]="item.isReplacement" [class.text-muted]="item.isReplacement">
+                    {{item.total | currency:'INR'}}
+                  </b>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle x-small-badge" *ngIf="item.isReplacement">
+                    Free of Cost
+                  </span>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>

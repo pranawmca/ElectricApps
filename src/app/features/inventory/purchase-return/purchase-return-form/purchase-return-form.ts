@@ -257,21 +257,82 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
     }).subscribe({
       next: (res) => {
         // Map rejected items with specific flags
-        const rejected = (res.rejected || []).map((item: any) => ({
-          ...item,
-          availableQty: item.rejectedQty ?? item.AvailableQty ?? 0,
-          isRejected: true,
-          itemType: 'Rejected'
-        }));
+        const rejected = (res.rejected || [])
+          .filter((item: any) => {
+            const rjQty = item.rejectedQty ?? item.RejectedQty ?? 0;
+            const retQty = item.returnedQty ?? item.ReturnedQty ?? 0;
+            const repQty = item.replacedQty ?? item.ReplacedQty ?? 0;
+            return (rjQty - retQty - repQty) > 0;
+          })
+          .map((item: any) => ({
+            ...item,
+            grnRef: item.grnRef || item.GrnRef || item.grnNumber || item.GRNNumber,
+            availableQty: (item.rejectedQty ?? item.RejectedQty ?? 0) - (item.returnedQty ?? item.ReturnedQty ?? 0) - (item.replacedQty ?? item.ReplacedQty ?? 0),
+            isRejected: true,
+            itemType: 'Rejected'
+          }));
 
         // Map regular received stock
         const received = (res.received || []).map((item: any) => ({
           ...item,
+          grnRef: item.grnRef || item.GrnRef || item.grnNumber || item.GRNNumber,
           isRejected: false,
-          itemType: 'Received'
+          itemType: 'Received',
+          // Ensure we have a clean ID for matching
+          cleanProductId: (item.productId || item.ProductId || '').toString().toLowerCase()
         }));
 
-        const combined = [...rejected, ...received];
+        // Smart Filter: Subtract replacements from rejections [cite: 2026-05-04]
+        const finalRejected = (res.rejected || []).map((rejItem: any) => {
+          const rjQty = rejItem.rejectedQty ?? rejItem.RejectedQty ?? 0;
+          const retQty = rejItem.returnedQty ?? rejItem.ReturnedQty ?? 0;
+          const prevRepQty = rejItem.replacedQty ?? rejItem.ReplacedQty ?? 0;
+          
+          const rejProdId = (rejItem.productId || rejItem.ProductId || '').toString().toLowerCase();
+
+          // Find matching replacements in the received stock for this product
+          const matchingReplacements = received.filter((rec: any) => {
+            const rejProdId = (rejItem.productId || rejItem.ProductId || '').toString().toLowerCase();
+            const recProdId = (rec.productId || rec.ProductId || '').toString().toLowerCase();
+            const isSameProduct = recProdId === rejProdId || (rec.productName === rejItem.productName);
+            const isRepFlag = rec.isReplacement || rec.IsReplacement || rec.rate === 0 || rec.Rate === 0;
+            
+            return isSameProduct && isRepFlag;
+          });
+          
+          const newRepQty = matchingReplacements.reduce((sum: number, rec: any) => sum + (rec.receivedQty || rec.ReceivedQty || 0), 0);
+          const firstRep = matchingReplacements[0];
+          const replacementRef = firstRep ? (firstRep.grnRef || firstRep.GrnRef || firstRep.grnNumber || firstRep.GRNNumber) : null;
+          
+          const totalSettled = retQty + prevRepQty + newRepQty;
+          const balance = rjQty - totalSettled;
+          
+          const status = (rejItem.status || rejItem.Status || '').toLowerCase();
+          const isReturned = rejItem.isReturned || rejItem.IsReturned || status.includes('return');
+          const isReplaced = rejItem.isReplaced || rejItem.IsReplaced || status.includes('replace') || status.includes('settle');
+          
+          // Use the explicit IsSettled flag from DB if available, else fallback to calculated logic [cite: 2026-05-04]
+          const isSettledFromDb = rejItem.isSettled || rejItem.IsSettled || false;
+
+          return {
+            ...rejItem,
+            availableQty: balance,
+            isRejected: true,
+            itemType: 'Rejected',
+            replacementGrn: replacementRef,
+            isSettled: isSettledFromDb || isReturned || isReplaced || (balance <= 0) || (rjQty > 0 && totalSettled >= rjQty)
+          };
+        });
+
+        const combined = [...finalRejected, ...received.map((rec: any) => {
+          if (rec.isReplacement || rec.IsReplacement || rec.rate === 0) {
+            const prodId = rec.cleanProductId;
+            const originalRej = finalRejected.find((rj: any) => rj.productId.toLowerCase() === prodId);
+            const ref = originalRej ? (originalRej.grnRef || originalRej.GrnRef || originalRej.grnNumber || originalRej.GRNNumber) : null;
+            return { ...rec, originalGrn: ref };
+          }
+          return rec;
+        })];
         this.receivedStockItems = combined;
         this.isPolicyViolated = combined.some(i => !i.isReturnable && !i.IsReturnable);
 

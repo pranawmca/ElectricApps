@@ -221,8 +221,21 @@
 }
 
 .error-input {
-  border: 2px solid #f5222d !important;
-  background-color: #fff1f0;
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: #f5222d !important;
+          border-width: 2px !important;
+        }
+      }
+    }
+    .mat-mdc-form-field-infix {
+      background-color: #fff1f0 !important;
+    }
+  }
 }
 
 // Premium Button Styles
@@ -537,4 +550,18 @@
             font-size: 13px !important;
         }
     }
+}
+
+.x-small-badge {
+  font-size: 8.5px !important;
+  padding: 1px 4px !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.text-decoration-line-through {
+  text-decoration: line-through !important;
 }

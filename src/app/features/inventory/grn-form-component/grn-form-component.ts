@@ -200,11 +200,42 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   }
 
   onWarehouseChange(item: any) {
-    this.filteredRacksMap[item.productId] = this.racks.filter(r => r.warehouseId === item.warehouseId);
+    const unfiltered = this.racks.filter(r => r.warehouseId === item.warehouseId);
+    
+    // 🎯 Sorting Logic: "Expired" first, then alphabetical [cite: 2026-05-04]
+    this.filteredRacksMap[item.productId] = unfiltered.sort((a, b) => {
+      const nameA = (a.name || '').toLowerCase();
+      const nameB = (b.name || '').toLowerCase();
+      
+      const isExpA = nameA.includes('expired');
+      const isExpB = nameB.includes('expired');
+
+      if (isExpA && !isExpB) return -1;
+      if (!isExpA && isExpB) return 1;
+      
+      return nameA.localeCompare(nameB);
+    });
+
     // Reset rack if it's not in the new filtered list
     if (item.rackId && !this.filteredRacksMap[item.productId].some(r => r.id === item.rackId)) {
       item.rackId = null;
     }
+    this.updateButtonState(); // Update validation state
+  }
+
+  onRackChange(item: any) {
+    this.updateButtonState(); // Update validation state [cite: 2026-05-04]
+  }
+
+  isWarehouseValid(item: any): boolean {
+    const isEmptyGuid = (val: any) => !val || val === '00000000-0000-0000-0000-000000000000';
+    return !isEmptyGuid(item.warehouseId) && this.warehouses.some(w => w.id === item.warehouseId);
+  }
+
+  isRackValid(item: any): boolean {
+    const isEmptyGuid = (val: any) => !val || val === '00000000-0000-0000-0000-000000000000';
+    const racksForThisProduct = this.filteredRacksMap[item.productId] || [];
+    return !isEmptyGuid(item.rackId) && racksForThisProduct.some(r => r.id === item.rackId);
   }
 
   loadPOData(id: string, grnHeaderId: string | null = null, gatePassNo: string | null = null) {
@@ -396,12 +427,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
 
     item.taxAmount = taxAmt;
     
-    // 🛡️ REPLACEMENT LOGIC: Replacement items should not add to the financial total
-    if (item.isReplacement) {
-      item.total = 0;
-    } else {
-      item.total = taxableAmt + taxAmt;
-    }
+    // 🛡️ REPLACEMENT LOGIC: Replacement items should not add to the financial total [cite: 2026-05-04]
+    item.total = item.isReplacement ? 0 : (taxableAmt + taxAmt);
 
     this.calculateGrandTotal();
     this.cdr.detectChanges(); 
@@ -443,22 +470,24 @@ export class GrnFormComponent implements OnInit, OnDestroy {
 
     // Strict check for every item
     return this.items.some(item => {
-      // 1. Recv Qty Check (Empty or <= 0 or > Pending)
-      const rawRcvd = item.receivedQty;
-      const rcvdStr = (rawRcvd === null || rawRcvd === undefined) ? '' : String(rawRcvd).trim();
-      if (rcvdStr === '') return true; // Disabled if empty
-      
-      const rcvd = Number(rcvdStr);
+      // 1. Recv Qty Check
+      const rcvd = Number(item.receivedQty || 0);
       const pend = Number(item.pendingQty || 0);
-      if (rcvd <= 0 || rcvd > pend) return true; // Disabled if 0 or > pending
+      if (rcvd <= 0 || rcvd > pend) return true;
 
-      // 2. Rejected Qty Check (Empty or > Recv)
-      const rawRej = item.rejectedQty;
-      const rejStr = (rawRej === null || rawRej === undefined) ? '' : String(rawRej).trim();
-      if (rejStr === '') return true; // Disabled if empty
+      // 2. Rejected Qty Check
+      const rej = Number(item.rejectedQty || 0);
+      if (rej < 0 || rej > rcvd) return true;
 
-      const rej = Number(rejStr);
-      if (rej < 0 || rej > rcvd) return true; // Disabled if negative or > recv
+      // 3. Warehouse and Rack Check - Must be valid and exist in the list [cite: 2026-05-04]
+      const isEmptyGuid = (val: any) => !val || val === '00000000-0000-0000-0000-000000000000';
+      
+      const isValidWarehouse = !isEmptyGuid(item.warehouseId) && this.warehouses.some(w => w.id === item.warehouseId);
+      if (!isValidWarehouse) return true;
+
+      const racksForThisProduct = this.filteredRacksMap[item.productId] || [];
+      const isValidRack = !isEmptyGuid(item.rackId) && racksForThisProduct.some(r => r.id === item.rackId);
+      if (!isValidRack) return true;
 
       return false;
     });
@@ -488,6 +517,11 @@ export class GrnFormComponent implements OnInit, OnDestroy {
 
       if (isEmptyRcvd || rcvd <= 0 || rcvd > pend) return true;
       if (isEmptyRej || rej < 0 || rej > rcvd) return true;
+
+      // Warehouse and Rack required [cite: 2026-05-04]
+      if (!item.warehouseId || item.warehouseId === '') return true;
+      if (!item.rackId || item.rackId === '') return true;
+
       return false;
     });
 
@@ -524,8 +558,13 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     }
 
     // Case 2: Rej. Qty greater than Recv. Qty
-    if (rej > rcvd) {
-      if (showPopup) this.showValidationError(`Rejected Quantity for "${item.productName}" cannot exceed Received Quantity (${rcvd}).`);
+    // Case 3: Warehouse/Rack required
+    if (!item.warehouseId || item.warehouseId === '') {
+      if (showPopup) this.showValidationError(`Please select a Warehouse for "${item.productName}".`);
+      return false;
+    }
+    if (!item.rackId || item.rackId === '') {
+      if (showPopup) this.showValidationError(`Please select a Rack for "${item.productName}".`);
       return false;
     }
 
@@ -540,7 +579,11 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   }
 
   calculateGrandTotal(): number {
-    return this.items.reduce((acc, item) => acc + (Number(item.total || 0)), 0);
+    return this.items.reduce((acc, item) => {
+      // Skip replacements from billable total to avoid double ledger debt [cite: 2026-05-04]
+      if (item.isReplacement) return acc;
+      return acc + (Number(item.total || 0));
+    }, 0);
   }
 
   saveGRN() {
@@ -567,6 +610,14 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       }
       if (rej > rcvd) {
         this.showValidationError(`Rejected Quantity for "${item.productName}" cannot exceed Received Quantity (${rcvd}).`);
+        return;
+      }
+      if (!item.warehouseId || item.warehouseId === '') {
+        this.showValidationError(`Please select a Warehouse for "${item.productName}".`);
+        return;
+      }
+      if (!item.rackId || item.rackId === '') {
+        this.showValidationError(`Please select a Rack for "${item.productName}".`);
         return;
       }
     }
@@ -681,6 +732,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
             gstPercent: Number(i.gstPercent),
             taxAmount: Number(i.taxAmount),
             totalAmount: Number(i.total),
+            isReplacement: i.isReplacement || false,
             warehouseId: i.warehouseId,
             rackId: i.rackId,
             manufacturingDate: DateHelper.parseToISO(i.manufacturingDate),
@@ -735,6 +787,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         gstPercent: Number(item.gstPercent),
         taxAmount: Number(item.taxAmount),
         totalAmount: Number(item.total),
+        isReplacement: item.isReplacement || false,
         warehouseId: item.warehouseId,
         rackId: item.rackId,
         manufacturingDate: DateHelper.parseToISO(item.manufacturingDate),
