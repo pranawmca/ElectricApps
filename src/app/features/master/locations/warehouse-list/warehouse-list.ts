@@ -14,6 +14,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { PermissionService } from '../../../../core/services/permission.service';
+import { CompanyService } from '../../../company/services/company.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-warehouse-list',
@@ -23,12 +26,13 @@ import { PermissionService } from '../../../../core/services/permission.service'
     styleUrl: './warehouse-list.scss',
 })
 export class WarehouseList implements OnInit {
-    displayedColumns: string[] = ['index', 'name', 'city', 'description', 'status', 'actions'];
-    dataSource = new MatTableDataSource<Warehouse>();
+    displayedColumns: string[] = ['index', 'branch', 'name', 'city', 'description', 'status', 'actions'];
+    dataSource = new MatTableDataSource<any>();
     isLoading = true;
     isDashboardLoading = true;
     private isFirstLoad = true;
     summaryStats: SummaryStat[] = [];
+    branches: any[] = [];
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -39,7 +43,9 @@ export class WarehouseList implements OnInit {
         private router: Router,
         private loadingService: LoadingService,
         private snackBar: MatSnackBar,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private companyService: CompanyService,
+        private authService: AuthService
     ) { }
 
     private permissionService = inject(PermissionService);
@@ -57,7 +63,7 @@ export class WarehouseList implements OnInit {
         this.loadingService.setLoading(true);
         this.cdr.detectChanges();
 
-        this.loadWarehouses();
+        this.loadData();
 
         // Safety timeout - force stop loader after 10 seconds
         setTimeout(() => {
@@ -71,33 +77,51 @@ export class WarehouseList implements OnInit {
         }, 10000);
     }
 
-    loadWarehouses() {
+    loadData() {
         this.isLoading = true;
-        this.locationService.getWarehouses().subscribe({
-            next: (data) => {
-                this.dataSource.data = data || [];
-                this.dataSource.paginator = this.paginator;
-                this.dataSource.sort = this.sort;
-                this.updateStats();
-                this.isLoading = false;
+        const companyId = this.authService.getCompanyId();
+        
+        if (companyId) {
+            forkJoin({
+                warehouses: this.locationService.getWarehouses(),
+                branches: this.companyService.getBranchesByCompany(companyId)
+            }).subscribe({
+                next: (res) => {
+                    this.branches = res.branches;
+                    const mappedData = res.warehouses.map(w => ({
+                        ...w,
+                        branchName: this.branches.find(b => String(b.id) === String(w.branchId))?.branchName || 'Main Branch'
+                    }));
+                    
+                    this.dataSource.data = mappedData;
+                    this.dataSource.paginator = this.paginator;
+                    this.dataSource.sort = this.sort;
+                    this.updateStats();
+                    this.isLoading = false;
 
-                if (this.isFirstLoad) {
-                    this.isFirstLoad = false;
-                    this.isDashboardLoading = false;
-                    this.loadingService.setLoading(false);
+                    if (this.isFirstLoad) {
+                        this.isFirstLoad = false;
+                        this.isDashboardLoading = false;
+                        this.loadingService.setLoading(false);
+                    }
+                    this.cdr.detectChanges();
+                },
+                error: () => {
+                    this.isLoading = false;
+                    if (this.isFirstLoad) {
+                        this.isFirstLoad = false;
+                        this.isDashboardLoading = false;
+                        this.loadingService.setLoading(false);
+                    }
+                    this.cdr.detectChanges();
                 }
-                this.cdr.detectChanges();
-            },
-            error: () => {
-                this.isLoading = false;
-                if (this.isFirstLoad) {
-                    this.isFirstLoad = false;
-                    this.isDashboardLoading = false;
-                    this.loadingService.setLoading(false);
-                }
-                this.cdr.detectChanges();
-            }
-        });
+            });
+        }
+    }
+
+    // Keep loadWarehouses for compatibility if needed elsewhere
+    loadWarehouses() {
+        this.loadData();
     }
 
     downloadTemplate(): void {

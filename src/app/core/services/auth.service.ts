@@ -20,6 +20,8 @@ export class AuthService {
 
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+  private branchIdSubject = new BehaviorSubject<string | null>(localStorage.getItem('branchId'));
+  branchId$ = this.branchIdSubject.asObservable();
 
   // 🔐 LOGIN
   login(data: LoginDto): Observable<any> {
@@ -167,12 +169,14 @@ export class AuthService {
 
     if (branchId) {
       localStorage.setItem('branchId', branchId);
+      this.branchIdSubject.next(branchId);
       localStorage.setItem('assignedBranches', branchId); // 🛡️ Keep original list for switching
       if (branchName) {
         localStorage.setItem('branchName', branchName);
       }
     } else {
       localStorage.removeItem('branchId');
+      this.branchIdSubject.next(null);
       localStorage.removeItem('assignedBranches');
       localStorage.removeItem('branchName');
     }
@@ -217,11 +221,13 @@ export class AuthService {
   setWorkingBranch(branchId: string | null, branchName: string | null = null): void {
     if (branchId) {
       localStorage.setItem('branchId', branchId);
+      this.branchIdSubject.next(branchId);
       if (branchName) {
         localStorage.setItem('branchName', branchName);
       }
     } else {
       localStorage.removeItem('branchId');
+      this.branchIdSubject.next(null);
       localStorage.removeItem('branchName');
       
       // 🚀 If Super Admin is switching back to Global View, restore System Company context

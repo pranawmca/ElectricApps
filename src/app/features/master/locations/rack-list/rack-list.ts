@@ -14,6 +14,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { StatusDialogComponent } from '../../../../shared/components/status-dialog-component/status-dialog-component';
 import { PermissionService } from '../../../../core/services/permission.service';
+import { CompanyService } from '../../../company/services/company.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-rack-list',
@@ -23,12 +26,14 @@ import { PermissionService } from '../../../../core/services/permission.service'
     styleUrl: './rack-list.scss',
 })
 export class RackList implements OnInit {
-    displayedColumns: string[] = ['index', 'warehouse', 'name', 'description', 'status', 'actions'];
-    dataSource = new MatTableDataSource<Rack>();
+    displayedColumns: string[] = ['index', 'branch', 'warehouse', 'name', 'description', 'status', 'actions'];
+    dataSource = new MatTableDataSource<any>();
     isLoading = true;
     isDashboardLoading = true;
     private isFirstLoad = true;
     summaryStats: SummaryStat[] = [];
+    branches: any[] = [];
+    warehouses: any[] = [];
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -39,7 +44,9 @@ export class RackList implements OnInit {
         private router: Router,
         private loadingService: LoadingService,
         private snackBar: MatSnackBar,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private companyService: CompanyService,
+        private authService: AuthService
     ) { }
 
     private permissionService = inject(PermissionService);
@@ -57,7 +64,7 @@ export class RackList implements OnInit {
         this.loadingService.setLoading(true);
         this.cdr.detectChanges();
 
-        this.loadRacks();
+        this.loadData();
 
         // Safety timeout - force stop loader after 10 seconds
         setTimeout(() => {
@@ -71,33 +78,57 @@ export class RackList implements OnInit {
         }, 10000);
     }
 
-    loadRacks() {
+    loadData() {
         this.isLoading = true;
-        this.locationService.getRacks().subscribe({
-            next: (data) => {
-                this.dataSource.data = data || [];
-                this.dataSource.paginator = this.paginator;
-                this.dataSource.sort = this.sort;
-                this.updateStats();
-                this.isLoading = false;
+        const companyId = this.authService.getCompanyId();
 
-                if (this.isFirstLoad) {
-                    this.isFirstLoad = false;
-                    this.isDashboardLoading = false;
-                    this.loadingService.setLoading(false);
+        if (companyId) {
+            forkJoin({
+                racks: this.locationService.getRacks(),
+                warehouses: this.locationService.getWarehouses(),
+                branches: this.companyService.getBranchesByCompany(companyId)
+            }).subscribe({
+                next: (res) => {
+                    this.branches = res.branches;
+                    this.warehouses = res.warehouses;
+
+                    const mappedData = res.racks.map(rack => {
+                        const warehouse = this.warehouses.find(w => String(w.id) === String(rack.warehouseId));
+                        const branch = this.branches.find(b => String(b.id) === String(warehouse?.branchId));
+                        return {
+                            ...rack,
+                            branchName: branch?.branchName || 'Main Branch'
+                        };
+                    });
+
+                    this.dataSource.data = mappedData;
+                    this.dataSource.paginator = this.paginator;
+                    this.dataSource.sort = this.sort;
+                    this.updateStats();
+                    this.isLoading = false;
+
+                    if (this.isFirstLoad) {
+                        this.isFirstLoad = false;
+                        this.isDashboardLoading = false;
+                        this.loadingService.setLoading(false);
+                    }
+                    this.cdr.detectChanges();
+                },
+                error: () => {
+                    this.isLoading = false;
+                    if (this.isFirstLoad) {
+                        this.isFirstLoad = false;
+                        this.isDashboardLoading = false;
+                        this.loadingService.setLoading(false);
+                    }
+                    this.cdr.detectChanges();
                 }
-                this.cdr.detectChanges();
-            },
-            error: () => {
-                this.isLoading = false;
-                if (this.isFirstLoad) {
-                    this.isFirstLoad = false;
-                    this.isDashboardLoading = false;
-                    this.loadingService.setLoading(false);
-                }
-                this.cdr.detectChanges();
-            }
-        });
+            });
+        }
+    }
+
+    loadRacks() {
+        this.loadData();
     }
 
     downloadTemplate(): void {

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { MaterialModule } from '../../../shared/material/material/material-module';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -37,8 +38,11 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
 
   warehouses: Warehouse[] = [];
+  private allWarehouses: Warehouse[] = [];
   racks: Rack[] = [];
+  private allRacks: Rack[] = [];
   filteredRacksMap: { [productId: string]: Rack[] } = {};
+  private branchSubscription: Subscription | null = null;
 
   // Auto-save countdown (active only in gate pass flow)
   countdown: number = 30;
@@ -154,8 +158,45 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   }
 
   loadLocations() {
-    this.locationService.getWarehouses().subscribe(data => this.warehouses = data.filter(w => w.isActive));
-    this.locationService.getRacks().subscribe(data => this.racks = data.filter(r => r.isActive));
+    this.locationService.getWarehouses().subscribe(data => {
+      this.allWarehouses = data.filter(w => w.isActive);
+      this.applyBranchFilter();
+    });
+    this.locationService.getRacks().subscribe(data => {
+      this.allRacks = data.filter(r => r.isActive);
+      this.racks = this.allRacks;
+    });
+
+    // Subscribe to branch changes from toolbar
+    this.branchSubscription = this.authService.branchId$.subscribe(branchId => {
+      console.log('🔄 GRN Form - Branch Changed:', branchId);
+      this.applyBranchFilter(branchId);
+    });
+  }
+
+  private applyBranchFilter(branchId: string | null = null) {
+    const activeBranchId = branchId || this.authService.getWorkingBranchId();
+    console.log('🎯 Applying Branch Filter to Warehouses. ActiveBranchId:', activeBranchId);
+
+    if (activeBranchId && activeBranchId !== 'all') {
+      this.warehouses = this.allWarehouses.filter(w => 
+        String(w.branchId) === String(activeBranchId)
+      );
+    } else {
+      this.warehouses = this.allWarehouses;
+    }
+
+    // After filtering warehouses, we should check if currently selected warehouseId in items is still valid
+    if (this.items && this.items.length > 0) {
+      this.items.forEach(item => {
+        if (item.warehouseId && !this.warehouses.some(w => w.id === item.warehouseId)) {
+          item.warehouseId = null;
+          item.rackId = null;
+        }
+      });
+    }
+
+    this.cdr.detectChanges();
   }
 
   onWarehouseChange(item: any) {
@@ -327,6 +368,9 @@ export class GrnFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.clearCountdown();
+    if (this.branchSubscription) {
+      this.branchSubscription.unsubscribe();
+    }
   }
 
   onQtyChange(item: any) {
