@@ -14,9 +14,22 @@
           <mat-form-field appearance="outline">
             <mat-label>Select Warehouse</mat-label>
             <mat-select formControlName="warehouseId">
-              <mat-option *ngFor="let w of warehouses" [value]="w.id">
+              <div class="select-search-container">
+                <mat-form-field appearance="fill" class="select-search-field">
+                  <input matInput #searchWarehouseInput placeholder="Search Warehouse..." 
+                         (input)="warehouseSearchTerm = $any($event.target).value"
+                         (keydown)="$event.stopPropagation()">
+                  <mat-icon matPrefix>search</mat-icon>
+                  <button *ngIf="warehouseSearchTerm" matSuffix mat-icon-button 
+                          (click)="warehouseSearchTerm = ''; searchWarehouseInput.value = ''; $event.stopPropagation()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+              </div>
+              <mat-option *ngFor="let w of filteredWarehouses" [value]="w.id">
                 {{ w.name }}
               </mat-option>
+              <mat-option *ngIf="filteredWarehouses.length === 0" disabled>No warehouse found</mat-option>
             </mat-select>
             <mat-error *ngIf="rackForm.get('warehouseId')?.hasError('required')">
               Warehouse selection is required

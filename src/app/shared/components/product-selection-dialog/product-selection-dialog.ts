@@ -155,6 +155,24 @@ import { InventoryService } from '../../../features/inventory/service/inventory.
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="mfgDate">
+            <th mat-header-cell *matHeaderCellDef class="mfg-header"> {{translate('MFG DATE')}} </th>
+            <td mat-cell *matCellDef="let row" class="mfg-cell"> 
+               <span class="date-text" *ngIf="row.manufacturingDate">{{row.manufacturingDate | date:'dd-MM-yyyy'}}</span>
+               <span *ngIf="!row.manufacturingDate" class="text-muted">-</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="expDate">
+            <th mat-header-cell *matHeaderCellDef class="exp-header"> {{translate('EXP DATE')}} </th>
+            <td mat-cell *matCellDef="let row" class="exp-cell"> 
+               <span class="date-text" [class.text-danger]="isExpired(row)" *ngIf="row.expiryDate">
+                 {{row.expiryDate | date:'dd-MM-yyyy'}}
+               </span>
+               <span *ngIf="!row.expiryDate" class="text-muted">-</span>
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="expiry">
             <th mat-header-cell *matHeaderCellDef> {{translate('EXPIRY TRACK')}} </th>
             <td mat-cell *matCellDef="let row"> 
@@ -223,9 +241,17 @@ import { InventoryService } from '../../../features/inventory/service/inventory.
       max-height: 90vh; /* Kept from original product-selection-container */
       height: 100%;
       min-height: 500px;
+      width: 95vw;
+      max-width: 1450px;
       background: #ffffff;
       border-radius: 12px;
       overflow: hidden;
+    }
+
+    /* Force parent dialog container width */
+    ::ng-deep .mat-mdc-dialog-panel:has(app-product-selection-dialog) {
+      max-width: 98vw !important;
+      width: 1450px !important;
     }
 
     /* Standard Global Style Loader for Dialog */
@@ -420,6 +446,13 @@ import { InventoryService } from '../../../features/inventory/service/inventory.
         width: fit-content;
         border: 1px solid #c7d2fe;
       }
+    }
+
+    .date-text {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #334155;
+      white-space: nowrap;
     }
 
     .status-badge {
@@ -747,7 +780,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   existingIds: any[] = [];
-  displayedColumns: string[] = ['select', 'sku', 'name', 'unit', 'category', 'location', 'gst', 'stock', 'expiry', 'status'];
+  displayedColumns: string[] = ['select', 'sku', 'name', 'unit', 'category', 'location', 'gst', 'stock', 'mfgDate', 'expDate', 'expiry', 'status'];
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(true, []);
   allowOutOfStock: boolean = false;
@@ -780,6 +813,12 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.existingIds = this.data?.existingIds || [];
     this.allowOutOfStock = this.data?.allowOutOfStock ?? false;
+    
+    // Hide MFG/EXP dates in purchase mode as per user request
+    if (this.data?.mode === 'purchase') {
+      this.displayedColumns = this.displayedColumns.filter(c => c !== 'mfgDate' && c !== 'expDate');
+    }
+
     this.loadCategories();
     this.loadProducts();
 
@@ -1022,7 +1061,12 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
               ...s,
               id: s.productId, // Map productId to id for dialog consistency
               currentStock: s.availableStock || 0,
-              productName: s.productName // Ensure productName is mapped
+              productName: s.productName, // Ensure productName is mapped
+              categoryName: s.categoryName,
+              defaultWarehouseName: s.warehouseName,
+              defaultRackName: s.rackName,
+              manufacturingDate: s.manufacturingDate,
+              expiryDate: s.expiryDate
           }))
           }))
       );

@@ -670,8 +670,12 @@ export class UserListComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(confirm => {
       if (confirm) {
+        this.loadingService.setLoading(true, isChecked ? 'Activating user...' : 'Deactivating user...');
         this.userService.updateStatus(user.id, isChecked).subscribe({
-          next: () => { this.loadUsers(); }
+          next: () => { this.loadUsers(); },
+          error: () => {
+            this.loadingService.setLoading(false);
+          }
         });
       } else { this.loadUsers(); }
     });
@@ -684,8 +688,12 @@ export class UserListComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(confirm => {
       if (confirm) {
+        this.loadingService.setLoading(true, 'Deleting user...');
         this.userService.deleteUser(user.id).subscribe({
-          next: () => { this.loadUsers(); }
+          next: () => { this.loadUsers(); },
+          error: () => {
+            this.loadingService.setLoading(false);
+          }
         });
       }
     });

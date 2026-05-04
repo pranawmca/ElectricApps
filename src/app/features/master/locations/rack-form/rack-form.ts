@@ -25,6 +25,15 @@ export class RackForm implements OnInit {
     rackId: string | null = null;
     isLoading = false;
     warehouses: Warehouse[] = [];
+    warehouseSearchTerm: string = '';
+
+    get filteredWarehouses() {
+        if (!this.warehouseSearchTerm) return this.warehouses;
+        const search = this.warehouseSearchTerm.toLowerCase();
+        return this.warehouses.filter(w => 
+            (w.name || '').toLowerCase().includes(search)
+        );
+    }
     summaryStats: SummaryStat[] = [];
 
     constructor(

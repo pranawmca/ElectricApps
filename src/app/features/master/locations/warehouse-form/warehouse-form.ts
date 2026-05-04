@@ -25,6 +25,15 @@ export class WarehouseForm implements OnInit {
     isLoading = false;
     summaryStats: SummaryStat[] = [];
     branches: any[] = [];
+    branchSearchTerm: string = '';
+
+    get filteredBranches() {
+        if (!this.branchSearchTerm) return this.branches;
+        const search = this.branchSearchTerm.toLowerCase();
+        return this.branches.filter(b => 
+            (b.branchName || b.addressLine1 || '').toLowerCase().includes(search)
+        );
+    }
 
 
     constructor(

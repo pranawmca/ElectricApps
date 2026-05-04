@@ -339,7 +339,13 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
         const formatDt = (dt: any) => {
             if (!dt) return null;
             if (typeof dt === 'string' && dt.length >= 10) return dt.substring(0, 10);
-            try { return new Date(dt).toISOString().substring(0, 10); } catch { return null; }
+            try { 
+                const d = new Date(dt);
+                const year = d.getFullYear();
+                const month = ('0' + (d.getMonth() + 1)).slice(-2);
+                const day = ('0' + d.getDate()).slice(-2);
+                return `${year}-${month}-${day}`;
+            } catch { return null; }
         };
 
         const isExpiredBatch = (expDate: any): boolean => {

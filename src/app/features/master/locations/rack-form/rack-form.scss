@@ -128,5 +128,53 @@
       color: white !important;
     }
   }
+
+  .select-search-container {
+    background: #1e293b !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+.select-search-container {
+  padding: 8px 8px 0 8px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  margin-bottom: 4px;
+}
+
+.select-search-field {
+  width: 100%;
+  ::ng-deep {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+    .mat-mdc-text-field-wrapper {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      height: 40px !important;
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.04) !important;
+      border-radius: 8px !important;
+    }
+    .mat-mdc-form-field-flex {
+      padding-top: 0 !important;
+    }
+    .mat-mdc-icon-button {
+      width: 32px !important;
+      height: 32px !important;
+      padding: 4px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      mat-icon {
+        font-size: 18px !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+  }
 }
 

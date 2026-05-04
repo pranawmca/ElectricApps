@@ -12,22 +12,35 @@
       <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()">
         <div class="form-grid">
           <mat-form-field appearance="outline">
-            <mat-label>Warehouse Name</mat-label>
-            <input matInput formControlName="name" placeholder="Enter warehouse name (e.g. Main Godown)">
-            <mat-error *ngIf="warehouseForm.get('name')?.hasError('required')">
-              Warehouse name is required
+            <mat-label>Select Branch</mat-label>
+            <mat-select formControlName="branchId">
+              <div class="select-search-container">
+                <mat-form-field appearance="fill" class="select-search-field">
+                  <input matInput #searchBranchInput placeholder="Search Branch..." 
+                         (input)="branchSearchTerm = $any($event.target).value"
+                         (keydown)="$event.stopPropagation()">
+                  <mat-icon matPrefix>search</mat-icon>
+                  <button *ngIf="branchSearchTerm" matSuffix mat-icon-button 
+                          (click)="branchSearchTerm = ''; searchBranchInput.value = ''; $event.stopPropagation()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+              </div>
+              <mat-option *ngFor="let branch of filteredBranches" [value]="branch.id">
+                {{ branch.branchName || branch.addressLine1 || 'Main Branch' }}
+              </mat-option>
+              <mat-option *ngIf="filteredBranches.length === 0" disabled>No branch found</mat-option>
+            </mat-select>
+            <mat-error *ngIf="warehouseForm.get('branchId')?.hasError('required')">
+              Branch selection is required
             </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Select Branch</mat-label>
-            <mat-select formControlName="branchId">
-              <mat-option *ngFor="let branch of branches" [value]="branch.id">
-                {{ branch.branchName || branch.addressLine1 || 'Main Branch' }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="warehouseForm.get('branchId')?.hasError('required')">
-              Branch selection is required
+            <mat-label>Warehouse Name</mat-label>
+            <input matInput formControlName="name" placeholder="Enter warehouse name (e.g. Main Godown)">
+            <mat-error *ngIf="warehouseForm.get('name')?.hasError('required')">
+              Warehouse name is required
             </mat-error>
           </mat-form-field>
 

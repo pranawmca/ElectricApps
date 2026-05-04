@@ -14,6 +14,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
   selector: 'app-user-form',
@@ -335,7 +336,8 @@ export class UserFormComponent implements OnInit {
     private dialog: MatDialog,
     public dialogRef: MatDialogRef<UserFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private loadingService: LoadingService
   ) {
     this.isEdit = !!data;
     
@@ -631,30 +633,39 @@ export class UserFormComponent implements OnInit {
           if (this.isEdit) {
             dto.Id = this.data.id || this.data.Id;
             dto.IsActive = this.data.isActive !== undefined ? this.data.isActive : this.data.IsActive;
+            
+            this.loadingService.setLoading(true, 'Updating user...');
             this.userService.updateUser(dto.Id, dto).subscribe({
               next: () => {
+                this.loadingService.setLoading(false);
                 this.notificationService.showStatus(true, 'User Updated Successfully');
                 this.dialogRef.close(true);
               },
               error: (err) => {
+                this.loadingService.setLoading(false);
                 console.error(err);
                 this.notificationService.showStatus(false, err.error?.message || 'Failed to update user');
               }
             });
           } else {
             // Before save, check for duplicates
+            this.loadingService.setLoading(true, 'Checking for duplicates...');
             this.userService.checkDuplicate(dto.UserName, dto.Email, dto.CompanyId).subscribe({
               next: (res) => {
                 if (res.exists) {
+                  this.loadingService.setLoading(false);
                   this.notificationService.showStatus(false, res.message);
                 } else {
                   // Proceed to create
+                  this.loadingService.setLoading(true, 'Creating user...');
                   this.userService.createUser(dto).subscribe({
                     next: () => {
+                      this.loadingService.setLoading(false);
                       this.notificationService.showStatus(true, 'User Created Successfully');
                       this.dialogRef.close(true);
                     },
                     error: (err) => {
+                      this.loadingService.setLoading(false);
                       console.error(err);
                       this.notificationService.showStatus(false, err.error?.message || 'Failed to create user');
                     }
@@ -662,6 +673,7 @@ export class UserFormComponent implements OnInit {
                 }
               },
               error: (err) => {
+                this.loadingService.setLoading(false);
                 console.error(err);
                 this.notificationService.showStatus(false, 'Error checking duplicate user');
               }
