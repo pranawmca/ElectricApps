@@ -40,7 +40,17 @@
                 <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows aria-label="GRN Table">
                     <ng-container matColumnDef="grnNo">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header appResizableColumn> GRN No. </th>
-                        <td mat-cell *matCellDef="let row"> <b>{{row.grnNo}}</b> </td>
+                        <td mat-cell *matCellDef="let row"> 
+                            <div class="grn-cell-content">
+                                <b>{{row.grnNo}}</b> 
+                                <button mat-icon-button class="audit-info-btn" 
+                                        *ngIf="row.totalActualRejected > 0"
+                                        (click)="$event.stopPropagation(); openRejectionHistory(row)"
+                                        matTooltip="View Rejection & Replacement History">
+                                    <mat-icon style="font-size: 18px; color: #6366f1;">history_edu</mat-icon>
+                                </button>
+                            </div>
+                        </td>
                     </ng-container>
 
                     <ng-container matColumnDef="refPO">

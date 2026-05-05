@@ -103,6 +103,7 @@ export class SupplierModalComponent implements OnInit {
           this.supplierService.updateSupplier(this.supplierForm.value.id, supplierData).subscribe({
             next: () => {
               this.loading = false;
+              this.loadingService.setLoading(false);
               this.dialogRef.close(true);
               this.cdr.detectChanges();
             },
@@ -117,6 +118,7 @@ export class SupplierModalComponent implements OnInit {
           this.supplierService.addSupplier(supplierData).subscribe({
             next: (res) => {
               this.loading = false;
+              this.loadingService.setLoading(false);
               this.dialogRef.close(res);
               this.cdr.detectChanges();
             },

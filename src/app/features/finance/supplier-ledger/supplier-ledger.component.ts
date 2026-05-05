@@ -29,6 +29,7 @@ export class SupplierLedgerComponent implements OnInit, AfterViewInit, OnDestroy
     suppliers: Supplier[] = [];
 
     supplierId: string | null = null;
+    selectedSupplier: Supplier | null = null;
     ledgerData: any = null;
     displayedColumns: string[] = ['transactionDate', 'transactionType', 'referenceId', 'description', 'debit', 'credit', 'balance'];
     dataSource = new MatTableDataSource<any>([]);
@@ -98,19 +99,40 @@ export class SupplierLedgerComponent implements OnInit, AfterViewInit, OnDestroy
         const filterValue = name.toLowerCase();
         return this.suppliers.filter(supplier =>
             (supplier.name && supplier.name.toLowerCase().includes(filterValue)) ||
-            (supplier.id && supplier.id.toString().includes(filterValue))
+            (supplier.latestPoNumber && supplier.latestPoNumber.toLowerCase().includes(filterValue)) ||
+            (supplier.phone && supplier.phone.includes(filterValue))
         );
     }
 
     displayFn(supplier: Supplier): string {
-        return supplier && supplier.name ? `${supplier.name} (#${supplier.id})` : '';
+        if (!supplier || !supplier.name) return '';
+        const poInfo = supplier.latestPoNumber ? ` (PO: ${supplier.latestPoNumber})` : '';
+        return `${supplier.name}${poInfo}`;
     }
 
     loadSuppliers() {
         this.supplierService.getSuppliers().subscribe(data => {
             this.suppliers = data;
 
-            // Check query params after lookups are loaded
+            // 🎯 BIND PO Number: Fetch recent POs to map them to suppliers in the dropdown
+            this.inventoryService.getPagedOrders({ pageSize: 100, sortField: 'CreatedDate', sortOrder: 'desc' }).subscribe(pos => {
+                if (pos && pos.items) {
+                    const poMap = new Map<string, string>();
+                    pos.items.forEach((po: any) => {
+                        if (po.supplierId && !poMap.has(po.supplierId)) {
+                            poMap.set(po.supplierId, po.poNumber);
+                        }
+                    });
+                    this.suppliers.forEach(s => {
+                        s.latestPoNumber = poMap.get(s.id!);
+                    });
+                    // Refresh filter by triggering value change
+                    const currentVal = this.supplierControl.value;
+                    this.supplierControl.setValue(currentVal);
+                }
+            });
+            
+            // Check for initial ID from route
             this.routeSub = this.route.queryParams.subscribe(params => {
                 const sid = params['supplierId'];
                 if (sid) {
@@ -134,15 +156,15 @@ export class SupplierLedgerComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     onSupplierSelected(event: any) {
-        const supplier = event.option.value as Supplier;
-        this.supplierId = supplier.id!;
+        this.selectedSupplier = event.option.value as Supplier;
+        this.supplierId = this.selectedSupplier.id!;
         this.loadLedger();
     }
 
     preselectSupplier(id: string | null) {
-        const supplier = this.suppliers.find(s => s.id === id);
-        if (supplier) {
-            this.supplierControl.setValue(supplier as any);
+        this.selectedSupplier = this.suppliers.find(s => s.id === id) || null;
+        if (this.selectedSupplier) {
+            this.supplierControl.setValue(this.selectedSupplier as any);
         }
     }
 

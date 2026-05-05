@@ -17,6 +17,7 @@ export interface Supplier {
     defaultpricelistId?: string;
     email?: string;
     isActive?: boolean;
+    latestPoNumber?: string;
 }
 
 @Injectable({

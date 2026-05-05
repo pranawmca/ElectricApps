@@ -297,6 +297,24 @@ export class AuthService {
     }
   }
 
+  // 🛡️ NEW: Return all roles as an array
+  getUserRoles(): string[] {
+    const roles = localStorage.getItem('roles');
+    if (!roles) return [];
+    try {
+      const parsed = JSON.parse(roles);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return [];
+    }
+  }
+
+  // 🛡️ NEW: Check if user has a specific role
+  hasRole(roleName: string): boolean {
+    const roles = this.getUserRoles();
+    return roles.includes(roleName) || roles.includes('Super Admin') || roles.includes('Default Admin');
+  }
+
   getUserName(): string {
     return localStorage.getItem('userName') || localStorage.getItem('email') || 'Unknown';
   }

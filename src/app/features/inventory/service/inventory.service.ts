@@ -220,6 +220,10 @@ export class InventoryService {
         return this.api.post('GRN/bulk-create', data);
     }
 
+    getGrnRejectionHistory(grnNumber: string): Observable<any> {
+        return this.api.get(`GRN/rejection-history/${grnNumber}`);
+    }
+
     quickPurchase(payload: any): Observable<any> {
         return this.api.post('QuickTransaction/quick-purchase', payload);
     }

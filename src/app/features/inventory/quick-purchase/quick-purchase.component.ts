@@ -634,7 +634,11 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             if (res) {
                 const newId = (typeof res === 'object') ? res.id : undefined;
                 this.loadSuppliers(newId);
-                this.notification.showStatus(true, 'New supplier added successfully!');
+                
+                // 🎯 Sequence Fix: Delay success popup
+                setTimeout(() => {
+                    this.notification.showStatus(true, 'New supplier added successfully!');
+                }, 200);
             }
         });
     }
@@ -736,8 +740,12 @@ export class QuickPurchaseComponent implements OnInit, OnDestroy, AfterViewInit 
             next: (res: any) => {
                 this.isSaving = false;
                 this.loadingService.setLoading(false);
-                this.notification.showStatus(true, `Quick Purchase Draft ${this.isEditMode ? 'Updated' : 'Saved'}!`);
-                this.router.navigate(['/app/quick-inventory/purchase/list']);
+                
+                // 🎯 Sequence Fix: Allow loader to close before showing popup
+                setTimeout(() => {
+                    this.notification.showStatus(true, `Quick Purchase Draft ${this.isEditMode ? 'Updated' : 'Saved'}!`);
+                    this.router.navigate(['/app/quick-inventory/purchase/list']);
+                }, 150);
             },
             error: (err: any) => {
                 this.isSaving = false;

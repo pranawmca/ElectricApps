@@ -315,7 +315,7 @@ export class SoList implements OnInit {
     this.canBulkDispatch = this.permissionService.hasAction('BULK_DISPATCH');
     this.canBulkReceipt = this.permissionService.hasAction('BULK_RECEIPT');
 
-    this.userRole = this.authService.getUserRole();
+    this.userRole = this.authService.getUserRoles(); // 🛡️ FIX: Pass all roles (array)
 
     this.checkUserRole();
 

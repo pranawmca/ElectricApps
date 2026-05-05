@@ -102,7 +102,7 @@ export class QuickSaleListComponent implements OnInit {
 
   ngOnInit() {
     this.initColumns();
-    this.userRole = this.authService.getUserRole();
+    this.userRole = this.authService.getUserRoles(); // 🛡️ FIX: Pass all roles (array)
 
     this.canAdd = this.permissionService.hasPermission('CanAdd');
     this.canEdit = this.permissionService.hasPermission('CanEdit');

@@ -37,23 +37,23 @@
 
       <!-- Contextual Action Buttons (Show only when more than one record is selected) -->
       <div class="contextual-buttons-group" *ngIf="selection.selected.length > 1">
-        <button mat-raised-button color="primary" *ngIf="showBulkConfirm && allSelectedAreDraft && canAdd && canBulkConfirm && (userRole === 'User' || userRole === 'Super Admin')" (click)="onBulkConfirmClick()" class="bulk-action-btn success-btn">
+        <button mat-raised-button color="primary" *ngIf="showBulkConfirm && allSelectedAreDraft && canAdd && canBulkConfirm && (hasRole('User') || hasRole('Admin'))" (click)="onBulkConfirmClick()" class="bulk-action-btn success-btn">
           <mat-icon>check_circle</mat-icon> Bulk Confirm
         </button>
 
-        <button mat-raised-button color="warn" *ngIf="allSelectedAreDraft && canDelete && canBulkDelete && (userRole !== 'Manager' && userRole !== 'Warehouse' || userRole === 'Super Admin')" (click)="onBulkDeleteClick()" class="bulk-action-btn">
+        <button mat-raised-button color="warn" *ngIf="allSelectedAreDraft && canDelete && canBulkDelete && (!hasRole('Manager') && !hasRole('Warehouse') || hasRole('Admin'))" (click)="onBulkDeleteClick()" class="bulk-action-btn">
           <mat-icon>delete_sweep</mat-icon> Bulk Delete
         </button>
 
-        <button mat-raised-button  *ngIf="showApprovalWorkflow && !showSimpleActions && allSelectedAreDraft && canAdd && (userRole === 'User' || userRole === 'Super Admin')" (click)="onBulkApproveClick()" class="bulk-action-btn glass-btn success-btn">
+        <button mat-raised-button  *ngIf="showApprovalWorkflow && !showSimpleActions && allSelectedAreDraft && canAdd && (hasRole('User') || hasRole('Admin'))" (click)="onBulkApproveClick()" class="bulk-action-btn glass-btn success-btn">
           <mat-icon>done_all</mat-icon> Submit Approval
         </button>
 
-        <button mat-raised-button color="primary" *ngIf="showApprovalWorkflow && allSelectedAreSubmitted && canBulkApprove && (userRole === 'Manager' || userRole === 'Super Admin')" (click)="onBulkDraftApprovedClick()" class="bulk-action-btn success-btn">
+        <button mat-raised-button color="primary" *ngIf="showApprovalWorkflow && allSelectedAreSubmitted && canBulkApprove && hasRole('Manager')" (click)="onBulkDraftApprovedClick()" class="bulk-action-btn success-btn">
           <mat-icon>verified</mat-icon> Massive Approve
         </button>
 
-        <button mat-raised-button color="warn" *ngIf="showApprovalWorkflow && allSelectedAreSubmitted && canBulkApprove && (userRole === 'Manager' || userRole === 'Super Admin')" (click)="onBulkPORejectedClick()" class="bulk-action-btn">
+        <button mat-raised-button color="warn" *ngIf="showApprovalWorkflow && allSelectedAreSubmitted && canBulkApprove && hasRole('Manager')" (click)="onBulkPORejectedClick()" class="bulk-action-btn">
           <mat-icon>cancel</mat-icon> Mass Reject
         </button>
 
@@ -62,7 +62,7 @@
         </button>
       </div>
       
-      <span *ngIf="canAdd && selection.selected.length < 2 && (userRole !== 'Manager' && userRole !== 'Warehouse' || userRole === 'Super Admin')" 
+      <span *ngIf="canAdd && selection.selected.length < 2 && (!hasRole('Manager') && !hasRole('Warehouse') || hasRole('Admin'))" 
             [matTooltip]="disableAdd ? addDisabledTooltip : ''" 
             [matTooltipDisabled]="!disableAdd">
         <button mat-raised-button color="primary" 
@@ -202,7 +202,7 @@
                 </button>
               </ng-container>
               <ng-container *ngIf="!showSimpleActions">
-                <ng-container *ngIf="(row.status?.toLowerCase() === 'draft' || row.status?.toLowerCase() === 'rejected') && (userRole === 'User' || userRole === 'Super Admin')">
+                <ng-container *ngIf="(row.status?.toLowerCase() === 'draft' || row.status?.toLowerCase() === 'rejected') && (hasRole('User') || hasRole('Admin'))">
                   <button mat-icon-button color="primary" *ngIf="canEdit" (click)="$event.stopPropagation(); handleAction('EDIT', row)" matTooltip="Edit {{entityName}}">
                     <mat-icon>edit</mat-icon>
                   </button>
@@ -213,7 +213,7 @@
                     <mat-icon>send</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status?.toLowerCase() === 'submitted' && (userRole === 'Manager' || userRole === 'Super Admin')">
+                <ng-container *ngIf="row.status?.toLowerCase() === 'submitted' && hasRole('Manager')">
                   <button mat-icon-button color="primary" (click)="$event.stopPropagation(); handleAction('APPROVE', row)" matTooltip="Approve {{entityName}}">
                     <mat-icon>check_circle</mat-icon>
                   </button>
@@ -221,7 +221,7 @@
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status?.toLowerCase() === 'approved' && userRole !== 'Warehouse'">
+                <ng-container *ngIf="(row.status?.toLowerCase() === 'approved' || row.status?.toLowerCase() === 'received' || row.status?.toLowerCase() === 'partially received') && !hasRole('Warehouse')">
                   <button mat-icon-button color="primary" (click)="$event.stopPropagation(); handleAction('VIEW', row)" matTooltip="View Details">
                     <mat-icon style="opacity: 0.7;">visibility</mat-icon>
                   </button>
@@ -229,7 +229,7 @@
                     <mat-icon style="color: #607d8b;">print</mat-icon>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="row.status?.toLowerCase() === 'submitted' && userRole === 'User'">
+                <ng-container *ngIf="row.status?.toLowerCase() === 'submitted' && hasRole('User') && !hasRole('Manager') && !hasRole('Admin')">
                   <div style="display: flex; align-items: center; gap: 4px;">
                     <mat-icon style="color: #ff9800;">hourglass_empty</mat-icon>
                     <span style="font-size: 11px; color: #888;">Pending Approval</span>

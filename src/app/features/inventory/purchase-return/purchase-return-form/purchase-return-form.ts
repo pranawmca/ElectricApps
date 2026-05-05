@@ -662,12 +662,19 @@ export class PurchaseReturnForm implements OnInit, AfterViewInit, OnDestroy {
 
         const totalQty = itemsToReturn.reduce((sum: number, item: any) => sum + Number(item.returnQty), 0);
 
+        this.loadingService.setLoading(true, 'Saving Purchase Return...');
         this.prService.savePurchaseReturn(payload).subscribe({
           next: (res) => {
+            this.loadingService.setLoading(false);
             this.inventoryService.notifyInventoryChange();
-            this.handleSuccess(res, res.returnNumber, res.id, supplierName, totalQty);
+            
+            // 🎯 Sequence Fix: Delay success popup to allow loader to close
+            setTimeout(() => {
+              this.handleSuccess(res, res.returnNumber, res.id, supplierName, totalQty);
+            }, 150);
           },
           error: (err) => {
+            this.loadingService.setLoading(false);
             this.cdr.detectChanges();
             this.openDialog(false, err.error?.message || 'An error occurred while saving the data.');
           }

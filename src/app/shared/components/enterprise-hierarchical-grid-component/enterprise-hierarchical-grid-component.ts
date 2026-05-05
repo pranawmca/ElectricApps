@@ -152,11 +152,17 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['userRole']) {
-      console.log('Child Grid mein Role aaya:', changes['userRole'].currentValue);
+      // console.log('Child Grid mein Role aaya:', changes['userRole'].currentValue);
     }
-    if (changes['showApprovalWorkflow']) {
-      console.log('Grid Flow Workflow Status:', changes['showApprovalWorkflow'].currentValue);
+  }
+
+  // 🛡️ NEW: Helper to check if user has a role (handles both string and array)
+  hasRole(roleName: string): boolean {
+    if (!this.userRole) return false;
+    if (Array.isArray(this.userRole)) {
+      return this.userRole.includes(roleName) || this.userRole.includes('Super Admin') || this.userRole.includes('Default Admin');
     }
+    return this.userRole === roleName || this.userRole === 'Super Admin' || this.userRole === 'Default Admin';
   }
 
   getStatusBadgeClass(status: any): string {
@@ -232,23 +238,24 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
     // Anyone can start selecting rows that need Inwarding, Payment, or Dispatch
     if (rowIsPending || isUnpaid || isPaidDispatch) return true;
 
-    if (this.userRole === 'Super Admin') return true;
+    if (this.hasRole('Super Admin')) return true;
 
-    if (this.userRole === 'Manager') {
+    if (this.hasRole('Manager')) {
       const submittedCount = data.filter(r => String(r.status || '').toLowerCase() === 'submitted').length;
       return isSubmitted && submittedCount >= 1;
     }
 
-    if (this.userRole === 'Warehouse') {
-      return false; // Only POs needing inward (checked above) are selectable for Warehouse
+    if (this.hasRole('Warehouse')) {
+      // Warehouse can also select rows for inwarding (handled above)
+      // If we need them to select specifically for something else, add here
     }
 
-    // Default: User -> Draft/Rejected rows
+    // Default: User/Admin -> Draft/Rejected rows
     const draftCount = data.filter(r => {
       const rs = String(r.status || '').toLowerCase();
       return rs === 'draft' || rs === 'rejected';
     }).length;
-    return isDraft && draftCount >= 1;
+    return isDraft && draftCount >= 1 && (this.hasRole('User') || this.hasRole('Admin'));
   }
 
   onParentCheck(row: any) {

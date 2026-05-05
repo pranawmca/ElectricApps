@@ -164,6 +164,47 @@ table {
   }
 }
 
+.grn-cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+
+  b {
+    white-space: nowrap;
+  }
+
+  .audit-info-btn {
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+    &:hover {
+      background: #e0e7ff;
+      transform: scale(1.1);
+      box-shadow: 0 2px 5px rgba(99, 102, 241, 0.2);
+    }
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
 /* Status Badges */
 .status-badge {
   padding: 4px 10px;

@@ -15,6 +15,7 @@ import { PoSelectionDialog } from '../po-selection-dialog/po-selection-dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { GrnPrintDialogComponent } from '../grn-print-dialog/grn-print-dialog.component';
+import { RejectionHistoryDialogComponent } from '../rejection-history-dialog/rejection-history-dialog.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PermissionService } from '../../../core/services/permission.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -352,6 +353,15 @@ export class GrnListComponent implements OnInit, AfterViewInit {
       maxWidth: '95vw',
       data: { grnNo: grn.grnNo },
       panelClass: 'grn-print-dialog'
+    });
+  }
+
+  openRejectionHistory(grn: any) {
+    this.dialog.open(RejectionHistoryDialogComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      data: { grnNumber: grn.grnNo },
+      panelClass: 'rejection-history-dialog'
     });
   }
 

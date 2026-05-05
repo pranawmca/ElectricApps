@@ -9,9 +9,9 @@
         <mat-card-content>
             <div class="search-container">
                 <mat-form-field appearance="outline" class="search-field">
-                    <mat-label>Select Supplier (Name or ID)</mat-label>
+                    <mat-label>Select Supplier (Name or PO#)</mat-label>
                     <input type="text" 
-                           placeholder="Search Supplier..." 
+                           placeholder="Search Supplier or PO..." 
                            matInput 
                            [formControl]="supplierControl" 
                            [matAutocomplete]="auto">
@@ -19,7 +19,8 @@
                         <mat-option *ngFor="let supplier of filteredSuppliers | async" [value]="supplier">
                             <div class="supplier-option">
                                 <span class="supp-name">{{supplier.name}}</span>
-                                <span class="supp-id">#{{supplier.id}}</span>
+                                <span class="supp-id" *ngIf="supplier.latestPoNumber">PO: {{supplier.latestPoNumber}}</span>
+                                <span class="supp-id" *ngIf="!supplier.latestPoNumber && supplier.phone">Mob: {{supplier.phone}}</span>
                             </div>
                         </mat-option>
                     </mat-autocomplete>
@@ -62,7 +63,8 @@
                         <mat-icon class="avatar-icon">store</mat-icon>
                         <div>
                             <h2 class="supplier-name">{{ledgerData.supplierName || 'Consolidated View'}}</h2>
-                            <span class="supplier-id" *ngIf="supplierId">ID: #{{supplierId}}</span>
+                            <span class="supplier-id" *ngIf="selectedSupplier?.latestPoNumber">Latest PO: {{selectedSupplier?.latestPoNumber}}</span>
+                            <span class="supplier-id" *ngIf="supplierId && !selectedSupplier?.latestPoNumber">ID: #{{supplierId}}</span>
                             <span class="supplier-id" *ngIf="!supplierId">Viewing All Suppliers' Activity</span>
                         </div>
                     </div>

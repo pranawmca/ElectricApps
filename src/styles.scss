@@ -1732,3 +1732,14 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield !important;
 }
+/* Rejection History Dialog Panel */
+.rejection-history-dialog {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    border-radius: 12px !important;
+  }
+  .mdc-dialog__surface {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+}

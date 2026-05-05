@@ -1,0 +1,72 @@
+<div class="dialog-container rejection-audit-container">
+  <div class="dialog-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">history_edu</mat-icon>
+      <div class="title-group">
+        <h2>Rejection & Settlement Audit</h2>
+        <p class="subtitle">Tracking resolution for GRN: <span class="highlight">{{data.grnNumber}}</span></p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="onClose()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-body">
+    <div *ngIf="loading" class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Fetching rejection history...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{errorMessage}}</p>
+      <button mat-stroked-button color="primary" (click)="loadHistory()">Try Again</button>
+    </div>
+
+    <div *ngIf="!loading && history.length === 0" class="empty-state">
+      <mat-icon>check_circle_outline</mat-icon>
+      <h3>No Rejections Found</h3>
+      <p>All items in this GRN were accepted successfully.</p>
+    </div>
+
+    <div *ngIf="!loading && history.length > 0" class="audit-table-wrapper">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th class="text-center">Rejected Qty</th>
+            <th class="text-center">Status</th>
+            <th>Resolution Detail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of history">
+            <td class="product-cell">
+              <span class="product-name">{{item.productName}}</span>
+            </td>
+            <td class="text-center">
+              <span class="qty-badge">{{item.rejectedQty}}</span>
+            </td>
+            <td class="text-center">
+              <span class="status-badge" [ngClass]="item.status.toLowerCase()">
+                {{item.status}}
+              </span>
+            </td>
+            <td class="resolution-cell">
+              <div class="res-content">
+                <mat-icon *ngIf="item.isSettled" class="settled-icon">verified</mat-icon>
+                <mat-icon *ngIf="!item.isSettled" class="pending-icon">hourglass_empty</mat-icon>
+                <span [class.settled-text]="item.isSettled">{{item.resolution}}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </mat-dialog-content>
+
+  <div class="dialog-footer">
+    <button mat-button (click)="onClose()">Close</button>
+  </div>
+</div>

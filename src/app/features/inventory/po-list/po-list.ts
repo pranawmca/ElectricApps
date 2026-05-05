@@ -108,7 +108,6 @@ export class PoList implements OnInit {
 
   ngOnInit() {
     this.initColumns();
-    this.userRole = this.authService.getUserRole();
 
     // Load permissions for Purchase Order page
     this.canAdd = this.permissionService.hasPermission('CanAdd');
@@ -117,6 +116,7 @@ export class PoList implements OnInit {
     this.canBulkApprove = this.permissionService.hasAction('BULK_APPROVE');
     this.canBulkInward = this.permissionService.hasAction('BULK_INWARD');
 
+    this.userRole = this.authService.getUserRoles(); // 🛡️ FIX: Pass all roles (array)
 
     console.log('[PoList] Current User Role:', this.userRole);
     console.log('[PoList] Permissions -> canAdd:', this.canAdd, 'canEdit:', this.canEdit, 'canDelete:', this.canDelete);
