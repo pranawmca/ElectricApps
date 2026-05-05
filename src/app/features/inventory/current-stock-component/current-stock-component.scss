@@ -196,23 +196,33 @@
   width: 100%;
   flex: 1;
   overflow-y: auto;
-  overflow-x: scroll !important; /* Forced horizontal scroll on main table */
+  overflow-x: auto !important; 
+  scroll-behavior: smooth;
   
   &::-webkit-scrollbar {
     width: 6px;
-    height: 8px !important; /* Slightly thicker for better visibility */
+    height: 0px !important; 
   }
-  &::-webkit-scrollbar-thumb {
-    background: #3b82f6 !important; /* Consistent blue like child table */
-    border-radius: 10px;
-    
-    &:hover {
-      background: #2563eb !important;
-    }
-  }
-  &::-webkit-scrollbar-track {
-    background: #f8fafc;
-  }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* 🚀 MAIN TABLE FLOATING SCROLL PILL */
+.main-nexus {
+  position: absolute;
+  bottom: 80px; /* Above paginator */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1005;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 30px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 /* Make Header Sticky */
@@ -669,31 +679,71 @@ tr.element-row:not(.expanded-row) + tr.detail-row {
 .history-scroll-container {
   max-height: 450px;
   overflow-y: auto;
-  overflow-x: auto !important; /* Restore specific scroll for child table */
+  overflow-x: auto !important; 
   display: block;
   width: 100%;
-  max-width: calc(100vw - 320px); /* Constrain to viewport for scroll to appear */
+  max-width: calc(100vw - 320px); 
   box-sizing: border-box;
   position: relative;
+  scroll-behavior: smooth;
   
-  /* Force scrollbar visibility always */
-  scrollbar-width: auto;
-  scrollbar-color: #3b82f6 #f1f5f9;
-
+  /* Force scrollbar visibility: Hidden horizontal to use Slide Buttons */
   &::-webkit-scrollbar {
     width: 6px;
-    height: 6px !important; 
+    height: 0px !important; 
   }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #3b82f6 !important; 
-    border-radius: 10px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* 🚀 AUDIT TRAIL FLOATING SCROLL PILL */
+.audit-nexus {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  z-index: 1005;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 30px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.nexus-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+  &:hover:not(:disabled) {
+    background: #3b82f6;
+    color: white;
   }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 10px;
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
   }
+}
+
+.nexus-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .inner-paginator {

@@ -123,7 +123,7 @@
   </div>
 
   <div [style.display]="(!isLoadingResults && stockDataSource.data.length > 0) ? 'block' : 'none'" 
-       class="table-scroll-wrapper" #scrollWrapper>
+       class="table-scroll-wrapper" #scrollWrapper (scroll)="onMainScroll()">
     <table mat-table [dataSource]="stockDataSource" matSort multiTemplateDataRows aria-label="Current Stock Table">
       
       <ng-container matColumnDef="select">
@@ -147,16 +147,6 @@
         <th mat-header-cell *matHeaderCellDef appResizableColumn>
            <div class="product-header-content">
               <span mat-sort-header>Product</span>
-              <div class="scroll-controls">
-                <button type="button" mat-icon-button (click)="$event.stopPropagation(); scrollTable('left')" 
-                        class="scroll-btn left" matTooltip="Scroll Left">
-                  <mat-icon>chevron_left</mat-icon>
-                </button>
-                <button type="button" mat-icon-button (click)="$event.stopPropagation(); scrollTable('right')" 
-                        class="scroll-btn right" matTooltip="Scroll Right">
-                  <mat-icon>chevron_right</mat-icon>
-                </button>
-              </div>
            </div>
         </th>
         <td mat-cell *matCellDef="let element"> 
@@ -289,7 +279,7 @@
                 </div>
               </div>
               
-              <div class="history-scroll-container">
+              <div class="history-scroll-container" #auditTableWrapper (scroll)="onAuditScroll()">
                 <table class="child-table">
                   <thead>
                     <tr>
@@ -434,6 +424,17 @@
                 </table>
               </div>
 
+              <!-- 🚀 AUDIT TRAIL FLOATING SCROLL PILL -->
+              <div class="audit-nexus" *ngIf="showAuditScrollPill(auditTableWrapper)">
+                <button class="nexus-btn" [disabled]="isAuditAtStart(auditTableWrapper)" (click)="scrollAuditTable(auditTableWrapper, 'left')" matTooltip="Scroll Left">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+                <div class="nexus-divider"></div>
+                <button class="nexus-btn" [disabled]="isAuditAtEnd(auditTableWrapper)" (click)="scrollAuditTable(auditTableWrapper, 'right')" matTooltip="Scroll Right">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </div>
+
               <!-- Inner Pagination for History -->
               <mat-paginator class="inner-paginator"
                             [length]="$any(element).history.length"
@@ -458,6 +459,17 @@
       <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
 
     </table>
+  </div>
+
+  <!-- 🚀 MAIN TABLE FLOATING SCROLL PILL -->
+  <div class="main-nexus" *ngIf="showMainScrollPill()">
+    <button class="nexus-btn" [disabled]="isMainAtStart()" (click)="scrollTable('left')" matTooltip="Scroll Left">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <div class="nexus-divider"></div>
+    <button class="nexus-btn" [disabled]="isMainAtEnd()" (click)="scrollTable('right')" matTooltip="Scroll Right">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
   </div>
 
   <!-- Restore Outer Pagination -->

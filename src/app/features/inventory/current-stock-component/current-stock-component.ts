@@ -59,15 +59,36 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('scrollWrapper') scrollWrapper!: ElementRef;
 
+  // 🚀 Main Table Scroll Helpers
+  showMainScrollPill(): boolean {
+    if (!this.scrollWrapper) return false;
+    const el = this.scrollWrapper.nativeElement;
+    return el.scrollWidth > el.clientWidth;
+  }
+
+  isMainAtStart(): boolean {
+    if (!this.scrollWrapper) return true;
+    return this.scrollWrapper.nativeElement.scrollLeft <= 5;
+  }
+
+  isMainAtEnd(): boolean {
+    if (!this.scrollWrapper) return true;
+    const el = this.scrollWrapper.nativeElement;
+    return el.scrollLeft + el.clientWidth >= el.scrollWidth - 5;
+  }
+
   scrollTable(direction: 'left' | 'right') {
     if (!this.scrollWrapper) return;
-    const scrollAmount = 300;
     const element = this.scrollWrapper.nativeElement;
-    if (direction === 'left') {
-      element.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-    } else {
-      element.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
+    const step = element.clientWidth * 0.75;
+    const targetScroll = direction === 'left' ? element.scrollLeft - step : element.scrollLeft + step;
+    element.scrollTo({ left: targetScroll, behavior: 'smooth' });
+    setTimeout(() => this.cdr.detectChanges(), 100);
+    setTimeout(() => this.cdr.detectChanges(), 400);
+  }
+
+  onMainScroll() {
+    this.cdr.detectChanges();
   }
 
   resultsLength = 0;
@@ -517,5 +538,31 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
         this.notification.showStatus(false, err.error?.message || 'Error occurred during synchronization.');
       }
     });
+  }
+
+  // 🚀 Audit Trail Scroll Helpers
+  showAuditScrollPill(wrapper: HTMLElement): boolean {
+    return wrapper && wrapper.scrollWidth > wrapper.clientWidth;
+  }
+
+  isAuditAtStart(wrapper: HTMLElement): boolean {
+    return wrapper ? wrapper.scrollLeft <= 5 : true;
+  }
+
+  isAuditAtEnd(wrapper: HTMLElement): boolean {
+    return wrapper ? wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 5 : true;
+  }
+
+  scrollAuditTable(wrapper: HTMLElement, direction: 'left' | 'right') {
+    if (!wrapper) return;
+    const step = wrapper.clientWidth * 0.75;
+    const targetScroll = direction === 'left' ? wrapper.scrollLeft - step : wrapper.scrollLeft + step;
+    wrapper.scrollTo({ left: targetScroll, behavior: 'smooth' });
+    setTimeout(() => this.cdr.detectChanges(), 100);
+    setTimeout(() => this.cdr.detectChanges(), 400);
+  }
+
+  onAuditScroll() {
+    this.cdr.detectChanges();
   }
 }
