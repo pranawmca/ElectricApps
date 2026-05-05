@@ -592,54 +592,81 @@ th.child-th {
 }
 
 
-/* --- NEW: Floating Horizontal Scroll Navigation --- */
-.main-grid-content {
-  position: relative; /* Context for floating buttons */
+/* --- 🚀 SUPER SOLUTION: Floating Scroll Nexus (Pill) --- */
+.scroll-pill-nexus {
+  position: absolute;
+  bottom: 60px; /* Adjusted to sit nicely above the paginator */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 30px;
+  padding: 6px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15), 
+              0 4px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1005;
+  gap: 4px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 1;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.25);
+    bottom: 82px;
+  }
 }
 
-.scroll-nav-floating {
-  position: absolute;
-  top: 130px; /* Positioned near the header area */
-  width: 48px;
-  height: 48px;
+.nexus-btn {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: none;
-  background: white;
-  color: #3b82f6;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: transparent;
+  color: #4f46e5;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 1001; 
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 0;
-  opacity: 1;
+  transition: all 0.2s ease;
 
   mat-icon {
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
   }
 
-  &:hover {
-    background: #3b82f6;
+  &:hover:not(:disabled) {
+    background: #4f46e5;
     color: white;
     transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
   }
 
-  &:active {
-    transform: scale(0.95);
+  &:active:not(:disabled) {
+    transform: scale(0.9);
   }
 
-  &.btn-left {
-    left: 15px;
+  &:disabled {
+    color: #cbd5e1;
+    cursor: not-allowed;
+    opacity: 0.5;
   }
+}
 
-  &.btn-right {
-    right: 15px;
-  }
+.nexus-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 0 2px;
+}
+
+/* Ensure table container has enough space at bottom for pill if needed */
+.main-grid-content {
+  position: relative;
+  padding-bottom: 10px;
 }
 
 .select-header {

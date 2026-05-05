@@ -18,6 +18,9 @@ import { LoadingService } from '../../../core/services/loading.service';
 
 import { ResizableColumnDirective } from '../../../shared/directives/resizable-column.directive';
 
+import { finalize } from 'rxjs/operators';
+import { trigger, transition, style, animate } from '@angular/animations';
+
 @Component({
   selector: 'app-enterprise-hierarchical-grid',
   standalone: true,
@@ -29,7 +32,19 @@ import { ResizableColumnDirective } from '../../../shared/directives/resizable-c
     ResizableColumnDirective,
     FormsModule],
   templateUrl: './enterprise-hierarchical-grid-component.html',
-  styleUrl: './enterprise-hierarchical-grid-component.scss'
+  styleUrl: './enterprise-hierarchical-grid-component.scss',
+  animations: [
+    trigger('pillAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateX(-50%) translateY(20px)' }),
+        animate('0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)', 
+          style({ opacity: 1, transform: 'translateX(-50%) translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('0.3s ease-in', style({ opacity: 0, transform: 'translateX(-50%) translateY(20px)' }))
+      ])
+    ])
+  ]
 })
 export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() columns: GridColumn[] = [];
@@ -118,6 +133,11 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
 
   @ViewChild('mainTableWrapper') mainTableWrapper!: ElementRef;
 
+  // Scroll Pill States
+  showScrollPill: boolean = false;
+  isAtStart: boolean = true;
+  isAtEnd: boolean = false;
+
   constructor(private cdr: ChangeDetectorRef, private router: Router) { }
 
   ngOnInit() {
@@ -151,6 +171,9 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['dataSource'] || changes['isLoading']) {
+      setTimeout(() => this.checkScrollability(), 100);
+    }
     if (changes['userRole']) {
       // console.log('Child Grid mein Role aaya:', changes['userRole'].currentValue);
     }
@@ -179,7 +202,11 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
+    this.checkScrollability();
     this.cdr.detectChanges();
+    
+    // Check scroll on window resize
+    window.addEventListener('resize', () => this.checkScrollability());
   }
   onColumnToggle() {
     this.cdr.detectChanges();
@@ -753,5 +780,28 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
       left: targetScroll,
       behavior: 'smooth'
     });
+
+    // Re-check after animation
+    setTimeout(() => this.updateScrollState(), 400);
+  }
+
+  onTableScroll() {
+    this.updateScrollState();
+  }
+
+  private checkScrollability() {
+    if (!this.mainTableWrapper) return;
+    const wrapper = this.mainTableWrapper.nativeElement;
+    this.showScrollPill = wrapper.scrollWidth > wrapper.clientWidth;
+    this.updateScrollState();
+    this.cdr.detectChanges();
+  }
+
+  private updateScrollState() {
+    if (!this.mainTableWrapper) return;
+    const wrapper = this.mainTableWrapper.nativeElement;
+    this.isAtStart = wrapper.scrollLeft <= 5;
+    this.isAtEnd = (wrapper.scrollLeft + wrapper.clientWidth) >= (wrapper.scrollWidth - 5);
+    this.cdr.detectChanges();
   }
 }

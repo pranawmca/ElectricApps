@@ -87,15 +87,27 @@
   </div>
 
   <div class="main-grid-content" [style.display]="(!isLoading && dataSource && dataSource.data.length > 0) ? 'flex' : 'none'">
-    <!-- Floating Scroll Navigation Buttons -->
-    <button type="button" class="scroll-nav-floating btn-left" (click)="scrollTable('left')" title="Slide Left">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
-    <button type="button" class="scroll-nav-floating btn-right" (click)="scrollTable('right')" title="Slide Right">
-      <mat-icon>chevron_right</mat-icon>
-    </button>
+    <!-- 🚀 NEW: Floating Scroll Nexus (Pill Design) -->
+    <!-- Positioned at Bottom-Center to avoid blocking checkboxes and actions -->
+    <div class="scroll-pill-nexus" *ngIf="showScrollPill" [@pillAnimation]>
+      <button type="button" class="nexus-btn btn-left" 
+              [disabled]="isAtStart"
+              (click)="scrollTable('left')" 
+              matTooltip="Slide Left">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      
+      <div class="nexus-divider"></div>
+      
+      <button type="button" class="nexus-btn btn-right" 
+              [disabled]="isAtEnd"
+              (click)="scrollTable('right')" 
+              matTooltip="Slide Right">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
 
-    <div class="responsive-table-wrapper" #mainTableWrapper>
+    <div class="responsive-table-wrapper" #mainTableWrapper (scroll)="onTableScroll()">
       <table mat-table [dataSource]="dataSource" multiTemplateDataRows matSort (matSortChange)="onSortChange($event)"
         cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="drop($event)">
 
