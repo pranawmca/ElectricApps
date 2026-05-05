@@ -120,7 +120,10 @@
             <div class="col-action"></div>
           </div>
 
-          <div class="item-row" *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
+          <div class="item-row" 
+               *ngFor="let row of items.controls; let i = index" 
+               [formGroupName]="i"
+               [style.display]="row.get('isAwaitingBatch')?.value ? 'none' : 'grid'">
             <div class="col-product">
               <!-- Clickable Stock Tracker Hint (Midnight Polish Style) -->
               <div class="stock-hint" 

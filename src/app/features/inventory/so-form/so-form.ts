@@ -381,7 +381,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       manufacturingDate: [null],
       expiryDate: [null],
       batchNumber: [product.batchNumber || product.BatchNumber || ''],
-      referenceNumber: [product.referenceNumber || product.ReferenceNumber || '']
+      referenceNumber: [product.referenceNumber || product.ReferenceNumber || ''],
+      isAwaitingBatch: [!isExistingItem]
     });
 
     let index: number;
@@ -498,6 +499,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
         const validBatches = selectableBatches.filter((b: any) => !b.isExpired);
 
         if (validBatches.length === 1 && selectableBatches.filter((b: any) => b.availableStock > 0).length === 1) {
+          currentItem.get('isAwaitingBatch')?.setValue(false);
           this.applyBatchToForm(validBatches[0], currentItem);
         } else if (selectableBatches.length > 0) {
           const dialogRef = this.dialog.open(BatchSelectionDialogComponent, {
@@ -508,6 +510,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
 
           dialogRef.afterClosed().subscribe((selectedBatch: any) => {
             if (selectedBatch) {
+              currentItem.get('isAwaitingBatch')?.setValue(false);
               this.applyBatchToForm(selectedBatch, currentItem);
             } else {
               const idx = this.items.controls.indexOf(row);

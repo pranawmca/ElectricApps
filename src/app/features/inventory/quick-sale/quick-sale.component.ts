@@ -382,7 +382,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             expiryDate: [formatDt(product.expiryDate)],
             batchNumber: [product.batchNumber || product.BatchNumber || ''],
             referenceNumber: [product.referenceNumber || product.ReferenceNumber || ''],
-            originalQty: [isExistingItem ? (product.qty || 0) : 0]
+            originalQty: [isExistingItem ? (product.qty || 0) : 0],
+            isAwaitingBatch: [!isExistingItem && !bypassBatchDialog]
         });
 
         // For existing items, manually trigger any derived calculations
@@ -492,10 +493,12 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
                   if (bypassBatchDialog && validBatches.length > 0) {
                       console.log('[QuickSale] Bypassing dialog (Scanner Mode), auto-selecting first valid batch.');
-                      this.applyBatchToForm(validBatches[0], currentItem, formatDt, index);
+                      currentItem?.get('isAwaitingBatch')?.setValue(false);
+                       this.applyBatchToForm(validBatches[0], currentItem, formatDt, index);
                   } else if (validBatches.length === 1 && selectableBatches.length === 1) {
                       console.log('[QuickSale] Exactly one valid batch found, auto-applying.');
-                      this.applyBatchToForm(validBatches[0], currentItem, formatDt, index);
+                      currentItem?.get('isAwaitingBatch')?.setValue(false);
+                       this.applyBatchToForm(validBatches[0], currentItem, formatDt, index);
                   } else if (validBatches.length > 0 || selectableBatches.length > 0) {
                       console.log('[QuickSale] Multiple batches or expired batches found, opening Selection Dialog.');
                       const dialogRef = this.dialog.open(BatchSelectionDialogComponent, {
@@ -510,9 +513,9 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
                      dialogRef.afterClosed().subscribe((selectedBatch: any) => {
                          if (selectedBatch) {
+                             currentItem?.get('isAwaitingBatch')?.setValue(false);
                              this.applyBatchToForm(selectedBatch, currentItem, formatDt, index);
                          } else {
-                             this.notification.showStatus(false, 'Batch selection cancelled. Item not added.');
                              this.items.removeAt(index);
                          }
                      });
