@@ -50,7 +50,8 @@ export class BatchHistoryDialogComponent implements OnInit {
       this.data.warehouseId,
       this.data.rackId,
       mfgDate,
-      expDate
+      expDate,
+      this.data.branchId
     ).pipe(
       finalize(() => {
         this.isLoading = false;

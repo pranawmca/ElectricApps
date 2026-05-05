@@ -220,7 +220,8 @@ export class CurrentStockComponent implements OnInit, AfterViewInit, OnDestroy {
       this.endDate,
       this.selectedWarehouseId,
       this.selectedRackId,
-      this.showPurgedHistory
+      this.showPurgedHistory,
+      this.authService.getBranchId()
     );
   }
 

@@ -332,9 +332,11 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     addProductToForm(product: any, bypassBatchDialog = false) {
-        const isExistingItem = !!product.productId;
+        // 🎯 Fix: isExistingItem should only be true if we are editing an ALREADY SAVED line item.
+        // Products coming from the Selection Dialog have 'productId' but are NOT existing sale items yet.
+        const isExistingItem = !!product.saleOrderItemId || (!!product.id && product.id !== product.productId && !product.sku);
         const lineItemId = isExistingItem ? (product.id || '') : '';
-        const productId = isExistingItem ? product.productId : product.id;
+        const productId = product.productId || product.id;
 
         const formatDt = (dt: any) => {
             if (!dt) return null;
@@ -378,6 +380,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
             isExpiryRequired: [product.isExpiryRequired || false],
             manufacturingDate: [formatDt(product.manufacturingDate)],
             expiryDate: [formatDt(product.expiryDate)],
+            batchNumber: [product.batchNumber || product.BatchNumber || ''],
+            referenceNumber: [product.referenceNumber || product.ReferenceNumber || ''],
             originalQty: [isExistingItem ? (product.qty || 0) : 0]
         });
 
@@ -396,7 +400,7 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
               const productName = (product.productName || product.name || '').trim();
               const lookupTerm = productId ? String(productId) : productName;
               console.log('[QuickSale] Fetching stock for:', lookupTerm);
-              this.inventoryService.getCurrentStock('', '', 0, 100, lookupTerm).subscribe((res: any) => {
+              this.inventoryService.getCurrentStock('', '', 0, 100, lookupTerm, null, null, null, null, false, this.authService.getBranchId()).subscribe((res: any) => {
                   const currentItem = this.items.at(index);
                   const itemsArray = res?.data?.items || res?.items || res?.Items || res?.data?.Items || [];
                   console.log('[QuickSale] API Response items:', itemsArray);
@@ -447,6 +451,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                               warehouseId: h.warehouseId ?? h.WarehouseId ?? pItem.warehouseId,
                               rackName: h.rackName ?? h.RackName ?? pItem.rackName, 
                               rackId: h.rackId ?? h.RackId ?? pItem.rackId,
+                              batchNumber: h.batchNumber ?? h.BatchNumber ?? 'N/A',
+                              referenceNumber: h.referenceNumber ?? h.ReferenceNumber ?? h.grnNumber ?? h.GRNNumber ?? 'N/A',
                               isExpired: isExpiredBatch(h.expiryDate ?? h.ExpiryDate)
                           });
                       });
@@ -462,30 +468,42 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                               rackName: pItem.rackName ?? pItem.RackName,
                               warehouseId: pItem.warehouseId ?? pItem.WarehouseId,
                               rackId: pItem.rackId ?? pItem.RackId,
+                              batchNumber: pItem.batchNumber ?? pItem.BatchNumber ?? 'N/A',
+                              referenceNumber: pItem.referenceNumber ?? pItem.ReferenceNumber ?? pItem.grnNumber ?? pItem.GRNNumber ?? 'N/A',
                               isExpired: isExpiredBatch(pItem.expiryDate ?? pItem.ExpiryDate)
                           });
                       }
                   });
+                  const selectableBatches = allBatches.filter((b: any) => (b.availableStock > 0 || b.availableQty > 0));
+                  // 🎯 FEFO Logic: Sort batches by Expiry Date (First Expiry First Out)
+                  selectableBatches.sort((a, b) => {
+                      const dateA = a.expiryDate ? new Date(a.expiryDate).getTime() : Infinity;
+                      const dateB = b.expiryDate ? new Date(b.expiryDate).getTime() : Infinity;
+                      if (dateA !== dateB) return dateA - dateB;
+                      const mfgA = a.manufacturingDate ? new Date(a.manufacturingDate).getTime() : Infinity;
+                      const mfgB = b.manufacturingDate ? new Date(b.manufacturingDate).getTime() : Infinity;
+                      return mfgA - mfgB;
+                  });
 
-                  // Filter for selectable batches (ONLY show batches with positive stock for Sale)
-                  const selectableBatches = allBatches.filter((b: any) => (b.availableStock > 0 || b.availableQty > 0 || b.AvailableQty > 0));
                   const validBatches = selectableBatches.filter((b: any) => !b.isExpired);
                   
-                  console.log('[QuickSale] Selectable Batches:', selectableBatches);
-                  console.log('[QuickSale] Valid Batches:', validBatches);
+                  console.log(`[QuickSale] Product: ${productName}, SKU: ${product.sku}`);
+                  console.log('[QuickSale] Selectable Batches (FEFO Sorted):', selectableBatches);
 
                   if (bypassBatchDialog && validBatches.length > 0) {
-                      // Auto-select first valid batch for scanning
+                      console.log('[QuickSale] Bypassing dialog (Scanner Mode), auto-selecting first valid batch.');
                       this.applyBatchToForm(validBatches[0], currentItem, formatDt, index);
-                  } else if (validBatches.length === 1 && allBatches.filter((b: any) => b.availableStock > 0).length === 1) {
+                  } else if (validBatches.length === 1 && selectableBatches.length === 1) {
+                      console.log('[QuickSale] Exactly one valid batch found, auto-applying.');
                       this.applyBatchToForm(validBatches[0], currentItem, formatDt, index);
                   } else if (validBatches.length > 0 || selectableBatches.length > 0) {
+                      console.log('[QuickSale] Multiple batches or expired batches found, opening Selection Dialog.');
                       const dialogRef = this.dialog.open(BatchSelectionDialogComponent, {
                           width: '620px',
                           disableClose: false,
                           data: {
                               productName: product.productName || product.name,
-                              batches: selectableBatches.sort((a,b) => (new Date(a.expiryDate || 0)).getTime() - (new Date(b.expiryDate || 0)).getTime()),
+                              batches: selectableBatches,
                               validCount: validBatches.length
                           }
                       });
@@ -531,6 +549,11 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
 
         if (mfgDate) formGroup.get('manufacturingDate')?.setValue(formatDt(mfgDate));
         if (expDate) formGroup.get('expiryDate')?.setValue(formatDt(expDate));
+
+        const batchNo = batch.batchNumber || batch.BatchNumber;
+        const refNo = batch.referenceNumber || batch.ReferenceNumber;
+        if (batchNo) formGroup.get('batchNumber')?.setValue(batchNo);
+        if (refNo) formGroup.get('referenceNumber')?.setValue(refNo);
 
         formGroup.get('availableStock')?.setValue(stock);
 
@@ -901,6 +924,8 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                         rackId: i.rackId || null,
                         manufacturingDate: i.manufacturingDate || null,
                         expiryDate: i.expiryDate || null,
+                        batchNumber: i.batchNumber || null,
+                        referenceNumber: i.referenceNumber || null,
                         branchId: i.branchId || this.authService.getBranchId()
                     }))
                 };

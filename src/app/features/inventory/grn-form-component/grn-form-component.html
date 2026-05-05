@@ -62,7 +62,8 @@
               <th class="text-center" style="width: 45px;">Pend. Qty</th>
               <th class="text-center" style="width: 55px;">Recv. Qty</th>
               <th class="text-center" style="width: 55px;">Rej. Qty</th>
-              <th class="text-center" style="width: 45px;">Accpt. Qty</th>
+               <th class="text-center" style="width: 55px;">Accpt. Qty</th>
+              <th class="text-center" style="width: 90px;">Batch No</th>
               <th class="text-center" style="width: 120px;">Warehouse</th>
               <th class="text-center" style="width: 110px;">Rack</th>
               <th class="text-center" style="width: 80px;">Mfg Date</th>
@@ -111,8 +112,18 @@
                          min="0">
                 </mat-form-field>
               </td>
-              <td class="text-center text-accepted"><b>{{item.acceptedQty}}</b></td>
+               <td class="text-center text-accepted"><b>{{item.acceptedQty}}</b></td>
               
+              <td class="text-center">
+                <mat-form-field appearance="outline" class="dense-input narrow" subscriptSizing="dynamic">
+                  <input matInput type="text" 
+                         [(ngModel)]="item.batchNumber" 
+                         [ngModelOptions]="{standalone: true}"
+                         [disabled]="isViewMode"
+                         placeholder="Optional">
+                </mat-form-field>
+              </td>
+
               <td class="text-center">
                 <mat-form-field appearance="outline" class="dense-input wide" subscriptSizing="dynamic"
                                 [class.error-input]="!isWarehouseValid(item) && !isViewMode">

@@ -76,7 +76,7 @@ export class DisposedStockComponent implements OnInit, AfterViewInit {
   }
 
   checkExpiredStock() {
-    this.inventoryService.getCurrentStock().subscribe(data => {
+    this.inventoryService.getCurrentStock('', '', 0, 1000, '', null, null, null, null, false, this.authService.getBranchId()).subscribe(data => {
       if (data && data.items) {
         const stockItems = data.items.filter((item: any) => (item.availableStock > 0 || item.totalExpired > 0));
         const expiredItems = stockItems.filter((item: any) => 
@@ -169,7 +169,8 @@ export class DisposedStockComponent implements OnInit, AfterViewInit {
       this.startDate,
       this.endDate,
       this.selectedWarehouseId,
-      this.selectedRackId
+      this.selectedRackId,
+      this.authService.getBranchId()
     );
   }
 

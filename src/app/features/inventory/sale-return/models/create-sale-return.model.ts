@@ -16,6 +16,8 @@ export interface SaleReturnItem {
     modifiedBy?: string;
     companyId?: string | null;
     branchId?: string | null;
+    batchNumber?: string;
+    referenceNumber?: string;
 }
 
 export interface CreateSaleReturnDto {

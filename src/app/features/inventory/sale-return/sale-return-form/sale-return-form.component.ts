@@ -278,7 +278,9 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy
                             expiryDate: [item.expiryDate || item.expDate],
                             isExpiryRequired: [item.isExpiryRequired ?? true],
                             grnNo: [item.grnNumber || item.grnNo || 'N/A'],
-                            refNo: [item.refNo || item.poNumber || 'N/A']
+                            refNo: [item.refNo || item.poNumber || 'N/A'],
+                            batchNumber: [item.batchNumber || item.grnNumber || item.grnNo],
+                            referenceNumber: [item.referenceNumber || item.refNo || item.poNumber]
                         });
 
                         this.calculateRowTotal(itemGroup);
@@ -371,6 +373,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy
                 expiryDate: [item.expiryDate],
                 grnNo: [item.grnNumber || item.grnNo || 'N/A'],
                 refNo: [item.refNo || item.poNumber || 'N/A'],
+                batchNumber: [item.batchNumber],
+                referenceNumber: [item.referenceNumber]
             });
 
             itemGroup.get('returnQty')?.valueChanges.subscribe(() => {
@@ -526,6 +530,8 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy
                     expiryDate: i.expiryDate,
                     mfgDate: i.manufacturingDate,
                     expDate: i.expiryDate,
+                    batchNumber: i.batchNumber,
+                    referenceNumber: i.referenceNumber,
                     companyId: this.authService.getCompanyId(),
                     branchId: this.authService.getBranchId(),
                     createdBy: userId,

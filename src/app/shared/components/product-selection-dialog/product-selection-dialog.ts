@@ -12,6 +12,7 @@ import { ProductLookUpService } from '../../../features/master/product/service/p
 import { LoadingService } from '../../../core/services/loading.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { InventoryService } from '../../../features/inventory/service/inventory.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-product-selection-dialog',
@@ -769,6 +770,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
   private loadingService = inject(LoadingService);
   private languageService = inject(LanguageService);
   private inventoryService = inject(InventoryService);
+  private authService = inject(AuthService);
 
   translate(key: string): string {
     return this.languageService.translate(key);
@@ -973,7 +975,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
       // For Sale/Other modes, stick to Stock API
       if (this.data?.warehouseId) {
         this.inventoryService.getCurrentStock(
-          'ProductName', 'asc', 0, 500, '', null, null, this.data.warehouseId, null, false
+          'ProductName', 'asc', 0, 500, '', null, null, this.data.warehouseId, null, false, this.authService.getBranchId()
         ).pipe(takeUntil(this.destroy$)).subscribe(res => {
           this.productsAutocomplete = (res.items || []).map((s: any) => ({
             ...s,
@@ -985,7 +987,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
         });
       } else {
         this.inventoryService.getCurrentStock(
-          'ProductName', 'asc', 0, 100, this.productCtrl.value || '', null, null, null, null, false
+          'ProductName', 'asc', 0, 100, this.productCtrl.value || '', null, null, null, null, false, this.authService.getBranchId()
         ).pipe(takeUntil(this.destroy$)).subscribe(res => {
           this.productsAutocomplete = (res.items || []).map((s: any) => ({
             ...s,
@@ -1053,7 +1055,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
       // 🎯 For Sales/Stock mode, use getCurrentStock for accurate branch-level figures
       obs$ = this.inventoryService.getCurrentStock(
           'ProductName', 'asc', this.pageIndex, this.pageSize, this.searchQuery, 
-          null, null, this.data?.warehouseId || null, null, false
+          null, null, this.data?.warehouseId || null, null, false, this.authService.getBranchId()
       ).pipe(
           map(res => ({
           ...res,
@@ -1084,8 +1086,31 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (res) => {
-        // 🎯 Fix: Recalculate expiryDate for each item to ignore empty expired batches
-        const items = (res.items || []).map((item: any) => {
+        // 🎯 Fix: Group items by ProductId to prevent "Two time bind" (duplicates in list)
+        const groupedMap = new Map<string, any>();
+        (res.items || []).forEach((item: any) => {
+            const pid = item.productId || item.ProductId || item.id;
+            if (!groupedMap.has(pid)) {
+                groupedMap.set(pid, { ...item, id: pid });
+            } else {
+                const existing = groupedMap.get(pid);
+                existing.currentStock = (existing.currentStock || 0) + (item.availableStock || 0);
+                // Keep the earliest expiry date for display
+                if (item.expiryDate && item.expiryDate !== 'NA') {
+                   const newDate = new Date(item.expiryDate).getTime();
+                   const oldDate = existing.expiryDate ? new Date(existing.expiryDate).getTime() : Infinity;
+                   if (newDate < oldDate) {
+                       existing.expiryDate = item.expiryDate;
+                   }
+                }
+                // Merge history if available
+                if (item.history) {
+                    existing.history = [...(existing.history || []), ...item.history];
+                }
+            }
+        });
+
+        const items = Array.from(groupedMap.values()).map((item: any) => {
           let activeExpiryDate = item.expiryDate;
           
           if (item.history && item.history.length > 0) {
@@ -1105,7 +1130,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
         });
 
         this.dataSource.data = items;
-        this.totalRecords = res.totalCount || 0;
+        this.totalRecords = items.length; // Approximate count since we grouped locally
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -1191,8 +1216,20 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
        fullRequest.filters['id'] = this.selectedProductId;
     }
 
-    this.productService.getPaged(fullRequest).pipe(
-      timeout(20000), // Bulk selection takes a bit longer
+    const isPurchase = this.data?.mode === 'purchase';
+    let obs$: Observable<any>;
+
+    if (isPurchase) {
+      obs$ = this.productService.getPaged(fullRequest);
+    } else {
+      obs$ = this.inventoryService.getCurrentStock(
+        'ProductName', 'asc', 0, this.totalRecords, this.searchQuery,
+        null, null, this.data?.warehouseId || null, null, false, this.authService.getBranchId()
+      );
+    }
+
+    obs$.pipe(
+      timeout(20000), 
       finalize(() => {
         this.isLoading = false;
         this.loadingService.setLoading(false);
@@ -1201,20 +1238,33 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (res) => {
-        if (res.items && res.items.length > 0) {
-          // Identify items not in existing list and respect out-of-stock constraint
-          const eligibleItems = res.items.filter((item: any) => {
-            const isNotDuplicate = !this.isAlreadyInList(item.id);
-            const isSelectable = this.allowOutOfStock || item.currentStock > 0;
+        let items = res.items || [];
+        
+        if (!isPurchase) {
+          // Apply grouping for Sale mode
+          const groupedMap = new Map<string, any>();
+          items.forEach((item: any) => {
+            const pid = item.productId || item.ProductId || item.id;
+            if (!groupedMap.has(pid)) {
+              groupedMap.set(pid, { ...item, id: pid });
+            } else {
+              const existing = groupedMap.get(pid);
+              existing.currentStock = (existing.currentStock || 0) + (item.availableStock || 0);
+            }
+          });
+          items = Array.from(groupedMap.values());
+        }
+
+        if (items.length > 0) {
+          const eligibleItems = items.filter((item: any) => {
+            const id = isPurchase ? item.id : (item.productId || item.id);
+            const isNotDuplicate = !this.isAlreadyInList(id);
+            const isSelectable = this.allowOutOfStock || (isPurchase ? true : item.currentStock > 0);
             return isNotDuplicate && isSelectable;
           });
 
-          // Sync with visible references to ensure checkmarks show up on current page
-          const visibleIdMap = new Map(this.dataSource.data.map(i => [i.id, i]));
-          const finalizedItems = eligibleItems.map(item => visibleIdMap.get(item.id) || item);
-
           this.selection.clear();
-          this.selection.select(...finalizedItems);
+          this.selection.select(...eligibleItems);
         }
         this.cdr.detectChanges();
       },

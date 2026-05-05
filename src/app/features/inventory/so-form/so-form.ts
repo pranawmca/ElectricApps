@@ -231,8 +231,9 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           this.setupFilter(index);
           this.updateTotal(index);
 
-          // Fetch real stock for this product
-          this.inventoryService.getCurrentStock('', '', 0, 10, item.productName).subscribe((res: any) => {
+          // Fetch real stock for this product in CURRENT BRANCH context
+          const currentBranchId = this.authService.getBranchId();
+          this.inventoryService.getCurrentStock('', '', 0, 10, item.productName, null, null, null, null, false, currentBranchId).subscribe((res: any) => {
             const itemsArray = res?.data?.items || res?.items || res?.Items || res?.data?.Items || [];
             const productStock = itemsArray.find((x: any) => String(x.productId || x.ProductId) === String(item.productId));
             if (productStock) {
@@ -378,7 +379,9 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       rackName: [product.defaultRackName || product.rackName || ''],
       isExpiryRequired: [product.isExpiryRequired || false],
       manufacturingDate: [null],
-      expiryDate: [null]
+      expiryDate: [null],
+      batchNumber: [product.batchNumber || product.BatchNumber || ''],
+      referenceNumber: [product.referenceNumber || product.ReferenceNumber || '']
     });
 
     let index: number;
@@ -402,7 +405,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       const lookupTerm = productId ? String(productId) : productName;
       console.log('[StandardSale] Fetching stock for:', lookupTerm);
 
-      this.inventoryService.getCurrentStock('', '', 0, 100, lookupTerm).subscribe((res: any) => {
+      const currentBranchId = this.authService.getBranchId();
+      this.inventoryService.getCurrentStock('', '', 0, 100, lookupTerm, null, null, null, null, false, currentBranchId).subscribe((res: any) => {
         const currentItem = row;
         const itemsArray = res?.data?.items || res?.items || res?.Items || res?.data?.Items || [];
         console.log('[StandardSale] API Response items:', itemsArray);
@@ -450,6 +454,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
                 rackName: h.rackName || pItem.rackName,
                 warehouseId: h.warehouseId || pItem.warehouseId,
                 rackId: h.rackId || pItem.rackId,
+                batchNumber: h.batchNumber ?? h.BatchNumber ?? 'N/A',
+                referenceNumber: h.referenceNumber ?? h.ReferenceNumber ?? h.grnNumber ?? h.GRNNumber ?? 'N/A',
                 isExpired: isExpiredBatch(h.expiryDate)
               });
             });
@@ -465,6 +471,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
                 rackName: pItem.rackName,
                 warehouseId: pItem.warehouseId,
                 rackId: pItem.rackId,
+                batchNumber: pItem.batchNumber ?? pItem.BatchNumber ?? 'N/A',
+                referenceNumber: pItem.referenceNumber ?? pItem.ReferenceNumber ?? pItem.grnNumber ?? pItem.GRNNumber ?? 'N/A',
                 isExpired: isExpiredBatch(pItem.expiryDate)
               });
             }
@@ -532,6 +540,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       rackName: rackName,
       manufacturingDate: mfgDate ? new Date(mfgDate) : null,
       expiryDate: expDate ? new Date(expDate) : null,
+      batchNumber: batch.batchNumber || batch.BatchNumber || '',
+      referenceNumber: batch.referenceNumber || batch.ReferenceNumber || '',
       availableStock: stock
     });
     formGroup.get('qty')?.setValidators([Validators.required, Validators.min(1), Validators.max(stock)]);
@@ -644,7 +654,9 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
       rackName: [''], // Added Rack Name
       isExpiryRequired: [false],
       manufacturingDate: [null],
-      expiryDate: [null]
+      expiryDate: [null],
+      batchNumber: [''],
+      referenceNumber: ['']
     });
 
     this.items.push(row);
@@ -1075,6 +1087,8 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
               rackId: val.rackId || null,
               manufacturingDate: val.manufacturingDate || null,
               expiryDate: val.expiryDate || null,
+              batchNumber: val.batchNumber || null,
+              referenceNumber: val.referenceNumber || null,
               branchId: this.authService.getBranchId()
             };
           })

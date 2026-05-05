@@ -261,7 +261,8 @@ export class InventoryService {
         startDate: Date | null = null,
         endDate: Date | null = null,
         warehouseId: string | null = null,
-        rackId: string | null = null
+        rackId: string | null = null,
+        branchId: string | null = null
     ): Observable<any> {
         const request = {
             sortField,
@@ -272,7 +273,8 @@ export class InventoryService {
             startDate: startDate?.toISOString(),
             endDate: endDate?.toISOString(),
             warehouseId,
-            rackId
+            rackId,
+            branchId
         };
         return this.api.get(`stock/disposed-stock?${this.api.toQueryString(request)}`);
     }
@@ -282,14 +284,16 @@ export class InventoryService {
         warehouseId: string | null,
         rackId: string | null,
         mfgDate?: string | null,
-        expDate?: string | null
+        expDate?: string | null,
+        branchId?: string | null
     ): Observable<any[]> {
         const request = {
             productId,
             warehouseId,
             rackId,
             mfgDate,
-            expDate
+            expDate,
+            branchId
         };
         return this.api.get<any[]>(`stock/batch-history?${this.api.toQueryString(request)}`);
     }
@@ -301,7 +305,8 @@ export class InventoryService {
         pageIndex: number = 0,
         pageSize: number = 10,
         productId: string | null = null,
-        warehouseId: string | null = null
+        warehouseId: string | null = null,
+        branchId: string | null = null
     ): Observable<any> {
         const request = {
             search,
@@ -310,7 +315,8 @@ export class InventoryService {
             pageIndex,
             pageSize,
             productId,
-            warehouseId
+            warehouseId,
+            branchId
         };
         return this.api.get(`stock/warehouse-stock?${this.api.toQueryString(request)}`);
     }

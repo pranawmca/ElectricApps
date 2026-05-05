@@ -180,7 +180,7 @@ export class ItemTransferComponent implements OnInit {
         return;
       }
       
-      this.inventoryService.getCurrentStock('ProductName', 'asc', 0, 20, item.productName, null, null, this.fromWarehouseId, null, false)
+      this.inventoryService.getCurrentStock('ProductName', 'asc', 0, 20, item.productName, null, null, this.fromWarehouseId, null, false, this.fromBranchId)
         .subscribe((res: any) => {
           this.filteredProducts = (res.items || []).map((s: any) => ({
             ...s,

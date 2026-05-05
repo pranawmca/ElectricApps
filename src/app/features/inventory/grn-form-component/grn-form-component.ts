@@ -346,7 +346,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         ),
         expiryDate: DateHelper.toShortDisplayDate(
           item.expiryDate || item.ExpiryDate || item.expDate || item.ExpDate
-        )
+        ),
+        batchNumber: item.batchNumber || item.BatchNumber || ''
       };
     });
 
@@ -736,7 +737,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
             warehouseId: i.warehouseId,
             rackId: i.rackId,
             manufacturingDate: DateHelper.parseToISO(i.manufacturingDate),
-            expiryDate: DateHelper.parseToISO(i.expiryDate)
+            expiryDate: DateHelper.parseToISO(i.expiryDate),
+            batchNumber: i.batchNumber
           }))
         };
 
@@ -791,7 +793,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         warehouseId: item.warehouseId,
         rackId: item.rackId,
         manufacturingDate: DateHelper.parseToISO(item.manufacturingDate),
-        expiryDate: DateHelper.parseToISO(item.expiryDate)
+        expiryDate: DateHelper.parseToISO(item.expiryDate),
+        batchNumber: item.batchNumber
       }))
     };
 

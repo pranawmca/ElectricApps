@@ -33,17 +33,22 @@ import { FormsModule } from '@angular/forms';
              *ngFor="let batch of data.batches; let i = index"
              [class.selected]="selectedBatchIndex === i"
              [class.disabled]="isDisabled(batch)"
+             [class.near-expiry]="isNearExpiry(batch)"
              (click)="!isDisabled(batch) && selectBatch(i)">
           
           <div class="batch-header">
             <div class="batch-number">
               <mat-icon class="batch-icon">inventory_2</mat-icon>
-              <span class="label">Batch {{ i + 1 }}</span>
+              <span class="label">{{ batch.batchNumber || batch.BatchNumber || ('Batch ' + (i + 1)) }}</span>
             </div>
             <mat-radio-button [checked]="selectedBatchIndex === i"></mat-radio-button>
           </div>
 
           <div class="batch-details">
+            <div class="detail-row" *ngIf="batch.referenceNumber || batch.ReferenceNumber">
+              <span class="label">Bill/PO No:</span>
+              <span class="value ref">{{ batch.referenceNumber || batch.ReferenceNumber }}</span>
+            </div>
             <div class="detail-row">
               <span class="label">Warehouse:</span>
               <span class="value warehouse">{{ batch.warehouseName || batch.WarehouseName || 'N/A' }}</span>
@@ -84,6 +89,10 @@ import { FormsModule } from '@angular/forms';
           <div class="batch-low-stock-warning" *ngIf="!isExpired(batch) && (batch.availableStock || batch.AvailableStock || 0) <= 5 && (batch.availableStock || batch.AvailableStock || 0) > 0">
             <mat-icon class="warning-icon">info</mat-icon>
             <span class="warning-text">Low Stock</span>
+          </div>
+          <div class="batch-priority-badge" *ngIf="isNearExpiry(batch) && !isExpired(batch)">
+            <mat-icon class="warning-icon">priority_high</mat-icon>
+            <span class="warning-text">Sell First (Near Expiry)</span>
           </div>
         </div>
       </div>
@@ -309,6 +318,7 @@ import { FormsModule } from '@angular/forms';
                color: #10b981; background: rgba(16, 185, 129, 0.08); 
                &.expired { color: #ef4444; background: rgba(239, 68, 68, 0.08); }
             }
+            &.ref { color: #6366f1; background: rgba(99, 102, 241, 0.08); }
           }
         }
       }
@@ -332,6 +342,37 @@ import { FormsModule } from '@angular/forms';
 
       .batch-expiry-warning { background: #fee2e2; color: #991b1b; border: 1px solid rgba(153, 27, 27, 0.1); }
       .batch-low-stock-warning { background: #fef3c7; color: #92400e; border: 1px solid rgba(146, 64, 14, 0.1); }
+      
+      .batch-priority-badge { 
+        position: absolute;
+        top: 18px;
+        right: 56px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.7rem;
+        padding: 5px 14px;
+        border-radius: 30px;
+        text-transform: uppercase;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        background: #ecfdf5; 
+        color: #047857; 
+        border: 1px solid rgba(4, 120, 87, 0.1); 
+        animation: pulse-green 2s infinite;
+      }
+
+      @keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      }
+
+      .batch-card.near-expiry {
+        border-color: #10b981;
+        background: #f0fdf4;
+      }
     }
 
     .dialog-footer {
@@ -464,7 +505,6 @@ export class BatchSelectionDialogComponent implements OnInit {
     today.setHours(0, 0, 0, 0);
     return exp <= today;
   }
-
   isMfgExpired(batch: any): boolean {
     const mfgDate = batch.manufacturingDate || batch.ManufacturingDate;
     if (!mfgDate) return false;
@@ -473,6 +513,16 @@ export class BatchSelectionDialogComponent implements OnInit {
     const twoYearsAgo = new Date();
     twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
     return date < twoYearsAgo;
+  }
+
+  isNearExpiry(batch: any): boolean {
+    const expDate = batch.expiryDate || batch.ExpiryDate;
+    if (!expDate) return false;
+    const exp = new Date(expDate);
+    const today = new Date();
+    const diffTime = exp.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 30; // Within 30 days
   }
 
   isDisabled(batch: any): boolean {

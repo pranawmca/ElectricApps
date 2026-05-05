@@ -8,6 +8,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-stock-drawer',
@@ -32,6 +33,7 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
   private inventoryService = inject(InventoryService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
 
   @Input() isOpen = false;
@@ -87,7 +89,8 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
       null, // endDate
       null, // warehouseId
       null, // rackId
-      true  // showPurged
+      true, // showPurged
+      this.authService.getBranchId()
     ).subscribe({
       next: (data) => {
         this.stockItems = data.items.map((item: any) => {

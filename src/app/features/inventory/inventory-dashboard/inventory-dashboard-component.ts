@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../../shared/material/material/material-module';
@@ -14,6 +15,7 @@ import { forkJoin } from 'rxjs';
 })
 export class InventoryDashboardComponent implements OnInit {
   private inventoryService = inject(InventoryService);
+  private authService = inject(AuthService);
 
   today = new Date();
   stats = {
@@ -42,17 +44,19 @@ export class InventoryDashboardComponent implements OnInit {
   loadDashboardData() {
     this.loading = true;
     
+    const branchId = this.authService.getBranchId();
+    
     // Fetch multiple data points for the dashboard
     forkJoin({
-      stock: this.inventoryService.getCurrentStock('', '', 0, 5),
-      grns: this.inventoryService.getGRNPagedList('', '', 0, 5),
+      stock: this.inventoryService.getCurrentStock('', '', 0, 5, '', null, null, null, null, false, branchId),
+      grns: this.inventoryService.getGRNPagedList('', '', 0, 5, '', false, branchId),
       pos: this.inventoryService.getPagedOrders({ 
         pageIndex: 0, 
         pageSize: 5, 
         sortField: 'CreatedDate', 
         sortOrder: 'desc',
         filter: ''
-      })
+      }, branchId)
     }).subscribe({
       next: (data: any) => {
         // Stock Mapping
