@@ -395,22 +395,17 @@ export class SaleReturnFormComponent implements OnInit, AfterViewInit, OnDestroy
         const taxRate = +group.get('taxRate')?.value || 0;
         const discountPercent = +group.get('discountPercent')?.value || 0;
 
-        // 1. Calculate Discount
+        // 1. Calculate Unit Net Rate (Rate after discount)
         const discountAmountPerUnit = rate * (discountPercent / 100);
         const netRate = rate - discountAmountPerUnit;
-        const totalDiscountAmount = qty * discountAmountPerUnit;
 
-        // 2. Calculate Base Amount (Taxable Value) - GST fits on Transaction Value
-        const taxableAmount = qty * netRate;
+        // 2. Calculate Total Row Amount (Inclusive of Tax)
+        const total = netRate * qty;
 
-        // 3. Calculate Tax on Taxable Amount
-        const taxAmount = taxableAmount * (taxRate / 100);
-
-        // 4. Final Total
-        const total = taxableAmount + taxAmount;
-
-        // Debug Log
-        // console.log(`Rate: ${rate}, Qty: ${qty}, Disc%: ${discountPercent}, NetRate: ${netRate}, Taxable: ${taxableAmount}, Tax: ${taxAmount}, Total: ${total}`);
+        // 3. Reverse Calculate Taxable Amount (Tax Inclusive Formula)
+        // TaxableAmount = (Total * 100) / (100 + TaxRate)
+        const taxableAmount = (total * 100) / (100 + taxRate);
+        const taxAmount = total - taxableAmount;
 
         group.patchValue({ amount: total }, { emitEvent: false });
         this.updateSummaryStats();

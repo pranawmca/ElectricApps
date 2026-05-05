@@ -206,8 +206,12 @@
                 <button mat-icon-button color="accent" *ngIf="row.status?.toLowerCase() === 'confirmed' && row.isDispatchPending && row.paymentStatus !== 'Unpaid'" (click)="$event.stopPropagation(); handleAction('CREATE_OUTWARD', row)" matTooltip="Create Outward Gate Pass">
                   <mat-icon>local_shipping</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" *ngIf="row.status?.toLowerCase() === 'confirmed' && (entityName === 'Sale Order' || entityName === 'Sale')" [disabled]="!isWithinReturnWindow(row)" (click)="$event.stopPropagation(); handleAction('RETURN', row)" [matTooltip]="isWithinReturnWindow(row) ? 'Initiate Sale Return' : 'Sale Return Closed (' + returnWindowHours + ' hrs crossed)'">
-                  <mat-icon [style.opacity]="isWithinReturnWindow(row) ? 1 : 0.5">assignment_return</mat-icon>
+                <button mat-icon-button color="warn" 
+                        *ngIf="row.status?.toLowerCase() === 'confirmed' && (entityName === 'Sale Order' || entityName === 'Sale')" 
+                        [disabled]="!isWithinReturnWindow(row) || row.isReturnable === false" 
+                        (click)="$event.stopPropagation(); handleAction('RETURN', row)" 
+                        [matTooltip]="row.isReturnable === false ? 'Order Fully Returned' : (isWithinReturnWindow(row) ? 'Initiate Sale Return' : 'Sale Return Window Closed')">
+                  <mat-icon [style.opacity]="(isWithinReturnWindow(row) && row.isReturnable !== false) ? 1 : 0.5">assignment_return</mat-icon>
                 </button>
                 <button mat-icon-button color="warn" *ngIf="canDelete && row.status?.toLowerCase() === 'draft'" (click)="$event.stopPropagation(); handleAction('DELETE', row)" matTooltip="Delete">
                   <mat-icon>delete</mat-icon>
