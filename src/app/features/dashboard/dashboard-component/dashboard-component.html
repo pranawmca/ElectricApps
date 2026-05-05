@@ -1,28 +1,15 @@
 <div class="dashboard-container" [class.disabled-content]="isDashboardLoading">
     
     <div class="header-section">
-      <div class="title-group">
+      <div class="left-col">
         <div class="main-title">
           <h1>Inventory Dashboard</h1>
           <span class="live-badge">LIVE</span>
-          
-          <div class="branch-selector-wrap" *ngIf="branches.length > 0 && (isSuperAdmin || isCompanyAdmin)">
-            <mat-form-field appearance="outline" class="dashboard-branch-select">
-              <mat-label>Viewing Branch</mat-label>
-              <mat-select [(ngModel)]="selectedBranchId" (selectionChange)="onBranchChange($event.value)">
-                <mat-option [value]="null">All Branches (Global)</mat-option>
-                <mat-option *ngFor="let branch of branches" [value]="branch.id">
-                  {{branch.branchName || 'Main Branch'}}
-                </mat-option>
-              </mat-select>
-              <mat-icon matPrefix>location_on</mat-icon>
-            </mat-form-field>
-          </div>
         </div>
         <p class="subtitle">Welcome back! Here's what's happening today.</p>
       </div>
 
-      <div class="header-info-bar">
+      <div class="center-col">
         <div class="info-item">
           <mat-icon>calendar_today</mat-icon>
           <div class="info-text">
@@ -39,24 +26,31 @@
         </div>
       </div>
 
-      <div class="export-actions">
-        <button mat-flat-button 
-                class="export-btn" 
-                (click)="exportToExcel()" 
-                [disabled]="isExcelLoading">
-          <mat-icon *ngIf="!isExcelLoading">file_download</mat-icon>
-          <mat-spinner *ngIf="isExcelLoading" diameter="20"></mat-spinner>
-          Excel
-        </button>
+      <div class="right-col">
+        <div class="branch-selector-wrap" *ngIf="branches.length > 0 && (isSuperAdmin || isCompanyAdmin)">
+          <mat-form-field appearance="outline" class="dashboard-branch-select" subscriptSizing="dynamic">
+            <mat-select [(ngModel)]="selectedBranchId" (selectionChange)="onBranchChange($event.value)">
+              <mat-option [value]="null">All Branches (Global)</mat-option>
+              <mat-option *ngFor="let branch of branches" [value]="branch.id">
+                {{branch.branchName || 'Main Branch'}}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>location_on</mat-icon>
+          </mat-form-field>
+        </div>
 
-        <button mat-flat-button 
-                color="warn" 
-                (click)="exportToPdf()" 
-                [disabled]="isPdfLoading">
-          <mat-icon *ngIf="!isPdfLoading">picture_as_pdf</mat-icon>
-          <mat-spinner *ngIf="isPdfLoading" diameter="20"></mat-spinner>
-          PDF
-        </button>
+        <div class="export-actions">
+          <button mat-flat-button class="export-btn excel" (click)="exportToExcel()" [disabled]="isExcelLoading">
+            <mat-icon *ngIf="!isExcelLoading">file_download</mat-icon>
+            <mat-spinner *ngIf="isExcelLoading" diameter="20"></mat-spinner>
+            Excel
+          </button>
+          <button mat-flat-button color="warn" class="export-btn pdf" (click)="exportToPdf()" [disabled]="isPdfLoading">
+            <mat-icon *ngIf="!isPdfLoading">picture_as_pdf</mat-icon>
+            <mat-spinner *ngIf="isPdfLoading" diameter="20"></mat-spinner>
+            PDF
+          </button>
+        </div>
       </div>
     </div>
 
