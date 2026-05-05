@@ -453,20 +453,72 @@
   }
 }
 
+.menu-header-actions {
+  display: flex;
+  padding: 6px 8px;
+  gap: 8px;
+  justify-content: space-between;
+  background-color: #f8fafc;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  
+  .action-mini-btn {
+    height: 28px !important;
+    line-height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    
+    mat-icon {
+      font-size: 14px !important;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    &.select-all {
+      color: #3b82f6 !important;
+      &:hover { background-color: rgba(59, 130, 246, 0.1) !important; }
+    }
+    
+    &.reset-all {
+      color: #ef4444 !important;
+      &:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
+    }
+  }
+}
+
 ::ng-deep .permission-hint-menu {
   background-color: white !important;
   border-radius: 12px !important;
   border: 1px solid #e2e8f0 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  min-width: 220px !important;
+  padding: 4px 0 !important;
   
   .mat-mdc-menu-item {
     font-size: 12px !important;
     font-weight: 500 !important;
     color: #475569 !important;
+    height: 38px !important;
+    line-height: 38px !important;
+    padding: 0 12px !important;
     
-    mat-icon {
-      font-size: 18px !important;
-      margin-right: 8px !important;
+    mat-checkbox {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+
+      ::ng-deep .mdc-label {
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        padding-left: 8px !important;
+      }
     }
     
     &:hover {
@@ -581,9 +633,39 @@
     }
 
     .suggestions-hint .hint-badge.green-badge {
-      background-color: rgba(16, 185, 129, 0.1) !important;
-      color: #10b981 !important;
-      border-color: rgba(16, 185, 129, 0.2) !important;
+      background-color: rgba(16, 185, 129, 0.15) !important;
+      color: #34d399 !important;
+      border-color: rgba(16, 185, 129, 0.3) !important;
+      
+      &:hover {
+        background-color: rgba(16, 185, 129, 0.25) !important;
+      }
+    }
+
+    .permission-hint-menu {
+      background-color: #1e293b !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      
+      .menu-header-actions {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        .action-mini-btn {
+           &.select-all { color: #60a5fa !important; }
+           &.reset-all { color: #f87171 !important; }
+        }
+      }
+
+      .mat-mdc-menu-item {
+        color: #cbd5e1 !important;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          color: #60a5fa !important;
+        }
+
+        mat-checkbox ::ng-deep .mdc-label {
+          color: #cbd5e1 !important;
+        }
+      }
     }
   }
 

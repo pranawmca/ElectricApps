@@ -606,6 +606,34 @@ export class RolePermissionsComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  isActionSelected(nodeId: number, action: string): boolean {
+    return this.getActionsArray(nodeId).includes(action);
+  }
+
+  toggleAction(nodeId: number, action: string) {
+    if (this.isActionSelected(nodeId, action)) {
+      this.removeAction(nodeId, action);
+    } else {
+      this.onActionSelect(nodeId, action);
+    }
+  }
+
+  selectAllActions(nodeId: number, suggestions: string[]) {
+    const perm = this.getPermission(nodeId);
+    let actions = this.getActionsArray(nodeId);
+    suggestions.forEach(s => {
+      if (!actions.includes(s)) actions.push(s);
+    });
+    perm.additionalActions = actions.join(', ');
+    this.cdr.detectChanges();
+  }
+
+  resetActions(nodeId: number) {
+    const perm = this.getPermission(nodeId);
+    perm.additionalActions = '';
+    this.cdr.detectChanges();
+  }
+
   onActionSelect(nodeId: number, action: string) {
     const perm = this.getPermission(nodeId);
     let actions = this.getActionsArray(nodeId);

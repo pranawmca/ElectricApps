@@ -136,10 +136,23 @@
                       Available Hints <mat-icon>keyboard_arrow_down</mat-icon>
                     </span>
                     <mat-menu #hintMenu="matMenu" class="permission-hint-menu">
-                      <button mat-menu-item *ngFor="let suggestion of getSuggestions(node.title)" (click)="onActionSelect(node.id, suggestion)">
-                        <mat-icon color="primary">add_circle_outline</mat-icon>
-                        <span>{{suggestion}}</span>
-                      </button>
+                      <div class="menu-header-actions" (click)="$event.stopPropagation()">
+                        <button mat-button class="action-mini-btn select-all" (click)="selectAllActions(node.id, getSuggestions(node.title))">
+                          <mat-icon>done_all</mat-icon> Select All
+                        </button>
+                        <button mat-button class="action-mini-btn reset-all" (click)="resetActions(node.id)">
+                          <mat-icon>history</mat-icon> Reset
+                        </button>
+                      </div>
+                      <mat-divider></mat-divider>
+
+                      <div mat-menu-item *ngFor="let suggestion of getSuggestions(node.title)" (click)="$event.stopPropagation()">
+                        <mat-checkbox [checked]="isActionSelected(node.id, suggestion)" 
+                                      (change)="toggleAction(node.id, suggestion)"
+                                      color="primary">
+                          {{suggestion}}
+                        </mat-checkbox>
+                      </div>
                     </mat-menu>
                   </div>
                 </div>
