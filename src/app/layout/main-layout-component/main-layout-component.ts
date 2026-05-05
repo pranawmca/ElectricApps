@@ -74,10 +74,29 @@ export class MainLayoutComponent implements OnInit {
   isGlassMode = false;
   isCompactTable = false;
   
+  userRole: string = 'User';
+  financialYear: string = '2026-27';
+
   get currentBranchName(): string | null {
     const branchName = this.authService.getBranchName();
     if (branchName) return branchName;
     return this.isSuperAdmin ? 'All Branches' : (this.hasMultipleBranches ? 'Multiple Branches' : 'All Branches');
+  }
+
+  get activeCompanyName(): string {
+    return this.authService.getCompanyName() || this.companyName;
+  }
+
+  get activeFinancialYear(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0-indexed
+    // Financial year starts in April (Month 3)
+    if (month >= 3) {
+      return `${year}-${(year + 1).toString().slice(-2)}`;
+    } else {
+      return `${year - 1}-${year.toString().slice(-2)}`;
+    }
   }
 
   isSuperAdmin = false;
@@ -254,6 +273,9 @@ export class MainLayoutComponent implements OnInit {
     });
 
     this.isSuperAdmin = this.authService.isSuperAdmin();
+    this.userRole = this.authService.getUserRole();
+    this.financialYear = this.activeFinancialYear;
+    
     const assignedBranchIds = this.authService.getAssignedBranches() || '';
     this.hasMultipleBranches = assignedBranchIds.includes(',');
 

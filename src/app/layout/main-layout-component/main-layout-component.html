@@ -86,19 +86,30 @@
         <mat-icon>menu</mat-icon>
       </button>
 
-      <span class="toolbar-title">{{ companyTagline }}</span>
+      <span class="toolbar-title">{{ activeCompanyName }}</span>
 
       <span class="spacer"></span>
 
       <div class="nav-actions">
-        <span *ngIf="userEmail" class="welcome-text">{{translate('Welcome')}}, {{ userEmail }}</span>
-        
-        <span class="toolbar-spacer"></span>
+        <!-- System Context Info (Role & FY) -->
+        <div class="system-context-info" *ngIf="!isMobile">
+          <div class="context-item" matTooltip="Current Financial Year">
+            <mat-icon>calendar_today</mat-icon>
+            <span class="context-label">FY</span>
+            <span class="context-value">{{ financialYear }}</span>
+          </div>
+          <div class="context-item" matTooltip="User Permissions Role">
+            <mat-icon>verified_user</mat-icon>
+            <span class="context-value role-badge">{{ userRole }}</span>
+          </div>
+        </div>
+
+        <span class="toolbar-spacer" *ngIf="!isMobile"></span>
         
         <!-- Current Branch Badge -->
         <div class="branch-badge" *ngIf="currentBranchName" [matMenuTriggerFor]="(isSuperAdmin || hasMultipleBranches) ? branchMenu : null" [class.clickable]="isSuperAdmin || hasMultipleBranches">
            <mat-icon>location_on</mat-icon>
-           <span>{{currentBranchName}}</span>
+           <span class="branch-text">{{currentBranchName}}</span>
            <mat-icon class="dropdown-icon" *ngIf="isSuperAdmin || hasMultipleBranches">expand_more</mat-icon>
         </div>
 

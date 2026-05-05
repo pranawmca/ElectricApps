@@ -11,6 +11,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoadingService } from '../../../core/services/loading.service';
 import { NotificationService } from '../../shared/notification.service';
 import { SummaryStat, SummaryStatsComponent } from '../../../shared/components/summary-stats-component/summary-stats-component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-warehouse-stock-list',
@@ -23,9 +24,10 @@ export class WarehouseStockListComponent implements OnInit, AfterViewInit {
   private inventoryService = inject(InventoryService);
   private loadingService = inject(LoadingService);
   private notification = inject(NotificationService);
+  private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
-
-  displayedColumns: string[] = ['productName', 'sku', 'warehouseName', 'quantity', 'minStock', 'status'];
+  
+  displayedColumns: string[] = ['productName', 'sku', 'warehouseName', 'branchName', 'companyName', 'quantity', 'minStock', 'status'];
   dataSource = new MatTableDataSource<any>([]);
   
   resultsLength = 0;
@@ -63,15 +65,26 @@ export class WarehouseStockListComponent implements OnInit, AfterViewInit {
           if (data === null) return [];
 
           this.resultsLength = data.totalCount;
+
+          const currentCompanyName = this.authService.getCompanyName();
+          const currentBranchName = this.authService.getBranchName();
+          
+          const mappedItems = (data.items || []).map((item: any) => ({
+            ...item,
+            // If branchId is a Guid-like string, it might not be the name. 
+            // But if it's already a name, use it.
+            branchName: item.branchId === this.authService.getBranchId() ? currentBranchName : item.branchId,
+            companyName: item.companyId === this.authService.getCompanyId() ? currentCompanyName : (item.companyName || 'Bipin Kirana store')
+          }));
           
           // Generate Summary Stats
           this.summaryStats = [
             { label: 'Unique Products', value: data.totalCount, icon: 'inventory_2', type: 'total' },
-            { label: 'Low Stock Items', value: data.items.filter((i: any) => i.isLowStock).length, icon: 'warning', type: 'warning' },
-            { label: 'Total Qty', value: data.items.reduce((acc: number, curr: any) => acc + curr.quantity, 0), icon: 'bolt', type: 'success' }
+            { label: 'Low Stock Items', value: mappedItems.filter((i: any) => i.isLowStock).length, icon: 'warning', type: 'warning' },
+            { label: 'Total Qty', value: mappedItems.reduce((acc: number, curr: any) => acc + curr.quantity, 0), icon: 'bolt', type: 'success' }
           ];
 
-          return data.items;
+          return mappedItems;
         })
       ).subscribe(data => {
         this.dataSource.data = data;
@@ -96,7 +109,17 @@ export class WarehouseStockListComponent implements OnInit, AfterViewInit {
       this.isLoadingResults = false;
       if (data) {
         this.resultsLength = data.totalCount;
-        this.dataSource.data = data.items;
+        
+        const currentCompanyName = this.authService.getCompanyName();
+        const currentBranchName = this.authService.getBranchName();
+        
+        const mappedItems = (data.items || []).map((item: any) => ({
+          ...item,
+          branchName: item.branchId === this.authService.getBranchId() ? currentBranchName : item.branchId,
+          companyName: item.companyId === this.authService.getCompanyId() ? currentCompanyName : (item.companyName || 'Bipin Kirana store')
+        }));
+
+        this.dataSource.data = mappedItems;
       }
     });
   }

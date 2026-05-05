@@ -179,7 +179,7 @@ export class GrnListComponent implements OnInit, AfterViewInit {
           console.log('📋 GRN Dashboard Query - isQuick:', this.isQuick, 'Page:', this.paginator.pageIndex, 'Sort:', this.sort.active, 'Direction:', this.sort.direction);
           return forkJoin({
             grnData: this.inventoryService.getGRNPagedList(
-              this.sort.active || 'id',
+              this.sort.active || 'receivedDate',
               this.sort.direction || 'desc',
               this.paginator.pageIndex,
               this.paginator.pageSize,
