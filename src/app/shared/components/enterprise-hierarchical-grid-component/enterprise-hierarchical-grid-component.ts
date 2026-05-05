@@ -801,7 +801,35 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
     if (!this.mainTableWrapper) return;
     const wrapper = this.mainTableWrapper.nativeElement;
     this.isAtStart = wrapper.scrollLeft <= 5;
-    this.isAtEnd = (wrapper.scrollLeft + wrapper.clientWidth) >= (wrapper.scrollWidth - 5);
+    this.isAtEnd = wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 5;
+    this.cdr.detectChanges();
+  }
+
+  // --- 🆕 CHILD TABLE SCROLL HELPERS ---
+  showChildScrollPill(wrapper: HTMLElement): boolean {
+    return wrapper.scrollWidth > wrapper.clientWidth;
+  }
+
+  isChildAtStart(wrapper: HTMLElement): boolean {
+    return wrapper.scrollLeft <= 5;
+  }
+
+  isChildAtEnd(wrapper: HTMLElement): boolean {
+    return wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 5;
+  }
+
+  scrollChildTable(wrapper: HTMLElement, direction: 'left' | 'right') {
+    const step = wrapper.clientWidth * 0.75;
+    const targetScroll = direction === 'left' ? wrapper.scrollLeft - step : wrapper.scrollLeft + step;
+    wrapper.scrollTo({ left: targetScroll, behavior: 'smooth' });
+    
+    // Force UI update after smooth scroll starts/ends
+    setTimeout(() => this.cdr.detectChanges(), 100);
+    setTimeout(() => this.cdr.detectChanges(), 400);
+  }
+
+  onChildTableScroll() {
+    // Just trigger change detection so isChildAtStart/End can re-evaluate
     this.cdr.detectChanges();
   }
 }

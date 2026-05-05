@@ -311,7 +311,7 @@
                     </button>
                   </div>
 
-                  <div class="child-table-scroll">
+                  <div class="child-table-scroll" #childTableWrapper (scroll)="onChildTableScroll()">
                     <table class="inner-table" cdkDropList cdkDropListOrientation="horizontal"
                       (cdkDropListDropped)="dropChild($event)">
                       <thead>
@@ -403,6 +403,26 @@
                         </tr>
                       </tbody>
                     </table>
+                  </div>
+                  
+                  <!-- 🚀 CHILD FLOATING SCROLL PILL -->
+                  <div class="scroll-pill-nexus child-nexus" *ngIf="showChildScrollPill(childTableWrapper)" [@pillAnimation]>
+                    <button type="button" class="nexus-btn btn-left" 
+                            [disabled]="isChildAtStart(childTableWrapper)"
+                            (click)="scrollChildTable(childTableWrapper, 'left')" 
+                            matTooltip="Slide Left">
+                      <mat-icon>chevron_left</mat-icon>
+                    </button>
+                    
+                    <div class="nexus-divider"></div>
+                    
+                    <button type="button" class="nexus-btn btn-right" 
+                            [disabled]="isChildAtEnd(childTableWrapper)"
+                            (click)="scrollChildTable(childTableWrapper, 'right')" 
+                            matTooltip="Slide Right">
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  </div>
 
                     <div class="child-footer-summary">
                       <div class="summary-box">
@@ -424,8 +444,7 @@
                         </div>
                       </div>
                     </div>
-                  </div>
-                </ng-container>
+                  </ng-container>
 
               </div>
             </div>

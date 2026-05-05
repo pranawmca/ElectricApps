@@ -189,10 +189,10 @@ app-search-input,
   flex: 1;
   scroll-behavior: smooth; 
 
-  /* Subtle Scrollbar Styling */
+  /* Hide horizontal scrollbar for a cleaner look with Slide Buttons */
   &::-webkit-scrollbar {
     width: 6px;
-    height: 6px;
+    height: 0px; /* Hide horizontal */
   }
   &::-webkit-scrollbar-thumb {
     background: #cbd5e1;
@@ -201,6 +201,10 @@ app-search-input,
   &::-webkit-scrollbar-track {
     background: transparent;
   }
+
+  /* Support for Firefox (hides both, but we have custom nav) */
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
 }
 
 table {
@@ -352,23 +356,19 @@ table {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #cbd5e1 transparent;
   
-  /* Scrollbar for child table - ensure it's visible and premium */
+  /* Scrollbar for child table - Hidden to use Slide Buttons */
   &::-webkit-scrollbar {
-    height: 10px; /* Thicker for better visibility */
+    height: 0px; 
   }
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 5px;
-    border: 2px solid white; 
-    
-    &:hover {
-      background: #94a3b8;
-    }
-  }
-  &::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 5px;
-  }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Child Scroll Pill Position */
+.child-nexus {
+  bottom: 10px !important; 
+  transform: translateX(-50%) scale(0.85) !important; // Slightly smaller for child table
+  background: rgba(255, 255, 255, 0.9) !important;
 }
 
 .inner-table {
@@ -1769,4 +1769,15 @@ button[color="success"] {
       }
     }
   }
+}
+
+/* Child Grid Wrapper [cite: 2026-05-05] */
+.child-grid-wrapper {
+  position: relative;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin: 10px 0;
+  border: 1px solid #edf2f7;
+  overflow: hidden; // Taaki pill container se bahar na jaye
 }

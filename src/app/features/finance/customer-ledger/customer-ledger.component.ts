@@ -143,12 +143,13 @@ export class CustomerLedgerComponent implements OnInit, AfterViewInit {
         if (!Array.isArray(this.customers)) return [];
         return this.customers.filter(customer =>
             (customer.name as string).toLowerCase().includes(filterValue) ||
+            (customer.phone && customer.phone.includes(filterValue)) ||
             customer.id.toString().includes(filterValue)
         );
     }
 
     displayFn(customer: any): string {
-        return customer && customer.name ? `${customer.name} (#${customer.id})` : '';
+        return customer && customer.name ? `${customer.name} (Mobile: ${customer.phone || 'N/A'})` : '';
     }
 
     loadCustomers() {

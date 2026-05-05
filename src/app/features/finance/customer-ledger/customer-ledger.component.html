@@ -19,7 +19,7 @@
                     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onCustomerSelected($event)">
                         <mat-option *ngFor="let customer of filteredCustomers | async" [value]="customer">
                             <span>{{customer.name}}</span> |
-                            <small class="text-muted">ID: #{{customer.id}}</small>
+                            <small class="text-muted">Mobile: {{customer.phone || 'N/A'}}</small>
                         </mat-option>
                     </mat-autocomplete>
                     <mat-icon matSuffix>person_search</mat-icon>
