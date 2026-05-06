@@ -1130,7 +1130,7 @@ export class ProductSelectionDialogComponent implements OnInit, OnDestroy {
         });
 
         this.dataSource.data = items;
-        this.totalRecords = items.length; // Approximate count since we grouped locally
+        this.totalRecords = res.totalCount || res.totalRecords || items.length;
         this.cdr.detectChanges();
       },
       error: (err) => {

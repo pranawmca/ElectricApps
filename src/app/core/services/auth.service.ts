@@ -60,7 +60,7 @@ export class AuthService {
     const payload = { accessToken, refreshToken };
     return this.api.post<any>('refresh', payload, this.baseUrl).pipe(
       tap(res => {
-        this.storeTokens(res);
+        this.storeTokens(res, true);
         this.isRefreshing = false;
         this.refreshTokenSubject.next(res.accessToken || res.AccessToken);
       }),
@@ -103,7 +103,7 @@ export class AuthService {
   }
 
   // 💾 STORE TOKENS
-  storeTokens(res: any): void {
+  storeTokens(res: any, isRefresh: boolean = false): void {
     if (!res) return;
 
     // Support both camelCase and PascalCase from backend
@@ -150,10 +150,11 @@ export class AuthService {
     localStorage.setItem('subscriptionStatus', subStatus || 'Active');
 
     // Store Company Metadata
-    const companyId = res.companyId || res.CompanyId;
-    const branchId = res.branchId || res.BranchId;
-    const branchName = res.branchName || res.BranchName;
-    const companyName = res.companyName || res.CompanyName;
+    // 🛡️ MULTI-TENANT CONTEXT PROTECTION: For silent refresh, preserve active/working tenant context
+    const companyId = isRefresh ? (localStorage.getItem('companyId') || res.companyId || res.CompanyId) : (res.companyId || res.CompanyId);
+    const branchId = isRefresh ? (localStorage.getItem('branchId') || res.branchId || res.BranchId) : (res.branchId || res.BranchId);
+    const branchName = isRefresh ? (localStorage.getItem('branchName') || res.branchName || res.BranchName) : (res.branchName || res.BranchName);
+    const companyName = isRefresh ? (localStorage.getItem('companyName') || res.companyName || res.CompanyName) : (res.companyName || res.CompanyName);
     const companyTagline = res.companyTagline || res.CompanyTagline;
     
     if (companyId) {
@@ -164,33 +165,44 @@ export class AuthService {
         if (companyName) localStorage.setItem('systemCompanyName', companyName);
       }
     } else {
-      localStorage.removeItem('companyId');
+      if (!isRefresh) {
+        localStorage.removeItem('companyId');
+      }
     }
 
     if (branchId) {
       localStorage.setItem('branchId', branchId);
       this.branchIdSubject.next(branchId);
-      localStorage.setItem('assignedBranches', branchId); // 🛡️ Keep original list for switching
+      // 🛡️ Only reset assignedBranches list on login, NOT during background silent refresh
+      if (!isRefresh) {
+        localStorage.setItem('assignedBranches', branchId); // Keep original list for switching
+      }
       if (branchName) {
         localStorage.setItem('branchName', branchName);
       }
     } else {
-      localStorage.removeItem('branchId');
-      this.branchIdSubject.next(null);
-      localStorage.removeItem('assignedBranches');
-      localStorage.removeItem('branchName');
+      if (!isRefresh) {
+        localStorage.removeItem('branchId');
+        this.branchIdSubject.next(null);
+        localStorage.removeItem('assignedBranches');
+        localStorage.removeItem('branchName');
+      }
     }
 
     if (companyName) {
       localStorage.setItem('companyName', companyName);
     } else {
-      localStorage.removeItem('companyName');
+      if (!isRefresh) {
+        localStorage.removeItem('companyName');
+      }
     }
 
     if (companyTagline) {
       localStorage.setItem('companyTagline', companyTagline);
     } else {
-      localStorage.removeItem('companyTagline');
+      if (!isRefresh) {
+        localStorage.removeItem('companyTagline');
+      }
     }
 
     // Store Permissions

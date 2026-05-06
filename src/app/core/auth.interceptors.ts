@@ -60,8 +60,8 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // ⚠️ If 401 and not on login page, attempt refresh
-      if (error instanceof HttpErrorResponse && error.status === 401 && !req.url.includes('/login')) {
+      // ⚠️ If 401 and not on login or refresh page, attempt refresh
+      if (error instanceof HttpErrorResponse && error.status === 401 && !req.url.includes('/login') && !req.url.includes('/refresh')) {
         console.warn('[AuthInterceptor] 401 detected. Attempting refresh via AuthService...');
         return authService.refreshTokens().pipe(
           switchMap((res: any) => {

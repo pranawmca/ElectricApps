@@ -13,6 +13,7 @@ export class IdleService {
 
   private timeoutId: any;
   private refreshIntervalId: any;
+  private lastActivityCheckTime = 0; // ⏱️ Prevent over-checking token expiration on every single interaction
   private readonly events = [
     'mousemove',
     'mousedown',
@@ -102,6 +103,21 @@ export class IdleService {
 
     localStorage.setItem('lastActivity', Date.now().toString());
     this.clearTimer();
+
+    // 🚀 Check if token is expired/expiring soon on user activity (throttled to once every 30s)
+    const now = Date.now();
+    if (now - this.lastActivityCheckTime > 30000) {
+      this.lastActivityCheckTime = now;
+      if (this.authService.isTokenExpiredSoon()) {
+        console.log('[IdleService] User is active & token expiring soon (checked on activity) → triggering silent refresh');
+        this.ngZone.run(() => {
+          this.authService.refreshTokens().subscribe({
+            next: () => console.log('[IdleService] Silent refresh successful (on activity)'),
+            error: (err) => console.error('[IdleService] Silent refresh failed (on activity)', err)
+          });
+        });
+      }
+    }
 
     this.ngZone.runOutsideAngular(() => {
       this.timeoutId = setTimeout(() => {
