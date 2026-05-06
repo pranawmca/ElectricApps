@@ -714,6 +714,20 @@ export class QuickPurchaseListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.loadingService.setLoading(true, 'Initiating Bulk GRN...');
+
+        // 🎯 AUTOMATIC DISPATCH: Mark non-dispatched eligible POs as dispatched
+        const nonDispatched = eligibleOrders.filter(r => !r.isDispatched);
+        if (nonDispatched.length > 0) {
+          nonDispatched.forEach(r => {
+            this.inventoryService.toggleDispatchStatus(r.id).subscribe({
+              next: () => {
+                r.isDispatched = true;
+              },
+              error: (err) => console.error('Error toggling bulk dispatch status for PO: ' + r.poNumber, err)
+            });
+          });
+        }
+
         // CHANGED: Direct to Quick GRN form, skipping Gate Pass for Quick Inventory
         setTimeout(() => {
           this.loadingService.setLoading(false);

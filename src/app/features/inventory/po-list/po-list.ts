@@ -1147,6 +1147,19 @@ export class PoList implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        // 🎯 AUTOMATIC DISPATCH: Mark non-dispatched eligible POs as dispatched
+        const nonDispatched = eligibleOrders.filter(r => !r.isDispatched);
+        if (nonDispatched.length > 0) {
+          nonDispatched.forEach(r => {
+            this.poService.toggleDispatchStatus(r.id).subscribe({
+              next: () => {
+                r.isDispatched = true;
+              },
+              error: (err) => console.error('Error toggling bulk dispatch status for PO: ' + r.poNumber, err)
+            });
+          });
+        }
+
         this.router.navigate(['/app/inventory/gate-pass/inward'], {
           queryParams: {
             type: 'po',

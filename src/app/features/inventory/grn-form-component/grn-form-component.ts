@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { MaterialModule } from '../../../shared/material/material/material-module';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -238,6 +238,12 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     return !isEmptyGuid(item.rackId) && racksForThisProduct.some(r => r.id === item.rackId);
   }
 
+  isValidGuid(id: any): boolean {
+    if (!id || typeof id !== 'string') return false;
+    const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return guidRegex.test(id) && id !== '00000000-0000-0000-0000-000000000000';
+  }
+
   loadPOData(id: string, grnHeaderId: string | null = null, gatePassNo: string | null = null) {
     this.inventoryService.getPODataForGRN(id, grnHeaderId, gatePassNo).subscribe({
       next: (res) => {
@@ -336,8 +342,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
         supplierName: item.supplierName || item.SupplierName || this.supplierName || '',
         discountPercent: discPer,
         gstPercent: gstPer,
-        taxAmount: taxAmt,
-        total: !!(item.isReplacement || item.IsReplacement) ? 0 : (taxableAmt + taxAmt),
+        taxAmount: Number(taxAmt.toFixed(2)),
+        total: !!(item.isReplacement || item.IsReplacement) ? 0 : Number((taxableAmt + taxAmt).toFixed(2)),
         warehouseId: item.warehouseId || item.WarehouseId || null,
         rackId: item.rackId || item.RackId || null,
         isExpiryRequired: !!(item.isExpiryRequired || item.IsExpiryRequired),
@@ -426,10 +432,10 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     const taxableAmt = baseAmt - discAmt;
     const taxAmt = taxableAmt * (gstPer / 100);
 
-    item.taxAmount = taxAmt;
+    item.taxAmount = Number(taxAmt.toFixed(2));
     
     // 🛡️ REPLACEMENT LOGIC: Replacement items should not add to the financial total [cite: 2026-05-04]
-    item.total = item.isReplacement ? 0 : (taxableAmt + taxAmt);
+    item.total = item.isReplacement ? 0 : Number((taxableAmt + taxAmt).toFixed(2));
 
     this.calculateGrandTotal();
     this.cdr.detectChanges(); 
@@ -580,11 +586,12 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   }
 
   calculateGrandTotal(): number {
-    return this.items.reduce((acc, item) => {
+    const total = this.items.reduce((acc, item) => {
       // Skip replacements from billable total to avoid double ledger debt [cite: 2026-05-04]
       if (item.isReplacement) return acc;
       return acc + (Number(item.total || 0));
     }, 0);
+    return Number(total.toFixed(2));
   }
 
   saveGRN() {
@@ -682,7 +689,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
       const poIdsToProcess = Array.from(itemsByPo.keys());
       let index = 0;
 
-      const processedGrns: { number: string, amount: number }[] = [];
+      const processedGrns: any[] = [];
       let totalSuccessAmount = 0;
       let uniqueSupplierId: any = null;
       let uniqueSupplierName = '';
@@ -746,7 +753,13 @@ export class GrnFormComponent implements OnInit, OnDestroy {
           next: (res: any) => {
             this.inventoryService.notifyInventoryChange();
             totalSuccessAmount += poTotal;
-            if (res?.grnNumber) processedGrns.push({ number: res.grnNumber, amount: poTotal });
+            if (res?.grnNumber) {
+              processedGrns.push({
+                number: res.grnNumber,
+                amount: poTotal,
+                supplierId: sId
+              });
+            }
             index++;
             // Short delay to ensure backend sequence increments correctly
             setTimeout(() => {
@@ -868,7 +881,90 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   performDirectPayment(data: any) {
     console.log('🚀 Initiating Direct Payment with data:', data);
 
-    if (!data.supplierId || data.supplierId <= 0) {
+    if (data.processedGrns && data.processedGrns.length > 0) {
+      const paymentPayloads = data.processedGrns.map((item: any) => {
+        const sId = item.supplierId || data.supplierId;
+        return {
+          id: 0,
+          supplierId: sId,
+          amount: Number(item.amount),
+          totalAmount: Number(item.amount),
+          discountAmount: 0,
+          netAmount: Number(item.amount),
+          paymentMode: 'Cash',
+          referenceNumber: `${item.number}-${new Date().getTime().toString().slice(-4)}`,
+          paymentDate: new Date().toISOString(),
+          remarks: `Direct Payment for GRN: ${item.number}`,
+          createdBy: localStorage.getItem('email') || 'Admin',
+          companyId: this.authService.getCompanyId(),
+          branchId: this.authService.getBranchId()
+        };
+      });
+
+      const validPayloads = paymentPayloads.filter((p: any) => this.isValidGuid(p.supplierId));
+
+      if (validPayloads.length === 0) {
+        this.dialog.open(StatusDialogComponent, {
+          width: '400px',
+          data: {
+            isSuccess: false,
+            title: 'Payment Error',
+            message: `Cannot process payment. Supplier IDs are missing or invalid.`,
+            status: 'error'
+          }
+        });
+        this.navigateBack();
+        return;
+      }
+
+      this.loadingService.setLoading(true);
+      const paymentObservables = validPayloads.map((payload: any) => 
+        this.financeService.recordSupplierPayment(payload)
+      );
+
+      setTimeout(() => {
+        forkJoin(paymentObservables).subscribe({
+          next: () => {
+            this.loadingService.setLoading(false);
+            console.log('✅ Direct Payments Successful');
+            const statusDialog = this.dialog.open(StatusDialogComponent, {
+              width: '350px',
+              data: {
+                isSuccess: true,
+                title: 'Payments Successful',
+                message: `Direct payments recorded for ${validPayloads.length} GRN(s).`,
+                status: 'success'
+              }
+            });
+
+            statusDialog.afterClosed().subscribe(() => {
+              this.navigateBack();
+            });
+          },
+          error: (err) => {
+            this.loadingService.setLoading(false);
+            console.group('❌ Direct Payments Error');
+            console.error(err);
+            console.groupEnd();
+
+            this.dialog.open(StatusDialogComponent, {
+              width: '400px',
+              data: {
+                isSuccess: false,
+                title: 'Payment Failed',
+                message: `GRN saved but some or all direct payments failed.`,
+                status: 'error'
+              }
+            });
+            this.navigateBack();
+          }
+        });
+      }, 800);
+      return;
+    }
+
+    const isInvalidSupplierId = !this.isValidGuid(data.supplierId);
+    if (isInvalidSupplierId) {
       this.dialog.open(StatusDialogComponent, {
         width: '400px',
         data: {
@@ -964,7 +1060,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
     this.goBack();
   }
 
-  showBulkCompletionDialog(uniqueSupplierId: number, uniqueSupplierName: string, processedGrns: any[], totalAmount: number) {
+  showBulkCompletionDialog(uniqueSupplierId: any, uniqueSupplierName: string, processedGrns: any[], totalAmount: number) {
     if (uniqueSupplierId && processedGrns.length > 0) {
       const dialogRef = this.dialog.open(GrnSuccessDialogComponent, {
         width: '500px',
@@ -991,7 +1087,8 @@ export class GrnFormComponent implements OnInit, OnDestroy {
           this.performDirectPayment({
             grnNumber: bulkGrnNo,
             grandTotal: totalAmount,
-            supplierId: uniqueSupplierId
+            supplierId: uniqueSupplierId,
+            processedGrns: processedGrns
           });
         } else {
           this.navigateBack();
