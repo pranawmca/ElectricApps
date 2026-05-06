@@ -15,6 +15,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { DateHelper } from '../../../shared/models/date-helper';
 import { GrnPrintDialogComponent } from '../grn-print-dialog/grn-print-dialog.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { PermissionService } from '../../../core/services/permission.service';
 
 @Component({
   selector: 'app-grn-form-component',
@@ -36,6 +37,9 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   private locationService = inject(LocationService);
   private loadingService = inject(LoadingService);
   private authService = inject(AuthService);
+  private permissionService = inject(PermissionService);
+
+  showBatchNo: boolean = false;
 
   warehouses: Warehouse[] = [];
   private allWarehouses: Warehouse[] = [];
@@ -72,6 +76,7 @@ export class GrnFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.showBatchNo = this.permissionService.hasAction('SHOW_BATCH_NO');
     this.isViewMode = this.router.url.includes('/view');
 
     // Read isQuick flag from route data (check current route + parent routes)
