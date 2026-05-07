@@ -477,13 +477,19 @@ export class QuickSaleComponent implements OnInit, OnDestroy, AfterViewInit {
                   });
                   const selectableBatches = allBatches.filter((b: any) => (b.availableStock > 0 || b.availableQty > 0));
                   // 🎯 FEFO Logic: Sort batches by Expiry Date (First Expiry First Out)
+                  // If expiry and manufacturing dates are identical or missing, sort by low stock first (Available Stock Ascending)
                   selectableBatches.sort((a, b) => {
                       const dateA = a.expiryDate ? new Date(a.expiryDate).getTime() : Infinity;
                       const dateB = b.expiryDate ? new Date(b.expiryDate).getTime() : Infinity;
                       if (dateA !== dateB) return dateA - dateB;
                       const mfgA = a.manufacturingDate ? new Date(a.manufacturingDate).getTime() : Infinity;
                       const mfgB = b.manufacturingDate ? new Date(b.manufacturingDate).getTime() : Infinity;
-                      return mfgA - mfgB;
+                      if (mfgA !== mfgB) return mfgA - mfgB;
+                      
+                      // Fallback: Low stock first (Stock Ascending)
+                      const stockA = a.availableStock ?? a.availableQty ?? 0;
+                      const stockB = b.availableStock ?? b.availableQty ?? 0;
+                      return stockA - stockB;
                   });
 
                   const validBatches = selectableBatches.filter((b: any) => !b.isExpired);

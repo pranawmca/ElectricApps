@@ -484,6 +484,7 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
         console.log('[StandardSale] Selectable Batches:', selectableBatches);
         
         // 🎯 CRITICAL FIX: Re-sort combined batches from ALL racks by FEFO (First Expiry First Out)
+        // If expiry and manufacturing dates are identical or missing, sort by low stock first (Available Stock Ascending)
         selectableBatches.sort((a, b) => {
           // 1. FEFO: First Expiry First Out
           const dateA = a.expiryDate ? new Date(a.expiryDate).getTime() : Infinity;
@@ -493,7 +494,12 @@ export class SoForm implements OnInit, OnDestroy, AfterViewInit {
           // 2. FIFO: First In First Out (if expiry is identical)
           const mfgA = a.manufacturingDate ? new Date(a.manufacturingDate).getTime() : Infinity;
           const mfgB = b.manufacturingDate ? new Date(b.manufacturingDate).getTime() : Infinity;
-          return mfgA - mfgB;
+          if (mfgA !== mfgB) return mfgA - mfgB;
+
+          // 3. Fallback: Low stock first (Stock Ascending)
+          const stockA = a.availableStock ?? a.availableQty ?? 0;
+          const stockB = b.availableStock ?? b.availableQty ?? 0;
+          return stockA - stockB;
         });
 
         const validBatches = selectableBatches.filter((b: any) => !b.isExpired);
