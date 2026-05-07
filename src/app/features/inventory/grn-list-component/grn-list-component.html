@@ -110,14 +110,14 @@
                             </button>
                             
                             <button mat-icon-button color="accent" 
-                                    *ngIf="row.paymentStatus === 'Unpaid'"
+                                    *ngIf="row.paymentStatus === 'Unpaid' && isAllowedToPay"
                                     (click)="$event.stopPropagation(); makePayment(row)" 
                                     matTooltip="Make Payment">
                                 <mat-icon>payment</mat-icon>
                             </button>
 
                             <button mat-icon-button style="color: #f59e0b;" 
-                                    *ngIf="row.paymentStatus === 'Partial'"
+                                    *ngIf="row.paymentStatus === 'Partial' && isAllowedToPay"
                                     (click)="$event.stopPropagation(); makePayment(row)" 
                                     matTooltip="Remaining Payment Due">
                                 <mat-icon>pending</mat-icon>

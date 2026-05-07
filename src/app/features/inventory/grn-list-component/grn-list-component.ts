@@ -113,6 +113,13 @@ export class GrnListComponent implements OnInit, AfterViewInit {
 
   canAdd: boolean = true;
   isQuick: boolean = false;
+  
+  // 🛡️ Checks if the logged-in user is allowed to make payments (Default Admin, Super Admin, Admin, or Manager only)
+  get isAllowedToPay(): boolean {
+    const role = this.authService.getUserRole();
+    return ['Default Admin', 'Super Admin', 'Admin', 'Manager'].includes(role);
+  }
+
   private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
