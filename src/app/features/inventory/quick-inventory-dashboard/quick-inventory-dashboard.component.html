@@ -168,7 +168,7 @@
         </mat-card-header>
         <mat-card-content>
           <div class="action-buttons">
-            <button mat-flat-button *ngFor="let action of quickActions" 
+            <button mat-flat-button *ngFor="let action of getFilteredActions()" 
                     [routerLink]="action.link" 
                     class="action-btn"
                     [style.borderLeftColor]="action.color">

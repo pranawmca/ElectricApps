@@ -15,6 +15,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog-component/confirm-dial
 import { MatDialog } from '@angular/material/dialog';
 import { CompanyService } from '../../../features/company/services/company.service';
 import { LoadingService } from '../../../core/services/loading.service';
+import { PermissionService } from '../../../core/services/permission.service';
 
 import { ResizableColumnDirective } from '../../../shared/directives/resizable-column.directive';
 
@@ -107,6 +108,7 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
   private dialog = inject(MatDialog);
   private companyService = inject(CompanyService);
   private loadingService = inject(LoadingService);
+  private permissionService = inject(PermissionService);
   
   returnWindowHours: number = 72;
 
@@ -186,6 +188,33 @@ export class EnterpriseHierarchicalGridComponent implements OnInit, AfterViewIni
       return this.userRole.includes(roleName) || this.userRole.includes('Super Admin') || this.userRole.includes('Default Admin');
     }
     return this.userRole === roleName || this.userRole === 'Super Admin' || this.userRole === 'Default Admin';
+  }
+
+  get showAddButton(): boolean {
+    if (!this.canAdd) return false;
+    if (this.selection.selected.length >= 2) return false;
+
+    // Admin and Super Admin always have access
+    if (this.hasRole('Admin') || this.hasRole('Super Admin') || this.hasRole('Default Admin')) {
+      return true;
+    }
+
+    // Check if current page is Purchase or Sale
+    const entity = (this.entityName || '').toLowerCase();
+    const isPurchase = entity.includes('purchase') || entity.includes('po');
+    const isSale = entity.includes('sale') || entity.includes('so');
+
+    if (this.hasRole('Manager') || this.hasRole('Warehouse')) {
+      if (isPurchase && this.permissionService.hasAction('CREATE_PO')) {
+        return true;
+      }
+      if (isSale && this.permissionService.hasAction('CREATE_SALE')) {
+        return true;
+      }
+      return false; // Statically hidden if they don't have the custom action
+    }
+
+    return true; // For other roles (User etc.), show if canAdd is true
   }
 
   getStatusBadgeClass(status: any): string {

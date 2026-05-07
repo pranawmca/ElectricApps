@@ -62,7 +62,7 @@
         </button>
       </div>
       
-      <span *ngIf="canAdd && selection.selected.length < 2 && (!hasRole('Manager') && !hasRole('Warehouse') || hasRole('Admin'))" 
+      <span *ngIf="showAddButton" 
             [matTooltip]="disableAdd ? addDisabledTooltip : ''" 
             [matTooltipDisabled]="!disableAdd">
         <button mat-raised-button color="primary" 

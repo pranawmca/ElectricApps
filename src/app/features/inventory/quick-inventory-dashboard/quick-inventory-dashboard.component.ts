@@ -5,6 +5,8 @@ import { MaterialModule } from '../../../shared/material/material/material-modul
 import { InventoryService } from '../service/inventory.service';
 import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { AuthService } from '../../../core/services/auth.service';
+import { PermissionService } from '../../../core/services/permission.service';
 
 @Component({
   selector: 'app-quick-inventory-dashboard',
@@ -15,6 +17,8 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class QuickInventoryDashboardComponent implements OnInit, OnDestroy {
   private inventoryService = inject(InventoryService);
+  private authService = inject(AuthService);
+  private permissionService = inject(PermissionService);
   private destroy$ = new Subject<void>();
 
   today = new Date();
@@ -111,5 +115,51 @@ export class QuickInventoryDashboardComponent implements OnInit, OnDestroy {
       case 'received': return '#10b981';
       default: return '#64748b';
     }
+  }
+
+  getFilteredActions() {
+    return this.quickActions.filter(action => {
+      // Admin and Super Admin always have access
+      if (this.hasRole('Admin') || this.hasRole('Super Admin') || this.hasRole('Default Admin')) {
+        return true;
+      }
+
+      if (action.link === '/app/quick-inventory/purchase/add') {
+        const hasAddPerm = this.permissionService.checkPermission('/app/quick-inventory/purchase/list', 'CanAdd');
+        if (!hasAddPerm) return false;
+        if (this.hasRole('Manager') || this.hasRole('Warehouse')) {
+          return this.permissionService.hasActionForUrl('/app/quick-inventory/purchase/list', 'CREATE_PO');
+        }
+        return true;
+      }
+
+      if (action.link === '/app/quick-inventory/sale/add') {
+        const hasAddPerm = this.permissionService.checkPermission('/app/quick-inventory/sale/list', 'CanAdd');
+        if (!hasAddPerm) return false;
+        if (this.hasRole('Manager') || this.hasRole('Warehouse')) {
+          return this.permissionService.hasActionForUrl('/app/quick-inventory/sale/list', 'CREATE_SALE');
+        }
+        return true;
+      }
+
+      if (action.link === '/app/quick-inventory/grn-list/add') {
+        return this.permissionService.checkPermission('/app/quick-inventory/grn-list', 'CanAdd');
+      }
+
+      if (action.link === '/app/quick-inventory/current-stock') {
+        return this.permissionService.checkPermission('/app/quick-inventory/current-stock', 'CanView');
+      }
+
+      return true;
+    });
+  }
+
+  hasRole(roleName: string): boolean {
+    const roles = this.authService.getUserRoles();
+    if (!roles) return false;
+    if (Array.isArray(roles)) {
+      return roles.includes(roleName) || roles.includes('Super Admin') || roles.includes('Default Admin');
+    }
+    return roles === roleName || roles === 'Super Admin' || roles === 'Default Admin';
   }
 }

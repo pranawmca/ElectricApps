@@ -209,4 +209,27 @@ export class PermissionService {
 
         return actions.includes(normalizedKey);
     }
+
+    /**
+     * Checks if the user has a custom action permission for a specific URL route.
+     */
+    hasActionForUrl(url: string, actionKey: string): boolean {
+        const normalizedUrl = this._normalize(url);
+        const menuItem = this._searchBestMatch(this.menuItems, normalizedUrl);
+
+        if (!menuItem || !(menuItem as any).permissions) return false;
+
+        const perm = (menuItem as any).permissions as any;
+        if (!perm.additionalActions) return false;
+
+        // Normalize stored actions: "BULK ADD, sync_stock" -> ["bulk_add", "sync_stock"]
+        const actions = (perm.additionalActions as string)
+            .split(',')
+            .map(a => a.trim().toLowerCase().replace(/\s+/g, '_'));
+
+        // Normalize requested key: "BULK DISPATCH" -> "bulk_dispatch"
+        const normalizedKey = actionKey.trim().toLowerCase().replace(/\s+/g, '_');
+
+        return actions.includes(normalizedKey);
+    }
 }

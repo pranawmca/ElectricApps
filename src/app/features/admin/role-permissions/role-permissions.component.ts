@@ -71,8 +71,8 @@ const SUGGESTED_ACTIONS: { [key: string]: string[] } = {
   'Gate Pass': ['BULK_GATEPASS_PRINT', 'PRINT_SECURITY_COPY', 'TRACK_VEHICLE_LOG'],
 
   // --- Quick Inventory Modules ---
-  'Quick Purchase': ['BULK_APPROVE', 'BULK_INWARD', 'AUTO_DISCOUNT_APPLY'],
-  'Quick Sale': ['BULK_DISPATCH', 'PRINT_SUMMARY', 'INVOICE_BULK_DOWNLOAD'],
+  'Quick Purchase': ['BULK_APPROVE', 'BULK_INWARD', 'AUTO_DISCOUNT_APPLY', 'CREATE_PO'],
+  'Quick Sale': ['BULK_DISPATCH', 'PRINT_SUMMARY', 'INVOICE_BULK_DOWNLOAD', 'CREATE_SALE'],
   'Quick GRN': ['PRINT_GRN_TAGS', 'MATERIAL_VERIFICATION', 'SHOW_BATCH_NO'],
   'Quick Stock': ['STOCK_VALUATION', 'SYNC_ALL_STOCKS', 'CATEGORY_WISE_SYNC'],
   'Quick PO Return': ['BULK_CANCEL', 'SUPPLIER_REJECTION_ONLY'],
@@ -80,8 +80,8 @@ const SUGGESTED_ACTIONS: { [key: string]: string[] } = {
   'Quick Disposed': ['SCRAP_VALUE_UPDATE', 'APPROVAL_WORKFLOW'],
 
   // --- Standard Inventory ---
-  'Sale Order': ['BULK_DISPATCH', 'BULK_RECEIPT'],
-  'Purchase Order': ['BULK_APPROVE', 'BULK_INWARD'],
+  'Sale Order': ['BULK_DISPATCH', 'BULK_RECEIPT', 'CREATE_SALE'],
+  'Purchase Order': ['BULK_APPROVE', 'BULK_INWARD', 'CREATE_PO'],
 };
 
 @Component({

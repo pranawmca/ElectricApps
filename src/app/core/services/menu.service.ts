@@ -122,7 +122,8 @@ export class MenuService {
             canView: !!perm.canView,
             canAdd: !!perm.canAdd,
             canEdit: !!perm.canEdit,
-            canDelete: !!perm.canDelete
+            canDelete: !!perm.canDelete,
+            additionalActions: perm.additionalActions || perm.AdditionalActions
           } : undefined
         };
       }
