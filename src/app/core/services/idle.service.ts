@@ -62,7 +62,10 @@ export class IdleService {
             this.ngZone.run(() => {
               this.authService.refreshTokens().subscribe({
                 next: () => console.log('[IdleService] Silent refresh successful'),
-                error: (err) => console.error('[IdleService] Silent refresh failed', err)
+                error: (err) => {
+                  console.error('[IdleService] Silent refresh failed', err);
+                  this.logout();
+                }
               });
             });
           }
@@ -113,7 +116,10 @@ export class IdleService {
         this.ngZone.run(() => {
           this.authService.refreshTokens().subscribe({
             next: () => console.log('[IdleService] Silent refresh successful (on activity)'),
-            error: (err) => console.error('[IdleService] Silent refresh failed (on activity)', err)
+            error: (err) => {
+              console.error('[IdleService] Silent refresh failed (on activity)', err);
+              this.logout();
+            }
           });
         });
       }
