@@ -72,14 +72,14 @@ export class ItemTransferComponent implements OnInit {
 
   onFromBranchChange() {
     console.log('From Branch Selected ID:', this.fromBranchId);
-    const selectedBranch = this.branches.find(b => b.id == this.fromBranchId);
+    const selectedBranch = this.branches.find(b => String(b.id) === String(this.fromBranchId));
     const branchName = selectedBranch?.name || selectedBranch?.branchName;
 
     if (!this.fromBranchId) {
       this.fromWarehouses = [];
     } else {
       this.fromWarehouses = this.allWarehouses.filter(w => {
-        const idMatch = w.branchId == this.fromBranchId || w.id == this.fromBranchId || w.branchId?.toString() === this.fromBranchId?.toString();
+        const idMatch = w.branchId && String(w.branchId) === String(this.fromBranchId);
         const nameMatch = branchName && (w.branchId === branchName || w.branchName === branchName);
         return idMatch || nameMatch;
       });
@@ -92,14 +92,14 @@ export class ItemTransferComponent implements OnInit {
 
   onToBranchChange() {
     console.log('To Branch Selected ID:', this.toBranchId);
-    const selectedBranch = this.branches.find(b => b.id == this.toBranchId);
+    const selectedBranch = this.branches.find(b => String(b.id) === String(this.toBranchId));
     const branchName = selectedBranch?.name || selectedBranch?.branchName;
 
     if (!this.toBranchId) {
       this.toWarehouses = [];
     } else {
       this.toWarehouses = this.allWarehouses.filter(w => {
-        const idMatch = w.branchId == this.toBranchId || w.id == this.toBranchId || w.branchId?.toString() === this.toBranchId?.toString();
+        const idMatch = w.branchId && String(w.branchId) === String(this.toBranchId);
         const nameMatch = branchName && (w.branchId === branchName || w.branchName === branchName);
         return idMatch || nameMatch;
       });
