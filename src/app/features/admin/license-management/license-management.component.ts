@@ -11,6 +11,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog-component/confirm-dialog-component';
 import { StatusDialogComponent } from '../../../shared/components/status-dialog-component/status-dialog-component';
 import { AddSubscriptionDialogComponent } from './add-subscription-dialog/add-subscription-dialog.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-license-management',
@@ -24,16 +25,19 @@ export class LicenseManagementComponent implements OnInit {
   dataSource = new MatTableDataSource<SubscriptionInfo>();
   summaryStats: SummaryStat[] = [];
   loading = false;
+  isDefaultAdmin = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private licenseService: LicenseService,
     private loadingService: LoadingService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isDefaultAdmin = this.authService.getUserRole() === 'Default Admin';
     this.loadSubscriptions();
   }
 

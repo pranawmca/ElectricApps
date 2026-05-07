@@ -124,10 +124,12 @@ export class PermissionService {
     }
 
     private _searchBestMatch(items: MenuItem[], targetUrl: string): MenuItem | null {
+        if (!items || !Array.isArray(items) || items.length === 0) return null;
         let bestMatch: MenuItem | null = null;
         let longestUrlMatchLen = -1;
 
         const search = (list: MenuItem[]) => {
+            if (!list || !Array.isArray(list)) return;
             for (const item of list) {
                 if (item.url) {
                     const itemUrl = this._normalize(item.url);
