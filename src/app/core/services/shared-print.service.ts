@@ -31,7 +31,7 @@ export class SharedPrintService {
             this.companyService.getCompanyProfile().subscribe({
                 next: (companyInfo) => {
                     const mappedData = this.mapDataToThermalFormat(companyInfo, docType, data, pageName);
-                    if (format === 'THERMAL') {
+                    if (format?.toUpperCase() === 'THERMAL') {
                         this.thermalService.printReceipt(mappedData);
                     } else {
                         // A4 logic - we generate an A4 size HTML template
@@ -41,7 +41,7 @@ export class SharedPrintService {
                 error: () => {
                    // Fallback without company info
                    const mappedData = this.mapDataToThermalFormat(null, docType, data, pageName);
-                   if (format === 'THERMAL') {
+                   if (format?.toUpperCase() === 'THERMAL') {
                         this.thermalService.printReceipt(mappedData);
                    } else {
                         this.printA4(mappedData, null, docType);

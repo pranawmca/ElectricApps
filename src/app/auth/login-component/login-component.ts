@@ -13,6 +13,7 @@ import { PermissionService } from '../../core/services/permission.service';
 import { CompanyService } from '../../features/company/services/company.service';
 import { LoadingService } from '../../core/services/loading.service';
 import { BranchSelectionDialogComponent } from '../../shared/components/branch-selection-dialog/branch-selection-dialog.component';
+import { IdleService } from '../../core/services/idle.service';
 
 @Component({
   selector: 'app-login',
@@ -30,6 +31,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private dialog = inject(MatDialog);
   private permissionService = inject(PermissionService);
   private companyService = inject(CompanyService);
+  private idleService = inject(IdleService);
 
   @ViewChild('emailInputField') emailInputField!: ElementRef;
 
@@ -139,6 +141,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         
         localStorage.setItem('lastCompanyCode', this.loginForm.value.CompanyCode);
         this.permissionService.resetForLogin();
+        this.idleService.startWatching();
 
         if (this.auth.isSubscriptionExpired()) {
           this.router.navigate(['/subscribe']);

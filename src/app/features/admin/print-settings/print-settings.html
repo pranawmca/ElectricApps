@@ -17,20 +17,16 @@
         <mat-icon matPrefix>business</mat-icon>
       </mat-form-field>
 
-      <!-- 2. Branch Selection -->
+      <!-- 2. Branch Selection (Multi-select) -->
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>Select Branch</mat-label>
-        <mat-select [(ngModel)]="selectedBranchId" (selectionChange)="onBranchChange()">
+        <mat-select [(ngModel)]="selectedBranchIds" (selectionChange)="onBranchChange()" multiple>
           <mat-select-trigger>
             <div class="trigger-content">
               <mat-spinner diameter="16" *ngIf="isLoadingBranches"></mat-spinner>
               <span>{{isLoadingBranches ? 'Loading...' : getSelectedBranchName()}}</span>
             </div>
           </mat-select-trigger>
-          <mat-option value="GLOBAL">
-            <mat-icon>public</mat-icon> All Branches (Global)
-          </mat-option>
-          <mat-divider></mat-divider>
           <mat-option *ngFor="let branch of branches" [value]="branch.id || branch.branchId">
             <mat-icon>store</mat-icon> {{branch.branchName || branch.name}}
           </mat-option>

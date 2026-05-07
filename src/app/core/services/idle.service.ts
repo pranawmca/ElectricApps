@@ -27,16 +27,29 @@ export class IdleService {
     private ngZone: NgZone,
     private authService: AuthService
   ) {
-    window.addEventListener('focus', () => this.checkInactivity());
-    window.addEventListener('pageshow', () => this.checkInactivity()); // Reliable on wake-up
+    // 🛡️ Only check inactivity if the user is actually logged in
+    window.addEventListener('focus', () => {
+      if (this.authService.isLoggedIn()) {
+        this.checkInactivity();
+      }
+    });
+    
+    window.addEventListener('pageshow', () => {
+      if (this.authService.isLoggedIn()) {
+        this.checkInactivity();
+      }
+    }); // Reliable on wake-up
+    
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && this.authService.isLoggedIn()) {
         this.checkInactivity();
       }
     });
   }
 
   startWatching(): void {
+    if (!this.authService.isLoggedIn()) return;
+    
     localStorage.setItem('lastActivity', Date.now().toString());
     this.resetTimer();
     this.addEventListeners();
@@ -47,12 +60,19 @@ export class IdleService {
     this.clearTimer();
     this.clearRefreshInterval();
     this.removeEventListeners();
+    localStorage.removeItem('lastActivity');
   }
 
   private startBackgroundRefreshCheck(): void {
     this.clearRefreshInterval();
     this.ngZone.runOutsideAngular(() => {
       this.refreshIntervalId = setInterval(() => {
+        // 🛡️ If the user is no longer logged in, stop watching and terminate interval
+        if (!this.authService.isLoggedIn()) {
+          this.ngZone.run(() => this.stopWatching());
+          return;
+        }
+
         const lastActivity = localStorage.getItem('lastActivity');
         if (lastActivity) {
           const diff = Date.now() - parseInt(lastActivity);
@@ -82,6 +102,10 @@ export class IdleService {
   }
 
   private checkInactivity(): boolean {
+    if (!this.authService.isLoggedIn()) {
+      return false;
+    }
+
     const lastActivity = localStorage.getItem('lastActivity');
     if (lastActivity) {
       const diff = Date.now() - parseInt(lastActivity);
@@ -96,11 +120,18 @@ export class IdleService {
 
   private logout(): void {
     console.warn('User idle → auto logout');
+    this.stopWatching(); // 🛡️ Stop listening to events on logout
     // The centralized auth service will handle clearing storage, closing dialogs, and navigation
     this.authService.logout();
   }
 
   private resetTimer = (): void => {
+    // 🛡️ If user is not logged in, stop watching immediately to detach listeners
+    if (!this.authService.isLoggedIn()) {
+      this.stopWatching();
+      return;
+    }
+
     // Prevent resetting the timer if the user is already technically idle
     if (this.checkInactivity()) return;
 

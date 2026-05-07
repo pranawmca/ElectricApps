@@ -11,7 +11,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PrintConfigService } from '../../../core/services/print-config.service';
 import { CompanyService } from '../../company/services/company.service';
-import { delay, finalize } from 'rxjs';
+import { delay, finalize, forkJoin, of } from 'rxjs';
 
 export interface ModuleGroup {
   name: string;
@@ -33,11 +33,11 @@ export class PrintSettings implements OnInit {
   settings: RolePrintSetting[] = [];
   loading = false;
 
-  // New Hierarchical Selection
+  // Hierarchical Selection with Multiple Branches
   companies: any[] = [];
   branches: any[] = [];
   selectedCompanyId: any = null;
-  selectedBranchId: any = 'GLOBAL';
+  selectedBranchIds: string[] = [];
   isSuperAdmin = false;
   isLoadingBranches = false;
 
@@ -94,7 +94,7 @@ export class PrintSettings implements OnInit {
   }
 
   onCompanyChange() {
-    this.selectedBranchId = 'GLOBAL';
+    this.selectedBranchIds = [];
     this.roles = [];
     this.selectedRoleId = null;
     this.settings = [];
@@ -111,6 +111,15 @@ export class PrintSettings implements OnInit {
       next: (res: any) => {
         this.branches = res || [];
         this.isLoadingBranches = false;
+        
+        // Auto-select first branch of multi-tenant company by default
+        if (this.branches.length > 0) {
+          const firstBranchId = this.branches[0].id || this.branches[0].branchId;
+          this.selectedBranchIds = [firstBranchId];
+        } else {
+          this.selectedBranchIds = [];
+        }
+
         this.loadRoles();
         this.cdr.detectChanges();
       },
@@ -122,7 +131,8 @@ export class PrintSettings implements OnInit {
   }
 
   onBranchChange() {
-    this.loadRoles();
+    // Reload settings for the current selected role based on the newly selected branch(es)
+    this.onRoleChange();
   }
 
   loadRoles() {
@@ -133,17 +143,18 @@ export class PrintSettings implements OnInit {
 
     this.roleService.getByCompany(this.selectedCompanyId).subscribe({
       next: (roles: any[]) => {
-        // Filter roles based on selected branch (or GLOBAL)
+        // 🛡️ Bind ALL tenant roles except Super Admin & Default Admin
         this.roles = roles.filter(r => {
-          const rBranchId = r.BranchId || r.branchId;
-          // If branch is GLOBAL, show only global roles (branchId null)
-          if (this.selectedBranchId === 'GLOBAL') return !rBranchId;
-          // Otherwise show roles matching this branch
-          return String(rBranchId) === String(this.selectedBranchId);
+          const name = r.RoleName || r.roleName || '';
+          return name !== 'Super Admin' && name !== 'Default Admin';
         });
 
         if (this.roles.length > 0) {
-          this.selectedRoleId = (this.roles[0] as any).Id || this.roles[0].id;
+          // Keep selection if previously selected, otherwise default to first
+          const exists = this.roles.some(r => (r.Id || r.id) === this.selectedRoleId);
+          if (!exists) {
+            this.selectedRoleId = (this.roles[0] as any).Id || this.roles[0].id;
+          }
           this.onRoleChange();
         } else {
           this.selectedRoleId = null;
@@ -163,9 +174,14 @@ export class PrintSettings implements OnInit {
   }
 
   getSelectedBranchName(): string {
-    if (this.selectedBranchId === 'GLOBAL') return 'All Branches (Global)';
-    const branch = this.branches.find(b => String(b.id || b.branchId) === String(this.selectedBranchId));
-    return branch ? (branch.branchName || branch.name) : 'Select Branch';
+    if (!this.selectedBranchIds || this.selectedBranchIds.length === 0) {
+      return 'Select Branch';
+    }
+    const selectedNames = this.branches
+      .filter(b => this.selectedBranchIds.includes(b.id || b.branchId))
+      .map(b => b.branchName || b.name);
+    
+    return selectedNames.join(', ');
   }
 
   onRoleChange() {
@@ -173,7 +189,8 @@ export class PrintSettings implements OnInit {
       this.loading = true;
       this.loadingService.setLoading(true);
 
-      const branchIdToFetch = this.selectedBranchId === 'GLOBAL' ? null : this.selectedBranchId;
+      // Fetch print settings of the first selected branch to display in the UI
+      const branchIdToFetch = this.selectedBranchIds.length > 0 ? this.selectedBranchIds[0] : null;
 
       this.roleService.getRolePrintSettings(this.selectedRoleId, this.selectedCompanyId, branchIdToFetch).subscribe({
         next: (settings) => {
@@ -212,7 +229,7 @@ export class PrintSettings implements OnInit {
       pageName, 
       printFormat: 'A4',
       companyId: this.selectedCompanyId,
-      branchId: this.selectedBranchId === 'GLOBAL' ? null : this.selectedBranchId
+      branchId: this.selectedBranchIds.length > 0 ? this.selectedBranchIds[0] : null
     };
   }
 
@@ -238,12 +255,12 @@ export class PrintSettings implements OnInit {
   }
 
   saveSettings() {
-    if (this.selectedRoleId) {
+    if (this.selectedRoleId && this.selectedBranchIds.length > 0) {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '400px',
         data: {
           title: 'Confirm Changes',
-          message: 'Are you sure you want to save the print settings for this role?',
+          message: `Are you sure you want to save the print settings for this role across the ${this.selectedBranchIds.length} selected branches?`,
           confirmText: 'Yes, Save'
         }
       });
@@ -253,19 +270,35 @@ export class PrintSettings implements OnInit {
           this.loading = true;
           this.loadingService.setLoading(true);
 
-          const branchIdToSave = this.selectedBranchId === 'GLOBAL' ? null : this.selectedBranchId;
-
-          // 🛡️ Robust Mapping: Ensure each setting has the current context and auditing info
           const currentUserId = this.authService.getUserId();
-          const settingsToSave = this.settings.map(s => ({
-            ...s,
-            companyId: this.selectedCompanyId,
-            branchId: branchIdToSave,
-            roleId: this.selectedRoleId,
-            lastModifiedBy: currentUserId?.toString()
-          }));
 
-          this.roleService.updateRolePrintSettings(this.selectedRoleId!, settingsToSave, this.selectedCompanyId, branchIdToSave).subscribe({
+          // Save settings concurrently for each selected branch
+          const saveObservables = this.selectedBranchIds.map(branchId => {
+            const isLoadedBranch = branchId === (this.selectedBranchIds.length > 0 ? this.selectedBranchIds[0] : null);
+
+            const settingsToSave = this.settings.map(s => {
+              const clone = {
+                ...s,
+                companyId: this.selectedCompanyId,
+                branchId: branchId,
+                roleId: this.selectedRoleId,
+                lastModifiedBy: currentUserId?.toString()
+              };
+
+              // If we are cloning/saving to a different branch than the one loaded, 
+              // remove the original primary key to prevent duplicate key constraint violations in SQL.
+              if (!isLoadedBranch) {
+                delete (clone as any).id;
+                delete (clone as any).Id;
+              }
+
+              return clone;
+            });
+
+            return this.roleService.updateRolePrintSettings(this.selectedRoleId!, settingsToSave, this.selectedCompanyId, branchId);
+          });
+
+          forkJoin(saveObservables).subscribe({
             next: () => {
               this.loading = false;
               this.loadingService.setLoading(false);
@@ -273,7 +306,7 @@ export class PrintSettings implements OnInit {
               this.printConfigService.clearCache();
               this.dialog.open(StatusDialogComponent, {
                 width: '400px',
-                data: { isSuccess: true, message: 'Print settings saved successfully!' },
+                data: { isSuccess: true, message: 'Print settings saved successfully for all selected branches!' },
                 disableClose: true
               });
             },

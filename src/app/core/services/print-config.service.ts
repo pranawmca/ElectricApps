@@ -27,6 +27,9 @@ export class PrintConfigService {
             userRoles = [this.authService.getUserRole()];
         }
         
+        const companyId = this.authService.getCompanyId();
+        const branchId = this.authService.getBranchId();
+
         return this.roleService.getAllRoles().pipe(
             switchMap(allAppRoles => {
                 // Find IDs for all roles the user has
@@ -41,7 +44,7 @@ export class PrintConfigService {
 
                 // If user has multiple roles, fetch settings for all of them and prioritize THERMAL 
                 // if any role has it configured for this page.
-                const settingsRequests = matchedRoleIds.map(id => this.roleService.getRolePrintSettings(id).pipe(
+                const settingsRequests = matchedRoleIds.map(id => this.roleService.getRolePrintSettings(id, companyId, branchId).pipe(
                     catchError(() => of([]))
                 ));
 
@@ -70,6 +73,7 @@ export class PrintConfigService {
     private normalizePageName(name: string): string {
         if (name === 'Quick Sale Invoice') return 'Quick Sale Order';
         if (name === 'Quick Purchase Invoice') return 'Quick Purchase Order';
+        if (name === 'Standard Purchase Order') return 'Purchase Order';
         return name;
     }
     
