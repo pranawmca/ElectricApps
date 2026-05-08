@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../shared/material/material/material-module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { NotificationService } from '../../shared/notification.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductSelectionDialogComponent } from '../../../shared/components/product-selection-dialog/product-selection-dialog';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-item-transfer',
@@ -27,6 +28,7 @@ export class ItemTransferComponent implements OnInit {
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
 
   branches: any[] = [];
   allWarehouses: any[] = [];
@@ -43,7 +45,18 @@ export class ItemTransferComponent implements OnInit {
   remarks: string = '';
   isSaving: boolean = false;
 
+  transfersList: any[] = [];
+  currentBranchId: string | null = null;
+  selectedTransfer: any = null;
+  receiveRemarks: string = '';
+  isReceiving: boolean = false;
+  dialogRef: any = null;
+
+  @ViewChild('receiveDialog') receiveDialogTemplate!: TemplateRef<any>;
+  @ViewChild('viewDetailsDialog') viewDetailsDialogTemplate!: TemplateRef<any>;
+
   ngOnInit() {
+    this.currentBranchId = this.authService.getBranchId();
     this.loadBranches();
     this.loadAllWarehouses();
   }
@@ -247,6 +260,73 @@ export class ItemTransferComponent implements OnInit {
         this.notification.showStatus(false, err.error?.message || 'Failed to complete transfer');
         this.isSaving = false;
       }
+    });
+  }
+
+  loadTransfers() {
+    this.inventoryService.getTransfers().subscribe(transfers => {
+      this.transfersList = transfers || [];
+      this.cdr.detectChanges();
+    });
+  }
+
+  onTabChange(event: any) {
+    if (event.index === 1) {
+      this.loadTransfers();
+    }
+  }
+
+  isTargetBranch(trf: any): boolean {
+    if (!trf || !trf.toBranchId || !this.currentBranchId) return false;
+    return String(trf.toBranchId).toLowerCase() === String(this.currentBranchId).toLowerCase();
+  }
+
+  openReceiveDialog(trf: any) {
+    this.selectedTransfer = trf;
+    this.receiveRemarks = '';
+    this.isReceiving = false;
+    
+    this.inventoryService.getTransferById(trf.id).subscribe(completeTrf => {
+      this.selectedTransfer = completeTrf;
+      this.dialogRef = this.dialog.open(this.receiveDialogTemplate, {
+        width: '550px',
+        maxWidth: '90vw',
+        disableClose: true
+      });
+    });
+  }
+
+  confirmReceive() {
+    if (!this.selectedTransfer) return;
+    this.isReceiving = true;
+    
+    const payload = {
+      transferId: this.selectedTransfer.id,
+      remarks: this.receiveRemarks
+    };
+
+    this.inventoryService.receiveTransfer(payload).subscribe({
+      next: (res) => {
+        this.notification.showStatus(true, 'Stock transfer received and added to inventory successfully!');
+        if (this.dialogRef) this.dialogRef.close();
+        this.inventoryService.notifyInventoryChange(); // Refresh Stock Drawer!
+        this.loadTransfers(); // Refresh our history list!
+      },
+      error: (err) => {
+        this.notification.showStatus(false, err.error?.message || 'Failed to receive stock');
+        this.isReceiving = false;
+      }
+    });
+  }
+
+  viewTransferDetails(trf: any) {
+    this.selectedTransfer = trf;
+    this.inventoryService.getTransferById(trf.id).subscribe(completeTrf => {
+      this.selectedTransfer = completeTrf;
+      this.dialog.open(this.viewDetailsDialogTemplate, {
+        width: '550px',
+        maxWidth: '90vw'
+      });
     });
   }
 }

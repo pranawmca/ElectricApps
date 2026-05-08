@@ -296,6 +296,7 @@
                       <th appResizableColumn>Exp Date</th>
                       <th appResizableColumn>Received</th>
                       <th appResizableColumn>Sold</th>
+                      <th appResizableColumn>Transferred</th>
                       <th appResizableColumn>Returned</th>
                       <th appResizableColumn>Rejected</th>
                       <th appResizableColumn>Expired</th>
@@ -353,6 +354,11 @@
                         </span>
                       </td>
                       <td>
+                        <span [class.text-primary]="$any(h).transferredQty > 0" [class.text-muted]="$any(h).transferredQty === 0" class="font-600">
+                          {{$any(h).transferredQty || 0}}
+                        </span>
+                      </td>
+                      <td>
                         <span [class.text-danger]="$any(h).returnedQty > 0" [class.text-muted]="$any(h).returnedQty === 0">
                           {{$any(h).returnedQty || 0}}
                         </span>
@@ -380,14 +386,14 @@
 
                           <div *ngIf="$any(h).availableQty === 0 && $any(h).receivedQty > 0" 
                                class="sold-out-badge" 
-                               [style.color]="$any(h).returnedQty > 0 ? '#fa8c16' : ($any(h).rejectedQty > 0 ? '#f5222d' : ($any(h).expiredQty > 0 ? '#8c8c8c' : '#f5222d'))"
-                               [style.border-color]="$any(h).returnedQty > 0 ? '#ffd591' : ($any(h).rejectedQty > 0 ? '#ffa39e' : ($any(h).expiredQty > 0 ? '#d9d9d9' : '#ffa39e'))"
-                               [style.background]="$any(h).returnedQty > 0 ? '#fff7e6' : ($any(h).rejectedQty > 0 ? '#fff1f0' : ($any(h).expiredQty > 0 ? '#fafafa' : '#fff1f0'))"
+                               [style.color]="$any(h).returnedQty > 0 ? '#fa8c16' : ($any(h).rejectedQty > 0 ? '#f5222d' : ($any(h).expiredQty > 0 ? '#8c8c8c' : ($any(h).transferredQty > 0 ? '#0284c7' : '#f5222d')))"
+                               [style.border-color]="$any(h).returnedQty > 0 ? '#ffd591' : ($any(h).rejectedQty > 0 ? '#ffa39e' : ($any(h).expiredQty > 0 ? '#d9d9d9' : ($any(h).transferredQty > 0 ? '#bae6fd' : '#ffa39e')))"
+                               [style.background]="$any(h).returnedQty > 0 ? '#fff7e6' : ($any(h).rejectedQty > 0 ? '#fff1f0' : ($any(h).expiredQty > 0 ? '#fafafa' : ($any(h).transferredQty > 0 ? '#f0f9ff' : '#fff1f0')))"
                                style="font-weight: 600; font-size: 0.7rem; border: 1px solid; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; cursor: default;">
                             <mat-icon style="font-size: 14px; height: 14px; width: 14px; margin-right: 4px;">
-                              {{ $any(h).returnedQty > 0 ? 'assignment_return' : ($any(h).rejectedQty > 0 ? 'cancel' : ($any(h).expiredQty > 0 ? 'event_busy' : 'block')) }}
+                              {{ $any(h).returnedQty > 0 ? 'assignment_return' : ($any(h).rejectedQty > 0 ? 'cancel' : ($any(h).expiredQty > 0 ? 'event_busy' : ($any(h).transferredQty > 0 ? 'local_shipping' : 'block'))) }}
                             </mat-icon>
-                            {{ $any(h).returnedQty > 0 ? 'Returned' : ($any(h).rejectedQty > 0 ? 'Rejected' : ($any(h).expiredQty > 0 ? 'Expired' : 'Sold out')) }}
+                            {{ $any(h).returnedQty > 0 ? 'Returned' : ($any(h).rejectedQty > 0 ? 'Rejected' : ($any(h).expiredQty > 0 ? 'Expired' : ($any(h).transferredQty > 0 ? 'Transferred' : 'Sold out'))) }}
                           </div>
 
                           <!-- Enhanced Purged/Voided Status -->
@@ -398,12 +404,12 @@
                             PURGED
                           </div>
 
-                          <div *ngIf="!$any(h).isAlreadyPurged && $any(h).receivedQty === 0 && ($any(h).rejectedQty === 0 || !$any(h).rejectedQty) && ($any(h).expiredQty === 0 || !$any(h).expiredQty)" 
-                               class="voided-badge" 
-                               style="color: #8c8c8c; border-color: #d9d9d9; background: #fafafa; font-weight: 600; font-size: 0.7rem; border: 1px solid; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; cursor: default;">
-                            <mat-icon style="font-size: 14px; height: 14px; width: 14px; margin-right: 4px;">info</mat-icon>
-                            VOIDED / EMPTY
-                          </div>
+                          <div *ngIf="!$any(h).isAlreadyPurged && $any(h).receivedQty === 0 && ($any(h).rejectedQty === 0 || !$any(h).rejectedQty) && ($any(h).expiredQty === 0 || !$any(h).expiredQty) && ($any(h).soldQty === 0 || !$any(h).soldQty) && ($any(h).transferredQty === 0 || !$any(h).transferredQty)" 
+                                class="voided-badge" 
+                                style="color: #8c8c8c; border-color: #d9d9d9; background: #fafafa; font-weight: 600; font-size: 0.7rem; border: 1px solid; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; cursor: default;">
+                             <mat-icon style="font-size: 14px; height: 14px; width: 14px; margin-right: 4px;">info</mat-icon>
+                             VOIDED / EMPTY
+                           </div>
 
                           <button mat-icon-button *ngIf="!$any(h).isAlreadyPurged && isExpired($any(h).expiryDate) && ($any(h).availableQty > 0 || $any(h).expiredQty > 0) && ($any(h).rackName.toLowerCase().includes('expired') || $any(h).rackName.includes('E1') || $any(h).rackName.startsWith('E -') || $any(h).rackName.startsWith('E-'))" 
                                   (click)="onRemoveStock(h, $event)" color="warn" matTooltip="Permanent Purge">

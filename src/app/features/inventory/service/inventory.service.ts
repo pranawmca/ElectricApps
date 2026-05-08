@@ -337,4 +337,8 @@ export class InventoryService {
     getTransferById(id: string): Observable<any> {
         return this.api.get<any>(`StockTransfer/${id}`);
     }
+
+    receiveTransfer(payload: { transferId: string, remarks?: string }): Observable<any> {
+        return this.api.post<any>('StockTransfer/receive', payload);
+    }
 }

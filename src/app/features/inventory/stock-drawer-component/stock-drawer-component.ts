@@ -9,6 +9,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { CompanyService } from '../../company/services/company.service';
 
 @Component({
   selector: 'app-stock-drawer',
@@ -34,12 +35,14 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private companyService = inject(CompanyService);
   private destroy$ = new Subject<void>();
 
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
 
   stockItems: any[] = [];
+  branchMap = new Map<string, string>();
   isLoading = false;
   searchSubject = new Subject<string>();
   searchTerm = '';
@@ -53,6 +56,8 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.loadBranches();
+
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -70,6 +75,23 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
       });
 
     this.loadStock();
+  }
+
+  loadBranches() {
+    const companyId = this.authService.getCompanyId();
+    if (companyId) {
+      this.companyService.getBranchesByCompany(companyId).subscribe((data: any) => {
+        if (data) {
+          data.forEach((b: any) => {
+            const bId = b.id || b.branchId;
+            const bName = b.branchName || b.name || b.address;
+            if (bId) this.branchMap.set(bId.toString(), bName);
+          });
+          this.cdr.detectChanges();
+          this.loadStock();
+        }
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -120,10 +142,30 @@ export class StockDrawerComponent implements OnInit, OnDestroy {
             }
           }
 
+          let transferredBranchName = '';
+          if (item.transferredBranchId && this.branchMap.has(item.transferredBranchId.toString())) {
+            transferredBranchName = this.branchMap.get(item.transferredBranchId.toString()) || '';
+          } else if (item.transferredBranchId) {
+            transferredBranchName = item.transferredBranchId;
+          }
+
+          if (item.history) {
+            item.history.forEach((h: any) => {
+              if (h.branchId && this.branchMap.has(h.branchId.toString())) {
+                h.branchName = this.branchMap.get(h.branchId.toString());
+              } else if (h.branchId) {
+                h.branchName = h.branchId;
+              } else {
+                h.branchName = 'Global View';
+              }
+            });
+          }
+
           return {
             ...item,
             expiryDate: activeExpiryDate,
-            currentStock: item.availableStock || 0
+            currentStock: item.availableStock || 0,
+            transferredBranchName: transferredBranchName
           };
         });
         this.updateSummary();

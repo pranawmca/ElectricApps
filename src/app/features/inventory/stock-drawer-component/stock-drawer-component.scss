@@ -118,6 +118,12 @@
       color: #c4b5fd !important;
       border-color: rgba(167, 139, 250, 0.3) !important;
     }
+
+    &.transferred {
+      background: rgba(56, 189, 248, 0.15) !important; /* Vibrant Sky Blue */
+      color: #7dd3fc !important;
+      border-color: rgba(56, 189, 248, 0.3) !important;
+    }
   }
 
   .indicator {
@@ -434,6 +440,15 @@
         font-size: 0.75rem;
       }
 
+      &.transferred {
+        background: #f0f9ff;
+        color: #0369a1;
+        border-color: #bae6fd;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+      }
+
       &.purged-badge {
         background: #f5f3ff;
         color: #7c3aed;
@@ -492,6 +507,10 @@
       &.purged {
         background: #f5f3ff;
         color: #7c3aed;
+      }
+      &.transferred {
+        background: #f0f9ff;
+        color: #0284c7;
       }
     }
   }

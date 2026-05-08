@@ -188,4 +188,124 @@
 
     .mt-4 { margin-top: 24px; }
     .w-100 { width: 100%; }
+
+    /* Custom styles for Transfer Tabs */
+    .transfer-tabs {
+        ::ng-deep .mat-mdc-tab-body-wrapper {
+            margin-top: 12px;
+        }
+    }
+
+    /* Status Chips */
+    .status-chip {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        text-align: center;
+        letter-spacing: 0.5px;
+
+        &.dispatched {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        &.completed {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        &.cancelled {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        &.draft {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+    }
+
+    /* Location badges */
+    .location-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+
+        &.from {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        &.to {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    /* Action Cells */
+    .action-buttons-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        button[mat-flat-button] {
+            border-radius: 4px;
+            height: 36px;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 0 16px;
+            
+            mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                margin-right: 4px;
+            }
+        }
+    }
+
+    /* Dialog styling */
+    .dialog-container {
+        padding: 16px;
+        border-radius: 12px;
+
+        .dialog-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .dialog-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #334155;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .dialog-actions {
+            margin-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+    }
 }

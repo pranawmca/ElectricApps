@@ -51,14 +51,16 @@
             </div>
             <div class="item-stock-section">
               <span class="stock-badge" [class.low-stock]="isLowStock(item) && item.availableStock > 0" 
-                    [class.sold-out]="item.availableStock === 0 && ((item.totalExpired || 0) === 0 || isPurchaseContext) && !item.isAlreadyPurged"
+                    [class.sold-out]="item.availableStock === 0 && ((item.totalExpired || 0) === 0 || isPurchaseContext) && !item.isAlreadyPurged && !(item.totalTransferredOut > 0)"
+                    [class.transferred]="item.availableStock === 0 && !isPurchaseContext && (item.totalTransferredOut > 0) && !item.isAlreadyPurged"
                     [class.expired-only]="!isPurchaseContext && item.availableStock === 0 && (item.totalExpired || 0) > 0 && !item.isAlreadyPurged"
                     [class.purged-badge]="!isPurchaseContext && item.isAlreadyPurged">
                 {{ item.availableStock > 0 ? (item.availableStock + ' ' + (item.unit || '')) : 
                    (isPurchaseContext ? 'Out of Stock' : 
                    (item.isAlreadyPurged ? 'PURGED (' + (item.totalExpired || 0) + ' ' + (item.unit || '') + ')' : 
                    ((item.totalExpired || 0) > 0 ? (item.totalExpired + ' ' + (item.unit || '') + ' EXPIRED') : 
-                   (item.totalReturned > 0 ? 'RETURNED' : 'Qty: Sold out')))) }}
+                   ((item.totalReturned || 0) > 0 ? 'RETURNED' : 
+                   ((item.totalTransferredOut || 0) > 0 ? ('TRANSFERRED (' + item.totalTransferredOut + ' ' + (item.unit || '') + ')') : 'Qty: Sold out'))))) }}
               </span>
               <mat-icon class="expand-icon">{{expandedProductId === item.productId ? 'expand_less' : 'expand_more'}}</mat-icon>
             </div>
@@ -84,9 +86,17 @@
             <span class="indicator purged" *ngIf="!isPurchaseContext && item.isAlreadyPurged">
               <mat-icon>auto_delete</mat-icon> PURGED (Expired)
             </span>
-            <span class="indicator sold-out" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalExpired || 0) === 0 && (item.totalReturned || 0) === 0">
-              <mat-icon>block</mat-icon> Sold out
-            </span>
+                  <span class="indicator sold-out" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalExpired || 0) === 0 && (item.totalReturned || 0) === 0 && (item.totalTransferredOut || 0) === 0">
+                    <mat-icon>block</mat-icon> Sold out
+                  </span>
+                  <span class="indicator transferred" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalTransferredOut || 0) > 0" style="display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 4px 8px;">
+                    <span style="display: flex; align-items: center; gap: 4px; line-height: 1;">
+                      <mat-icon style="font-size: 12px; height: 12px; width: 12px; margin-right: 0; line-height: 12px;">local_shipping</mat-icon> Transferred
+                    </span>
+                    <span *ngIf="item.transferredBranchName" style="font-size: 9px; opacity: 0.95; padding-left: 16px; font-weight: 600; line-height: 1;">
+                      To: {{ item.transferredBranchName }}
+                    </span>
+                  </span>
             <span class="indicator low" *ngIf="!item.isAlreadyPurged && item.availableStock === 0 && (item.totalReturned || 0) > 0">
               <mat-icon>assignment_return</mat-icon> Returned to Supplier
             </span>
@@ -142,7 +152,9 @@
                   </span>
                   <span *ngIf="!batch.isAlreadyPurged && (batch.receivedQty || 0) > 0 && (batch.availableQty || 0) === 0" 
                         style="color: #8c8c8c; font-weight: 600; font-size: 0.7rem; margin-left: 8px;">
-                    ({{ isExpired(batch.expiryDate) ? ('EXPIRED: ' + (batch.expiredQty || 0)) : ((batch.returnedQty || 0) > 0 ? 'RETURNED' : 'SOLD OUT') }})
+                    ({{ isExpired(batch.expiryDate) ? ('EXPIRED: ' + (batch.expiredQty || 0)) : 
+                       ((batch.returnedQty || 0) > 0 ? 'RETURNED' : 
+                       ((batch.transferredQty || 0) > 0 ? ('TRANSFERRED: ' + batch.transferredQty + ' ' + (item.unit || '')) : 'SOLD OUT')) }})
                   </span>
                   </div>
                 </div>
