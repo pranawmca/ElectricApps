@@ -240,6 +240,7 @@ export class ItemTransferComponent implements OnInit {
     this.inventoryService.createTransfer(request).subscribe({
       next: (res: any) => {
         this.notification.showStatus(true, 'Stock transfer completed successfully!');
+        this.inventoryService.notifyInventoryChange();
         this.router.navigate(['/app/inventory/current-stock']);
       },
       error: (err: any) => {
