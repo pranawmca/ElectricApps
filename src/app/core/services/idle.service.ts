@@ -7,8 +7,8 @@ import { AuthService } from './auth.service';
 })
 export class IdleService {
 
-  // ⏱️ 15 minutes idle time (Production)
-  private readonly IDLE_TIME = 15 * 60 * 1000;
+  // ⏱️ 10 minutes idle time (Production)
+  private readonly IDLE_TIME = 10 * 60 * 1000;
   private readonly REFRESH_CHECK_INTERVAL = 60 * 1000; // Check every 1 minute
   private readonly WARNING_TIME = 60 * 1000; // 60 seconds warning before auto logout
 
