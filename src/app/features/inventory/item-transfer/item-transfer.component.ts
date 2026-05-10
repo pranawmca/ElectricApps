@@ -153,7 +153,7 @@ export class ItemTransferComponent implements OnInit {
           this.items.push({
             productId: prod.productId || prod.id,
             productName: prod.productName || prod.name,
-            availableStock: prod.availableStock || prod.stock || 0,
+            availableStock: prod.currentStock ?? prod.availableStock ?? prod.stock ?? 0,
             warehouseId: prod.warehouseId,
             warehouseName: prod.warehouseName,
             rackId: prod.rackId,
@@ -291,7 +291,8 @@ export class ItemTransferComponent implements OnInit {
       this.dialogRef = this.dialog.open(this.receiveDialogTemplate, {
         width: '550px',
         maxWidth: '90vw',
-        disableClose: true
+        disableClose: true,
+        panelClass: 'premium-dialog-panel'
       });
     });
   }
@@ -325,7 +326,8 @@ export class ItemTransferComponent implements OnInit {
       this.selectedTransfer = completeTrf;
       this.dialog.open(this.viewDetailsDialogTemplate, {
         width: '550px',
-        maxWidth: '90vw'
+        maxWidth: '90vw',
+        panelClass: 'premium-dialog-panel'
       });
     });
   }
