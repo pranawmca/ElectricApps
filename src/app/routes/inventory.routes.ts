@@ -99,5 +99,17 @@ export const INVENTORY_ROUTES: Routes = [
     canActivate: [PermissionGuard],
     data: { breadcrumb: 'Item Transfer' },
     loadComponent: () => import('../features/inventory/item-transfer/item-transfer.component').then(m => m.ItemTransferComponent)
+  },
+  {
+    path: 'purchase-invoice',
+    canActivate: [PermissionGuard],
+    data: { breadcrumb: 'Purchase Invoice' },
+    loadComponent: () => import('../features/purchase-invoice/purchase-invoice/purchase-invoice').then(m => m.PurchaseInvoice)
+  },
+  {
+    path: 'sale-invoice',
+    canActivate: [PermissionGuard],
+    data: { breadcrumb: 'Sale Invoice' },
+    loadComponent: () => import('../features/sales-invoice/sales-invoice/sales-invoice').then(m => m.SalesInvoice)
   }
 ];

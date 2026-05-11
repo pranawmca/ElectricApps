@@ -33,7 +33,8 @@ export class InventoryDashboardComponent implements OnInit {
   quickActions = [
     { label: 'New Purchase Order', icon: 'add_shopping_cart', link: '/app/inventory/polist/add', color: '#3b82f6' },
     { label: 'Receive Inventory (GRN)', icon: 'input', link: '/app/inventory/grn-list/add', color: '#10b981' },
-    { label: 'Quick Sale', icon: 'point_of_sale', link: '/app/quick-inventory/quick-sale', color: '#8b5cf6' },
+    { label: 'Purchase Invoice', icon: 'receipt', link: '/app/inventory/purchase-invoice', color: '#ec4899' },
+    { label: 'Sale Invoice', icon: 'description', link: '/app/inventory/sale-invoice', color: '#8b5cf6' },
     { label: 'Check Stock', icon: 'inventory', link: '/app/inventory/current-stock', color: '#f59e0b' }
   ];
 

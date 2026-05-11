@@ -115,5 +115,17 @@ export const QUICK_INVENTORY_ROUTES: Routes = [
         canActivate: [PermissionGuard],
         data: { breadcrumb: 'Quick Disposed Stock' },
         loadComponent: () => import('../features/inventory/disposed-stock-component/disposed-stock-component').then(m => m.DisposedStockComponent)
+    },
+    {
+        path: 'purchase-invoice',
+        canActivate: [PermissionGuard],
+        data: { breadcrumb: 'Purchase Invoice' },
+        loadComponent: () => import('../features/purchase-invoice/purchase-invoice/purchase-invoice').then(m => m.PurchaseInvoice)
+    },
+    {
+        path: 'sale-invoice',
+        canActivate: [PermissionGuard],
+        data: { breadcrumb: 'Sale Invoice' },
+        loadComponent: () => import('../features/sales-invoice/sales-invoice/sales-invoice').then(m => m.SalesInvoice)
     }
 ];

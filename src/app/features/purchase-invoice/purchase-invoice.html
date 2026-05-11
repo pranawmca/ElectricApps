@@ -1,0 +1,320 @@
+<div class="invoice-page" [formGroup]="invoiceForm">
+
+  <!-- ================= EDITOR (LEFT SIDE) ================= -->
+  <div class="editor no-print">
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+      <button mat-icon-button (click)="goBack()" type="button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2 style="margin: 0;">Purchase Invoice Editor</h2>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Document Type</mat-label>
+      <mat-select formControlName="documentType">
+        <mat-option value="Tax Invoice">Tax Invoice</mat-option>
+        <mat-option value="Bill of Supply">Bill of Supply</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="grid-2">
+      <mat-form-field appearance="outline">
+        <mat-label>Invoice No</mat-label>
+        <input matInput formControlName="invoiceNo">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Invoice Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="invoiceDate">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="grid-2">
+      <mat-form-field appearance="outline" style="width: 100%;">
+        <mat-label>Expected Delivery</mat-label>
+        <input matInput [matDatepicker]="pickerExp" formControlName="expectedDeliveryDate">
+        <mat-datepicker-toggle matSuffix [for]="pickerExp"></mat-datepicker-toggle>
+        <mat-datepicker #pickerExp></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 100%;">
+        <mat-label>Remarks / Notes</mat-label>
+        <input matInput formControlName="remarks" placeholder="Optional notes">
+      </mat-form-field>
+    </div>
+
+    <mat-divider style="margin-bottom: 16px;"></mat-divider>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Supplier Name</mat-label>
+      <input type="text" matInput [formControl]="supplierSearchCtrl" [matAutocomplete]="autoSupp">
+      <mat-autocomplete #autoSupp="matAutocomplete" (optionSelected)="onSupplierSelected($event)" [displayWith]="displaySupplierFn">
+        <mat-option *ngFor="let supplier of filteredSuppliers | async" [value]="supplier">
+          {{ supplier.name }} <small class="text-muted" *ngIf="supplier.phone">| {{ supplier.phone }}</small>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <div class="grid-2">
+      <mat-form-field appearance="outline">
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="supplierPhone" readonly>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Supplier GSTIN</mat-label>
+        <input matInput formControlName="supplierGSTIN" readonly>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Supplier Address</mat-label>
+      <textarea matInput formControlName="supplierAddress" rows="2" readonly></textarea>
+    </mat-form-field>
+
+    <h3 style="margin: 16px 0 8px;">Received Items</h3>
+    <div formArrayName="items" class="items-array-container">
+      <div *ngFor="let row of items.controls; let i = index" [formGroupName]="i" style="border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <small style="font-weight: 600; color: #1976d2;">Item #{{ i + 1 }}</small>
+          <button mat-icon-button color="warn" (click)="removeItem(i)" *ngIf="items.length > 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description / Product</mat-label>
+          <input matInput formControlName="description">
+          <button mat-icon-button matSuffix (click)="openProductPopup(i)" type="button" title="Select Product from Catalog">
+            <mat-icon color="primary">search</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="grid-2">
+          <mat-form-field appearance="outline">
+            <mat-label>SAC/HSN</mat-label>
+            <input matInput formControlName="sacHsn">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Qty</mat-label>
+            <input matInput type="number" formControlName="qty" (input)="update(i)">
+          </mat-form-field>
+        </div>
+
+        <div class="grid-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Warehouse</mat-label>
+            <mat-select formControlName="warehouseId" (selectionChange)="onWarehouseChange(i, $event.value)">
+              <mat-option *ngFor="let wh of warehouses" [value]="wh.id">{{ wh.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Rack</mat-label>
+            <mat-select formControlName="rackId">
+              <mat-option *ngFor="let r of racksByItem[i]" [value]="r.id">{{ r.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="grid-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Mfg Date</mat-label>
+            <input matInput [matDatepicker]="pickerMfg" formControlName="mfgDate">
+            <mat-datepicker-toggle matSuffix [for]="pickerMfg Sundar"></mat-datepicker-toggle>
+            <mat-datepicker #pickerMfg></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Exp Date</mat-label>
+            <input matInput [matDatepicker]="pickerExp" formControlName="expDate">
+            <mat-datepicker-toggle matSuffix [for]="pickerExp"></mat-datepicker-toggle>
+            <mat-datepicker #pickerExp></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="grid-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Unit</mat-label>
+            <input matInput type="text" formControlName="unit" placeholder="PSC/KG/PKT" [matAutocomplete]="autoUni">
+            <mat-autocomplete #autoUni="matAutocomplete">
+              <mat-option *ngFor="let u of filteredUnits[i] | async" [value]="u.unitName || u.name">
+                {{ u.unitName || u.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tax Rate (%)</mat-label>
+            <mat-select formControlName="taxRate" (selectionChange)="update(i)" [disabled]="invoiceForm.get('documentType')?.value === 'Bill of Supply'">
+              <mat-option [value]="0">0% (Nil/Exempted)</mat-option>
+              <mat-option [value]="5">5%</mat-option>
+              <mat-option [value]="12">12%</mat-option>
+              <mat-option [value]="18">18%</mat-option>
+              <mat-option [value]="28">28%</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="grid-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Cost Price (Incl. Tax)</mat-label>
+            <input matInput type="number" formControlName="unitPrice" (input)="update(i)">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Discount (Amt)</mat-label>
+            <input matInput type="number" formControlName="discount" (input)="update(i)">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <button mat-stroked-button color="primary" class="full-width" (click)="addItem()">+ Add Another Item</button>
+
+    <div class="total-box">
+      <span>Final Bill Amount</span>
+      <span>₹{{ invoiceForm.get('total')?.value | number:'1.2-2' }}</span>
+    </div>
+
+    <button mat-flat-button color="primary" class="full-width" style="height: 60px; margin-top: 16px;" 
+      (click)="saveAndPrint()" [disabled]="isSaving">
+      <mat-icon *ngIf="!isSaving">check_circle</mat-icon>
+      <mat-spinner diameter="20" *ngIf="isSaving" color="accent" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+      {{ isSaving ? 'Receiving Goods into Warehouse...' : 'Save & Print Invoice' }}
+    </button>
+  </div>
+
+  <!-- ================= PREVIEW / PRINT (RIGHT SIDE) ================= -->
+  <div class="preview-container">
+    
+    <!-- HEADER -->
+    <div class="invoice-header">
+      <div class="header-table" style="width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+        <table style="width: 100%; table-layout: fixed;">
+          <tr>
+            <td style="width: 45%; text-align: left; vertical-align: top;">
+              <div class="supplier-details">
+                <span style="font-size: 10pt; text-transform: uppercase; color: #555; display: block; font-weight: 600;">Supplier / Billed By:</span>
+                <b style="font-size: 14pt; display: block; margin-top: 5px; margin-bottom: 5px;">{{ invoiceForm.get('supplierName')?.value || 'Select Supplier' }}</b>
+                <p style="font-size: 10pt; margin: 2px 0;">{{ invoiceForm.get('supplierAddress')?.value }}</p>
+                <p style="font-size: 10pt; margin: 2px 0;"><b>GSTIN:</b> {{ invoiceForm.get('supplierGSTIN')?.value }}</p>
+                <p style="font-size: 10pt; margin: 2px 0;"><b>Phone:</b> {{ invoiceForm.get('supplierPhone')?.value }}</p>
+              </div>
+            </td>
+            <td style="width: 15%; text-align: center; vertical-align: top;">
+              <h1 style="font-size: 16pt; margin: 0; text-transform: uppercase; color: #333;">{{ invoiceForm.get('documentType')?.value }}</h1>
+            </td>
+            <td style="width: 40%; text-align: right; vertical-align: top;">
+              <div class="qr-wrapper">
+                <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + invoiceForm.get('invoiceNo')?.value" style="width: 80px; height: 80px;" alt="QR Code">
+                <div style="border: 1px dashed #000; display: inline-block; padding: 5px; margin-top: 5px; font-weight: bold;">
+                  Purchase Invoice # {{ invoiceForm.get('invoiceNo')?.value }}
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- META INFO -->
+    <div class="meta-info-table" style="width: 100%; border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 15px;">
+      <table style="width: 100%; table-layout: fixed;">
+        <tr>
+          <td style="vertical-align: top; width: 45%;">
+            <p style="margin: 2px 0;"><b>Invoice Date:</b> {{ invoiceForm.get('invoiceDate')?.value | date:'dd-MM-yyyy' }}</p>
+            <p style="margin: 2px 0;"><b>Expected Delivery:</b> {{ invoiceForm.get('expectedDeliveryDate')?.value | date:'dd-MM-yyyy' }}</p>
+            <p style="margin: 2px 0;" *ngIf="invoiceForm.get('remarks')?.value"><b>Remarks:</b> {{ invoiceForm.get('remarks')?.value }}</p>
+          </td>
+          <td style="vertical-align: top; width: 55%;">
+            <div>
+              <h4 style="margin: 0 0 5px 0; border-bottom: 1px solid #eee; text-transform: uppercase; font-size: 10px; color: #555;">Received By / Billed To:</h4>
+              <b style="font-size: 11pt;">{{ invoiceForm.get('companyName')?.value }}</b>
+              <p style="font-size: 9pt; margin: 2px 0; line-height: 1.3;">{{ invoiceForm.get('companyAddress')?.value }}</p>
+              <p style="font-size: 9pt; margin: 2px 0;"><b>GSTIN:</b> {{ invoiceForm.get('companyGSTIN')?.value }} | <b>PAN:</b> {{ invoiceForm.get('companyPAN')?.value }}</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ITEMS TABLE -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width: 50px;">#</th>
+          <th>Description</th>
+          <th>Warehouse / Rack</th>
+          <th>Qty</th>
+          <th>Unit</th>
+          <th>Gross Cost ₹</th>
+          <th>Discount ₹</th>
+          <th>Taxable Value ₹</th>
+          <th *ngIf="invoiceForm.get('documentType')?.value === 'Tax Invoice'">IGST ₹</th>
+          <th>Total Cost ₹</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items.controls; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <b>{{ item.get('description')?.value }}</b>
+            <span class="hsn" *ngIf="item.get('sacHsn')?.value">SAC/HSN: {{ item.get('sacHsn')?.value }}</span>
+            <span class="tax-desc" *ngIf="invoiceForm.get('documentType')?.value === 'Tax Invoice'">IGST: {{ item.get('taxRate')?.value }}%</span>
+          </td>
+          <td>
+            <div style="font-size: 10px; color: #555;">
+              <span>WH: {{ item.get('warehouseId')?.value ? 'Main WH' : 'N/A' }}</span><br/>
+              <span>Rack: Assigned</span>
+            </div>
+          </td>
+          <td>{{ item.get('qty')?.value }}</td>
+          <td>{{ item.get('unit')?.value }}</td>
+          <td>{{ (item.get('qty')?.value * item.get('unitPrice')?.value) | number:'1.2-2' }}</td>
+          <td>{{ item.get('discount')?.value | number:'1.2-2' }}</td>
+          <td>{{ item.get('taxableValue')?.value | number:'1.2-2' }}</td>
+          <td *ngIf="invoiceForm.get('documentType')?.value === 'Tax Invoice'">{{ item.get('taxAmount')?.value | number:'1.2-2' }}</td>
+          <td><b>{{ item.get('amount')?.value | number:'1.2-2' }}</b></td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3">Total</td>
+          <td>{{ items.length }} items</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ (invoiceForm.get('subTotal')?.value || 0) | number:'1.2-2' }}</td>
+          <td *ngIf="invoiceForm.get('documentType')?.value === 'Tax Invoice'">{{ (invoiceForm.get('totalTax')?.value || 0) | number:'1.2-2' }}</td>
+          <td>{{ (invoiceForm.get('total')?.value || 0) | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- GRAND TOTAL -->
+    <div class="grand-total-section">
+      <div class="grand-label">
+        <span>Grand Total Cost</span>
+        <span>₹ {{ invoiceForm.get('total')?.value | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- SIGNATURES -->
+    <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+      <div style="text-align: left; width: 200px;">
+        <div style="border-top: 1px solid #000; padding-top: 5px; text-align: center; font-size: 11px;">Supplier / Gate Sign</div>
+      </div>
+      <div class="signature-section">
+        <div style="border-top: 1px solid #000; width: 200px; padding-top: 5px; text-align: center; font-size: 11px;">Received By (Store Manager)</div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="invoice-footer" style="margin-top: 80px;">
+      <div class="regd-info">
+        Purchased by: {{ invoiceForm.get('companyName')?.value }} | Head Office: {{ invoiceForm.get('companyAddress')?.value }}
+      </div>
+      <div class="footer-row">
+        <span>Disclaimer: Goods received are subject to verification at physical storage. Discrepancies if any should be reported to the finance ledger immediately.</span>
+      </div>
+      <div class="eoe">E. & O.E.</div>
+    </div>
+
+  </div>
+
+</div>

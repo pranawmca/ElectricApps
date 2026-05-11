@@ -36,7 +36,9 @@ export class QuickInventoryDashboardComponent implements OnInit, OnDestroy {
   quickActions = [
     { label: 'New Quick Purchase', icon: 'bolt', link: '/app/quick-inventory/purchase/add', color: '#10b981' },
     { label: 'New Quick Sale', icon: 'shopping_basket', link: '/app/quick-inventory/sale/add', color: '#3b82f6' },
-    { label: 'Receive GRN', icon: 'list_alt', link: '/app/quick-inventory/grn-list/add', color: '#8b5cf6' },
+    { label: 'Purchase Invoice', icon: 'receipt', link: '/app/quick-inventory/purchase-invoice', color: '#ec4899' },
+    { label: 'Sale Invoice', icon: 'description', link: '/app/quick-inventory/sale-invoice', color: '#8b5cf6' },
+    { label: 'Receive GRN', icon: 'list_alt', link: '/app/quick-inventory/grn-list/add', color: '#6366f1' },
     { label: 'Check Stock', icon: 'inventory_2', link: '/app/quick-inventory/current-stock', color: '#f59e0b' }
   ];
 

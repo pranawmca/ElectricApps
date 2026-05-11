@@ -29,7 +29,11 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Customer Name</mat-label>
-      <input type="text" matInput [formControl]="customerSearchCtrl" [matAutocomplete]="autoCust">
+      <mat-icon matPrefix style="color: #64748b; margin-right: 8px;">search</mat-icon>
+      <input type="text" matInput [formControl]="customerSearchCtrl" [matAutocomplete]="autoCust" placeholder="Search customer by name or phone...">
+      <button mat-icon-button matSuffix *ngIf="customerSearchCtrl.value" (click)="clearCustomer()" type="button" title="Clear customer selection">
+        <mat-icon>close</mat-icon>
+      </button>
       <mat-autocomplete #autoCust="matAutocomplete" (optionSelected)="onCustomerSelected($event)" [displayWith]="displayCustomerFn">
         <mat-option *ngFor="let customer of filteredCustomers | async" [value]="customer">
           {{ customer.customerName }} <small class="text-muted" *ngIf="customer.phone">| {{ customer.phone }}</small>

@@ -19,6 +19,7 @@ import { customerService } from '../../master/customer-component/customer.servic
 import { UnitService } from '../../master/units/services/units.service';
 import { Observable, map, startWith } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -38,9 +39,11 @@ export class SalesInvoice implements OnInit {
   private authService = inject(AuthService);
   private customerService = inject(customerService);
   private unitService = inject(UnitService);
+  private router = inject(Router);
 
   signatureImageUrl: string | null = null;
   isSaving = false;
+  isQuick = true;
   
   customers: any[] = [];
   units: any[] = [];
@@ -89,6 +92,7 @@ export class SalesInvoice implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isQuick = this.router.url.includes('quick-inventory') || this.router.url.includes('finance');
     this.loadCompanyProfile();
     this.loadCustomers();
     this.loadUnits();
@@ -148,6 +152,17 @@ export class SalesInvoice implements OnInit {
       customerPhone: customer.phone,
       billingAddress: customer.billingAddress,
       shippingAddress: customer.shippingAddress
+    });
+  }
+
+  clearCustomer(): void {
+    this.customerSearchCtrl.setValue('');
+    this.invoiceForm.patchValue({
+      customerId: 0,
+      customerName: '',
+      customerPhone: '',
+      billingAddress: '',
+      shippingAddress: ''
     });
   }
 
@@ -317,32 +332,101 @@ export class SalesInvoice implements OnInit {
     const row = this.items.at(index);
     const productName = product.productName || product.name || '';
     const productId = product.id || product.productId;
+    const branchId = this.authService.getBranchId();
+    const queryTerm = productId || productName;
 
-    this.inventoryService.getCurrentStock('', '', 0, 100, productName).subscribe((res: any) => {
+    console.log('[SalesInvoice] selectProductItem product:', product);
+    console.log('[SalesInvoice] queryTerm:', queryTerm, 'branchId:', branchId);
+
+    this.inventoryService.getCurrentStock('', '', 0, 100, queryTerm, null, null, null, null, false, branchId).subscribe((res: any) => {
+      console.log('[SalesInvoice] getCurrentStock response:', res);
       const itemsArray = res?.data?.items || res?.items || res?.Items || res?.data?.Items || [];
-      const productItem = itemsArray.find((x: any) => {
-        const xId = String(x.productId || x.ProductId || x.id || x.Id).toLowerCase();
-        const targetId = String(productId).toLowerCase();
-        return xId === targetId || (x.productName === productName && productName.length > 0);
+      
+      // AGGREGATE ALL ITEMS for the same product Id from ALL racks (matching multi-rack stock properly)
+      const matchingProductItems = itemsArray.filter((x: any) => {
+        const xId = String(x.productId || x.ProductId || x.id || x.Id || '').toLowerCase();
+        const targetId = String(productId || '').toLowerCase();
+        const xName = String(x.productName || x.ProductName || '').toLowerCase();
+        const targetName = (productName || '').toLowerCase();
+        return xId === targetId || (xName === targetName && targetName.length > 0);
       });
 
-      if (!productItem || productItem.availableStock <= 0) {
+      console.log('[SalesInvoice] matchingProductItems:', matchingProductItems);
+
+      if (matchingProductItems.length === 0) {
         this.notification.showStatus(false, `Attention: Product "${productName}" is OUT OF STOCK and cannot be added to the invoice.`);
         return;
       }
 
-      // Handle Batch Selection
-      const allBatches = (productItem.history || []).map((h: any) => ({
-        grnNumber: h.grnNumber || 'N/A',
-        manufacturingDate: h.manufacturingDate,
-        expiryDate: h.expiryDate,
-        availableStock: h.availableQty ?? h.AvailableQty ?? 0,
-        warehouseName: h.warehouseName, warehouseId: productItem.warehouseId,
-        rackName: h.rackName, rackId: productItem.rackId,
-        isExpired: this.checkIfExpired(h.expiryDate)
-      }));
+      // Sum total available stock across all matching rack rows
+      const totalAvailableStock = matchingProductItems.reduce((acc: number, curr: any) => {
+        const stock = curr.availableStock ?? curr.AvailableStock ?? curr.currentStock ?? 0;
+        return acc + stock;
+      }, 0);
 
+      console.log('[SalesInvoice] totalAvailableStock across all racks:', totalAvailableStock);
+
+      if (totalAvailableStock <= 0) {
+        this.notification.showStatus(false, `Attention: Product "${productName}" is OUT OF STOCK and cannot be added to the invoice.`);
+        return;
+      }
+
+      // Consolidate batches across ALL matching rack rows
+      const allBatches: any[] = [];
+      matchingProductItems.forEach((pItem: any) => {
+        const pItemHistory = pItem.history || [];
+        pItemHistory.forEach((h: any) => {
+          allBatches.push({
+            grnNumber: h.grnNumber || 'N/A',
+            manufacturingDate: h.manufacturingDate,
+            expiryDate: h.expiryDate,
+            availableStock: h.availableQty ?? h.AvailableQty ?? h.availableStock ?? h.AvailableStock ?? 0,
+            warehouseName: h.warehouseName || pItem.warehouseName,
+            warehouseId: h.warehouseId || pItem.warehouseId,
+            rackName: h.rackName || pItem.rackName,
+            rackId: h.rackId || pItem.rackId,
+            isExpired: this.checkIfExpired(h.expiryDate)
+          });
+        });
+
+        // Fallback if item has stock but NO history records
+        const itemStock = pItem.availableStock ?? pItem.AvailableStock ?? pItem.currentStock ?? 0;
+        if (pItemHistory.length === 0 && itemStock > 0) {
+          allBatches.push({
+            grnNumber: 'N/A',
+            manufacturingDate: pItem.manufacturingDate,
+            expiryDate: pItem.expiryDate,
+            availableStock: itemStock,
+            warehouseName: pItem.warehouseName,
+            warehouseId: pItem.warehouseId,
+            rackName: pItem.rackName,
+            rackId: pItem.rackId,
+            isExpired: this.checkIfExpired(pItem.expiryDate)
+          });
+        }
+      });
+
+      // Filter selectable batches
       const selectableBatches = allBatches.filter((b: any) => b.availableStock > 0 || b.isExpired);
+      
+      // Sort batches: FEFO (First Expiry First Out), then FIFO (First In First Out), then low stock first
+      selectableBatches.sort((a, b) => {
+        const dateA = a.expiryDate ? new Date(a.expiryDate).getTime() : Infinity;
+        const dateB = b.expiryDate ? new Date(b.expiryDate).getTime() : Infinity;
+        if (dateA !== dateB) return dateA - dateB;
+        
+        const mfgA = a.manufacturingDate ? new Date(a.manufacturingDate).getTime() : Infinity;
+        const mfgB = b.manufacturingDate ? new Date(b.manufacturingDate).getTime() : Infinity;
+        if (mfgA !== mfgB) return mfgA - mfgB;
+
+        const stockA = a.availableStock ?? 0;
+        const stockB = b.availableStock ?? 0;
+        return stockA - stockB;
+      });
+
+      console.log('[SalesInvoice] sorted selectableBatches:', selectableBatches);
+
+      const firstItem = matchingProductItems[0];
 
       if (selectableBatches.length > 0) {
         const batchDialogRef = this.dialog.open(BatchSelectionDialogComponent, {
@@ -362,9 +446,9 @@ export class SalesInvoice implements OnInit {
               rackId: selectedBatch.rackId,
               mfgDate: selectedBatch.manufacturingDate,
               expDate: selectedBatch.expiryDate,
-              unit: product.unit || productItem.unit || 'PCS',
+              unit: product.unit || firstItem.unit || 'PCS',
               description: `${productName} (Batch: ${selectedBatch.grnNumber || 'N/A'})`,
-              sacHsn: product.hsnCode || productItem.hsnCode || product.sacHsn || '',
+              sacHsn: product.hsnCode || firstItem.hsnCode || product.sacHsn || '',
               unitPrice: product.saleRate || product.rate || product.salePrice || product.price || product.mrp || 0,
               taxRate: this.invoiceForm.get('documentType')?.value === 'Bill of Supply' ? 0 : (product.gstPercent || product.defaultGst || 18),
               availableStock: selectedBatch.availableStock || 0
@@ -382,18 +466,17 @@ export class SalesInvoice implements OnInit {
         // No batches, just fill basic info
         row.patchValue({
           productId: productId,
-          unit: product.unit || productItem.unit || 'PCS',
+          unit: product.unit || firstItem.unit || 'PCS',
           description: productName,
           sacHsn: product.hsnCode || product.sacHsn || '',
           unitPrice: product.saleRate || product.rate || product.salePrice || product.price || product.mrp || 0,
           taxRate: this.invoiceForm.get('documentType')?.value === 'Bill of Supply' ? 0 : (product.gstPercent || product.defaultGst || 18),
-          availableStock: product.availableStock || product.currentStock || 0
+          availableStock: totalAvailableStock
         });
 
         // Add max validation to qty based on available stock
         const qtyControl = this.items.at(index).get('qty');
-        const maxStock = product.availableStock || product.currentStock || 0;
-        qtyControl?.setValidators([Validators.required, Validators.min(0.01), Validators.max(maxStock)]);
+        qtyControl?.setValidators([Validators.required, Validators.min(0.01), Validators.max(totalAvailableStock)]);
         qtyControl?.updateValueAndValidity();
 
         this.update(index);
@@ -441,7 +524,7 @@ export class SalesInvoice implements OnInit {
       taxType: 'local',
       status: 'Confirmed',
       createdBy: this.authService.getUserName(),
-      isQuick: true,
+      isQuick: this.isQuick,
       items: formVal.items.map((item: any) => ({
         productId: item.productId,
         productName: item.description,
